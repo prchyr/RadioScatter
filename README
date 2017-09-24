@@ -6,3 +6,5 @@ git clone https://github.com/prchyr/RadioScatter.git
 which will put the source header in a place where it can be read by the slac_rf module.
 
 there is currently no documentation beyond comments in the header file and a paper in the works which will be on the arxiv soon.
+
+The included slac_rf module is built around one of the GEANT4 examples, and i only claim responsibility for my changes-the underlying beauty of GEANT4 is not in any way my doing!
