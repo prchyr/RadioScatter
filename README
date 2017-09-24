@@ -1,0 +1,8 @@
+this is the RadioScatter module for GEANT4. It simulates RF scattering from ionization deposits left by particle showers produced in geant4. it is highly customizable, and lives inisde of GEANT4. the module slac_rf is g4 source code that will produce histograms of voltages received in a scattering experiment. to use it, you need to have GEANT4 and know how to use it (somewhat) and also have the RadioScatter.hh source file which should be done like this:
+
+cd /usr/local/include
+git clone https://github.com/prchyr/RadioScatter.git
+
+which will put the source header in a place where it can be read by the slac_rf module.
+
+there is currently no documentation beyond comments in the header file and a paper in the works which will be on the arxiv soon.
