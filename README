@@ -5,6 +5,22 @@ git clone https://github.com/prchyr/RadioScatter.git
 
 which will put the source header in a place where it can be read by the slac_rf module.
 
-there is currently no documentation beyond comments in the header file and a paper in the works which will be on the arxiv soon.
+there is currently no documentation beyond this readme, comments in the header file, and a paper in the works which will be on the arxiv soon.
 
 The included slac_rf module is built around one of the GEANT4 examples, and i only claim responsibility for my changes-the underlying beauty of GEANT4 is not in any way my doing!
+
+
+how it works, breifly:
+
+the RadioScatter module is just a header file that needs to be included in the GEANT4 source. there should be several different ways to use it, but one way is to globally declare the RadioScatter object in the action initialization file, which is called in the main .cc file of the simulation. it is then best to pass the constructed radio scatter object within the action initialization to the run action and stepping action files of the simulation. this will allow access to different methods that are useful at different points in the sumulation lifetime. for example, the data is filled during the stepping action phase, but the ROOT histograms are cosed at the end of the run action, through a built in GEANT4 method called EndOfRunAction. 
+
+there are also several commands available through the RSmessenger.hh/cc files which allow for manipulation of the radioscatter configuration through the GEANT4 macro files. things such as
+
+/RS/setTxPos 5 0 3 m
+
+and
+
+/RS/setTxPower 200
+/RS/setShowCWFlag 1
+
+which can be used without the need to re-compile the GEANT4 source. 
