@@ -1,0 +1,245 @@
+#include "RadioScatter.hh"
+//main
+
+  // void setTimeHist(int nbins=10000, int tmin=start_time, int tmax=end_time){
+  //   time_hist = new TH1F("time", "time", nbins, tmin, tmax);
+  // }
+ 
+inline RadioScatter::RadioScatter(){
+}
+inline void RadioScatter::makeOutputFile(TString filename){
+  output_file_name = filename;
+  TFile *f = new TFile(filename, "recreate");
+  TTree *t = new TTree("tree", "received events");
+  t->Branch("eventTree", &event);
+  f->Close();
+}
+inline void RadioScatter::makeTimeHist(){
+  Hep3Vector dist = tx.vect()-rx.vect();
+  cout<<dist.mag()<<endl;
+  start_time = 0;
+  end_time = dist.mag()/c_light *3;
+  //  outfile = new TFile("/home/natas/Documents/physics/geant/root/time.root", "RECREATE");
+  //time_hist.SetBins(samplerate*(end_time-start_time), start_time, end_time);
+  //outfile.SetOption("RECREATE");
+  time_hist->SetBins(32000, 0, 16000);
+  //  time_hist.SetBins(32000, 0, 3200);
+  //  time_hist = hist;
+
+ }
+
+inline    void RadioScatter::setTxPos(double xin, double yin, double zin){
+    tx.setX(xin);
+    tx.setY(yin);
+    tx.setZ(zin);
+  }
+inline   void RadioScatter::setRxPos(double xin, double yin, double zin){
+    rx.setX(xin);
+    rx.setY(yin);
+    rx.setZ(zin);
+  }
+inline  void RadioScatter::setTxVals(double f, double power=1., double gain=1.){
+    frequency = f*megahertz;
+    omega = frequency*twopi;
+    period = 1./omega;
+    lambda = c_light/frequency;
+    k = omega/c_light;
+    tx_gain = gain;
+    tx_power = power;
+  }
+inline  void RadioScatter::setRxVals(double s=1., double gain=1.){
+    samplerate = s*nanosecond;
+    samplingperiod = 1./samplerate;
+    rx_gain = gain;
+    //  n_primaries=n;
+  }
+inline  void RadioScatter::setSimulationParameters(double n=1.){
+    n_primaries=n;
+  }
+
+
+  //can input gain pattern later
+inline  double RadioScatter::getTxGain(double angle=0.){
+    double gain = tx_gain;
+    return gain;
+  }
+inline  double RadioScatter::getRxGain(double angle=0.){
+    double gain = rx_gain;
+    return gain;
+  }
+inline  double RadioScatter::getTxAmplitude(HepLorentzVector point){
+    double gain = getTxGain(point.vect().theta());
+    double power = tx_power*gain;
+    return power;
+  }
+						  
+
+inline  double RadioScatter::getRxAmplitude(HepLorentzVector point){
+    //distance tx pr
+    HepLorentzVector tx_pr = tx-point;
+    //distance pr rx
+    HepLorentzVector pr_rx = point-rx;
+    //get tx output amplitude at angle using thompson convention
+    double tx_amplitude = getTxAmplitude(tx_pr)*tx_pr.vect().unit().dot(pr_rx.vect().unit());
+    //  double tx_amplitude = getTxAmplitude(tx_pr);
+    //get antenna gain
+    double gain = getRxGain(pr_rx.vect().theta());
+    //tx power/path length*reciever gain
+    double rx_amplitude = gain*tx_amplitude/((tx_pr.vect().mag()+pr_rx.vect().mag()));
+    return rx_amplitude;
+  }
+
+inline   double RadioScatter::getTxPhase(HepLorentzVector point){
+    HepLorentzVector tx_pr = tx-point;
+    double t_0 = point.t()-tx_pr.vect().mag()/c_light;
+    double phase = omega*t_0;
+    return phase;
+  }
+
+inline  double RadioScatter::getRxTime(HepLorentzVector point){
+    Hep3Vector dist = point.vect()-rx.vect();
+    double time = point.t()+(dist.mag()/c_light);
+    return time;
+  }
+
+inline  double RadioScatter::getTxTime(HepLorentzVector point){
+    Hep3Vector dist = point.vect()-tx.vect();
+    double time = point.t()-(dist.mag()/c_light);
+    return time;
+  }
+
+  //double getPrPhase(HepLorentzVector point);
+inline   double RadioScatter::getRxPhase(HepLorentzVector point){
+    double rxtime = getRxTime(point);//find advanced time
+    double txtime = getTxTime(point);//find retarted time
+    double txphase = getTxPhase(point);//find phase at retarded time
+    double tof = abs(rxtime-txtime);//time of flight
+    HepLorentzVector tx_pr=tx-point, pr_rx = point-rx;//make vectors
+    //wave number addition
+    Hep3Vector kvec1 = k*tx_pr.vect();
+    Hep3Vector kvec2 = k*pr_rx.vect();
+    Hep3Vector ktot = kvec1+kvec2;
+    double kx = ktot.mag();
+    //calculate compton effects
+    double inv_omega_c = (1/omega)+(1/omega_e)*(1-cos(tx_pr.vect().unit().angle(pr_rx.vect().unit())));
+    omega_c = 1/inv_omega_c;
+    return ((kx) - omega*tof + txphase);
+  }
+
+
+
+  //calculate relativistic doppler shift
+inline  double RadioScatter::getRxPhaseRel(HepLorentzVector point, double v){
+    double time = getRxTime(point);
+    HepLorentzVector tx_pr=tx-point, pr_rx = point-rx;
+    double gamma = 1./(sqrt(1.-pow(v, 2)));
+    double omega_prime = gamma*omega*(1.+v*cos(tx_pr.vect().unit().angle(pr_rx.vect().unit())));
+    double k_rel = omega_prime/c_light;
+    Hep3Vector kvec1 = k_rel*tx_pr.vect();
+    Hep3Vector kvec2 = k_rel*pr_rx.vect();
+    Hep3Vector ktot = kvec1+kvec2;
+    double kx = ktot.mag();
+  
+    return ((kx) - (omega_prime*time));
+  }
+
+
+
+inline  double RadioScatter::makeRays(HepLorentzVector point, double e, double l, double e_i){
+    double rx_amplitude = getRxAmplitude(point);
+    double rx_phase = getRxPhase(point);
+    //  double rx_phase_rel = getRxPhaseRel(point, v);
+    double rx_time = getRxTime(point);
+    double n = e/e_i;//edeposited/ionization E
+    double n_e =1;
+    //calculate plasma freq and collison freq
+    if(step_length!=0){
+      //electron number density
+      n_e = n*n_primaries/pow(step_length, 3);
+      //collision frequency (approximation from Cravens)
+      nu_col = 54*n_e/pow(e_i/k_Boltzmann, 1.5);
+      //plasma frequency
+      //    cout<<nu_col<<endl;
+      omega_0=plasma_const*sqrt(n_e);
+    }
+
+    //for each ionization e scatterer
+    //  double filter = exp(-pow(omega, 2)/pow(omega_0, 2));
+    double filter=1;
+    //the full scattering amplitude pre-factor  
+    double prefactor = filter*n*n_primaries*cross_section*rx_amplitude*omega/(pow(omega, 2)+pow(nu_col, 2));
+    //now include phase
+    double E = prefactor*omega*cos(rx_phase)+prefactor*nu_col*sin(rx_phase);
+    time_hist->Fill(rx_time, E);
+    return E;
+  }
+
+inline double RadioScatter::makeRays(HepLorentzVector point, double e, double l, double e_i, TH1F * hist){
+    double rx_amplitude = getRxAmplitude(point);
+    double rx_phase = getRxPhase(point);
+    //  double rx_phase_rel = getRxPhaseRel(point, v);
+    double rx_time = getRxTime(point);
+    double n = e/e_i;//edeposited/ionization E
+    double n_e =1;
+    //calculate plasma freq and collison freq
+    if(step_length!=0){
+      //electron number density
+      n_e = n*n_primaries/pow(step_length, 3);
+      //collision frequency (approximation from Cravens)
+      nu_col = 54*n_e/pow(e_i/k_Boltzmann, 1.5);
+      //plasma frequency
+      //    cout<<nu_col<<endl;
+      omega_0=plasma_const*sqrt(n_e);
+    }
+
+    //for each ionization e scatterer
+    //  double filter = exp(-pow(omega, 2)/pow(omega_0, 2));
+     double filter=1;
+    //the full scattering amplitude pre-factor  
+    double prefactor = filter*n*n_primaries*cross_section*rx_amplitude*omega/(pow(omega, 2)+pow(nu_col, 2));
+    //now include phase
+    double E = prefactor*omega*cos(rx_phase)+prefactor*nu_col*sin(rx_phase);
+    //hist.AddBinContent(rx_time, E);
+    return E;
+  }
+
+inline   double RadioScatter::power(){
+  double p;
+  cout<<time_hist->GetNbinsX()<<endl;
+  //time_hist.Draw();
+  for(int i=0;i<time_hist->GetNbinsX();i++){
+    p+=pow(time_hist->GetBinContent(i), 2);
+  }
+  //  cout<<p<<endl;
+  return p;
+  }
+
+inline  void RadioScatter::draw(){
+    time_hist->Draw("l");
+  }
+inline  void RadioScatter::writeHist(TString filename){
+  TFile *t = new TFile(filename, "recreate");
+  time_hist->Write();
+  // time_hist.BufferEmpty();
+  t->Close();
+  time_hist->Clear();
+  //outfile.Write();
+  //outfile.Close();
+}
+inline void RadioScatter::writeEvent(double e, Hep3Vector pos, Hep3Vector dir){
+  // TFile *f = TFile::Open(output_file_name, "UPDATE");
+  // TTree *t = (TTree*)f->Get("eventTree");
+  // event.event_hist = time_hist;
+  // event.primary_energy = e;
+  // event.n_primaries = n_primaries;
+  // event.position = pos;
+  // event.direction = dir;
+  // t->Fill();
+  // t->Write();
+  // f->Close();
+}
+inline  void RadioScatter::close(){
+    delete(time_hist);
+    delete(fft_hist);
+    delete(power_hist);
+  }
