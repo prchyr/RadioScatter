@@ -463,6 +463,7 @@ inline TH1F * RadioScatter::getDirectSignal(const TH1F *in){
   HepLorentzVector point=rx;
   double rx_amp, rx_ph, amp;
   rx_amp = tx_voltage*m/(tx.vect()-rx.vect()).mag();
+  //cout<<"rx amp: "<<tx_voltage<<" "<<tx_voltage*m<<" "<<(tx.vect()-rx.vect()).mag()<<" "<<rx_amp;
   int size = in->GetNbinsX();
   //cout<<size<<endl; 
   for(int i=0;i<size;i++){
@@ -661,11 +662,12 @@ inline void RadioScatter::printEventStats(){
 inline void RadioScatter::writeEvent(TString filename, float num_events=1.){
   TFile *f = new TFile(filename, "recreate");
 
-  event.event_hist = scaleHist(num_events);
-  // event.primary_energy = e;
-  // event.n_primaries = n_primaries;
-  // event.position = pos;
+
+  //event.primary_energy = e;
+  event.n_primaries = n_primaries;
+  //event.position = pos;
   // event.direction = dir;
+  event.event_hist = scaleHist(num_events);
   event.tot_n_scatterers = event.tot_n_scatterers*n_primaries;
 
   // TTree *t = (TTree*)f->Get("tree");
