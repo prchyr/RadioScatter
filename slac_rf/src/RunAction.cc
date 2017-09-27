@@ -174,7 +174,7 @@ void RunAction::BeginOfRunAction(const G4Run* r)
 
   // Open an output file
   G4String runno = G4UIcommand::ConvertToString(r->GetRunID());
-  G4String dir="/home/natas/Documents/physics/geant/root/";
+  G4String dir="$HOME//Documents/physics/geant/root/";
   //    G4String fileName = "slac_rf_"+runno+"_";
     G4String fileName = "slac_rf_photon";
   //    G4String fileName = "slac_rf_particleinfo";
@@ -195,7 +195,7 @@ void RunAction::EndOfRunAction(const G4Run* r)
   G4String freq = G4UIcommand::ConvertToString(fRadio->getFreq());
 
   //  fRadio->writeHist("/home/natas/Documents/physics/geant/root/slac_rf_rs_"+runno+".root", (float)r->GetNumberOfEvent());
-  fRadio->writeEvent("/home/natas/Documents/physics/geant/root/slac_rf_rs_"+runno+".root", (float)r->GetNumberOfEvent());
+  fRadio->writeEvent("$HOME/Documents/physics/geant/root/slac_rf_rs_"+runno+".root", (float)r->GetNumberOfEvent());
 
   fRadio->printEventStats(); 
   //  fRadio->WriteEvent("testroot.root", r->Get)

@@ -23,4 +23,15 @@ and
 /RS/setTxPower 200
 /RS/setShowCWFlag 1
 
-which can be used without the need to re-compile the GEANT4 source. 
+which can be used without the need to re-compile the GEANT4 source.
+
+if you are using this, you likely have GEANT4 running and know how to use cmake somewhat, so do this from the RadioScatter directory
+
+mkdir build
+cd build
+cmake ../slac_rf
+make -B -j4
+
+where the -B just says to build all objects (can't be too careful) and the -j4 uses 4 cores. hopefully it finds all the things...
+
+it outputs root files, the paths to which are set in RunAction.cc. they currently default to $HOME/Documents/physics/geant/root, but you can change this in the source directory before compiling. 
