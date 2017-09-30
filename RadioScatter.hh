@@ -35,6 +35,9 @@ class RadioScatter{
     Hep3Vector direction, position;
     double primary_energy, n_primaries, power, tot_n_scatterers;
     TH1F * event_hist;
+    TH1F * re_hist;
+    TH1F * im_hist;
+
   }eventTree;
 
 
@@ -59,6 +62,8 @@ class RadioScatter{
   //  TFile * outfile=new TFile("/home/natas/Documents/physics/geant/root/time.root", "RECREATE");
   TH1F *fft_hist, *power_hist;
   TH1F *time_hist = new TH1F("time_hist", "time_hist", 100, 0, 10);
+  TH1F *re_hist = new TH1F("re_hist", "re_hist", 100, 0, 10);
+  TH1F *im_hist = new TH1F("im_hist", "im_hist", 100, 0, 10);
   //e^2/m_e
   double plasma_const = sqrt(4*pi*electron_charge*electron_charge/electron_mass_c2);
 
@@ -188,6 +193,8 @@ inline void RadioScatter::makeTimeHist(){
   end_time = (dist.mag()/c_light) *3.;
   //  outfile = new TFile("/home/natas/Documents/physics/geant/root/time.root", "RECREATE");
   time_hist->SetBins(samplerate*(end_time-start_time), start_time, end_time);
+  re_hist->SetBins(samplerate*(end_time-start_time), start_time, end_time);
+  im_hist->SetBins(samplerate*(end_time-start_time), start_time, end_time);
   //outfile.SetOption("RECREATE");
   //time_hist->SetBins(32000, 0, 16000);
   //  time_hist->SetBins(32000, 0, 3200);
@@ -200,6 +207,7 @@ inline    void RadioScatter::setTxPos(double xin, double yin, double zin){
     tx.setX(xin);
     tx.setY(yin);
     tx.setZ(zin);
+    //    makeTimeHist();
   }
 inline   void RadioScatter::setRxPos(double xin, double yin, double zin){
     rx.setX(xin);
@@ -492,6 +500,7 @@ l1, l2 are the vectors from these refraction points to the interaction point.
 calculate the phase, the amplitude, and the prefactors for cross-section, 
 
  */
+
 inline  double RadioScatter::makeRays(HepLorentzVector point, double e, double l, double e_i){
   if(checkTxOn(getTxTime(point))==1){
   Hep3Vector  q1 = findRefractionPlane(tx, point);//make a plane where the refraction will happen
@@ -538,12 +547,17 @@ inline  double RadioScatter::makeRays(HepLorentzVector point, double e, double l
     //the full scattering amplitude pre-factor  
     double prefactor = filter*n*n_primaries*cross_section*rx_amplitude*omega/(pow(omega, 2)+pow(nu_col, 2));
     //now include phase
-    double E = prefactor*omega*cos(rx_phase)+prefactor*nu_col*sin(rx_phase);
-    //if the include CW flag is set to 1...
+    double E= prefactor*omega*cos(rx_phase)-prefactor*nu_col*sin(rx_phase);
+    double E_real= prefactor*omega*cos(rx_phase)-prefactor*nu_col*sin(rx_phase);
+
+    double E_imag = prefactor*-nu_col*cos(rx_phase)+prefactor*omega*sin(rx_phase);
+
 
     //make sure phase term is analytic
     if(rx_phase>0&&rx_phase<999&&rx_amplitude>0&&rx_amplitude<999){
-      time_hist->Fill(rx_time, E);
+      time_hist->Fill(rx_time, E_real+E_imag);
+      re_hist->Fill(rx_time, E_real);
+      im_hist->Fill(rx_time, E_imag);
     }
   
     return E;
@@ -614,6 +628,9 @@ inline  void RadioScatter::draw(){
 inline  void RadioScatter::writeHist(TString filename, float num_events=1.){
   TFile *t = new TFile(filename, "recreate");
   time_hist->Scale(1./num_events);
+  re_hist->Scale(1./num_events);
+  im_hist->Scale(1./num_events);
+  
   TH1F *outhist=0;
   if(includeCW_flag==1){
     //    cout<<"before"<<endl;
@@ -637,6 +654,8 @@ inline  void RadioScatter::writeHist(TString filename, float num_events=1.){
 
 inline  TH1F* RadioScatter::scaleHist(float num_events=1.){
   time_hist->Scale(1./num_events);
+  re_hist->Scale(1./num_events);
+  im_hist->Scale(1./num_events);
   TH1F *outhist=0;
   if(includeCW_flag==1){
     //    cout<<"before"<<endl;
@@ -668,6 +687,8 @@ inline void RadioScatter::writeEvent(TString filename, float num_events=1.){
   //event.position = pos;
   // event.direction = dir;
   event.event_hist = scaleHist(num_events);
+  event.re_hist = re_hist;
+  event.im_hist = im_hist;
   event.tot_n_scatterers = event.tot_n_scatterers*n_primaries;
 
   // TTree *t = (TTree*)f->Get("tree");
@@ -682,6 +703,8 @@ inline void RadioScatter::writeEvent(TString filename, float num_events=1.){
   t->Branch("n_primaries", &event.n_primaries);
   //cout<<"here"<<endl;
   f->Append(event.event_hist);
+  f->Append(event.re_hist);
+  f->Append(event.im_hist);
   f->cd();
   t->Fill();
   cout<<filename<<endl;
