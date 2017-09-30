@@ -43,6 +43,7 @@ class RadioScatter{
 
   eventTree event;
 
+  int REFRACTION_FLAG=0;
   TString output_file_name;
   char* pol = "horizontal";//default, also set as default in set_simulation_paramaters
   double x_offset=0*m, z_offset = 2.*m, y_offset = 5.*m;
@@ -135,11 +136,13 @@ public:
   double getRxGain(double angle);
   double getTxAmplitude(HepLorentzVector point);
   double getRxAmplitude(HepLorentzVector point, Hep3Vector j1,  Hep3Vector j2, Hep3Vector l1, Hep3Vector l2);
+  double getRxAmplitude(HepLorentzVector point);
   double getTxPhase(double t_0);
   double getRxTime(HepLorentzVector point, Hep3Vector j, Hep3Vector l);
   double getRxTime(HepLorentzVector point);
   double getTxTime(HepLorentzVector point, int direct);
   double getRxPhase(HepLorentzVector point, Hep3Vector j1, Hep3Vector j2, Hep3Vector l1, Hep3Vector l2);
+  double getRxPhase(HepLorentzVector point);
   double getRxPhaseRel(HepLorentzVector point, double v);
   int checkTxOn(double time);
   Hep3Vector findRefractionPlane(HepLorentzVector p1, HepLorentzVector p2);
@@ -187,7 +190,7 @@ inline void RadioScatter::makeOutputTextFile(char* filename){
 
 
 inline void RadioScatter::makeTimeHist(){
-  Hep3Vector dist = tx.vect()+tx.vect();
+  Hep3Vector dist = tx.vect()+rx.vect();
   //cout<<dist.mag()<<endl;
   start_time = 0.;
   end_time = (dist.mag()/c_light) *3.;
@@ -289,10 +292,11 @@ inline void RadioScatter::setSampleRate(double rate){
   samplerate=rate*nanosecond;
   samplingperiod = 1./samplerate;
 }
-inline void RadioScatter::setTxInterfaceDistX(double dist){
-  tx_interface_dist = abs(dist);
+inline void RadioScatter::setTxInterfaceDistX(double dist=0){
+    tx_interface_dist = abs(dist);
+    REFRACTION_FLAG=1;
 }
-inline void RadioScatter::setRxInterfaceDistX(double dist){
+inline void RadioScatter::setRxInterfaceDistX(double dist=0){
   rx_interface_dist = abs(dist);
 }
 inline Hep3Vector RadioScatter::getTxPos(){
@@ -356,6 +360,20 @@ inline double RadioScatter::getRxAmplitude(HepLorentzVector point, Hep3Vector j1
   return amplitude;
 }
 
+//non-refracted amplitude
+inline double RadioScatter::getRxAmplitude(HepLorentzVector point){
+  double dist = (tx.vect()-point.vect()).mag()+(rx.vect()-point.vect()).mag();
+  //refraction things:
+  Hep3Vector one=tx.vect()-point.vect();
+  Hep3Vector two=point.vect()-rx.vect();
+
+  //  double amplitude = (tx_voltage/dist)*one.unit().dot(two.unit());
+  double amplitude = (tx_voltage/dist);
+
+  return amplitude;
+}
+
+
 inline   double RadioScatter::getTxPhase(double t_0){
   //    HepLorentzVector tx_pr = tx-point;
   double phase = omega*t_0;
@@ -369,21 +387,30 @@ inline  double RadioScatter::getRxTime(HepLorentzVector point, Hep3Vector l, Hep
   }
 
 inline  double RadioScatter::getRxTime(HepLorentzVector point){
-  double dist = findPathLengthWithRefraction(rx,point, rx_interface_dist);
+  //  double dist = findPathLengthWithRefraction(rx,point, rx_interface_dist);
+ 
+  double dist = (rx.vect()-point.vect()).mag();
   double time = point.t()+(dist/c_light);
-    return time;
+
+  return time;
   }
 
 inline  double RadioScatter::getTxTime(HepLorentzVector point, int direct=0){
   //    Hep3Vector dist = point.vect()-tx.vect();
   double dist=0;
   if(direct==0){
-    dist = findPathLengthWithRefraction(tx,point, tx_interface_dist);
+    if(REFRACTION_FLAG==1){
+      dist = findPathLengthWithRefraction(tx,point, tx_interface_dist);
+    }
+    else{
+      dist= (point.vect()-tx.vect()).mag();
+    } 
   }
   else{
     dist = (point.vect()-tx.vect()).mag();
   }
     double time = point.t()-(dist/c_light);
+
     return time;
   }
 
@@ -428,22 +455,23 @@ inline double RadioScatter::getRxPhase(HepLorentzVector point, Hep3Vector j1, He
   }
 
 //non-refraction phase finder
-// inline   double RadioScatter::getRxPhase(HepLorentzVector point){
-//     double rxtime = getRxTime(point);//find advanced time
-//     double txtime = getTxTime(point);//find retarted time
-//     double txphase = getTxPhase(txtime);//find phase at retarded time
-//     double tof = abs(rxtime-txtime);//time of flight
-//     HepLorentzVector tx_pr=tx-point, pr_rx = point-rx;//make vectors
-//     //wave number addition
-//     Hep3Vector kvec1 = k*tx_pr.vect();
-//     Hep3Vector kvec2 = k*pr_rx.vect();
-//     Hep3Vector ktot = kvec1+kvec2;
-//     double kx = ktot.mag();
-//     //calculate compton effects
-//     double inv_omega_c = (1/omega)+(1/omega_e)*(1-cos(tx_pr.vect().unit().angle(pr_rx.vect().unit())));
-//     omega_c = 1/inv_omega_c;
-//     return ((kx) - omega*tof + txphase);
-//   }
+inline   double RadioScatter::getRxPhase(HepLorentzVector point){
+    double rxtime = getRxTime(point);//find advanced time
+    double txtime = getTxTime(point);//find retarted time
+    double txphase = getTxPhase(txtime);//find phase at retarded time
+    double tof = abs(rxtime-txtime);//time of flight
+    HepLorentzVector tx_pr=tx-point, pr_rx = point-rx;//make vectors
+    //wave number addition
+    Hep3Vector kvec1 = k*tx_pr.vect();
+    Hep3Vector kvec2 = k*pr_rx.vect();
+    Hep3Vector ktot = kvec1+kvec2;
+    double kx = ktot.mag();
+    //calculate compton effects
+    double inv_omega_c = (1/omega)+(1/omega_e)*(1-cos(tx_pr.vect().unit().angle(pr_rx.vect().unit())));
+    omega_c = 1/inv_omega_c;
+    //    cout<<txtime<<" "<<txphase<<" "<<rxtime<<endl;
+    return ((kx) - omega*tof + txphase);
+  }
 
 
 
@@ -502,36 +530,54 @@ calculate the phase, the amplitude, and the prefactors for cross-section,
  */
 
 inline  double RadioScatter::makeRays(HepLorentzVector point, double e, double l, double e_i){
+#ifndef RSCAT_HIST_DECLARE
+  makeTimeHist();
+#endif
+#define RSCAT_HIST_DECLARE
+
+  double rx_time, rx_amplitude, rx_phase;
+  // int dumb=1;
+  // if(dumb==1){
   if(checkTxOn(getTxTime(point))==1){
-  Hep3Vector  q1 = findRefractionPlane(tx, point);//make a plane where the refraction will happen
-  Hep3Vector j1;
-  j1.setZ(findRefractionPointZ(q1.x(), q1.z(), tx_interface_dist));//find the refraction point in this plane on interface 
-  Hep3Vector  q2 = findRefractionPlane(rx, point);
-  Hep3Vector  j2;
-  j2.setZ(findRefractionPointZ(q2.x(), q2.z(), rx_interface_dist));
-  j1.setX(tx_interface_dist);
-  j1.setY(0);
-  j2.setX(rx_interface_dist);
-  j2.setY(0);
-  Hep3Vector l1;
-  l1.set(q1.x()-tx_interface_dist, 0., q1.z()-j1.z());
-  Hep3Vector l2;
-  l2.set(q2.x()-rx_interface_dist, 0., q2.z()-j2.z());
-
-
-
-  //get the reflected signal amplitude and phase
-  double rx_phase = getRxPhase(point, j1, j2, l1, l2);
-  double rx_amplitude = getRxAmplitude(point, j1, j2, l1, l2);
-
-  step_length=l;//to make our density approximation
-
-  //get the time ray would arrive at rx, to fill histogram
-  double rx_time = getRxTime(point, j2, l2);
-  double n = e/e_i;//edeposited/ionization E
-  double n_e =1;
-  //calculate plasma freq and collison freq
-  if(step_length!=0){
+    
+    if(REFRACTION_FLAG==1){
+      Hep3Vector  q1 = findRefractionPlane(tx, point);//make a plane where the refraction will happen
+      Hep3Vector j1;
+      j1.setZ(findRefractionPointZ(q1.x(), q1.z(), tx_interface_dist));//find the refraction point in this plane on interface 
+      Hep3Vector  q2 = findRefractionPlane(rx, point);
+      Hep3Vector  j2;
+      j2.setZ(findRefractionPointZ(q2.x(), q2.z(), rx_interface_dist));
+      j1.setX(tx_interface_dist);
+      j1.setY(0);
+      j2.setX(rx_interface_dist);
+      j2.setY(0);
+      Hep3Vector l1;
+      l1.set(q1.x()-tx_interface_dist, 0., q1.z()-j1.z());
+      Hep3Vector l2;
+      l2.set(q2.x()-rx_interface_dist, 0., q2.z()-j2.z());
+      
+      
+      
+      //get the reflected signal amplitude and phase
+      rx_phase = getRxPhase(point, j1, j2, l1, l2);
+      rx_amplitude = getRxAmplitude(point, j1, j2, l1, l2);
+      
+      
+      
+      //get the time ray would arrive at rx, to fill histogram
+      rx_time = getRxTime(point, j2, l2);
+    }
+    else{
+      rx_phase=getRxPhase(point);
+      rx_amplitude=getRxAmplitude(point);
+      rx_time=getRxTime(point);
+    }
+      
+    step_length=l;//to make our density approximation
+    double n = e/e_i;//edeposited/ionization E
+    double n_e =1;
+    //calculate plasma freq and collison freq
+    if(step_length!=0){
       //electron number density, using step length cube
       n_e = n*n_primaries/pow(step_length, 3);
       //collision frequency (approximation from Cravens), multiplied by 3 for e/i, e/e, e/n (BAD APPROXIMATION FIX PLZ)
@@ -546,26 +592,26 @@ inline  double RadioScatter::makeRays(HepLorentzVector point, double e, double l
     double filter=1.;//TODO
     //the full scattering amplitude pre-factor  
     double prefactor = filter*n*n_primaries*cross_section*rx_amplitude*omega/(pow(omega, 2)+pow(nu_col, 2));
-    //now include phase
-    double E= prefactor*omega*cos(rx_phase)-prefactor*nu_col*sin(rx_phase);
+    //now calculate real and imaginary e fields
+    //double E= prefactor*omega*cos(rx_phase)-prefactor*nu_col*sin(rx_phase);
     double E_real= prefactor*omega*cos(rx_phase)-prefactor*nu_col*sin(rx_phase);
-
+      
     double E_imag = prefactor*-nu_col*cos(rx_phase)+prefactor*omega*sin(rx_phase);
-
-
+      
+      
     //make sure phase term is analytic
     if(rx_phase>0&&rx_phase<999&&rx_amplitude>0&&rx_amplitude<999){
-      time_hist->Fill(rx_time, E_real+E_imag);
+      time_hist->Fill(rx_time, E_real);
       re_hist->Fill(rx_time, E_real);
       im_hist->Fill(rx_time, E_imag);
     }
-  
+      
     return E;
   }
   else{
     return 0;
   }
-  }
+}
 
 
 //calculate the point of refraction in the z direction. n_rel is the relative index of refraction n2/n1
