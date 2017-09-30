@@ -20,7 +20,7 @@ there are also several commands available through the RSmessenger.hh/cc files wh
 
 and
 
-/RS/setTxPower 200
+/RS/setTxVoltage 200
 /RS/setShowCWFlag 1
 
 which can be used without the need to re-compile the GEANT4 source.
@@ -32,6 +32,17 @@ cd build
 cmake ../slac_rf
 make -B -j4
 
-where the -B just says to build all objects (can't be too careful) and the -j4 uses 4 cores. hopefully it finds all the things...
+where the -B just says to build all objects (can't be too careful) and the -j4 uses 4 cores. hopefully it finds all the things...CLHEP must be installed, but this is done through GEANT4, typically, so if G4 rund on your machine, this should too..
 
-it outputs root files, the paths to which are set in RunAction.cc. they currently default to $HOME/Documents/physics/geant/root, but you can change this in the source directory before compiling. 
+then run by doing
+
+./slac_rf -m run1.mac
+
+
+
+it outputs root files, the paths to which are set in RunAction.cc. they currently default to $HOME/Documents/physics/geant/root, but you can change this in two ways:
+
+1-you can specify the filenames in the source before compiling, which allows access to geant variables for the filenames, which is nice.
+2-you can specify the filenames in the macro, which does not require compiling, it can be set in this way at runtime.
+
+**actually the 2nd method isn't implemented yet but it will be
