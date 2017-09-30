@@ -2,7 +2,7 @@
 todo:
 get the tree working. might need to declare things in the constructor
 
-
+ 
  */
 #ifndef R_Scat
 #define R_Scat
