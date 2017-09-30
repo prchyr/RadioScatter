@@ -143,26 +143,35 @@ RunAction::~RunAction()
 void RunAction::BeginOfRunAction(const G4Run* r)
 { 
   /*
+*************
     set the RadioScatter parameters. 
+    
+    these can be set here, or more simply (and efficiently) in the macro file using the RSmessenger. 
+    that way, they can be changed at run-time, without the need to re-compile. 
+    
+    there is one exception: the tx/interacion medium/rx distances, which must come from the GEANT4 system,
+    must be sent to radioscatter if the refraction machinery is to work. 
+
+    if these distances are not provided, the simulation assumes that the shower is happening in free space, with no refraction calculation.
     set the transmitter frequency, output power, and amplification
-    set the receiver sample rate and amplification
-    set some parameters of the simulation, number of primaries, index of refraction for target, and option to show direct signal
-    set position of antennas
-    make the ROOT histogram (MANDATORY)
-    set the distance from transmitter/receiver to target media
-   */
-  //  fRadio->setTxVals(3200., 200., 1.);//freq, voltage(100mV ~ +23dBm), gain
-  //fRadio->setTxVoltage(200.);
-  //  fRadio->setTxFreq(2200.);
-  //fRadio->setRxVals(20., 1.);//samplerate (ns^-1), gain (not db, 100=40db)
-  //    fRadio->setSimulationParameters(1e15,"vertical", 1.51,0);//number of primaries, relative index of refraction, show CW direct-signal flag    
-  //  fRadio->setSimulationParameters();
-  // fRadio->setTxPos(4.5*m, 0.*m, -1.*m);
-  // fRadio->setRxPos(-4.3*m, 0.*m, -1.*m);
-  fRadio->makeTimeHist();
-  //  fRadio->setTxOnTime(0);
-  //fRadio->setTxOffTime(30);
-  //find the shortest straight line distance between the target and the antennas, for refraction study
+
+    *******
+
+    some example commands below, all of which can (and should) be set in the macro file.
+
+    fRadio->setTxVoltage(200.);
+    fRadio->setTxFreq(2200.);
+    fRadio->setRxVals(20., 1.);//samplerate (ns^-1), gain (not db, 100=40db)
+    fRadio->setTxPos(4.5*m, 0.*m, -1.*m);
+    fRadio->setRxPos(-4.3*m, 0.*m, -1.*m);
+    fRadio->makeTimeHist();
+    fRadio->setTxOnTime(0);
+    fRadio->setTxOffTime(30);
+    
+  */
+
+  //THESE CALLS ARE MANDATORY FOR THE REFRACTION CALCULATIONS
+  //if not set, it is assumed everything happens in free space.
   fRadio->setTxInterfaceDistX(fDetConstruction->GetTgtPV()->GetLogicalVolume()->GetSolid()->DistanceToIn(fRadio->getTxPos()));
   fRadio->setRxInterfaceDistX(fDetConstruction->GetTgtPV()->GetLogicalVolume()->GetSolid()->DistanceToIn(fRadio->getRxPos()));
 
@@ -174,7 +183,7 @@ void RunAction::BeginOfRunAction(const G4Run* r)
 
   // Open an output file
   G4String runno = G4UIcommand::ConvertToString(r->GetRunID());
-  G4String dir="$HOME//Documents/physics/geant/root/";
+  G4String dir="/home/natas/Documents/physics/geant/root/";
   //    G4String fileName = "slac_rf_"+runno+"_";
     G4String fileName = "slac_rf_photon";
   //    G4String fileName = "slac_rf_particleinfo";

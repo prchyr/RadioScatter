@@ -117,7 +117,8 @@ or both.
    */
 
   rx_amplitude = fRadio->makeRays(p, edep, step_length, E_i);  
-
+  //  fRadio->makeRaysReal(p, edep, step_length, E_i);
+  //fRadio->makeRaysImag(p, edep, step_length, E_i);
   //  fillParticleInfoTuples(step);
   
   // advanced_t = fRadio->getRxTime(p);

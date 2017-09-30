@@ -12,17 +12,17 @@ RSmessenger::RSmessenger(RadioScatter *rscat)
   RSDir = new G4UIdirectory("/RS/");
   RSDir->SetGuidance("directory for radio scatter commands");
 
-  freqCommand = new G4UIcmdWithADouble("/RS/setFreq", this);
+  freqCommand = new G4UIcmdWithADouble("/RS/setTxFreq", this);
   freqCommand->SetGuidance("set freq!");
   freqCommand->SetParameterName("choice", false);
 
-  sampleRateCommand = new G4UIcmdWithADouble("/RS/setSampleRate", this);
+  sampleRateCommand = new G4UIcmdWithADouble("/RS/setRxSampleRate", this);
   sampleRateCommand->SetGuidance("set sampleRate!");
   sampleRateCommand->SetParameterName("choice", false);
 
   //  freqCommand->AvailableForStates(G4State_PreInit,G4State_Idle);
 
-  voltageCommand = new G4UIcmdWithADouble("/RS/setVoltage", this);
+  voltageCommand = new G4UIcmdWithADouble("/RS/setTxVoltage", this);
   voltageCommand->SetGuidance("set voltage!");
   voltageCommand->SetParameterName("choice", false);
 
@@ -85,7 +85,7 @@ void RSmessenger::SetNewValue(G4UIcommand* command,G4String newValue)
   if(command==voltageCommand)rs->setTxVoltage(val);
 
   if(command==indexOfRefractionCommand)rs->setRelativeIndexOfRefraction(val);
-  if(command==sampleRateCommand)rs->setSampleRate(val);
+  if(command==sampleRateCommand)rs->setRxSampleRate(val);
   if(command==nPrimariesCommand)rs->setNprimaries(val);
   if(command==showCWCommand)rs->setShowCWFlag(val);
   if(command==setTxOnCommand)rs->setTxOnTime(val);
