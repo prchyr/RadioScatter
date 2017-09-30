@@ -1,6 +1,8 @@
 /*
 todo:
-get the tree working. might need to declare things in the constructor
+antenna effective height
+antenna effective area
+(currently these are both set to 1 accross all frequencies)
 
  
  */
@@ -123,7 +125,7 @@ public:
   void setRxVals(double s, double gain);
   void setSimulationParameters(double n, char* tx_rx_pol, double relative_index_of_refraction, int flag);
   void setRelativeIndexOfRefraction(double iof);
-  void setSampleRate(double rate);
+  void setRxSampleRate(double rate);
   void setTxInterfaceDistX(double dist);
   void setRxInterfaceDistX(double dist);
   void setShowCWFlag(double i);
@@ -288,7 +290,7 @@ inline void RadioScatter::setRelativeIndexOfRefraction(double iof){
   k_r = omega/(c_light/n_rel);
   c_light_r = c_light/n_rel;
 }
-inline void RadioScatter::setSampleRate(double rate){
+inline void RadioScatter::setRxSampleRate(double rate){
   samplerate=rate*nanosecond;
   samplingperiod = 1./samplerate;
 }
@@ -606,7 +608,7 @@ inline  double RadioScatter::makeRays(HepLorentzVector point, double e, double l
       im_hist->Fill(rx_time, E_imag);
     }
       
-    return E;
+    return E_real;
   }
   else{
     return 0;
