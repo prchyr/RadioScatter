@@ -3,7 +3,7 @@ todo:
 antenna effective height
 antenna effective area
 (currently these are both set to 1 accross all frequencies)
-
+ 
  
  */
 #ifndef R_Scat
