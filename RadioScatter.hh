@@ -82,7 +82,7 @@ class RadioScatter{
 
   double samplerate, samplingperiod, start_time=0, end_time=1000;
 
-  double txp, tx_on=0., tx_off=10000.;
+  double txp, tx_on=-99999., tx_off=99999.;
 
   int includeCW_flag;//whether to simulate the direct signal as well.
   
