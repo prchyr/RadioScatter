@@ -196,7 +196,7 @@ int main(int argc,char** argv)
 	//	tx.setRThetaPhi(j*m, angle, 0);
 
 	phi=pi;
-	rx.setRThetaPhi(j*2.*m, theta, phi);
+	rx.setRThetaPhi(j*5.*m, theta, phi);
 	rx.setZ(rx.z()+3.5*m);
 	//	radio->setTxPos(tx);
 	radio->setRxPos(rx);

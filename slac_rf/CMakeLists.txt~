@@ -3,8 +3,9 @@
 #----------------------------------------------------------------------------
 # Setup the project
 #
-cmake_minimum_required(VERSION 2.6 FATAL_ERROR)
+cmake_minimum_required(VERSION 2.8.10 FATAL_ERROR)
 project(slac)
+
 
 #----------------------------------------------------------------------------
 # Find Geant4 package, activating all available UI and Vis drivers by default
@@ -18,56 +19,35 @@ else()
   find_package(Geant4 REQUIRED)
 endif()
 
+#list(APPEND CMAKE_PREFIX_PATH /usr/local/clhep)
+#use the CLHEP things
 find_package(CLHEP REQUIRED)
-
-#get the root libs to link
-# execute_process(
-#   COMMAND  root-config --libs --cflags --glibs
-#   OUTPUT_VARIABLE ROOT_LIBS
-#   OUTPUT_STRIP_TRAILING_WHITESPACE
-#   )
-
-
-
-#try to make a library
-set(libname "radioscatter")
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules/")
+#use the ROOT things
 list(APPEND CMAKE_PREFIX_PATH $ENV{ROOTSYS})
+find_package(ROOT REQUIRED COMPONENTS RIO Tree)
+include(${ROOT_USE_FILE})
+#add_definitions(${ROOT_CXX_FLAGS})
 
-find_package(ROOT REQUIRED COMPONENTS RIO net Tree)
+if(DEFINED ENV{RS_SOURCE_DIR})
+  set(RS_INCLUDE_DIR $ENV{RS_SOURCE_DIR})
+else()
+  set(RS_INCLUDE_DIR /usr/local/include/RadioScatter)
+endif()
 
-#include(ROOT_USE_FILE)
-
-set(RS_INCLUDE_DIR /usr/local/include/RadioScatter)
-set(RS_LIB_DIR /usr/local/include/RadioScatter)
-
-
-# link_directories(${ROOT_LIBRARY_DIR})
-
-# #---Set Flags------------------------------------------------------------\-------------------------
-add_definitions(${ROOT_DEFINITIONS})
-# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ROOT_CXX_FLAGS} -fPIC")
-# set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${ROOT_C_FLAGS}")
-# set(CMAKE_fortran_FLAGS "${CMAKE_fortran_FLAGS} ${ROOT_fortran_FLAGS}")
-
-
-
-
-# #get the clhep libs to link
-# # execute_process(
-# #   COMMAND  clhep-config --libs
-# #   OUTPUT_VARIABLE CLHEP_LIBS
-# #   OUTPUT_STRIP_TRAILING_WHITESPACE
-# #   )
-
-#   #----------------------------------------------------------------------------
+if(DEFINED ENV{LIB_INSTALL_DIR})
+  set(LIB_INSTALL_DIR $ENV{LIB_INSTALL_DIR})
+else()
+  set(LIB_INSTALL_DIR /usr/local/lib)
+endif()
 # # Setup Geant4 include directories and compile definitions
 # Setup include directory for this project
 #
-
+message("aasdf ${CLHEP_INCLUDE_DIR}")
 include(${Geant4_USE_FILE})
-include_directories(${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include ${CLHEP_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${RS_INCLUDE_DIR})
-#add_definitions(${ROOT_CXX_FLAGS})
+
+
+include_directories(${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include ${CLHEP_INCLUDE_DIR} ${ROOT_INCLUDE_DIRS} ${RS_INCLUDE_DIR})
+
 #----------------------------------------------------------------------------
 # Locate sources and headers for this project
 # NB: headers are included so they will show up in IDEs
@@ -75,26 +55,28 @@ include_directories(${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include ${CLHEP_
 file(GLOB sources ${PROJECT_SOURCE_DIR}/src/*.cc ${RS_INCLUDE_DIR}/*.cc)
 file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh ${RS_INCLUDE_DIR}/*.hh)
 
-file(GLOB SOURCE_FILES ${PROJECT_SOURCE_DIR}/src/*.cc ${RS_INCLUDE_DIR}/*.cc )
-file(GLOB HEADER_FILES ${RS_INCLUDE_DIR}/*.hh ${CLHEP_INCLUDE_DIRS}/*.hh)
+file(GLOB SOURCE_FILES ${RS_INCLUDE_DIR}/*.cc ${CLHEP_INCLUDE_DIR}/Vector/*.icc ${CLHEP_INCLUDE_DIR}/Units/*.icc)
+file(GLOB HEADER_FILES ${RS_INCLUDE_DIR}/*.hh ${CLHEP_INCLUDE_DIR}/Vector/*.h ${CLHEP_INCLUDE_DIR}/Units/*.h)
+
+
+#make the ROOT dictionaries and shared object library for reading the event tree
+
+ROOT_GENERATE_DICTIONARY(G__EventTree ${HEADER_FILES} LINKDEF ${RS_INCLUDE_DIR}/LinkDef.h)
+
+add_library(EventTree SHARED ${SOURCE_FILES} G__EventTree.cxx)
+
+#target_link_libraries(EventTree ${ROOT_LIBRARIES} CLHEP-Vector-${CLHEP_VERSION})
+target_link_libraries(EventTree ${ROOT_LIBRARIES} CLHEP::Vector)
+
+
+#add_custom_target(G__EventTree.pcm DEPENDS G__EventTree)
+
 #----------------------------------------------------------------------------
 # Add the executable, and link it to the Geant4 libraries
 #
 
-# set(DICTNAME G__${libname})
-# ROOT_GENERATE_DICTIONARY(${DICTNAME} ${HEADER_FILES} LINKDEF ${RS_INCLUDE_DIR}LinkDef.h)
-# add_library(${libname} SHARED ${sources} ${DICTNAME}.cxx)
-# target_link_libraries(${libname} ${ROOT_LIBRARIES})
-# add_custom_target(${DICTNAME}.pcm DEPENDS ${DICTNAME})
-# install(TARGETS ${libname} DESTINATION $RS_LIB_DIR)
-ROOT_GENERATE_DICTIONARY(G__EventTree ${RS_INCLUDE_DIR}/EventTree.hh LINKDEF ${RS_INCLUDE_DIR}/LinkDef.h)
-add_library(EventTree SHARED ${RS_INCLUDE_DIR}/EventTree.cc G__EventTree.cxx)
-target_link_libraries(EventTree ${ROOT_LIBRARIES})
-
 add_executable(slac slac.cc ${sources} ${headers})
 target_link_libraries(slac  ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} EventTree)
-#target_link_libraries(slac  ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} ${libname})
-
 
 #----------------------------------------------------------------------------
 # Copy all scripts to the build directory, i.e. the directory in which we
@@ -122,4 +104,6 @@ endforeach()
 #----------------------------------------------------------------------------
 # Install the executable to 'bin' directory under CMAKE_INSTALL_PREFIX
 #
-install(TARGETS slac DESTINATION bin)
+install(TARGETS slac DESTINATION ${PROJECT_BINARY_DIR}/bin)
+install (FILES ${PROJECT_BINARY_DIR}/G__EventTree_rdict.pcm DESTINATION ${LIB_INSTALL_DIR})
+install (TARGETS EventTree LIBRARY DESTINATION ${LIB_INSTALL_DIR})

@@ -3,8 +3,9 @@
 #----------------------------------------------------------------------------
 # Setup the project
 #
-cmake_minimum_required(VERSION 2.6 FATAL_ERROR)
+cmake_minimum_required(VERSION 2.8.10 FATAL_ERROR)
 project(slac)
+
 
 #----------------------------------------------------------------------------
 # Find Geant4 package, activating all available UI and Vis drivers by default
@@ -19,12 +20,18 @@ else()
 endif()
 
 
+
+unset(CMAKE_MODULE_PATH)
 #use the CLHEP things
+#will generate a bunch of library modules CLHEP::stuff that can be linked to
 find_package(CLHEP REQUIRED)
+
 #use the ROOT things
 list(APPEND CMAKE_PREFIX_PATH $ENV{ROOTSYS})
-find_package(ROOT REQUIRED COMPONENTS RIO net Tree)
-add_definitions(${ROOT_CXX_FLAGS})
+#list(APPEND CMAKE_PREFIX_PATH $ENV{CLHEP_ROOT_DIR})
+find_package(ROOT REQUIRED COMPONENTS RIO Tree)
+include(${ROOT_USE_FILE})
+#add_definitions(${ROOT_CXX_FLAGS})
 
 if(DEFINED ENV{RS_SOURCE_DIR})
   set(RS_INCLUDE_DIR $ENV{RS_SOURCE_DIR})
@@ -42,6 +49,7 @@ endif()
 #
 
 include(${Geant4_USE_FILE})
+
 
 include_directories(${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include ${CLHEP_INCLUDE_DIR} ${ROOT_INCLUDE_DIRS} ${RS_INCLUDE_DIR})
 
@@ -62,8 +70,8 @@ ROOT_GENERATE_DICTIONARY(G__EventTree ${HEADER_FILES} LINKDEF ${RS_INCLUDE_DIR}/
 
 add_library(EventTree SHARED ${SOURCE_FILES} G__EventTree.cxx)
 
-
-target_link_libraries(EventTree ${ROOT_LIBRARIES} CLHEP-Vector-${CLHEP_VERSION})
+#target_link_libraries(EventTree ${ROOT_LIBRARIES} CLHEP-Vector-${CLHEP_VERSION})
+target_link_libraries(EventTree ${ROOT_LIBRARIES} CLHEP::Vector)
 
 
 #add_custom_target(G__EventTree.pcm DEPENDS G__EventTree)
@@ -74,7 +82,7 @@ target_link_libraries(EventTree ${ROOT_LIBRARIES} CLHEP-Vector-${CLHEP_VERSION})
 
 add_executable(slac slac.cc ${sources} ${headers})
 target_link_libraries(slac  ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} EventTree)
-#target_link_libraries(slac  ${Geant4_LIBRARIES} ${ROOT_LIBRARIES})
+
 #----------------------------------------------------------------------------
 # Copy all scripts to the build directory, i.e. the directory in which we
 # build B4a. This is so that we can run the executable directly because it
@@ -101,6 +109,6 @@ endforeach()
 #----------------------------------------------------------------------------
 # Install the executable to 'bin' directory under CMAKE_INSTALL_PREFIX
 #
-install(TARGETS slac DESTINATION bin)
-install (FILES ${PROJECT_BINARY_DIR}/G__EventTree_rdict.pcm DESTINATION ${LIB_INSTALL_DIR})
+install(TARGETS slac DESTINATION ${PROJECT_BINARY_DIR}/bin)
+install (FILES ${PROJECT_BINARY_DIR}/libEventTree_rdict.pcm DESTINATION ${LIB_INSTALL_DIR})
 install (TARGETS EventTree LIBRARY DESTINATION ${LIB_INSTALL_DIR})
