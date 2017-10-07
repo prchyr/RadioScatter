@@ -47,9 +47,9 @@
 #include "QGSP_BERT.hh"
 #include "QGSP_BERT_HP.hh"
 #include "NuBeam.hh"
-
+#include <errno.h> 
 #include "Randomize.hh"
-
+#include "RadioScatter/RadioScatter.hh"
 #include "G4VisExecutive.hh"
 #include "G4UIExecutive.hh"
 
@@ -59,7 +59,7 @@
 namespace {
   void PrintUsage() {
     G4cerr << " Usage: " << G4endl;
-    G4cerr << " example [-m macro ] [-u UIsession] [-t nThreads]" << G4endl;
+    G4cerr << " example [-m macro ] [-u UIsession] [-t nThreads] [-f root filename]" << G4endl;
     G4cerr << "   note: -t option is available only for multi-threaded mode."
            << G4endl;
   }
@@ -78,16 +78,19 @@ int main(int argc,char** argv)
   
   G4String macro;
   G4String session;
+  G4String filename;
 #ifdef G4MULTITHREADED
   G4int nThreads = 0;
 #endif
   for ( G4int i=1; i<argc; i=i+2 ) {
     if      ( G4String(argv[i]) == "-m" ) macro = argv[i+1];
     else if ( G4String(argv[i]) == "-u" ) session = argv[i+1];
+    else if ( G4String(argv[i]) == "-f" ) filename = argv[i+1];
 #ifdef G4MULTITHREADED
     else if ( G4String(argv[i]) == "-t" ) {
       nThreads = G4UIcommand::ConvertToInt(argv[i+1]);
     }
+    
 #endif
     else {
       PrintUsage();
@@ -134,9 +137,16 @@ int main(int argc,char** argv)
   //  auto qgsp_hp = new QGSP_BERT_HP;
   //runManager->SetUserInitialization(qgsp_hp);
 
+  //declare the RadioScatter module
+  RadioScatter *radio = new RadioScatter();
 
-
-  auto actionInitialization = new ActionInitialization(detConstruction);
+  if(! filename.size() ){
+    radio->makeOutputFile("$HOME/Documents/physics/geant/root/G4_RadioScatter_output.root");
+  }
+  else{
+    radio->makeOutputFile(filename);
+  }
+  auto actionInitialization = new ActionInitialization(detConstruction, radio);
   runManager->SetUserInitialization(actionInitialization);
   
   // Initialize visualization
@@ -151,28 +161,57 @@ int main(int argc,char** argv)
 
   // Process macro or start UI session
   //
+ 
+  
   if ( macro.size() ) {
     // batch mode
     G4String command = "/control/execute ";
     UImanager->ApplyCommand(command+macro);
-  }
-  else  {  
-    // interactive mode : define UI session
-    //    isInteractiveSession=true;
+  
+   //  if(macro=="init_vis.mac")  {  
+  //   // interactive mode : define UI session
+  //   //    isInteractiveSession=true;
 
-    UImanager->ApplyCommand("/control/execute init_vis.mac");
-    if (ui->IsGUI()) {
-      UImanager->ApplyCommand("/control/execute gui.mac");
-    }
-    ui->SessionStart();
-    delete ui;
+  //   UImanager->ApplyCommand("/control/execute init_vis.mac");
+  //   if (ui->IsGUI()) {
+  //     UImanager->ApplyCommand("/control/execute gui.mac");
+  //   }
+  //   ui->SessionStart();
+  //    delete ui;
+  // }
+
   }
 
+    Hep3Vector tx, rx;
+    double theta=0, phi=0;
+    int num=20;
+
+    for(int j=1;j<10;j++){
+      for(int i=0;i<num;i++){
+
+	tx=radio->getTxPos();
+	rx=radio->getRxPos();
+	cout<<endl<<endl<<"tx position"<<tx.x()<<" "<<tx.y()<<" "<<tx.z()<<endl;
+	cout<<"rx position"<<rx.x()<<" "<<rx.y()<<" "<<rx.z()<<endl<<endl<<endl;
+	//	tx.setRThetaPhi(j*m, angle, 0);
+
+	phi=pi;
+	rx.setRThetaPhi(j*2.*m, theta, phi);
+	rx.setZ(rx.z()+3.5*m);
+	//	radio->setTxPos(tx);
+	radio->setRxPos(rx);
+	runManager->BeamOn(10);
+	theta+=2*pi/num;
+      }
+    }    
+// }
+  //close the RadioScatter object, to close the root file
+  radio->close();
   // Job termination
   // Free the store: user actions, physics_list and detector_description are
   // owned and deleted by the run manager, so they should not be deleted 
   // in the main() program !
-
+  
   delete visManager;
   delete runManager;
 }

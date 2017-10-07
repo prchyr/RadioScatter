@@ -32,6 +32,8 @@ private:
   G4UIcmdWithADouble*        setTxOffCommand;
   G4UIcmdWith3VectorAndUnit*        txpositionCmd;
   G4UIcmdWith3VectorAndUnit*        rxpositionCmd;
+  G4UIcmdWithAString*        setOutputDirectory;
+  G4UIcmdWithAString*        setOutputFileName;
   
 };
 #endif

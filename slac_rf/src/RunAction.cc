@@ -148,32 +148,35 @@ void RunAction::BeginOfRunAction(const G4Run* r)
     
     these can be set here, or more simply (and efficiently) in the macro file using the RSmessenger. 
     that way, they can be changed at run-time, without the need to re-compile. 
+    set them here if you want some default values between runs, without needing to re-define in the macro, if you want. 
     
     there is one exception: the tx/interacion medium/rx distances, which must come from the GEANT4 system,
     must be sent to radioscatter if the refraction machinery is to work. 
 
     if these distances are not provided, the simulation assumes that the shower is happening in free space, with no refraction calculation.
+
     set the transmitter frequency, output power, and amplification
 
     *******
 
     some example commands below, all of which can (and should) be set in the macro file.
 
-    fRadio->setTxVoltage(200.);
-    fRadio->setTxFreq(2200.);
-    fRadio->setRxVals(20., 1.);//samplerate (ns^-1), gain (not db, 100=40db)
-    fRadio->setTxPos(4.5*m, 0.*m, -1.*m);
-    fRadio->setRxPos(-4.3*m, 0.*m, -1.*m);
-    fRadio->makeTimeHist();
-    fRadio->setTxOnTime(0);
-    fRadio->setTxOffTime(30);
+  */
+  //fRadio->setTxVoltage(200.);
+  //fRadio->setTxFreq(1400.);
+    /*//    fRadio->setRxVals(20., 1.);//samplerate (ns^-1), gain (not db, 100=40db)
+    //fRadio->setTxPos(4.5*m, 0.*m, -1.*m);
+    //fRadio->setRxPos(-4.3*m, 0.*m, -1.*m);
+    //fRadio->makeTimeHist();
+    // fRadio->setTxOnTime(0);
+    //fRadio->setTxOffTime(30);
     
   */
 
   //THESE CALLS ARE MANDATORY FOR THE REFRACTION CALCULATIONS
   //if not set, it is assumed everything happens in free space.
-  fRadio->setTxInterfaceDistX(fDetConstruction->GetTgtPV()->GetLogicalVolume()->GetSolid()->DistanceToIn(fRadio->getTxPos()));
-  fRadio->setRxInterfaceDistX(fDetConstruction->GetTgtPV()->GetLogicalVolume()->GetSolid()->DistanceToIn(fRadio->getRxPos()));
+  //fRadio->setTxInterfaceDistX(fDetConstruction->GetTgtPV()->GetLogicalVolume()->GetSolid()->DistanceToIn(fRadio->getTxPos()));
+  //fRadio->setRxInterfaceDistX(fDetConstruction->GetTgtPV()->GetLogicalVolume()->GetSolid()->DistanceToIn(fRadio->getRxPos()));
 
   
 
@@ -198,14 +201,20 @@ void RunAction::EndOfRunAction(const G4Run* r)
   //finish the run with RadioScatter()  
 
   //optional second arguments scales the histogram output by the number of events, so that output amplitude is correct
-  //auto analysisManager = G4AnalysisManager::Instance();
+  //setting the filename here gives acces to G4 variables for the filename, as below
+
 
   G4String runno = G4UIcommand::ConvertToString(r->GetRunID());
   G4String freq = G4UIcommand::ConvertToString(fRadio->getFreq());
 
-  //  fRadio->writeHist("/home/natas/Documents/physics/geant/root/slac_rf_rs_"+runno+".root", (float)r->GetNumberOfEvent());
-  fRadio->writeEvent("$HOME/Documents/physics/geant/root/slac_rf_rs_"+runno+".root", (float)r->GetNumberOfEvent());
+  //be sure to send writeRun the number of events in the run so that it scales the output histogram properly!!! assumes you have opened the root file already in the main program
+  fRadio->writeRun((float)r->GetNumberOfEvent());
+  //  fRadio->writeEvent("$HOME/Documents/physics/geant/root/slac_rf_rs_"+runno+"_freq_"+freq+".root", (float)r->GetNumberOfEvent());
 
+  //optionally, set the filename in the macro by /RS/setOutputFileName and then here:
+  //TODO
+  // fRadio->writeEvent((float)r->GetNumberOfEvent());
+  
   fRadio->printEventStats(); 
   //  fRadio->WriteEvent("testroot.root", r->Get)
 

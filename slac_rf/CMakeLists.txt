@@ -19,33 +19,62 @@ else()
 endif()
 
 
-#get the root libs to link
-execute_process(
-  COMMAND  root-config --libs --cflags --glibs
-  OUTPUT_VARIABLE ROOT_LIBS
-  OUTPUT_STRIP_TRAILING_WHITESPACE
-  )
+#use the CLHEP things
+find_package(CLHEP REQUIRED)
+#use the ROOT things
+list(APPEND CMAKE_PREFIX_PATH $ENV{ROOTSYS})
+find_package(ROOT REQUIRED COMPONENTS RIO net Tree)
+add_definitions(${ROOT_CXX_FLAGS})
 
-  #----------------------------------------------------------------------------
-# Setup Geant4 include directories and compile definitions
+if(DEFINED ENV{RS_SOURCE_DIR})
+  set(RS_INCLUDE_DIR $ENV{RS_SOURCE_DIR})
+else()
+  set(RS_INCLUDE_DIR /usr/local/include/RadioScatter)
+endif()
+
+if(DEFINED ENV{LIB_INSTALL_DIR})
+  set(LIB_INSTALL_DIR $ENV{LIB_INSTALL_DIR})
+else()
+  set(LIB_INSTALL_DIR /usr/local/lib)
+endif()
+# # Setup Geant4 include directories and compile definitions
 # Setup include directory for this project
 #
+
 include(${Geant4_USE_FILE})
-include_directories(${PROJECT_SOURCE_DIR}/include)
+
+include_directories(${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include ${CLHEP_INCLUDE_DIR} ${ROOT_INCLUDE_DIRS} ${RS_INCLUDE_DIR})
 
 #----------------------------------------------------------------------------
 # Locate sources and headers for this project
 # NB: headers are included so they will show up in IDEs
 #
-file(GLOB sources ${PROJECT_SOURCE_DIR}/src/*.cc)
-file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh)
+file(GLOB sources ${PROJECT_SOURCE_DIR}/src/*.cc ${RS_INCLUDE_DIR}/*.cc)
+file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh ${RS_INCLUDE_DIR}/*.hh)
+
+file(GLOB SOURCE_FILES ${RS_INCLUDE_DIR}/*.cc ${CLHEP_INCLUDE_DIR}/Vector/*.icc ${CLHEP_INCLUDE_DIR}/Units/*.icc)
+file(GLOB HEADER_FILES ${RS_INCLUDE_DIR}/*.hh ${CLHEP_INCLUDE_DIR}/Vector/*.h ${CLHEP_INCLUDE_DIR}/Units/*.h)
+
+
+#make the ROOT dictionaries and shared object library for reading the event tree
+
+ROOT_GENERATE_DICTIONARY(G__EventTree ${HEADER_FILES} LINKDEF ${RS_INCLUDE_DIR}/LinkDef.h)
+
+add_library(EventTree SHARED ${SOURCE_FILES} G__EventTree.cxx)
+
+
+target_link_libraries(EventTree ${ROOT_LIBRARIES} CLHEP-Vector-${CLHEP_VERSION})
+
+
+#add_custom_target(G__EventTree.pcm DEPENDS G__EventTree)
 
 #----------------------------------------------------------------------------
 # Add the executable, and link it to the Geant4 libraries
 #
-add_executable(slac slac.cc ${sources} ${headers})
-target_link_libraries(slac ${Geant4_LIBRARIES} ${ROOT_LIBS})
 
+add_executable(slac slac.cc ${sources} ${headers})
+target_link_libraries(slac  ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} EventTree)
+#target_link_libraries(slac  ${Geant4_LIBRARIES} ${ROOT_LIBRARIES})
 #----------------------------------------------------------------------------
 # Copy all scripts to the build directory, i.e. the directory in which we
 # build B4a. This is so that we can run the executable directly because it
@@ -73,3 +102,5 @@ endforeach()
 # Install the executable to 'bin' directory under CMAKE_INSTALL_PREFIX
 #
 install(TARGETS slac DESTINATION bin)
+install (FILES ${PROJECT_BINARY_DIR}/G__EventTree_rdict.pcm DESTINATION ${LIB_INSTALL_DIR})
+install (TARGETS EventTree LIBRARY DESTINATION ${LIB_INSTALL_DIR})

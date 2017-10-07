@@ -34,6 +34,7 @@
 #include "G4VUserActionInitialization.hh"
 
 class DetectorConstruction;
+class RadioScatter;
 
 /// Action initialization class.
 ///
@@ -41,12 +42,14 @@ class DetectorConstruction;
 class ActionInitialization : public G4VUserActionInitialization
 {
   public:
-    ActionInitialization(DetectorConstruction*);
+  ActionInitialization(DetectorConstruction*, RadioScatter*);
     virtual ~ActionInitialization();
 
     virtual void BuildForMaster() const;
     virtual void Build() const;
   virtual void test_func();
+
+  RadioScatter *fRadio;
   private:
     DetectorConstruction* fDetConstruction;
 };

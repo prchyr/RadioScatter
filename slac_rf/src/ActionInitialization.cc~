@@ -45,7 +45,7 @@ s prohira
 #include "EventAction.hh"
 #include "SteppingAction.hh"
 #include "DetectorConstructionT510tgt.hh"
-#include "radioscatter/RadioScatter.hh"
+#include "RadioScatter/RadioScatter.hh"
 #include "RSmessenger.hh"
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 

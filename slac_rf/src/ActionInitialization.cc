@@ -51,14 +51,15 @@ s prohira
 
 //declare a global radio scatter object. is probably bad practice
 
-RadioScatter *radio;
+//RadioScatter *radio;
 ActionInitialization::ActionInitialization
-                            (DetectorConstruction* detConstruction)
+(DetectorConstruction* detConstruction, RadioScatter *radio)
  : G4VUserActionInitialization(),
-   fDetConstruction(detConstruction)
+   fDetConstruction(detConstruction),
+   fRadio(radio)
 {
   //initialize the RadioScatter object so that it is correctly passed to all modules
-  radio = new RadioScatter;
+  // radio = new RadioScatter;
   
 }
 
@@ -72,7 +73,7 @@ ActionInitialization::~ActionInitialization()
 void ActionInitialization::BuildForMaster() const
 {
   //RadioScatter * radio=new RadioScatter; 
-  SetUserAction(new RunAction(radio, fDetConstruction));
+  SetUserAction(new RunAction(fRadio, fDetConstruction));
   //   SetUserAction(new RunAction);
 
 }
@@ -84,10 +85,10 @@ void ActionInitialization::Build() const
   //RadioScatter * radio=new RadioScatter; 
 
   SetUserAction(new PrimaryGeneratorAction);
-  SetUserAction(new RunAction(radio, fDetConstruction));
+  SetUserAction(new RunAction(fRadio, fDetConstruction));
   auto eventAction = new EventAction;
   SetUserAction(eventAction);
-  SetUserAction(new SteppingAction(fDetConstruction,eventAction, radio));
+  SetUserAction(new SteppingAction(fDetConstruction,eventAction, fRadio));
 
 
 }  

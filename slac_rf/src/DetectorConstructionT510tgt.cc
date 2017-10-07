@@ -178,15 +178,21 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
   //for the poly target
   G4double dx1= .5*61*cm;
   G4double dx2= .5*61*cm;
-  G4double dy1= .5*97*cm;//Because of getting the Half of the trapezoid
-  G4double dy2= .5*25.4*cm;
+  G4double dy2= .5*97*cm;//Because of getting the Half of the trapezoid
+  G4double dy1= .5*25.4*cm;
   G4double dz=  .5*396*cm;
+  // G4double dx1= 500.5*61*cm;
+  // G4double dx2= 500.5*61*cm;
+  // G4double dy2= 500.5*97*cm;//Because of getting the Half of the trapezoid
+  // G4double dy1= 500.5*97*cm;
+  // G4double dz=  500.5*396*cm;
+
 
 
   //  G4double gapThickness = 3.*tankRadius;
   G4double bossLength = 8.*cm;
   G4double bossRadius = 3.*cm;
-  G4double targetSizeXY = 1.*m;
+  G4double targetSizeXY = 2.*dx1;
   auto layerThickness = 2.*dz;
   //    auto layerThickness = iceThickness;
   //    auto layerThickness = absoThickness + gapThickness;
@@ -329,8 +335,12 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
 
   // Define Target Volume
 
+  //uncomment for just the box
+  //  auto box = new G4Box("box", dx1, dy1, dz);
+  //auto tgtLV = new G4LogicalVolume(box, targetMaterial, "Tgt");
+  
   auto trapezoid = new G4Trd("trapezoid", dx1, dx2, dy1, dy2, dz);
-  auto box = new G4Box("box", 2.*dx1, dy1, 2.*dz);
+  auto box = new G4Box("box", 2.*dx1, dy2, 2.*dz);
   auto tgtS = new G4SubtractionSolid("Tgt", trapezoid, box, G4Translate3D(0., -dy1-dy2, 0.));
   auto tgtLV = new G4LogicalVolume(tgtS, targetMaterial, "Tgt");
   fTgtPV = new G4PVPlacement(0, G4ThreeVector(0., -.5*dy2, 0.), tgtLV, "Tgt", layerLV, false, 0, fCheckOverlaps);

@@ -46,7 +46,7 @@ class ActionInitialization : public G4VUserActionInitialization
 
     virtual void BuildForMaster() const;
     virtual void Build() const;
-
+  virtual void test_func();
   private:
     DetectorConstruction* fDetConstruction;
 };

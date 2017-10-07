@@ -63,6 +63,8 @@ RSmessenger::RSmessenger(RadioScatter *rscat)
   indexOfRefractionCommand->SetGuidance("set indexOfRefraction!");
   indexOfRefractionCommand->SetParameterName("choice", false);
 
+
+  
 }
 
 

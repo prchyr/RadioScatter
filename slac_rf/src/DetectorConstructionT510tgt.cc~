@@ -244,18 +244,18 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
   G4RotationMatrix *rot2 = new G4RotationMatrix();
   rot2->set(G4ThreeVector(-1, 0, 0), pi/2);
   
-  // auto txS = new G4Tubs("tx", 0., 10*cm, 30*cm, 0, twopi);
-  // auto txLV = new G4LogicalVolume(txS, absorberMaterial, "tx");
-  // new G4PVPlacement(rot, G4ThreeVector(-5*m,0, 2*m), txLV, "tx", worldLV, false, 0, fCheckOverlaps);
+  auto txS = new G4Tubs("tx", 0., 10*cm, 30*cm, 0, twopi);
+  auto txLV = new G4LogicalVolume(txS, absorberMaterial, "tx");
+  new G4PVPlacement(rot, G4ThreeVector(-5*m,0, 2*m), txLV, "tx", worldLV, false, 0, fCheckOverlaps);
   
-  // auto rxS = new G4Tubs("rx", 0., 10*cm, 30*cm, 0, twopi);
-  // auto rxLV = new G4LogicalVolume(rxS, absorberMaterial, "rx");
-  // new G4PVPlacement(rot, G4ThreeVector(5*m,0, 2*m), rxLV, "rx", worldLV, false, 0, fCheckOverlaps);
+  auto rxS = new G4Tubs("rx", 0., 10*cm, 30*cm, 0, twopi);
+  auto rxLV = new G4LogicalVolume(rxS, absorberMaterial, "rx");
+  new G4PVPlacement(rot, G4ThreeVector(5*m,0, 2*m), rxLV, "rx", worldLV, false, 0, fCheckOverlaps);
 
-  // auto daqS = new G4Box("daq", 15*cm, 10*cm, 20*cm);
-  // auto daqLV = new G4LogicalVolume(daqS, psMaterial, "daq");
-  // new G4PVPlacement(0, G4ThreeVector(5*m,0, 2.5*m), daqLV, "daq", worldLV, false, 0, fCheckOverlaps);
-  //                               
+  auto daqS = new G4Box("daq", 15*cm, 10*cm, 20*cm);
+  auto daqLV = new G4LogicalVolume(daqS, psMaterial, "daq");
+  new G4PVPlacement(0, G4ThreeVector(5*m,0, 2.5*m), daqLV, "daq", worldLV, false, 0, fCheckOverlaps);
+                                
   // Target
   //  
   auto targetS

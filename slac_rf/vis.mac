@@ -64,26 +64,26 @@
 /vis/filtering/trajectories/particleFilter-0/invert true
 #
 
-
+#HERE IS SOME STUFF TO MAKE THINGS THAT ARE FOR GOOD VIEW
 
 # Many other options are available with /vis/modeling and /vis/filtering.
 # For example, to select colour by particle ID:
 /vis/modeling/trajectories/create/drawByParticleID
 #/vis/modeling/trajectories/drawByParticleID-0/default/setDrawStepPts true
 #/vis/scene/add/scale  # Simple scale line
-/vis/scene/add/text 5 .2 2.3 m 16 0 0 daq
-/vis/scene/add/text 0 -.5 2 m 11 0 0 HDPE target
-/vis/set/textColour white 
-/vis/scene/add/text 0 -1 -.5 m 11 0 0 Fe shower plate
-/vis/scene/add/text 0 -1 4 m 11 0 0 concrete absorber
-/vis/set/textColour green
-/vis/scene/add/text 5 .2 1.4 m 16 0 0 rx
-/vis/scene/add/text -5 .2 1.4 m 16 0 0 tx
-/vis/set/textColour yellow
-/vis/scene/add/text 0 -.5 -2 m 12 0 0 beam
-/vis/set/textColour red
-/vis/set/textLayout right
-/vis/scene/add/text2D 0.9 -.9 24 ! ! SLAC target
+# /vis/scene/add/text 5 .2 2.3 m 16 0 0 daq
+# /vis/scene/add/text 0 -.5 2 m 11 0 0 HDPE target
+# /vis/set/textColour white 
+# /vis/scene/add/text 0 -1 -.5 m 11 0 0 Fe shower plate
+# /vis/scene/add/text 0 -1 4 m 11 0 0 concrete absorber
+# /vis/set/textColour green
+# /vis/scene/add/text 5 .2 1.4 m 16 0 0 rx
+# /vis/scene/add/text -5 .2 1.4 m 16 0 0 tx
+# /vis/set/textColour yellow
+# /vis/scene/add/text 0 -.5 -2 m 12 0 0 beam
+# /vis/set/textColour red
+# /vis/set/textLayout right
+# /vis/scene/add/text2D 0.9 -.9 24 ! ! SLAC target
 
 
 # To select or override default colours (note: e+ is blue by default):
@@ -105,3 +105,19 @@
 #/vis/geometry/set/colour Air 0 0 0 1 .5
 /vis/geometry/set/colour Ps 0 .1 .9 1 .7
 /vis/ogl/set/displayListLimit 5000000
+
+/gps/position 0 0 -10 m
+/gps/direction 0 0 1
+/gps/energy 13.6 GeV
+
+/RS/setTxPos 4.5 0 .5 m
+/RS/setRxPos 5.5 0 .5 m
+/RS/setTxFreq 1400
+/RS/setRxSampleRate 10
+/RS/setTxVoltage 200000
+/RS/setPolarization horizontal
+/RS/setIndexOfRefraction 1.51
+/RS/setNprimaries 1.e9
+/RS/setShowCWFlag 0
+#/RS/setTxOnTime 0
+#/RS/setTxOffTime 40
