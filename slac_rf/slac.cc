@@ -183,7 +183,6 @@ int main(int argc,char** argv)
   }
 
     Hep3Vector tx, rx;
-    double theta=0, phi=0;
     int num=20;
     int xmax=40000;
     int xmin=-40000;
@@ -193,27 +192,23 @@ int main(int argc,char** argv)
     int zmin=-40000;
     int zstep=(zmax-zmin)/num;
 
-    for(int j=0;j<num;j++){
-      for(int i=0;i<num;i++){
+    int ymax=40000;
+    int ymin=-40000;
+    int ystep=(ymax-ymin)/num;
+    
+    for(int k=num/2;k<(3*num/4);k++){
+      for(int j=0;j<num;j++){
+	for(int i=0;i<num;i++){
+	  rx.setX(xmin+(j*xstep));
+	  rx.setZ(zmin+(i*zstep));
+	  rx.setY(ymin+(k*ystep));
 
-	// tx=radio->getTxPos();
-	// rx=radio->getRxPos();
-	// cout<<endl<<endl<<"tx position"<<tx.x()<<" "<<tx.y()<<" "<<tx.z()<<endl;
-	// cout<<"rx position"<<rx.x()<<" "<<rx.y()<<" "<<rx.z()<<endl<<endl<<endl;
-	// //	tx.setRThetaPhi(j*m, angle, 0);
-	rx.setX(xmin+(j*xstep));
-	rx.setZ(zmin+(i*zstep));
-	
-	// phi=pi;
-	// rx.setRThetaPhi(j*m, theta, phi);
-	// rx.setZ(rx.z()+3.5*m);
-	//	radio->setTxPos(tx);
-	radio->setRxPos(rx);
-	runManager->BeamOn(10);
-	//	theta+=2*pi/num;
-      }
-    }    
-// }
+	  radio->setRxPos(rx);
+	  runManager->BeamOn(10);
+
+	}
+      }    
+    }
   //close the RadioScatter object, to close the root file
   radio->close();
   // Job termination
