@@ -28,7 +28,7 @@ double EventTree::power(){
 //   return duration;
 // }
 
-TGraph * EventTree::getEnvelope(double cutoff){
+TGraph * EventTree::getComplexEnvelope(double cutoff){
   vector<double> xx, yy;
   int entries=reHist->GetNbinsX();
   for(int i=0;i<entries;i++){

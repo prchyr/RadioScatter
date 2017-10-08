@@ -50,7 +50,7 @@ public:
 
   //plotting things
 
-  TGraph * getEnvelope(double cutoff=0);
+  TGraph * getComplexEnvelope(double cutoff=0);
   TGraph * getLowpassFiltered(double cutoff);
   TGraph * getGraph();
   
