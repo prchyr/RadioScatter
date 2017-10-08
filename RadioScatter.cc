@@ -627,7 +627,12 @@ find the path length including refraction
   //#undef RSCAT_HIST_DECLARE
 }
 
-void RadioScatter::writeRun(float num_events=1.){
+int RadioScatter::writeRun(float num_events=1.){
+  //this is a stupid check for multi-threaded mode,
+  //will only write the run if there has indeed been a run
+  if(event.totNScatterers==0){
+    return 0;
+  }
   fRunCounter++;
   //  TFile *f = (TFile *)gROOT->Get("filename");
   TFile *f = ((TFile *)(gROOT->GetListOfFiles()->At(0)));
@@ -659,7 +664,7 @@ void RadioScatter::writeRun(float num_events=1.){
   re_hist->Reset();
   im_hist->Reset();
   event.totNScatterers=0;
-
+  return 1;
   //  f->Close();
   //#undef RSCAT_HIST_DECLARE
 }
