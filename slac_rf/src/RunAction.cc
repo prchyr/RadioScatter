@@ -175,8 +175,8 @@ void RunAction::BeginOfRunAction(const G4Run* r)
 
   //THESE CALLS ARE MANDATORY FOR THE REFRACTION CALCULATIONS
   //if not set, it is assumed everything happens in free space.
-  //fRadio->setTxInterfaceDistX(fDetConstruction->GetTgtPV()->GetLogicalVolume()->GetSolid()->DistanceToIn(fRadio->getTxPos()));
-  //fRadio->setRxInterfaceDistX(fDetConstruction->GetTgtPV()->GetLogicalVolume()->GetSolid()->DistanceToIn(fRadio->getRxPos()));
+  fRadio->setTxInterfaceDistX(fDetConstruction->GetTgtPV()->GetLogicalVolume()->GetSolid()->DistanceToIn(fRadio->getTxPos()));
+  fRadio->setRxInterfaceDistX(fDetConstruction->GetTgtPV()->GetLogicalVolume()->GetSolid()->DistanceToIn(fRadio->getRxPos()));
 
   
 

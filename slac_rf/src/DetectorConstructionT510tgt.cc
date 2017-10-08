@@ -181,11 +181,12 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
   G4double dy2= .5*97*cm;//Because of getting the Half of the trapezoid
   G4double dy1= .5*25.4*cm;
   G4double dz=  .5*396*cm;
-  // G4double dx1= 500.5*61*cm;
-  // G4double dx2= 500.5*61*cm;
-  // G4double dy2= 500.5*97*cm;//Because of getting the Half of the trapezoid
-  // G4double dy1= 500.5*97*cm;
-  // G4double dz=  500.5*396*cm;
+  
+  // G4double dx1= 5.*61*cm;
+  // G4double dx2= 5.*61*cm;
+  // G4double dy2= 5.*97*cm;//Because of getting the Half of the trapezoid
+  // G4double dy1= 5.*97*cm;
+  // G4double dz=  5.*396*cm;
 
 
 
