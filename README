@@ -25,24 +25,28 @@ and
 
 which can be used without the need to re-compile the GEANT4 source.
 
-if you are using this, you likely have GEANT4 running and know how to use cmake somewhat, so do this from the RadioScatter directory
+if you are using this, you likely have GEANT4 running and know how to use cmake somewhat. first thing, you need to set 2 environment variables.
 
-mkdir build
-cd build
-cmake ../slac_rf
+RS_SOURCE_DIR is where the RadioScatter folder is. at the moment, please install RadioScatter under /usr/local/include. and set
+
+RS_SOURCE_DIR=/usr/local/include/RadioScatter
+
+then, you can set LIB_INSTALL_DIR to something other than /usr/local/lib if you don't want the libraries installed there. 
+
+so once you've done that, do this:
+
+mkdir <build dir somewhere>
+cd <build dir somewhere>
+cmake path/to/RadioScatter/slac_rf
 make -B -j4
+make install
 
 where the -B just says to build all objects (can't be too careful) and the -j4 uses 4 cores. hopefully it finds all the things...CLHEP must be installed, but this is done through GEANT4, typically, so if G4 rund on your machine, this should too..
 
 then run by doing
 
-./slac_rf -m run1.mac
+./slac_rf -m run1.mac -f "/path/to/file/and/filename.root"
 
+to set the root file name. each run is stored in an entry in a tree.
 
-
-it outputs root files, the paths to which are set in RunAction.cc. they currently default to $HOME/Documents/physics/geant/root, but you can change this in two ways:
-
-1-you can specify the filenames in the source before compiling, which allows access to geant variables for the filenames, which is nice.
-2-you can specify the filenames in the macro, which does not require compiling, it can be set in this way at runtime.
-
-**actually the 2nd method isn't implemented yet but it will be
+it might work for you. i hope it does. 
