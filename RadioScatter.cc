@@ -4,13 +4,7 @@
  using namespace std;
 
 
- RadioScatter::RadioScatter(){
-   //  gROOT->ProcessLine(".L /usr/local/include/RadioScatter/libradioscatter.so");
-   // gROOT->ProcessLine(".L /usr/local/lib/libCLHEP.so");
-   // gROOT->ProcessLine(".L /usr/local/root/lib/libEventTree.so");
-   
-   // gROOT->ProcessLine("#include \"/usr/local/include/CLHEP/Vector/ThreeVector.h\"");
-   //gROOT->ProcessLine("#include \"/usr/local/include/RadioScatter/EventTree.hh\"");
+RadioScatter::RadioScatter(){
    
 }
 
@@ -27,6 +21,7 @@
   f->Write();
   //t->Write();
   //f->Close();
+  fRunCounter=0;
 }
 //just makes the output file stream for a text file
  void RadioScatter::makeOutputTextFile(char* filename){
@@ -138,6 +133,7 @@ void RadioScatter::setRxPos(Hep3Vector in){
  void RadioScatter::setRxSampleRate(double rate){
   samplerate=rate*nanosecond;
   samplingperiod = 1./samplerate;
+  event.sampleRate=samplerate;
 }
  void RadioScatter::setTxInterfaceDistX(double dist=0){
     tx_interface_dist = abs(dist);
@@ -210,12 +206,12 @@ use the calculated refraction vectors (from makeRays()) to sort out the correct 
 //non-refracted amplitude
  double RadioScatter::getRxAmplitude(HepLorentzVector point){
   double dist = (tx.vect()-point.vect()).mag()+(rx.vect()-point.vect()).mag();
-  //refraction things:
+  //  //refraction things:
   Hep3Vector one=tx.vect()-point.vect();
   Hep3Vector two=point.vect()-rx.vect();
 
-  //  double amplitude = (tx_voltage/dist)*one.unit().dot(two.unit());
-  double amplitude = (tx_voltage/dist);
+  double amplitude = (tx_voltage/dist)*one.unit().dot(two.unit());
+  
 
   return amplitude;
 }
@@ -302,23 +298,23 @@ the modified wavenumber and speed of light (for the medium) respectively
   }
 
 //non-refraction phase finder
-   double RadioScatter::getRxPhase(HepLorentzVector point){
-    double rxtime = getRxTime(point);//find advanced time
-    double txtime = getTxTime(point);//find retarted time
-    double txphase = getTxPhase(txtime);//find phase at retarded time
-    double tof = abs(rxtime-txtime);//time of flight
-    HepLorentzVector tx_pr=tx-point, pr_rx = point-rx;//make vectors
-    //wave number addition
-    Hep3Vector kvec1 = k*tx_pr.vect();
-    Hep3Vector kvec2 = k*pr_rx.vect();
-    Hep3Vector ktot = kvec1+kvec2;
-    double kx = ktot.mag();
-    //calculate compton effects
-    double inv_omega_c = (1/omega)+(1/omega_e)*(1-cos(tx_pr.vect().unit().angle(pr_rx.vect().unit())));
-    omega_c = 1/inv_omega_c;
-    //    cout<<txtime<<" "<<txphase<<" "<<rxtime<<endl;
-    return ((kx) - omega*tof + txphase);
-  }
+double RadioScatter::getRxPhase(HepLorentzVector point){
+  double rxtime = getRxTime(point);//find advanced time
+  double txtime = getTxTime(point);//find retarted time
+  double txphase = getTxPhase(txtime);//find phase at retarded time
+  double tof = abs(rxtime-txtime);//time of flight
+  HepLorentzVector tx_pr=tx-point, pr_rx = point-rx;//make vectors
+  //wave number addition
+  Hep3Vector kvec1 = k*tx_pr.vect();
+  Hep3Vector kvec2 = k*pr_rx.vect();
+  Hep3Vector ktot = kvec1+kvec2;
+  double kx = ktot.mag();
+  //calculate compton effects
+  //  double inv_omega_c = (1/omega)+(1/omega_e)*(1-cos(tx_pr.vect().unit().angle(pr_rx.vect().unit())));
+  //omega_c = 1/inv_omega_c;
+  //    cout<<txtime<<" "<<txphase<<" "<<rxtime<<endl;
+  return ((kx) - omega*tof + txphase);
+}
 
 
 
@@ -632,6 +628,7 @@ find the path length including refraction
 }
 
 void RadioScatter::writeRun(float num_events=1.){
+  fRunCounter++;
   //  TFile *f = (TFile *)gROOT->Get("filename");
   TFile *f = ((TFile *)(gROOT->GetListOfFiles()->At(0)));
   TTree *t = (TTree*)f->Get("tree");
@@ -642,6 +639,7 @@ void RadioScatter::writeRun(float num_events=1.){
   event.eventHist = scaleHist(num_events);
   event.reHist = re_hist;
   event.imHist = im_hist;
+  event.freq=frequency;
   event.totNScatterers = event.totNScatterers*n_primaries;
   vector<double> xvals, yvals;
   int entries=event.eventHist->GetNbinsX();
@@ -655,12 +653,13 @@ void RadioScatter::writeRun(float num_events=1.){
 
   //  f->Append(ogr);
   t->Fill();
-  cout<<"The RadioScatter root file: "<<f->GetName()<<" has been filled."<<endl;
+  cout<<"The RadioScatter root file: "<<endl<<f->GetName()<<endl<<" has been filled. This is run number "<<fRunCounter<<"."<<endl;
   //f->Write();
   time_hist->Reset();
   re_hist->Reset();
   im_hist->Reset();
   event.totNScatterers=0;
+
   //  f->Close();
   //#undef RSCAT_HIST_DECLARE
 }

@@ -7,6 +7,7 @@
 #include "TTree.h"
 #include "TGraph.h"
 
+
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "CLHEP/Vector/ThreeVector.h"
 #include "CLHEP/Vector/LorentzVector.h"
@@ -20,6 +21,7 @@
 // class TObject;
 
 using namespace CLHEP;
+using namespace std;
 
 class EventTree:public TObject
 {
@@ -34,8 +36,10 @@ public:
   Hep3Vector tx;
   Hep3Vector rx;
   double primaryEnergy=0;
+  double sampleRate;
   double nPrimaries=0;
   double txVoltage=0;
+  double freq=0;
   //  double power=0;
   double totNScatterers=0;
   TH1F * eventHist=0;
@@ -44,10 +48,17 @@ public:
 
   TGraph * eventGraph=0;
 
-  // double slope();
-  // double peakV();
-  // double rms();
-  // double duration();
+  //plotting things
+
+  TGraph * getEnvelope(double cutoff=0);
+  TGraph * getLowpassFiltered(double cutoff);
+  TGraph * getGraph();
+  
+  
+  double slope();
+  double peakV();
+  double rms();
+  double duration();
   double power();
   
   ClassDef(EventTree, 1);

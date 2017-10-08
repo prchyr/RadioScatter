@@ -35,36 +35,12 @@ store all the data in a useful tree called 'eventTree', but this requires librar
 // #endif
 
 
-//ClassImp(test);
-
-// class eventTree : public TObject
-// {
-// public:
-//   eventTree();
-
-//     Hep3Vector direction, position;
-//     double primary_energy, n_primaries, power, tot_n_scatterers;
-//     TH1F * event_hist;
-//     TH1F * re_hist;
-//     TH1F * im_hist;
-//   ClassDefNV(eventTree, 1);
-// };
-
-// eventTree::eventTree(){
-// }
-// // inline eventTree::~eventTree(){
-// //   delete( eventTree);
-// // }
-//class EventTree;
-
 class RadioScatter{
-
-
 
 
   EventTree event;
 
-  int REFRACTION_FLAG=0;
+
   TString output_file_name;
   char* pol = "horizontal";//default, also set as default in set_simulation_paramaters
   double x_offset=0*m, z_offset = 2.*m, y_offset = 5.*m;
@@ -83,9 +59,9 @@ class RadioScatter{
   //TFile *outfile;
   //  TFile * outfile=new TFile("/home/natas/Documents/physics/geant/root/time.root", "RECREATE");
   TH1F *fft_hist, *power_hist;
-  TH1F *time_hist = new TH1F("time_hist", "time_hist", 100, 0, 10);
-  TH1F *re_hist = new TH1F("re_hist", "re_hist", 100, 0, 10);
-  TH1F *im_hist = new TH1F("im_hist", "im_hist", 100, 0, 10);
+  TH1F *time_hist = new TH1F("eventHist", "eventHist", 100, 0, 10);
+  TH1F *re_hist = new TH1F("reHist", "reHist", 100, 0, 10);
+  TH1F *im_hist = new TH1F("imHist", "imHist", 100, 0, 10);
   //e^2/m_e
   double plasma_const = sqrt(4*pi*electron_charge*electron_charge/electron_mass_c2);
 
@@ -93,7 +69,7 @@ class RadioScatter{
   double cross_section=classic_electr_radius;
 
   
-  bool RSCAT_HIST_DECLARE=false;  
+
 
   //  ofstream of;
   
@@ -184,7 +160,13 @@ public:
 
 
   void testFunc(double testVal);
-   
+
+
+private:
+
+  int REFRACTION_FLAG=0;
+  bool RSCAT_HIST_DECLARE=false;
+  int fRunCounter=0;
 };
 
 #endif
