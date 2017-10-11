@@ -192,13 +192,28 @@ use the calculated refraction vectors (from makeRays()) to sort out the correct 
 
   //find angle between plane of incidence and polarization vector
   double theta = atan(point.y()/point.z());
+  double angle_dependence;
+  if(pol=="vertical"){
+    //refraction angle change
+    theta = theta+(pi/2.);
+    //set the correct polarization dot products.
+    Hep3Vector l1plane(l1.x(), l1.y(), 0);
+    Hep3Vector l2plane(l2.x(), l2.y(), 0);
 
-  if(pol=="vertical")theta = theta+(pi/2.);
+    angle_dependence = l1plane.unit().dot(l2plane.unit());  
 
+  }
+  else{
+    Hep3Vector l1plane(l1.x(), 0, l1.z());
+    Hep3Vector l2plane(l2.x(), 0, l2.z());
+
+    angle_dependence = l1plane.unit().dot(l2plane.unit());  
+
+  }
   double amp1 = sqrt(pow(E1_para*cos(theta), 2)+pow(E1_perp*sin(theta), 2));
   double amp2 = sqrt(pow(E2_para*cos(theta), 2)+pow(E2_perp*sin(theta), 2));
 
-  double angle_dependence = (l1.unit()).dot(l2.unit());
+
   double amplitude = (tx_voltage/dist)*amp1*amp2*angle_dependence;
   return amplitude;
 }
@@ -283,8 +298,13 @@ the modified wavenumber and speed of light (for the medium) respectively
   // cout<<(j2.z()/j2.mag())/(l2.z()/l2.mag())<<endl<<endl;
   
   //calculate the time of flight using correct values for velocity
-  double  tof = j1.mag()/c_light + l1.mag()/c_light_r + j2.mag()/c_light + l2.mag()/c_light_r;
+   //  double  tof = j1.mag()/c_light + l1.mag()/c_light_r + j2.mag()/c_light + l2.mag()/c_light_r;
 
+   //this is possibly incorrect. for a lifetime of zero, it may be correct to stop at the reflection point
+  //and propagate the phase at the point of scattering. so the signal is a delta function with a fixed
+  //phase (polarity).
+     double  tof = j1.mag()/c_light + l1.mag()/c_light_r;
+  
   double txphase = getTxPhase(point.t()-(j1.mag()/c_light + l1.mag()/c_light_r));//find phase at retarded time
   //wave vector calculation, with correct phase velocity
   Hep3Vector  kvec1 = k*j1;
@@ -302,7 +322,10 @@ double RadioScatter::getRxPhase(HepLorentzVector point){
   double rxtime = getRxTime(point);//find advanced time
   double txtime = getTxTime(point);//find retarted time
   double txphase = getTxPhase(txtime);//find phase at retarded time
-  double tof = abs(rxtime-txtime);//time of flight
+  //time of full flight
+  //  double tof = abs(rxtime-txtime);//time of flight
+  //time of flight for zero lifetime(phase is fixed at interaction point)
+  double tof = point.t()-(point.vect()-tx.vect()).mag()/c_light;
   HepLorentzVector tx_pr=tx-point, pr_rx = point-rx;//make vectors
   //wave number addition
   Hep3Vector kvec1 = k*tx_pr.vect();
