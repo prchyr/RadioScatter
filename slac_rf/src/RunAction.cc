@@ -182,16 +182,16 @@ void RunAction::BeginOfRunAction(const G4Run* r)
 
   //redundant root files saved through geant root system
   // Get analysis manager
-  auto analysisManager = G4AnalysisManager::Instance();
+  // auto analysisManager = G4AnalysisManager::Instance();
 
-  // Open an output file
-  G4String runno = G4UIcommand::ConvertToString(r->GetRunID());
-  G4String dir="/home/natas/Documents/physics/geant/root/";
-  //    G4String fileName = "slac_rf_"+runno+"_";
-    G4String fileName = "slac_rf_photon";
-  //    G4String fileName = "slac_rf_particleinfo";
-  //  std::cout<<r->GetRunID()<<std::endl;
-  analysisManager->OpenFile(dir+fileName);
+  // // Open an output file
+  // G4String runno = G4UIcommand::ConvertToString(r->GetRunID());
+  // G4String dir="/home/natas/Documents/physics/geant/root/";
+  // //    G4String fileName = "slac_rf_"+runno+"_";
+  //   G4String fileName = "slac_rf_photon";
+  // //    G4String fileName = "slac_rf_particleinfo";
+  // //  std::cout<<r->GetRunID()<<std::endl;
+  // analysisManager->OpenFile(dir+fileName);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

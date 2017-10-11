@@ -102,9 +102,11 @@ void RadioScatter::setRxPos(Hep3Vector in){
   event.nPrimaries=n_primaries;
   cout<<"n primaries: "<<n_primaries<<endl;
 }
- void RadioScatter::setPolarization(char * p){
+void RadioScatter::setPolarization(char * p){
   pol=p;
-  cout<<"polarization: "<<p<<endl;
+  cout<<"polarization: "<<pol<<endl;
+  polarization=TString(pol);
+  //cout<<"polarization: "<<polarization<<endl;
 }
   void RadioScatter::setRxVals(double s=1., double gain=1.){
     samplerate = s*nanosecond;
@@ -193,22 +195,31 @@ use the calculated refraction vectors (from makeRays()) to sort out the correct 
   //find angle between plane of incidence and polarization vector
   double theta = atan(point.y()/point.z());
   double angle_dependence;
-  if(pol=="vertical"){
+  Hep3Vector l1plane(l1);
+  Hep3Vector l2plane(l2);
+  Hep3Vector vert(0,1,0), horiz(0,0,1); 
+  //  l1plane.setTheta(0);
+  l1plane.setPhi(0);
+  
+  if(polarization=="vertical"){
     //refraction angle change
     theta = theta+(pi/2.);
-    //set the correct polarization dot products.
-    Hep3Vector l1plane(l1.x(), l1.y(), 0);
-    Hep3Vector l2plane(l2.x(), l2.y(), 0);
 
-    angle_dependence = l1plane.unit().dot(l2plane.unit());  
+    //put the rx vector into the vertical pol plane
+    l2plane.setPhi(pi/2);
+
+    angle_dependence = l1plane.unit().dot(l2plane.unit());
+    //angle_dependence = horiz.unit().dot(l2plane.unit());
+
+
 
   }
   else{
-    Hep3Vector l1plane(l1.x(), 0, l1.z());
-    Hep3Vector l2plane(l2.x(), 0, l2.z());
+    //put the rx vector into the horiz polarization plane
+    l2plane.setPhi(0);
 
     angle_dependence = l1plane.unit().dot(l2plane.unit());  
-
+    //angle_dependence = horiz.unit().dot(l2plane.unit());
   }
   double amp1 = sqrt(pow(E1_para*cos(theta), 2)+pow(E1_perp*sin(theta), 2));
   double amp2 = sqrt(pow(E2_para*cos(theta), 2)+pow(E2_perp*sin(theta), 2));

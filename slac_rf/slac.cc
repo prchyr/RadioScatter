@@ -189,12 +189,17 @@ int main(int argc,char** argv)
       int xmin=-40000;
       int xstep=(xmax-xmin)/num;
 
+      int ymax=40000;
+      int ymin=-40000;
+      int ystep=(ymax-ymin)/num;
+
       int zmax=40000;
       int zmin=-40000;
       int zstep=(zmax-zmin)/num;
 
       for(int j=0;j<num;j++){
 	for(int i=0;i<num;i++){
+	  for(int k=0;k<num;k++){
 
 	  // tx=radio->getTxPos();
 	  // rx=radio->getRxPos();
@@ -202,8 +207,8 @@ int main(int argc,char** argv)
 	  // cout<<"rx position"<<rx.x()<<" "<<rx.y()<<" "<<rx.z()<<endl<<endl<<endl;
 	  // //	tx.setRThetaPhi(j*m, angle, 0);
 	  rx.setX(xmin+(j*xstep));
-	  rx.setY(zmin+(i*zstep));
-	
+	  rx.setY(ymin+(i*ystep));
+	  rx.setZ(zmin+(k*zstep));
 	  // phi=pi;
 	  // rx.setRThetaPhi(j*m, theta, phi);
 	  // rx.setZ(rx.z()+3.5*m);
@@ -211,6 +216,7 @@ int main(int argc,char** argv)
 	  radio->setRxPos(rx);
 	  runManager->BeamOn(10);
 	  //	theta+=2*pi/num;
+	  }
 	}
       }
     }
