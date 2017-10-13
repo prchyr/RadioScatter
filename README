@@ -1,25 +1,54 @@
-this is the RadioScatter module. It has been made to run independently of, or within, GEANT4. It simulates RF scattering from points in 4 space, which may be ionization deposits left by particle showers produced in geant4. it is highly customizable. the module slac_rf is g4 source code that will produce histograms of voltages received in a scattering experiment. to use it, you need to have GEANT4 and know how to use it (somewhat) and also have the RadioScatter source, which i suggest doing like so: (assuming you have the correct privileges to write to your /usr/local directory (you should))
+this is the RadioScatter module. It has been made to run independently of, or within, GEANT4. It simulates RF scattering from points in 4 space, which may be ionization deposits left by particle showers produced in geant4. it is highly customizable. the module slac_rf is g4 source code that will produce histograms of voltages received in a scattering experiment. To use it, you need to have the following things installed and working:
 
-********************************
-default installation (suggested)
-********************************
+ROOT 6.08 or higher (https://root.cern.ch/downloading-root)
+CLHEP (https://gitlab.cern.ch/CLHEP/CLHEP)
+GEANT4* (https://geant4.web.cern.ch/geant4/support/download.shtml)
 
-cd /usr/local/
+*technically you can use any monte-carlo program you want with RadioScatter, but this installation requires GEANT4 in order to build the module into a working simulation.
+
+i'm gonna assume that you know how to use GEANT4 and ROOT. CLHEP is just a nice library for doing calculations with 3 and 4-vectors that i like quite well, so install that too plz.
+
+
+**********************
+default installation
+**********************
+
+cd /your/favorite/source/dir  (like /usr/local or something)
 git clone https://github.com/prchyr/RadioScatter.git
 cd RadioScatter
 ./install.sh
 
 
-this will install the header files and shared libraries (for root analysis) to the right places. it will put the libs inside of /usr/local/lib and the header files in /usr/local/include. 
+this will install the header files and shared libraries (for root analysis) to the right places. it will put the libs inside of /usr/local/lib and the header files in /usr/local/include. It will make a build directory (inside the RadioScatter directory) called slac_build, where the GEANT4 program is installed. running this sim will be explained below.
 
 *********************************
-fancy installation
+slightly fancier installation
 *********************************
 
-cd /your/chosen/dir
+you can also send an argument to the install script which will install the GEANT4 program to any directory you choose. so this is done like so:
+
+cd /your/favorite/source/dir  (like /usr/local or something)
 git clone https://github.com/prchyr/RadioScatter.git
+cd RadioScatter
+./install.sh /path/to/your/preferred/GEANT4/app/location
+
+**********************************
+yet a fancier installation
+**********************************
+
+say you want your libraries installed in some other place than /usr/local, you can set the LIB_INSTAL_DIR variable in your bashrc
+
+cd /your/favorite/source/dir
+git clone https://github.com/prchyr/RadioScatter.git
+export LIB_INSTALL_DIR=/your/preferred/library/install/dir
+cd RadioScatter
+./install.sh /path/to/your/preferred/GEANT4/app/location
 
 
+all of these should work, at least on UBUNTU 16.04
+
+*****************************************************************************************
+*****************************************************************************************
 
 there is currently no documentation beyond this readme, comments in the header file, and a paper:
 
@@ -27,12 +56,12 @@ http://arxiv.org/abs/1710.02883
 
 The included slac_rf module is built around one of the GEANT4 examples, and i only claim responsibility for my changes-the underlying beauty of GEANT4 is not in any way my doing!
 
-installing::
-
 
 how it works, breifly:
 
-The RadioScatter module calculates rf scattering from a point in 4 space. this point can be anything. it is most useful to have the points be from some monte-carlo generation, like GEANT4, which is what i used to write it. you can probably fit it into any MC program with relative ease. 
+The RadioScatter module calculates rf scattering from a point in 4 space. this point can be anything. it is most useful to have the points be from some monte-carlo generation, like GEANT4, which is what i used to write it. you can probably fit it into any MC program with relative ease. details of the math are in the paper linked above.
+
+how it works within GEANT4:
 
 the Radioscatter.hh file is just a header file that needs to be included in the GEANT4 source. there should be several different ways to use it, but one way is to globally declare the RadioScatter object in the action initialization file, which is called in the main .cc file of the simulation. it is then best to pass the constructed radio scatter object within the action initialization to the run action and stepping action files of the simulation. this will allow access to different methods that are useful at different points in the sumulation lifetime. for example, the data is filled during the stepping action phase, but the ROOT histograms are cosed at the end of the run action, through a built in GEANT4 method called EndOfRunAction. 
 
@@ -47,28 +76,18 @@ and
 
 which can be used without the need to re-compile the GEANT4 source.
 
-if you are using this, you likely have GEANT4 running and know how to use cmake somewhat. first thing, you need to set 2 environment variables.
+ok so to actually run the program,
 
-RS_SOURCE_DIR is where the RadioScatter folder is. at the moment, please install RadioScatter under /usr/local/include. and set
-
-RS_SOURCE_DIR=/usr/local/include/RadioScatter
-
-then, you can set LIB_INSTALL_DIR to something other than /usr/local/lib if you don't want the libraries installed there. 
-
-so once you've done that, do this:
-
-mkdir <build dir somewhere>
-cd <build dir somewhere>
-cmake path/to/RadioScatter/slac_rf
-make -B -j4
-make install
-
-where the -B just says to build all objects (can't be too careful) and the -j4 uses 4 cores. hopefully it finds all the things...CLHEP must be installed, but this is done through GEANT4, typically, so if G4 rund on your machine, this should too..
-
-then run by doing
+cd /path/to/geant4/program/install/dir/  (default is RadioScatter/slac_build unless you provided an argument to install.sh)
 
 ./slac_rf -m run1.mac -f "/path/to/file/and/filename.root"
 
-to set the root file name. each run is stored in an entry in a tree.
+to set the root file name, (-f) which is optional. each run is stored in an entry in a tree. there are some default macros:
 
-it might work for you. i hope it does. but it probably won't, at this point.
+run1.mac:
+	-this will set the tx position and the energies and such, but will run through a loop of RX positions, which are specified in the slac.cc file in RadioScatter/slac_rf/ which you can modify. if you do, you need to re-compile.
+
+run3.mac:
+	-this will set the tx position and rx position as specified in the file, and then run the beam for 10 events.
+
+enjoy. questions can be sent to prohira attt ku dottt edu
