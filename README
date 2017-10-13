@@ -22,7 +22,7 @@ cd RadioScatter
 this will install the header files and shared libraries (for root analysis) to the right places. it will put the libs inside of /usr/local/lib and the header files in /usr/local/include. It will make a build directory (inside the RadioScatter directory) called slac_build, where the GEANT4 program is installed. running this sim will be explained below.
 
 *********************************
-slightly fancier installation
+slightly fancier installation (RECOMMENDED)
 *********************************
 
 you can also send an argument to the install script which will install the GEANT4 program to any directory you choose. so this is done like so:
