@@ -195,31 +195,23 @@ use the calculated refraction vectors (from makeRays()) to sort out the correct 
   //find angle between plane of incidence and polarization vector
   double theta = atan(point.y()/point.z());
   double angle_dependence;
-  Hep3Vector l1plane(l1);
-  Hep3Vector l2plane(l2);
-  Hep3Vector vert(0,1,0), horiz(0,0,1); 
+ 
+  Hep3Vector n_hat(point-rx);
+  Hep3Vector vert(0,1.,0), horiz(0,0,1.); 
   //  l1plane.setTheta(0);
-  l1plane.setPhi(0);
+  //  l1plane.setPhi(0);
   
   if(polarization=="vertical"){
     //refraction angle change
     theta = theta+(pi/2.);
-
-    //put the rx vector into the vertical pol plane
-    l2plane.setPhi(pi/2);
-
-    angle_dependence = l1plane.unit().dot(l2plane.unit());
-    //angle_dependence = horiz.unit().dot(l2plane.unit());
-
-
+    //sin theta w/r/t polarization axis
+    angle_dependence = vert.unit().cross(n_hat.unit()).mag();
 
   }
   else{
-    //put the rx vector into the horiz polarization plane
-    l2plane.setPhi(0);
+    //sin theta w/r/t polarization axis
+    angle_dependence = horiz.unit().cross(n_hat.unit()).mag();  
 
-    angle_dependence = l1plane.unit().dot(l2plane.unit());  
-    //angle_dependence = horiz.unit().dot(l2plane.unit());
   }
   double amp1 = sqrt(pow(E1_para*cos(theta), 2)+pow(E1_perp*sin(theta), 2));
   double amp2 = sqrt(pow(E2_para*cos(theta), 2)+pow(E2_perp*sin(theta), 2));
