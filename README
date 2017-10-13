@@ -1,18 +1,40 @@
-this is the RadioScatter module for GEANT4. It simulates RF scattering from ionization deposits left by particle showers produced in geant4. it is highly customizable, and lives inisde of GEANT4. the module slac_rf is g4 source code that will produce histograms of voltages received in a scattering experiment. to use it, you need to have GEANT4 and know how to use it (somewhat) and also have the RadioScatter.hh source file which should be done like this:
+this is the RadioScatter module. It has been made to run independently of, or within, GEANT4. It simulates RF scattering from points in 4 space, which may be ionization deposits left by particle showers produced in geant4. it is highly customizable. the module slac_rf is g4 source code that will produce histograms of voltages received in a scattering experiment. to use it, you need to have GEANT4 and know how to use it (somewhat) and also have the RadioScatter source, which i suggest doing like so: (assuming you have the correct privileges to write to your /usr/local directory (you should))
 
-cd /usr/local/include
+********************************
+default installation (suggested)
+********************************
+
+cd /usr/local/
+git clone https://github.com/prchyr/RadioScatter.git
+cd RadioScatter
+./install.sh
+
+
+this will install the header files and shared libraries (for root analysis) to the right places. it will put the libs inside of /usr/local/lib and the header files in /usr/local/include. 
+
+*********************************
+fancy installation
+*********************************
+
+cd /your/chosen/dir
 git clone https://github.com/prchyr/RadioScatter.git
 
-which will put the source header in a place where it can be read by the slac_rf module.
 
-there is currently no documentation beyond this readme, comments in the header file, and a paper in the works which will be on the arxiv soon.
+
+there is currently no documentation beyond this readme, comments in the header file, and a paper:
+
+http://arxiv.org/abs/1710.02883
 
 The included slac_rf module is built around one of the GEANT4 examples, and i only claim responsibility for my changes-the underlying beauty of GEANT4 is not in any way my doing!
+
+installing::
 
 
 how it works, breifly:
 
-the RadioScatter module is just a header file that needs to be included in the GEANT4 source. there should be several different ways to use it, but one way is to globally declare the RadioScatter object in the action initialization file, which is called in the main .cc file of the simulation. it is then best to pass the constructed radio scatter object within the action initialization to the run action and stepping action files of the simulation. this will allow access to different methods that are useful at different points in the sumulation lifetime. for example, the data is filled during the stepping action phase, but the ROOT histograms are cosed at the end of the run action, through a built in GEANT4 method called EndOfRunAction. 
+The RadioScatter module calculates rf scattering from a point in 4 space. this point can be anything. it is most useful to have the points be from some monte-carlo generation, like GEANT4, which is what i used to write it. you can probably fit it into any MC program with relative ease. 
+
+the Radioscatter.hh file is just a header file that needs to be included in the GEANT4 source. there should be several different ways to use it, but one way is to globally declare the RadioScatter object in the action initialization file, which is called in the main .cc file of the simulation. it is then best to pass the constructed radio scatter object within the action initialization to the run action and stepping action files of the simulation. this will allow access to different methods that are useful at different points in the sumulation lifetime. for example, the data is filled during the stepping action phase, but the ROOT histograms are cosed at the end of the run action, through a built in GEANT4 method called EndOfRunAction. 
 
 there are also several commands available through the RSmessenger.hh/cc files which allow for manipulation of the radioscatter configuration through the GEANT4 macro files. things such as
 

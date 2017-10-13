@@ -16,17 +16,27 @@ double EventTree::power(){
   return val;
 }
 
-// double EventTree::duration(){
-//   double val, lastval, avg;
-//   int entries=eventHist->GetNbinsX();
-//   for(int i=0;i<entries;i++){
-//     val=eventHist->GetBinContent(i);
-//     if(lastval=0&&avg=0&&val!=0){
-      
-//   }
+double EventTree::duration(){
+
+  TGraph *og = getComplexEnvelope(300);
+  double * xx=og->GetX();
+  double * yy=og->GetY();
   
-//   return duration;
-// }
+  double lastval=0, val, time1=0, time2=0;
+  double thresh=.0001;
+  for(int i=40;i<og->GetN()-40;i++){
+    if(yy[i]>thresh&&lastval<thresh){
+      time1=xx[i];
+    }
+    if(yy[i]<thresh&&lastval>thresh){
+      time2=xx[i];
+    }
+    lastval=yy[i];
+  }
+  //  cout<<time2<<" "<<time1<<endl;
+  return time2-time1;
+
+}
 
 TGraph * EventTree::getComplexEnvelope(double cutoff){
   vector<double> xx, yy;

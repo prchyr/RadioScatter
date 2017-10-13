@@ -194,7 +194,7 @@ use the calculated refraction vectors (from makeRays()) to sort out the correct 
 
   //find angle between plane of incidence and polarization vector
   double theta = atan(point.y()/point.z());
-  double angle_dependence;
+  double angle_dependence=1.;
  
   Hep3Vector n_hat(point-rx);
   Hep3Vector vert(0,1.,0), horiz(0,0,1.); 
@@ -210,7 +210,7 @@ use the calculated refraction vectors (from makeRays()) to sort out the correct 
   }
   else{
     //sin theta w/r/t polarization axis
-    angle_dependence = horiz.unit().cross(n_hat.unit()).mag();  
+        angle_dependence = horiz.unit().cross(n_hat.unit()).mag();  
 
   }
   double amp1 = sqrt(pow(E1_para*cos(theta), 2)+pow(E1_perp*sin(theta), 2));

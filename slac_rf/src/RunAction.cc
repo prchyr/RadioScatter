@@ -219,9 +219,9 @@ void RunAction::EndOfRunAction(const G4Run* r)
   //  fRadio->WriteEvent("testroot.root", r->Get)
 
   //redundant filling of histogram through geant
-  auto analysisManager = G4AnalysisManager::Instance();
-  analysisManager->Write();
-  analysisManager->CloseFile();
+  // auto analysisManager = G4AnalysisManager::Instance();
+  // analysisManager->Write();
+  // analysisManager->CloseFile();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

@@ -1,10 +1,15 @@
 # $Id: CMakeLists.txt 100923 2016-11-03 10:50:34Z gcosmo $
 
+#
+
+
+
 #----------------------------------------------------------------------------
 # Setup the project
 #
 cmake_minimum_required(VERSION 2.8.10 FATAL_ERROR)
 project(slac)
+
 
 
 #----------------------------------------------------------------------------
@@ -36,22 +41,25 @@ include(${ROOT_USE_FILE})
 if(DEFINED ENV{RS_SOURCE_DIR})
   set(RS_INCLUDE_DIR $ENV{RS_SOURCE_DIR})
 else()
-  set(RS_INCLUDE_DIR /usr/local/include/RadioScatter)
+  set(RS_INCLUDE_DIR .)
 endif()
 
-if(DEFINED ENV{LIB_INSTALL_DIR})
-  set(LIB_INSTALL_DIR $ENV{LIB_INSTALL_DIR})
+if(DEFINED ENV{RS_INSTALL_DIR})
+  set(RS_INSTALL_DIR $ENV{RS_INSTALL_DIR}/include)
+  set(LIB_INSTALL_DIR $ENV{RS_INSTALL_DIR}/lib)
 else()
+  set(RS_INSTALL_DIR /usr/local/include/RadioScatter)
   set(LIB_INSTALL_DIR /usr/local/lib)
 endif()
 # # Setup Geant4 include directories and compile definitions
 # Setup include directory for this project
 #
 
+
+
 include(${Geant4_USE_FILE})
 
-
-include_directories(${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include ${CLHEP_INCLUDE_DIR} ${ROOT_INCLUDE_DIRS} ${RS_INCLUDE_DIR})
+include_directories(${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include ${CLHEP_INCLUDE_DIR} ${ROOT_INCLUDE_DIRS} ${RS_INCLUDE_DIR} ${RS_INCLUDE_DIR}/../)
 
 #----------------------------------------------------------------------------
 # Locate sources and headers for this project
@@ -95,6 +103,7 @@ set(SLAC_SCRIPTS
   init_vis.mac
   run1.mac
   run2.mac
+  run3.mac
   vis.mac
   )
 
@@ -110,5 +119,9 @@ endforeach()
 # Install the executable to 'bin' directory under CMAKE_INSTALL_PREFIX
 #
 install(TARGETS slac DESTINATION ${PROJECT_BINARY_DIR}/bin)
+install (FILES ${RS_INCLUDE_DIR}/RadioScatter.hh DESTINATION ${RS_INSTALL_DIR})
+install (FILES ${RS_INCLUDE_DIR}/RadioScatter.cc DESTINATION ${RS_INSTALL_DIR})
+install (FILES ${RS_INCLUDE_DIR}/EventTree.hh DESTINATION ${RS_INSTALL_DIR})
+install (FILES ${RS_INCLUDE_DIR}/EventTree.cc DESTINATION ${RS_INSTALL_DIR})
 install (FILES ${PROJECT_BINARY_DIR}/libEventTree_rdict.pcm DESTINATION ${LIB_INSTALL_DIR})
 install (TARGETS EventTree LIBRARY DESTINATION ${LIB_INSTALL_DIR})
