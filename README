@@ -25,12 +25,14 @@ this will install the header files and shared libraries (for root analysis) to t
 slightly fancier installation (RECOMMENDED)
 *********************************
 
-you can also send an argument to the install script which will install the GEANT4 program to any directory you choose. so this is done like so:
+you can also send an argument to the install script which will install the GEANT4 program to a directory of your choosing. so this is done like so:
 
 cd /your/favorite/source/dir  (like /usr/local or something)
 git clone https://github.com/prchyr/RadioScatter.git
 cd RadioScatter
-./install.sh /path/to/your/preferred/GEANT4/app/location
+./install.sh /your/preferred/GEANT4/app/folder
+
+NOTE** the specified directory is the one that the build files will actually be put into. so don't do /usr/local, instead do /usr/local/slac_build_dir or something like that. 
 
 **********************************
 yet a fancier installation
