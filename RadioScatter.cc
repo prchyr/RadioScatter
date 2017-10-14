@@ -196,7 +196,8 @@ use the calculated refraction vectors (from makeRays()) to sort out the correct 
   double theta = atan(point.y()/point.z());
   double angle_dependence=1.;
  
-  Hep3Vector n_hat(point-rx);
+  Hep3Vector nhat((point-rx).vect().unit());
+
   Hep3Vector vert(0,1.,0), horiz(0,0,1.); 
   //  l1plane.setTheta(0);
   //  l1plane.setPhi(0);
@@ -204,13 +205,15 @@ use the calculated refraction vectors (from makeRays()) to sort out the correct 
   if(polarization=="vertical"){
     //refraction angle change
     theta = theta+(pi/2.);
-    //sin theta w/r/t polarization axis
-    angle_dependence = vert.unit().cross(n_hat.unit()).mag();
+
+    angle_dependence = vert.cross(nhat).mag();
+    //    angle_dependence = nhat.cross(nhat.cross(vert)).mag();
 
   }
   else{
-    //sin theta w/r/t polarization axis
-        angle_dependence = horiz.unit().cross(n_hat.unit()).mag();  
+
+    angle_dependence = horiz.cross(nhat).mag();
+    //    angle_dependence = nhat.cross(nhat.cross(horiz)).mag();
 
   }
   double amp1 = sqrt(pow(E1_para*cos(theta), 2)+pow(E1_perp*sin(theta), 2));
