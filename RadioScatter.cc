@@ -231,7 +231,18 @@ use the calculated refraction vectors (from makeRays()) to sort out the correct 
   Hep3Vector one=tx.vect()-point.vect();
   Hep3Vector two=point.vect()-rx.vect();
 
-  double amplitude = (tx_voltage/dist)*one.unit().dot(two.unit());
+  double angle_dependence=1.;
+  Hep3Vector nhat((point-rx).vect().unit());
+  Hep3Vector vert(0,1.,0), horiz(0,0,1.); 
+
+  if(polarization=="vertical"){
+    angle_dependence = vert.cross(nhat).mag();
+  }
+  else{
+    angle_dependence = horiz.cross(nhat).mag();
+  }
+
+  double amplitude = (tx_voltage/dist)*angle_dependence;
   
 
   return amplitude;
@@ -656,7 +667,7 @@ find the path length including refraction
   //#undef RSCAT_HIST_DECLARE
 }
 
-int RadioScatter::writeRun(float num_events=1.){
+int RadioScatter::writeRun(float num_events, int debug){
   //this is a stupid check for multi-threaded mode,
   //will only write the run if there has indeed been a run
   if(event.totNScatterers==0){
@@ -687,7 +698,9 @@ int RadioScatter::writeRun(float num_events=1.){
 
   //  f->Append(ogr);
   t->Fill();
-  cout<<"The RadioScatter root file: "<<endl<<f->GetName()<<endl<<" has been filled. This is run number "<<fRunCounter<<"."<<endl;
+  if(debug==1){
+    cout<<"The RadioScatter root file: "<<endl<<f->GetName()<<endl<<" has been filled. This is run number "<<fRunCounter<<"."<<endl;
+  }
   //f->Write();
   time_hist->Reset();
   re_hist->Reset();

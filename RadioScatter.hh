@@ -155,7 +155,7 @@ public:
   void printEventStats();
   void writeHist(TString filename, float num_events);
   TH1F * scaleHist(float num_events);
-  int writeRun(float num_events);
+  int writeRun(float num_events=1., int debug=0);
   void writeEvent(TString filename, float num_events);
   void close();
 
