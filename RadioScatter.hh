@@ -86,7 +86,7 @@ class RadioScatter{
 
   //variables for refraction manipulation
   
-    double k_r, c_light_r, mag1, mag2, tof, txphase, kx;
+  double k_r, c_light_r, mag1, mag2;//, tof, txphase, kx;
   //distance from the antennas to the interface, must be set by user
   double tx_interface_dist,rx_interface_dist;
   //relative index of refraction, calculated to always be >1.

@@ -232,7 +232,7 @@ use the calculated refraction vectors (from makeRays()) to sort out the correct 
   Hep3Vector two=point.vect()-rx.vect();
 
   double angle_dependence=1.;
-  Hep3Vector nhat((point-rx).vect().unit());
+  Hep3Vector nhat(two.unit());
   Hep3Vector vert(0,1.,0), horiz(0,0,1.); 
 
   if(polarization=="vertical"){
@@ -263,26 +263,26 @@ use the calculated refraction vectors (from makeRays()) to sort out the correct 
 
   double RadioScatter::getRxTime(HepLorentzVector point){
   //  double dist = findPathLengthWithRefraction(rx,point, rx_interface_dist);
- 
-  double dist = (rx.vect()-point.vect()).mag();
+    Hep3Vector sep(rx.vect()-point.vect());
+  double dist = sep.mag();
   double time = point.t()+(dist/c_light);
 
   return time;
   }
 
   double RadioScatter::getTxTime(HepLorentzVector point, int direct=0){
-  //    Hep3Vector dist = point.vect()-tx.vect();
+  Hep3Vector distvec = point.vect()-tx.vect();
   double dist=0;
   if(direct==0){
     if(REFRACTION_FLAG==1){
       dist = findPathLengthWithRefraction(tx,point, tx_interface_dist);
     }
     else{
-      dist= (point.vect()-tx.vect()).mag();
+      dist= distvec.mag();
     } 
   }
   else{
-    dist = (point.vect()-tx.vect()).mag();
+    dist = distvec.mag();
   }
     double time = point.t()-(dist/c_light);
 
@@ -322,7 +322,7 @@ the modified wavenumber and speed of light (for the medium) respectively
   //phase (polarity).
      double  tof = j1.mag()/c_light + l1.mag()/c_light_r;
   
-  double txphase = getTxPhase(point.t()-(j1.mag()/c_light + l1.mag()/c_light_r));//find phase at retarded time
+  double txphase = getTxPhase(point.t()-tof);//find phase at retarded time
   //wave vector calculation, with correct phase velocity
   Hep3Vector  kvec1 = k*j1;
   Hep3Vector  kvec2 = k_r*l1;
@@ -423,7 +423,7 @@ calculate the phase, the amplitude, and the prefactors for cross-section,
   // int dumb=1;
   // if(dumb==1){
   if(checkTxOn(getTxTime(point))==1){
-    
+
     if(REFRACTION_FLAG==1){
       Hep3Vector  q1 = findRefractionPlane(tx, point);//make a plane where the refraction will happen
       Hep3Vector j1;
@@ -478,17 +478,15 @@ calculate the phase, the amplitude, and the prefactors for cross-section,
     double prefactor = filter*n*n_primaries*cross_section*rx_amplitude*omega/(pow(omega, 2)+pow(nu_col, 2));
     //now calculate real and imaginary e fields
     //double E= prefactor*omega*cos(rx_phase)-prefactor*nu_col*sin(rx_phase);
-    double E_real= prefactor*omega*cos(rx_phase)-prefactor*nu_col*sin(rx_phase);
+    double E_real= prefactor*omega*cos(rx_phase)+prefactor*nu_col*sin(rx_phase);
       
     double E_imag = prefactor*-nu_col*cos(rx_phase)+prefactor*omega*sin(rx_phase);
       
       
-    //make sure phase term is analytic
-    if(rx_phase>0&&rx_phase<999&&rx_amplitude>0&&rx_amplitude<999){
-      time_hist->Fill(rx_time, E_real);
-      re_hist->Fill(rx_time, E_real);
-      im_hist->Fill(rx_time, E_imag);
-    }
+    time_hist->Fill(rx_time, E_real);
+    re_hist->Fill(rx_time, E_real);
+    im_hist->Fill(rx_time, E_imag);
+
       
     return E_real;
   }
@@ -541,15 +539,15 @@ find the path length including refraction
   
 }
 
-   double RadioScatter::power(){
-  double p;
+double RadioScatter::power(){
+  double pwr;
   //  cout<<time_hist->GetNbinsX()<<endl;
   //time_hist.Draw();
   for(int i=0;i<time_hist->GetNbinsX();i++){
-    p+=pow(time_hist->GetBinContent(i), 2);
+    pwr+=pow(time_hist->GetBinContent(i), 2);
   }
   //  cout<<p<<endl;
-  return p;
+  return pwr;
   }
 //broken
   void RadioScatter::draw(){
@@ -631,7 +629,7 @@ find the path length including refraction
     yvals.push_back(event.eventHist->GetBinContent(i));
   }
   TGraph *ogr = new TGraph(xvals.size(), &xvals[0], &yvals[0]);
-  ogr->SetName("time_tgraph");
+  ogr->SetName("timeTGraph");
   // TTree *t = (TTree*)f->Get("tree");
   // t->SetBranchAddress("event_hist", &time_hist);
   // t->SetBranchAddress("primary_energy", &event.primary_energy);
