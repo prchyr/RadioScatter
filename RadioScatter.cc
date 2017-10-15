@@ -342,7 +342,8 @@ double RadioScatter::getRxPhase(HepLorentzVector point){
   //time of full flight
   //  double tof = abs(rxtime-txtime);//time of flight
   //time of flight for zero lifetime(phase is fixed at interaction point)
-  double tof = point.t()-(point.vect()-tx.vect()).mag()/c_light;
+  //  double tof = point.t()-(point.vect()-tx.vect()).mag()/c_light;
+  double tof=point.t()-txtime;
   HepLorentzVector tx_pr=tx-point, pr_rx = point-rx;//make vectors
   //wave number addition
   Hep3Vector kvec1 = k*tx_pr.vect();
