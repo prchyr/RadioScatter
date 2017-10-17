@@ -6,7 +6,7 @@ GEANT4* (https://geant4.web.cern.ch/geant4/support/download.shtml)
 
 *technically you can use any monte-carlo program you want with RadioScatter, but this installation requires GEANT4 in order to build the module into a working simulation.
 
-i'm gonna assume that you know how to use GEANT4 and ROOT. CLHEP is just a nice library for doing calculations with 3 and 4-vectors that i like quite well, so install that too plz.
+i'm gonna assume that you know how to use GEANT4 and ROOT. CLHEP is just a nice library for doing calculations with 3 and 4-vectors that i like quite well, so install that too plz. sometimes if you have put CLHEP in a strange place you need to set CLHEP_DIR to the place where you put clhep, but it will probably be found if you put it somewhere logical
 
 
 **********************
@@ -38,11 +38,11 @@ NOTE** the specified directory is the one that the build files will actually be 
 yet a fancier installation
 **********************************
 
-say you want your libraries installed in some other place than /usr/local, you can set the LIB_INSTAL_DIR variable in your bashrc
+say you want your libraries and headers installed in some other place than /usr/local, you can set the RS_INSTAL_DIR variable in your bashrc. then libraries will install to RS_INSTALL_DIR/lib and headers to RS_INSTALL_DIR/include
 
 cd /your/favorite/source/dir
 git clone https://github.com/prchyr/RadioScatter.git
-export LIB_INSTALL_DIR=/your/preferred/library/install/dir
+export RS_INSTALL_DIR=/your/preferred/install/dir
 cd RadioScatter
 ./install.sh /path/to/your/preferred/GEANT4/app/location
 
