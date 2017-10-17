@@ -237,9 +237,11 @@ use the calculated refraction vectors (from makeRays()) to sort out the correct 
 
   if(polarization=="vertical"){
     angle_dependence = vert.cross(nhat).mag();
+    //angle_dependence = nhat.cross(nhat.cross(vert)).mag();
   }
   else{
     angle_dependence = horiz.cross(nhat).mag();
+    //angle_dependence = nhat.cross(nhat.cross(horiz)).mag();
   }
 
   double amplitude = (tx_voltage/dist)*angle_dependence;
@@ -382,7 +384,7 @@ simulate the direct signal that would be seen at the receiver for CW
   TH1F *outhist=(TH1F*)in;
   HepLorentzVector point=rx;
   double rx_amp, rx_ph, amp;
-  rx_amp = tx_voltage/(tx.vect()-rx.vect()).mag();
+  rx_amp = tx_voltage*m/(tx.vect()-rx.vect()).mag();
   //cout<<"rx amp: "<<tx_voltage<<" "<<tx_voltage*m<<" "<<(tx.vect()-rx.vect()).mag()<<" "<<rx_amp;
   int size = in->GetNbinsX();
   //cout<<size<<endl; 
@@ -482,11 +484,11 @@ calculate the phase, the amplitude, and the prefactors for cross-section,
       
     double E_imag = prefactor*-nu_col*cos(rx_phase)+prefactor*omega*sin(rx_phase);
       
-      
-    time_hist->Fill(rx_time, E_real);
-    re_hist->Fill(rx_time, E_real);
-    im_hist->Fill(rx_time, E_imag);
-
+    if(abs(E_real)<tx_voltage){//simple sanity check      
+      time_hist->Fill(rx_time, E_real);
+      re_hist->Fill(rx_time, E_real);
+      im_hist->Fill(rx_time, E_imag);
+    }
       
     return E_real;
   }
