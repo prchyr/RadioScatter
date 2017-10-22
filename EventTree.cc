@@ -16,19 +16,55 @@ double EventTree::power(){
   return val;
 }
 
+double EventTree::startFreq(){
+  double freq;
+  return freq;
+}
+
+double EventTree::stopFreq(){
+  double freq;
+  return freq;
+}
+
+double EventTree::bandWidth(){
+  double width;
+  return width;
+}
+
+double EventTree::chirpSlope(){
+  double slope;
+  return slope;
+}
+
 double EventTree::duration(){
 
-  TGraph *og = getComplexEnvelope(300);
+  TGraph *og = getComplexEnvelope(100);
   double * xx=og->GetX();
   double * yy=og->GetY();
-  
-  double lastval=0, val, time1=0, time2=0;
-  double thresh=.0001;
-  for(int i=40;i<og->GetN()-40;i++){
-    if(yy[i]>thresh&&lastval<thresh){
+  int n=og->GetN();
+  double lastval=0, val, time1=0, time2=0, avg=0, last_avg=0;
+  //  std::deque<double> avg_vec(10, 0);
+  double thresh=.01;
+    double highthresh=.01, lowthresh=.0001;
+  for(int i=10;i<n-10;i++){
+    // avg_vec.pop_front();
+    // avg_vec.push_back(yy[i]);
+    // for(int j=0;j<10;j++){
+    //   avg+=avg_vec[j]/10.;
+    // }
+    // //    cout<<avg<<endl;
+    // if(avg>thresh&&last_avg<thresh){
+    //   time1=xx[i];
+    // }
+    // if(avg<thresh&&last_avg>thresh){
+    //   time2=xx[i];
+    // }
+    // last_avg=avg;
+    // avg=0;
+    if(yy[i]>highthresh&&lastval<=highthresh){
       time1=xx[i];
     }
-    if(yy[i]<thresh&&lastval>thresh){
+    if(yy[i]<lowthresh&&lastval>=lowthresh){
       time2=xx[i];
     }
     lastval=yy[i];
@@ -46,7 +82,7 @@ TGraph * EventTree::getComplexEnvelope(double cutoff){
     yy.push_back(sqrt(pow(reHist->GetBinContent(i), 2)+pow(imHist->GetBinContent(i), 2)));
   }
   
-  if(cutoff){
+  if(cutoff>0){
     vector<double> out;  
     double w = cutoff*2.*pi*1e6;
     //    double T = 1/(sampleRate*1e9);

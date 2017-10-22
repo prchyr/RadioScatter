@@ -6,7 +6,7 @@
 #include "TString.h"
 #include "TTree.h"
 #include "TGraph.h"
-
+#include <deque>
 
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "CLHEP/Vector/ThreeVector.h"
@@ -55,7 +55,10 @@ public:
   TGraph * getGraph();
   
   
-  double slope();
+  double chirpSlope();
+  double startFreq();
+  double stopFreq();
+  double bandWidth();
   double peakV();
   double rms();
   double duration();
