@@ -16,6 +16,16 @@ double EventTree::power(){
   return val;
 }
 
+double EventTree::rms(){
+  double val;
+  int entries = eventGraph->GetN();
+  double * yy = eventGraph->GetY();
+  for(int i=0;i<entries;i++){
+    val+=(yy[i]*yy[i])/entries;
+  }
+  return sqrt(val);
+}
+
 double EventTree::startFreq(){
   double freq;
   return freq;
