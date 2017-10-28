@@ -175,31 +175,38 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
   G4double psThickness = 1.8*cm;
   G4double absoThickness = 1.*m;
 
-  //for the poly target
+  //for the T510 poly target
   G4double dx1= .5*61*cm;
   G4double dx2= .5*61*cm;
   G4double dy2= .5*97*cm;//Because of getting the Half of the trapezoid
   G4double dy1= .5*25.4*cm;
   G4double dz=  .5*396*cm;
-  
-  // G4double dx1= 5.*61*cm;
-  // G4double dx2= 5.*61*cm;
-  // G4double dy2= 5.*97*cm;//Because of getting the Half of the trapezoid
-  // G4double dy1= 5.*97*cm;
-  // G4double dz=  5.*396*cm;
+
+  //for the poly cylinder
+  G4double tgtRadius = 1.5*2.54*cm;//3 inches
+  G4double tgtLength = 8*12*2.54*cm;//8 feet
+
+  //for a full world volume (no refraction)
+  // G4double dx1= 500.*61*cm;
+  // G4double dx2= 500.*61*cm;
+  // G4double dy2= 500.*97*cm;//Because of getting the Half of the trapezoid
+  // G4double dy1= 500.*97*cm;
+  // G4double dz=  500.*396*cm;
 
 
 
   //  G4double gapThickness = 3.*tankRadius;
   G4double bossLength = 8.*cm;
   G4double bossRadius = 3.*cm;
+
   G4double targetSizeXY = 2.*dx1;
-  auto layerThickness = 2.*dz;
+    auto layerThickness = 2.*dz;
+    //  auto layerThickness = tgtLength;
   //    auto layerThickness = iceThickness;
   //    auto layerThickness = absoThickness + gapThickness;
   auto targetThickness = (nofLayers * layerThickness);
-  auto worldSizeXY = 3. * targetThickness;
-  auto worldSizeZ  = 3. * targetThickness; 
+  auto worldSizeXY = 10. * targetThickness;
+  auto worldSizeZ  = 10. * targetThickness; 
   
   // Get materials
   auto defaultMaterial = G4Material::GetMaterial("Galactic");
@@ -339,14 +346,19 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
   //uncomment for just the box
   //  auto box = new G4Box("box", dx1, dy1, dz);
   //auto tgtLV = new G4LogicalVolume(box, targetMaterial, "Tgt");
-  
+
+  //this is the T510 target
   auto trapezoid = new G4Trd("trapezoid", dx1, dx2, dy1, dy2, dz);
   auto box = new G4Box("box", 2.*dx1, dy2, 2.*dz);
   auto tgtS = new G4SubtractionSolid("Tgt", trapezoid, box, G4Translate3D(0., -dy1-dy2, 0.));
   auto tgtLV = new G4LogicalVolume(tgtS, targetMaterial, "Tgt");
   fTgtPV = new G4PVPlacement(0, G4ThreeVector(0., -.5*dy2, 0.), tgtLV, "Tgt", layerLV, false, 0, fCheckOverlaps);
 
-  
+
+  //for a cylinder instead of the T510 target (comment the above stuff)
+  // auto tgtS = new G4Tubs("Tgt", 0., tgtRadius, tgtLength/2, 0., twopi);
+  // auto tgtLV = new G4LogicalVolume(tgtS, targetMaterial, "Tgt");
+  // fTgtPV = new G4PVPlacement(0, G4ThreeVector(0,0,0), tgtLV, "Tgt", layerLV, false, 0, fCheckOverlaps);
   //                               
   // Absorber
   //

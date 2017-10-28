@@ -175,7 +175,7 @@ void RunAction::BeginOfRunAction(const G4Run* r)
 
   //THESE CALLS ARE MANDATORY FOR THE REFRACTION CALCULATIONS
   //if not set, it is assumed everything happens in free space.
-    fRadio->setTxInterfaceDistX(fDetConstruction->GetTgtPV()->GetLogicalVolume()->GetSolid()->DistanceToIn(fRadio->getTxPos()));
+      fRadio->setTxInterfaceDistX(fDetConstruction->GetTgtPV()->GetLogicalVolume()->GetSolid()->DistanceToIn(fRadio->getTxPos()));
   fRadio->setRxInterfaceDistX(fDetConstruction->GetTgtPV()->GetLogicalVolume()->GetSolid()->DistanceToIn(fRadio->getRxPos()));
 
   
@@ -212,11 +212,10 @@ void RunAction::EndOfRunAction(const G4Run* r)
   //  fRadio->writeEvent("$HOME/Documents/physics/geant/root/slac_rf_rs_"+runno+"_freq_"+freq+".root", (float)r->GetNumberOfEvent());
 
   //optionally, set the filename in the macro by /RS/setOutputFileName and then here:
-  //TODO
-  // fRadio->writeEvent((float)r->GetNumberOfEvent());
   
-  fRadio->printEventStats(); 
-  //  fRadio->WriteEvent("testroot.root", r->Get)
+  
+  //  fRadio->printEventStats(); 
+  
 
   //redundant filling of histogram through geant
   // auto analysisManager = G4AnalysisManager::Instance();

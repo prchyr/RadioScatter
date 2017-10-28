@@ -34,7 +34,8 @@
 #include "DetectorConstructionT510tgt.hh"
 #include "ActionInitialization.hh"
 //#include "physicslist.hh"
-#include "OpNovicePhysicsList.hh"
+#include "SimplePhysicsList.hh"
+//#include "OpNovicePhysicsList.hh"
 #ifdef G4MULTITHREADED
 #include "G4MTRunManager.hh"
 #else
@@ -125,7 +126,8 @@ int main(int argc,char** argv)
   auto detConstruction = new DetectorConstruction();
   runManager->SetUserInitialization(detConstruction);
 
-  auto physicsList = new OpNovicePhysicsList;
+  //  auto physicsList = new OpNovicePhysicsList;
+  auto physicsList = new SimplePhysicsList;
   runManager->SetUserInitialization(physicsList);
 
   //  auto ftfp = new FTFP_BERT;
@@ -165,26 +167,19 @@ int main(int argc,char** argv)
   
   if ( macro.size() ) {
     // batch mode
-    G4String command = "/control/execute ";
-    UImanager->ApplyCommand(command+macro);
   
-   //  if(macro=="init_vis.mac")  {  
-  //   // interactive mode : define UI session
-  //   //    isInteractiveSession=true;
 
-  //   UImanager->ApplyCommand("/control/execute init_vis.mac");
-  //   if (ui->IsGUI()) {
-  //     UImanager->ApplyCommand("/control/execute gui.mac");
-  //   }
-  //   ui->SessionStart();
-  //    delete ui;
-  // }
+    //    isInteractiveSession=true;
+   G4String command = "/control/execute ";
+   UImanager->ApplyCommand(command+macro);
 
-  //}
-    if (macro=="run1.mac"){
-      Hep3Vector tx, rx;
+
+
+   if (macro=="run1.mac"){
+
+     Hep3Vector tx, rx;
       double theta=0, phi=0;
-      int num=20;
+      int num=10;
       int xmax=40000;
       int xmin=-40000;
       int xstep=(xmax-xmin)/num;
@@ -220,10 +215,18 @@ int main(int argc,char** argv)
 	}
       }
     }
-    else{
-
+    // else{
+    
+    // }
+  }
+  else{
+    UImanager->ApplyCommand("/control/execute init_vis.mac");
+    if (ui->IsGUI()) {
+      UImanager->ApplyCommand("/control/execute gui.mac");
     }
- }
+    ui->SessionStart();
+    delete ui;
+  }
   //close the RadioScatter object, to close the root file
   radio->close();
   // Job termination
