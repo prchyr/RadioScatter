@@ -50,9 +50,9 @@ public:
 
   //plotting things
 
-  TGraph * getComplexEnvelope(double cutoff=0);
-  TGraph * getLowpassFiltered(double cutoff);
-  TGraph * getGraph();
+  TGraph  getComplexEnvelope(double cutoff=0);
+  TGraph  getLowpassFiltered(double cutoff);
+  TGraph  getGraph();
   
   
   double chirpSlope();

@@ -47,11 +47,10 @@ double EventTree::chirpSlope(){
 }
 
 double EventTree::duration(){
-
-  TGraph *og = getComplexEnvelope(100);
-  double * xx=og->GetX();
-  double * yy=og->GetY();
-  int n=og->GetN();
+  TGraph og= getComplexEnvelope(100);
+  double * xx=og.GetX();
+  double * yy=og.GetY();
+  int n=og.GetN();
   double lastval=0, val, time1=0, time2=0, avg=0, last_avg=0;
   //  std::deque<double> avg_vec(10, 0);
   double thresh=.01;
@@ -84,7 +83,7 @@ double EventTree::duration(){
 
 }
 
-TGraph * EventTree::getComplexEnvelope(double cutoff){
+TGraph EventTree::getComplexEnvelope(double cutoff){
   vector<double> xx, yy;
   int entries=reHist->GetNbinsX();
   for(int i=0;i<entries;i++){
@@ -119,10 +118,14 @@ TGraph * EventTree::getComplexEnvelope(double cutoff){
     }
   
   
-  TGraph *og=new TGraph(xx.size(), &xx[0], &out[0]);
+  TGraph og(xx.size(), &xx[0], &out[0]);
+
   return og;
   }
   else{
-    TGraph *og=new TGraph(xx.size(), &xx[0], &yy[0]);
+    TGraph og(xx.size(), &xx[0], &yy[0]);
+
+    return og;
   }
 }
+
