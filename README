@@ -65,7 +65,7 @@ The RadioScatter module calculates rf scattering from a point in 4 space. this p
 
 how it works within GEANT4:
 
-the Radioscatter.hh file is just a header file that needs to be included in the GEANT4 source. there should be several different ways to use it, but one way is to globally declare the RadioScatter object in the action initialization file, which is called in the main .cc file of the simulation. it is then best to pass the constructed radio scatter object within the action initialization to the run action and stepping action files of the simulation. this will allow access to different methods that are useful at different points in the sumulation lifetime. for example, the data is filled during the stepping action phase, but the ROOT histograms are cosed at the end of the run action, through a built in GEANT4 method called EndOfRunAction. 
+the Radioscatter.hh file is just a header file that needs to be included in the GEANT4 source. there should be several different ways to use it, but one way is to globally declare the RadioScatter object in the main simulation .cc file of the simulation. it is then best to pass the constructed radio scatter object to the action initialization and the run action and stepping action files of the simulation. this will allow access to different methods that are useful at different points in the sumulation lifetime. for example, the data is filled during the stepping action phase, but the ROOT histograms are cosed at the end of the run action, through a built in GEANT4 method called EndOfRunAction. 
 
 there are also several commands available through the RSmessenger.hh/cc files which allow for manipulation of the radioscatter configuration through the GEANT4 macro files. things such as
 
@@ -76,7 +76,7 @@ and
 /RS/setTxVoltage 200
 /RS/setShowCWFlag 1
 
-which can be used without the need to re-compile the GEANT4 source.
+which can be used without the need to re-compile the GEANT4 source, making running simulations much more simple.
 
 ok so to actually run the program,
 
