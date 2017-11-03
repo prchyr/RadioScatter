@@ -180,16 +180,16 @@ int main(int argc,char** argv)
      Hep3Vector tx, rx;
       double theta=0, phi=0;
       int num=5;
-      int xmax=40000;
-      int xmin=-40000;
+      int xmax=40000000;
+      int xmin=-40000000;
       int xstep=(xmax-xmin)/num;
 
-      int ymax=40000;
-      int ymin=-40000;
+      int ymax=40000000;
+      int ymin=-40000000;
       int ystep=(ymax-ymin)/num;
 
-      int zmax=40000;
-      int zmin=-40000;
+      int zmax=40000000;
+      int zmin=-40000000;
       int zstep=(zmax-zmin)/num;
 
       for(int j=0;j<num;j++){
