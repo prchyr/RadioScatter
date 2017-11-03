@@ -89,8 +89,10 @@ target_link_libraries(EventTree ${ROOT_LIBRARIES} CLHEP::Vector)
 #
 
 add_executable(slac slac.cc ${sources} ${headers})
-target_link_libraries(slac  ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} EventTree)
+add_executable(threshscan threshscan.cc ${sources} ${headers})
 
+target_link_libraries(slac  ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} EventTree)
+target_link_libraries(threshscan ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} EventTree)
 #----------------------------------------------------------------------------
 # Copy all scripts to the build directory, i.e. the directory in which we
 # build B4a. This is so that we can run the executable directly because it
@@ -101,6 +103,7 @@ set(SLAC_SCRIPTS
   slac.in
   gui.mac
   init_vis.mac
+  threshmacro.mac
   run1.mac
   run2.mac
   run3.mac
