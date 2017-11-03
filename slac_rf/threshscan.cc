@@ -184,7 +184,7 @@ int main(int argc,char** argv)
 
      Hep3Vector tx, rx;
       double theta=0, phi=0;
-      int num=1;
+      int num=5;
       int xmax=10000000;
       int xmin=-10000000;
       int xstep=(xmax-xmin)/num;
