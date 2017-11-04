@@ -32,6 +32,8 @@
 #include "Analysis.hh"
 #include "EventAction.hh"
 #include "DetectorConstructionT510tgt.hh"
+#include "G4GeneralParticleSource.hh"
+#include "G4GeneralParticleSourceData.hh"
 #include "G4Run.hh"
 #include "G4RunManager.hh"
 #include "G4UnitsTable.hh"
@@ -141,7 +143,10 @@ RunAction::~RunAction()
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void RunAction::BeginOfRunAction(const G4Run* r)
-{ 
+{
+
+
+  
   /*
 *************
     set the RadioScatter parameters. 
@@ -176,8 +181,8 @@ void RunAction::BeginOfRunAction(const G4Run* r)
   //THESE CALLS ARE MANDATORY FOR THE REFRACTION CALCULATIONS
   //if not set, it is assumed everything happens in free space.
   //they tell RadioScatter the distance to the refraction boundary
-  //fRadio->setTxInterfaceDistX(fDetConstruction->GetTgtPV()->GetLogicalVolume()->GetSolid()->DistanceToIn(fRadio->getTxPos()));
-  //fRadio->setRxInterfaceDistX(fDetConstruction->GetTgtPV()->GetLogicalVolume()->GetSolid()->DistanceToIn(fRadio->getRxPos()));
+  fRadio->setTxInterfaceDistX(fDetConstruction->GetTgtPV()->GetLogicalVolume()->GetSolid()->DistanceToIn(fRadio->getTxPos()));
+  fRadio->setRxInterfaceDistX(fDetConstruction->GetTgtPV()->GetLogicalVolume()->GetSolid()->DistanceToIn(fRadio->getRxPos()));
 
   
 
@@ -208,6 +213,10 @@ void RunAction::EndOfRunAction(const G4Run* r)
   G4String runno = G4UIcommand::ConvertToString(r->GetRunID());
   G4String freq = G4UIcommand::ConvertToString(fRadio->getFreq());
 
+  auto gpsDat=G4GeneralParticleSourceData::Instance();
+  auto gps = gpsDat->GetCurrentSource();
+  fRadio->setPrimaryEnergy(gps->GetParticleEnergy());
+  
   //be sure to send writeRun the number of events in the run so that it scales the output histogram properly!!! assumes you have opened the root file already in the main program
   fRadio->writeRun((float)r->GetNumberOfEvent());
   //  fRadio->writeEvent("$HOME/Documents/physics/geant/root/slac_rf_rs_"+runno+"_freq_"+freq+".root", (float)r->GetNumberOfEvent());

@@ -215,7 +215,7 @@ int main(int argc,char** argv)
 	      //	radio->setTxPos(tx);
 	      double num=10000000*pow(10, l);
 	      radio->setRxPos(rx);
-	      radio->setNprimaries(num);
+	      radio->setNPrimaries(num);
 	      runManager->BeamOn(10);
 	      //	theta+=2*pi/num;
 	    }

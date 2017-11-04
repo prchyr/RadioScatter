@@ -108,10 +108,14 @@ void RadioScatter::setRxPos(Hep3Vector in){
  void RadioScatter::setTxOffTime(double off){
   tx_off = off;
 }
- void RadioScatter::setNprimaries(double n){
+ void RadioScatter::setNPrimaries(double n){
   n_primaries=n;
   event.nPrimaries=n_primaries;
   cout<<"n primaries: "<<n_primaries<<endl;
+}
+
+void RadioScatter::setPrimaryEnergy(double e){
+  event.primaryEnergy=e;
 }
 void RadioScatter::setPolarization(char * p){
   pol=p;

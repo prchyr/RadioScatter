@@ -33,7 +33,7 @@
 /RS/setTxVoltage 200
 /RS/setPolarization vertical
 /RS/setIndexOfRefraction 1.51
-/RS/setNprimaries 1e9 
+/RS/setNPrimaries 1e9 
 /RS/setShowCWFlag 0
 #/RS/setTxOnTime 0
 #/RS/setTxOffTime 40

@@ -115,7 +115,8 @@ public:
   void setRxPos(Hep3Vector in);
   void setTxFreq(double f);
   void setTxVoltage(double v);
-  void setNprimaries(double n);
+  void setNPrimaries(double n);
+  void setPrimaryEnergy(double e);
   void setPolarization(char * p);
   void setTxVals(double f, double power, double gain);
   void setRxVals(double s, double gain);
