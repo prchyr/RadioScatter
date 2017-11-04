@@ -20,6 +20,10 @@ RSmessenger::RSmessenger(RadioScatter *rscat)
   sampleRateCommand->SetGuidance("set sampleRate!");
   sampleRateCommand->SetParameterName("choice", false);
 
+  windowLengthCommand = new G4UIcmdWithADouble("/RS/setRecordWindowLength", this);
+  windowLengthCommand->SetGuidance("set the length of receiver record window");
+  windowLengthCommand->SetParameterName("choice", false);
+
   //  freqCommand->AvailableForStates(G4State_PreInit,G4State_Idle);
 
   voltageCommand = new G4UIcmdWithADouble("/RS/setTxVoltage", this);
@@ -30,8 +34,8 @@ RSmessenger::RSmessenger(RadioScatter *rscat)
   polarizationCommand->SetGuidance("set Polarization!");
   polarizationCommand->SetParameterName("choice", false);
 
-  nPrimariesCommand = new G4UIcmdWithADouble("/RS/setNprimaries", this);
-  nPrimariesCommand->SetGuidance("set Nprimaries!");
+  nPrimariesCommand = new G4UIcmdWithADouble("/RS/setNPrimaries", this);
+  nPrimariesCommand->SetGuidance("set NPrimaries!");
   nPrimariesCommand->SetParameterName("choice", false);
 
   showCWCommand = new G4UIcmdWithADouble("/RS/setShowCWFlag", this);
@@ -71,6 +75,7 @@ RSmessenger::RSmessenger(RadioScatter *rscat)
 RSmessenger::~RSmessenger()
 {
   delete freqCommand;
+  delete windowLengthCommand;
   delete voltageCommand;
   delete nPrimariesCommand;
   delete polarizationCommand;
@@ -85,7 +90,7 @@ void RSmessenger::SetNewValue(G4UIcommand* command,G4String newValue)
   double val = (double)StoD(newValue);
   if(command==freqCommand)rs->setTxFreq(val);
   if(command==voltageCommand)rs->setTxVoltage(val);
-
+  if(command==windowLengthCommand)rs->setRecordWindowLength(val);
   if(command==indexOfRefractionCommand)rs->setRelativeIndexOfRefraction(val);
   if(command==sampleRateCommand)rs->setRxSampleRate(val);
   if(command==nPrimariesCommand)rs->setNprimaries(val);

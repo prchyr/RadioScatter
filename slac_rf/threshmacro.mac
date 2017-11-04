@@ -30,6 +30,7 @@
 #/RS/setRxPos -5 0 0 m
 /RS/setTxFreq 1400
 /RS/setRxSampleRate 10
+#/RS/setRecordWindowLength
 /RS/setTxVoltage 20000
 /RS/setPolarization horizontal
 /RS/setIndexOfRefraction 1.51

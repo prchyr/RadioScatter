@@ -23,6 +23,7 @@ private:
   G4UIdirectory*             RSDir;
   G4UIcmdWithADouble*        freqCommand;
   G4UIcmdWithADouble*        voltageCommand;
+  G4UIcmdWithADouble*        windowLengthCommand;
   G4UIcmdWithAString*        polarizationCommand;
   G4UIcmdWithADouble*        nPrimariesCommand;
   G4UIcmdWithADouble*        sampleRateCommand;

@@ -1,4 +1,8 @@
+/*
+This is radioscatter. 
 
+steven prohira
+ */
 #include "RadioScatter.hh"
  using namespace CLHEP;
  using namespace std;
@@ -34,8 +38,11 @@ RadioScatter::RadioScatter(){
 
   double dist = tx.vect().mag()+rx.vect().mag();
   //cout<<dist.mag()<<endl;
-  start_time = 0.;
-  end_time = (dist/c_light) *3.;
+  //  start_time = 0.;
+  double time =(dist/c_light)-half_window; 
+
+  time<0?start_time=0:start_time=time;
+  end_time = start_time+(2*half_window);
   //  outfile = new TFile("/home/natas/Documents/physics/geant/root/time.root", "RECREATE");
   time_hist->SetBins(samplerate*(end_time-start_time), start_time, end_time);
   re_hist->SetBins(samplerate*(end_time-start_time), start_time, end_time);
@@ -46,6 +53,10 @@ RadioScatter::RadioScatter(){
   //  time_hist = hist;
   //  cout<<"hist initialized"<<endl;
  }
+
+void RadioScatter::setRecordWindowLength(double nanoseconds){
+  half_window= nanoseconds/2;
+}
 
 
 void RadioScatter::setTxPos(double xin, double yin, double zin){

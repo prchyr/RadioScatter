@@ -3,7 +3,7 @@ todo:
 antenna effective height
 antenna effective area
 (currently these are both set to 1 accross all frequencies)
-store all the data in a useful tree called 'eventTree', but this requires libraries for CLHEP which aren't linking right cause i have 2 versions. can be fixed probably. 
+
  
  */
 #ifndef R_Scat
@@ -69,7 +69,7 @@ class RadioScatter{
   //e^2/(4pi epislon0 m c^2)
   double cross_section=classic_electr_radius;
 
-  
+  double half_window = 300;//number of nanoseconds in 1/2 of the record window. can be changed;   
 
 
   //  ofstream of;
@@ -78,7 +78,7 @@ class RadioScatter{
 
   double samplerate=10, samplingperiod=.1, start_time=0, end_time=1000;
 
-  double txp, tx_on=-99999., tx_off=99999.;
+  double txp, tx_on=-9999999., tx_off=9999999.;
 
   int includeCW_flag=0;//whether to simulate the direct signal as well.
   
@@ -121,6 +121,7 @@ public:
   void setRxVals(double s, double gain);
   void setSimulationParameters(double n, char* tx_rx_pol, double relative_index_of_refraction, int flag);
   void setRelativeIndexOfRefraction(double iof);
+  void setRecordWindowLength(double nanoseconds);
   void setRxSampleRate(double rate);
   void setTxInterfaceDistX(double dist);
   void setRxInterfaceDistX(double dist);
