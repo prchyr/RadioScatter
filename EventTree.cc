@@ -16,6 +16,10 @@ double EventTree::power(){
   return val;
 }
 
+double EventTree::peakV(){
+  return eventHist->GetMaximum();
+}
+
 double EventTree::rms(){
   double val;
   int entries = eventGraph->GetN();

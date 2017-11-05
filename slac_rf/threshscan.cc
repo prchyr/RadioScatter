@@ -213,9 +213,9 @@ int main(int argc,char** argv)
 	      // rx.setRThetaPhi(j*m, theta, phi);
 	      // rx.setZ(rx.z()+3.5*m);
 	      //	radio->setTxPos(tx);
-	      double num=10000000*pow(10, l);
+	      double n=10000000*pow(10, l);
 	      radio->setRxPos(rx);
-	      radio->setNPrimaries(num);
+	      radio->setNPrimaries(n);
 	      runManager->BeamOn(10);
 	      //	theta+=2*pi/num;
 	    }

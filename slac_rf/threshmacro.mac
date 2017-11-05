@@ -28,9 +28,9 @@
 /gps/energy 10 GeV
 /RS/setTxPos 1000 0 3.5 m
 #/RS/setRxPos -5 0 0 m
-/RS/setTxFreq 1400
+/RS/setTxFreq 1450
 /RS/setRxSampleRate 10
-#/RS/setRecordWindowLength
+/RS/setRecordWindowLength 200
 /RS/setTxVoltage 20000
 /RS/setPolarization horizontal
 /RS/setIndexOfRefraction 1.51

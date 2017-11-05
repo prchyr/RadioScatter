@@ -13,5 +13,5 @@ else
 fi
 
 cmake $top_dir/slac_rf &&
-    make -j4 &&
+    make -B -j4 &&
     make install

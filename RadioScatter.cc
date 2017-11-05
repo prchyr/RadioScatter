@@ -36,7 +36,7 @@ RadioScatter::RadioScatter(){
 
  void RadioScatter::makeTimeHist(){
 
-  double dist = tx.vect().mag()+rx.vect().mag();
+  double dist = rx.vect().mag();
   //cout<<dist.mag()<<endl;
   //  start_time = 0.;
   double time =(dist/c_light)-half_window; 
@@ -63,22 +63,25 @@ void RadioScatter::setTxPos(double xin, double yin, double zin){
     tx.setX(xin);
     tx.setY(yin);
     tx.setZ(zin);
-    //    makeTimeHist();
+    RSCAT_HIST_DECLARE=false;//resize the output histogram
   }
 void RadioScatter::setRxPos(double xin, double yin, double zin){
     rx.setX(xin);
     rx.setY(yin);
     rx.setZ(zin);
+    RSCAT_HIST_DECLARE=false;
   }
 void RadioScatter::setTxPos(Hep3Vector in){
   tx.setX(in.x());
   tx.setY(in.y());
   tx.setZ(in.z());
+  RSCAT_HIST_DECLARE=false;
   }
 void RadioScatter::setRxPos(Hep3Vector in){
   rx.setX(in.x());
   rx.setY(in.y());
   rx.setZ(in.z());
+  RSCAT_HIST_DECLARE=false;
   }
   void RadioScatter::setTxVals(double f, double power=1., double gain=1.){
     frequency = f*megahertz;
