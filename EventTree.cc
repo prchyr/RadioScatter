@@ -20,6 +20,11 @@ double EventTree::peakV(){
   return eventHist->GetMaximum();
 }
 
+int EventTree::triggered(double thresh){
+  int trig=peakV()>thresh?1:0;
+  return trig;
+}
+
 double EventTree::rms(){
   double val;
   int entries = eventGraph->GetN();

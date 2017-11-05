@@ -206,17 +206,30 @@ int main(int argc,char** argv)
 	      // cout<<endl<<endl<<"tx position"<<tx.x()<<" "<<tx.y()<<" "<<tx.z()<<endl;
 	      // cout<<"rx position"<<rx.x()<<" "<<rx.y()<<" "<<rx.z()<<endl<<endl<<endl;
 	      // //	tx.setRThetaPhi(j*m, angle, 0);
-	      rx.setX(xmin+(j*xstep));
-	      rx.setY(ymin+(i*ystep));
-	      rx.setZ(zmin+(k*zstep));
+	      rx.setX(1000*pow(10, j));
+	      rx.setY(1000*pow(10, i));
+	      rx.setZ(1000*pow(10, k));
+	      // rx.setX(xmin+(j*xstep));
+	      // rx.setY(ymin+(i*ystep));
+	      // rx.setZ(zmin+(k*zstep));
 	      // phi=pi;
 	      // rx.setRThetaPhi(j*m, theta, phi);
 	      // rx.setZ(rx.z()+3.5*m);
 	      //	radio->setTxPos(tx);
-	      double n=10000000*pow(10, l);
+	      double n=100000*pow(10, l);
 	      radio->setRxPos(rx);
 	      radio->setNPrimaries(n);
-	      runManager->BeamOn(10);
+	      //this way we have a different run for each event, and so we can make a threshold curve as a function of position and primary energy
+	      runManager->BeamOn(1);
+	      runManager->BeamOn(1);
+	      runManager->BeamOn(1);
+	      runManager->BeamOn(1);
+	      runManager->BeamOn(1);
+	      runManager->BeamOn(1);
+	      runManager->BeamOn(1);
+	      runManager->BeamOn(1);
+	      runManager->BeamOn(1);
+	      runManager->BeamOn(1);
 	      //	theta+=2*pi/num;
 	    }
 	  }

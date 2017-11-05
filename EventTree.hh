@@ -63,6 +63,7 @@ public:
   double rms();
   double duration();
   double power();
+  int triggered(double thresh);
   
   ClassDef(EventTree, 1);
 };
