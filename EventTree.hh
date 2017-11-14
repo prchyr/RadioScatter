@@ -6,6 +6,7 @@
 #include "TString.h"
 #include "TTree.h"
 #include "TGraph.h"
+#include "TVirtualFFT.h"
 #include <deque>
 
 #include "CLHEP/Units/PhysicalConstants.h"
@@ -53,7 +54,7 @@ public:
   TGraph  getComplexEnvelope(double cutoff=0);
   TGraph  getLowpassFiltered(double cutoff);
   TGraph  getGraph();
-  
+  TGraph getSpectrum(bool dbflag=false);  
   
   double chirpSlope();
   double startFreq();

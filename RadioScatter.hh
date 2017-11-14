@@ -71,7 +71,8 @@ class RadioScatter{
 
   double half_window = 300;//number of nanoseconds in 1/2 of the record window. can be changed;   
 
-
+  int useAttnLengthFlag=0;
+  double attnLength=460*m;
   //  ofstream of;
   
   double frequency, period, lambda, k;
@@ -122,6 +123,7 @@ public:
   void setRxVals(double s, double gain);
   void setSimulationParameters(double n, char* tx_rx_pol, double relative_index_of_refraction, int flag);
   void setRelativeIndexOfRefraction(double iof);
+  void setCalculateUsingAttnLength(int val=0);
   void setRecordWindowLength(double nanoseconds);
   void setRxSampleRate(double rate);
   void setTxInterfaceDistX(double dist);

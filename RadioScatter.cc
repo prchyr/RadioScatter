@@ -58,6 +58,9 @@ void RadioScatter::setRecordWindowLength(double nanoseconds){
   half_window= nanoseconds/2;
 }
 
+void RadioScatter::setCalculateUsingAttnLength(int val){
+  useAttnLengthFlag=val;
+}
 
 void RadioScatter::setTxPos(double xin, double yin, double zin){
     tx.setX(xin);
@@ -98,6 +101,7 @@ void RadioScatter::setRxPos(Hep3Vector in){
   period = 1./omega;
   lambda = c_light/frequency;
   k = omega/c_light;
+  attnLength = attnLength - (180*m*(f/1000.));
   cout<<"tx frequency: "<<f<<endl;
 }
  void RadioScatter::setTxVoltage(double v){
@@ -239,6 +243,10 @@ use the calculated refraction vectors (from makeRays()) to sort out the correct 
 
 
   double amplitude = (tx_voltage/dist)*amp1*amp2*angle_dependence;
+
+  if(useAttnLengthFlag==1){
+    amplitude*=exp(-dist/attnLength);
+  }
   return amplitude;
 }
 
