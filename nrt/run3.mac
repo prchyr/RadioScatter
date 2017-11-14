@@ -1,0 +1,48 @@
+	
+# Change the default number of workers (in multi-threading mode) 
+#/run/numberOfWorkers 4
+#
+# Initialize kernel
+/run/initialize
+#
+#verbose output
+/tracking/verbose 0
+
+# Default kinematics: 
+
+#/process/inactivate eBrem
+
+
+
+/analysis/h1/create "pulse" "received RF signal" 32000 0 3200 "ns"
+
+/gps/particle e-
+
+# /gps/pos/type Volume
+# /gps/pos/shape Sphere
+# /gps/pos/centre 0 0 .3 km
+# /gps/pos/radius .3 km
+
+/gps/position 0 0 -10 m
+/gps/direction 0 0 1
+/gps/energy 13.4 GeV
+/RS/setTxPos 100 0 3.5 m
+/RS/setRxPos -10000 0 4.5 m
+/RS/setTxFreq 1450
+/RS/setRxSampleRate 10
+/RS/setTxVoltage 200
+/RS/setPolarization vertical
+/RS/setIndexOfRefraction 1.51
+/RS/setNPrimaries 1e9
+/RS/setRecordWindowLength 800
+/RS/setShowCWFlag 0
+#/RS/setTxOnTime 0
+#/RS/setTxOffTime 40
+
+
+
+/run/beamOn 10
+#/RS/setTxPos 4. 0 2.5 m
+#/RS/setRxPos -6. 0 0.5 m
+#/run/beamOn 10
+ 
