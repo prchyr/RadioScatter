@@ -712,7 +712,8 @@ int RadioScatter::writeRun(float num_events, int debug){
   event.reHist = re_hist;
   event.imHist = im_hist;
   event.freq=frequency;
-  event.totNScatterers = event.totNScatterers*n_primaries;
+  //total number of electrons per shower * total primaries in the bunch * the number of events in the run. 
+  event.totNScatterers = event.totNScatterers*n_primaries/num_events;
   vector<double> xvals, yvals;
   int entries=event.eventHist->GetNbinsX();
   for(int i=0;i<entries;i++){
