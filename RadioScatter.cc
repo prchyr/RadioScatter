@@ -12,6 +12,8 @@ RadioScatter::RadioScatter(){
    
 }
 
+
+//mandatory call.
  void RadioScatter::makeOutputFile(TString filename){
   output_file_name = filename;
   TFile *f = new TFile(filename, "recreate");
@@ -33,7 +35,7 @@ RadioScatter::RadioScatter(){
   //  of=f;
 }
 
-
+//called automatically, makes the output hist and figures out where the return pulse will arrive in time
  void RadioScatter::makeTimeHist(){
 
   double dist = rx.vect().mag();
@@ -410,21 +412,27 @@ simulate the direct signal that would be seen at the receiver for CW
   TH1F *outhist=(TH1F*)in;
   HepLorentzVector point=rx;
   double rx_amp, rx_ph, amp;
-  rx_amp = tx_voltage*m/(tx.vect()-rx.vect()).mag();
-  //cout<<"rx amp: "<<tx_voltage<<" "<<tx_voltage*m<<" "<<(tx.vect()-rx.vect()).mag()<<" "<<rx_amp;
+  Hep3Vector dist_vec = tx.vect()-rx.vect();
+  double dist = dist_vec.mag();
+  rx_amp = tx_voltage/dist;
+  //  cout<<"rx amp: "<<tx_voltage<<" "<<tx_voltage*m<<" "<<(tx.vect()-rx.vect()).mag()<<" "<<rx_amp;
   int size = in->GetNbinsX();
+  int start = in->GetXaxis()->GetXmin();
+  int end = in->GetXaxis()->GetXmax();
   //cout<<size<<endl; 
   for(int i=0;i<size;i++){
-    point.setT((double)i*samplingperiod);
+    point.setT(in->GetBinCenter(i));
 
     rx_ph = getDirectSignalPhase(point);
     amp =rx_amp*cos(rx_ph);
     //    cout<<amp<<endl;
     //outhist->Fill(i, amp);
     //cout<<"asdfasfd"<<endl;
-    rx.setT(i*samplingperiod);
+    rx.setT(in->GetBinCenter(i));
     if(checkTxOn(getTxTime(rx, 1))==1){
-      outhist->Fill(i*samplingperiod, (rx_amp*cos(rx_ph)));
+      //  cout<<"flag check OK"<<endl;
+      //f      cout<<rx_amp*cos(rx_ph)<<endl;
+      outhist->Fill(rx.t(), (rx_amp*cos(rx_ph)));
     }
   }
 
@@ -613,13 +621,15 @@ double RadioScatter::power(){
   re_hist->Scale(1./num_events);
   im_hist->Scale(1./num_events);
   TH1F *outhist=0;
+
   if(includeCW_flag==1){
-    //    cout<<"before"<<endl;
+    //cout<<"before"<<endl;
     outhist=getDirectSignal((const TH1F*)time_hist);
     //cout<<"after"<<endl;
       //      cout <<getDirectSignal();
-    }
+   }
   else{
+    cout<<"here"<<endl;
     outhist=time_hist;
   }
   return outhist;
