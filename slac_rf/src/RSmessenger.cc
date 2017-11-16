@@ -41,7 +41,11 @@ RSmessenger::RSmessenger(RadioScatter *rscat)
   showCWCommand = new G4UIcmdWithADouble("/RS/setShowCWFlag", this);
   showCWCommand->SetGuidance("set ShowCW!");
   showCWCommand->SetParameterName("choice", false);
-  
+
+  setCalculateUsingAttnLengthCommand = new G4UIcmdWithADouble("/RS/setCalculateUsingAttnLength", this);
+  setCalculateUsingAttnLengthCommand->SetGuidance("set use attn length!");
+  setCalculateUsingAttnLengthCommand->SetParameterName("choice", false);
+
   setTxOnCommand = new G4UIcmdWithADouble("/RS/setTxOnTime", this);
   setTxOnCommand->SetGuidance("set tx on time!");
   setTxOnCommand->SetParameterName("choice", false);
@@ -93,6 +97,7 @@ void RSmessenger::SetNewValue(G4UIcommand* command,G4String newValue)
   if(command==windowLengthCommand)rs->setRecordWindowLength(val);
   if(command==indexOfRefractionCommand)rs->setRelativeIndexOfRefraction(val);
   if(command==sampleRateCommand)rs->setRxSampleRate(val);
+  if(command==setCalculateUsingAttnLengthCommand)rs->setCalculateUsingAttnLength((int)val);
   if(command==nPrimariesCommand)rs->setNPrimaries(val);
   if(command==showCWCommand)rs->setShowCWFlag(val);
   if(command==setTxOnCommand)rs->setTxOnTime(val);

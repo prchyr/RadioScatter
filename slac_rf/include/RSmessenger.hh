@@ -28,6 +28,7 @@ private:
   G4UIcmdWithADouble*        nPrimariesCommand;
   G4UIcmdWithADouble*        sampleRateCommand;
   G4UIcmdWithADouble*        indexOfRefractionCommand;
+  G4UIcmdWithADouble*        setCalculateUsingAttnLengthCommand;
   G4UIcmdWithADouble*        showCWCommand;
   G4UIcmdWithADouble*        setTxOnCommand;
   G4UIcmdWithADouble*        setTxOffCommand;
