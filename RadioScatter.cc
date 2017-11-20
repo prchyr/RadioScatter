@@ -121,6 +121,7 @@ void RadioScatter::setRxPos(Hep3Vector in){
   n_primaries=n;
   event.nPrimaries=n_primaries;
   cout<<"n primaries: "<<n_primaries<<endl;
+  //  cout<<"cross-section"<<cross_section<<" "<<cross_section*m<<endl;
 }
 
 void RadioScatter::setPrimaryEnergy(double e){
@@ -244,7 +245,7 @@ use the calculated refraction vectors (from makeRays()) to sort out the correct 
   double amp2 = sqrt(pow(E2_para*cos(theta), 2)+pow(E2_perp*sin(theta), 2));
 
 
-  double amplitude = (tx_voltage/dist)*amp1*amp2*angle_dependence;
+  double amplitude = (tx_voltage*m/dist)*amp1*amp2*angle_dependence;
 
   if(useAttnLengthFlag==1){
     amplitude*=exp(-dist/attnLength);
@@ -272,7 +273,7 @@ use the calculated refraction vectors (from makeRays()) to sort out the correct 
     //angle_dependence = nhat.cross(nhat.cross(horiz)).mag();
   }
 
-  double amplitude = (tx_voltage/dist)*angle_dependence;
+  double amplitude = (tx_voltage*m/dist)*angle_dependence;
   
 
   return amplitude;
@@ -414,7 +415,7 @@ simulate the direct signal that would be seen at the receiver for CW
   double rx_amp, rx_ph, amp;
   Hep3Vector dist_vec = tx.vect()-rx.vect();
   double dist = dist_vec.mag();
-  rx_amp = tx_voltage/dist;
+  rx_amp = tx_voltage*m/dist;
   //  cout<<"rx amp: "<<tx_voltage<<" "<<tx_voltage*m<<" "<<(tx.vect()-rx.vect()).mag()<<" "<<rx_amp;
   int size = in->GetNbinsX();
   int start = in->GetXaxis()->GetXmin();
