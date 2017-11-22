@@ -138,42 +138,31 @@ TGraph EventTree::getComplexEnvelope(double cutoff){
   }
 }
 
-TGraph EventTree::getSpectrum(bool dbflag){
+TH1F* EventTree::getSpectrum(bool dbflag){
   int size = eventGraph->GetN();
-  // double * in = eventGraph->getY();
-  // /* TCanvas *c = new TCanvas("", "", 800, 400); */
-  // /* c->Divide(2, 0); */
-  // /* c->cd(1); */
-  int nbins = eventHist->GetXaxis()->GetNbins();
-  double samprate = eventHist->GetXaxis()->GetXmax()-eventHist->GetXaxis()->GetXmin()/nbins;
-  Float_t band = samprate*1000000000;
-  Float_t bandwidth = band/2;
+  int nbins = eventHist->GetNbinsX();
+  double samprate = nbins/(eventHist->GetXaxis()->GetXmax()-eventHist->GetXaxis()->GetXmin());//in samples/ns
+  Float_t band = samprate;//in ghz
+  Float_t bandwidth = band/2.;//nyquist
   Float_t timebase = size*(1./samprate);//ns
-  TH1F *inhist = new TH1F("in", "in", size, 0, timebase);
-  // TH1F * powerhist = new TH1F("power", "power", size, 0, timebase);
-  // for(Int_t i = 0; i<size; i++){
-  //   inhist->SetBinContent(i, in[i]);
-  //   //    powerhist->SetBinContent(i, pow(in[i], 2));
-  // }
-  // //inhist->Draw();
-  // //c->cd(2);
-  inhist = eventHist;
+  //inhist = eventHist;
+  //cout<<nbins<<" "<<samprate<<" "<<bandwidth<<" "<<timebase<<endl;
   TH1 *out = 0;
-  out = inhist->FFT(out, "mag");
+  out = eventHist->FFT(out, "mag");
 
 
-  //  TH1F *outhist = new TH1F("freq","",nbins,0,band/1000000000);
-  vector<double> xx, yy;
-  for (Int_t i=0;i<=nbins;i++) {
+  TH1F *outhist = new TH1F("freq","",nbins/2,0,bandwidth);
+  // vector<double> xx, yy;
+  for (Int_t i=0;i<=nbins/2;i++) {
     Double_t y = out->GetBinContent(i);
-    if(dbflag==true){
-      y = (10.*log10(pow(y, 2.)/50.))+30.;//normalized mv->dbW->dbm
-    }
-    //y=10.*log10(y)+30;                                                
-    xx.push_back(i*(timebase/size));
-    yy.push_back(y);
-    //    outhist->SetBinContent(i, y-80-(10.*log10(band)));//dmb/hz with 80 db of gain             
-    //   outhist->SetBinContent(i, y);                                  
+     if(dbflag==true){
+       y = (10.*log10(pow(y, 2.)/50.))+30.;//normalized mv->dbW->dbm
+     }
+     //y=10.*log10(y)+30;                                                
+  //   xx.push_back(i*(timebase/size));
+  //   yy.push_back(y);
+     //outhist->SetBinContent(i, y-80-(10.*log10(band)));//dmb/hz with 80 db of gain             
+     outhist->SetBinContent(i, y);                                  
   }
   // //  double rebinval = 256;
   // //  outhist->Rebin(size/rebinval);//rebin to make it easier to read       
@@ -187,8 +176,19 @@ TGraph EventTree::getSpectrum(bool dbflag){
   // out->Delete();
   // inhist->Delete();
   // //outhist->Draw();
-  TGraph gr(xx.size(), &xx[0], &yy[0]);
-  return gr;
+  //TGraph gr(xx.size(), &xx[0], &yy[0]);
+  //TH1F*outt=0;
+  //TH1F* outt = (TH1F*)outhist->Clone();
+  //  outhist->Delete();
+  out->Delete();
+  return outhist;
   //  outhist->Delete();
 
+}
+
+double EventTree::peakFreq(){
+  TH1F * hist = getSpectrum();
+  double val = hist->GetBinCenter(hist->GetMaximumBin());
+  hist->Delete();
+  return val;
 }

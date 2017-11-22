@@ -624,13 +624,10 @@ double RadioScatter::power(){
   TH1F *outhist=0;
 
   if(includeCW_flag==1){
-    //cout<<"before"<<endl;
     outhist=getDirectSignal((const TH1F*)time_hist);
-    //cout<<"after"<<endl;
-      //      cout <<getDirectSignal();
-   }
+  }
   else{
-    cout<<"here"<<endl;
+    
     outhist=time_hist;
   }
   return outhist;
@@ -744,6 +741,7 @@ int RadioScatter::writeRun(float num_events, int debug){
   time_hist->Reset();
   re_hist->Reset();
   im_hist->Reset();
+  cout<<"Run total N scatterers:"<<event.totNScatterers<<endl; 
   event.totNScatterers=0;
   return 1;
   //  f->Close();

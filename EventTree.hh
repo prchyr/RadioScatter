@@ -54,11 +54,13 @@ public:
   TGraph  getComplexEnvelope(double cutoff=0);
   TGraph  getLowpassFiltered(double cutoff);
   TGraph  getGraph();
-  TGraph getSpectrum(bool dbflag=false);  
+  //  TGraph getSpectrum(bool dbflag=false);
+  TH1F * getSpectrum(bool dbflag=false);  
   
   double chirpSlope();
   double startFreq();
   double stopFreq();
+  double peakFreq();
   double bandWidth();
   double peakV();
   double rms();
