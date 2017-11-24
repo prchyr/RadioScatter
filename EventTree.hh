@@ -27,6 +27,8 @@ using namespace std;
 class EventTree:public TObject
 {
 private:
+  //default histogram for storing spectra, etc. 
+  TH1F* spectrumHist=new TH1F("spectrumHist", "spectrumHist", 100, 0, 100);
   Int_t dummy;
 public:
   EventTree();
@@ -49,6 +51,7 @@ public:
 
   TGraph * eventGraph=0;
 
+
   //plotting things
 
   TGraph  getComplexEnvelope(double cutoff=0);
@@ -68,6 +71,6 @@ public:
   double power();
   int triggered(double thresh);
   
-  ClassDef(EventTree, 1);
+  ClassDef(EventTree, 2);
 };
 #endif

@@ -725,7 +725,8 @@ int RadioScatter::writeRun(float num_events, int debug){
   vector<double> xvals, yvals;
   int entries=event.eventHist->GetNbinsX();
   for(int i=0;i<entries;i++){
-    xvals.push_back(event.eventHist->GetBinCenter(i));
+    //    xvals.push_back(event.eventHist->GetBinCenter(i));
+    xvals.push_back(i*samplingperiod);
     yvals.push_back(event.eventHist->GetBinContent(i));
   }
   TGraph ogr(xvals.size(), &xvals[0], &yvals[0]);

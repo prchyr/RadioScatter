@@ -145,14 +145,12 @@ TH1F* EventTree::getSpectrum(bool dbflag){
   Float_t band = samprate;//in ghz
   Float_t bandwidth = band/2.;//nyquist
   Float_t timebase = size*(1./samprate);//ns
-  //inhist = eventHist;
-  //cout<<nbins<<" "<<samprate<<" "<<bandwidth<<" "<<timebase<<endl;
+
   TH1 *out = 0;
   out = eventHist->FFT(out, "mag");
 
+  spectrumHist->SetBins(nbins/2,0,bandwidth);
 
-  TH1F *outhist = new TH1F("freq","",nbins/2,0,bandwidth);
-  // vector<double> xx, yy;
   for (Int_t i=0;i<=nbins/2;i++) {
     Double_t y = out->GetBinContent(i);
      if(dbflag==true){
@@ -161,34 +159,19 @@ TH1F* EventTree::getSpectrum(bool dbflag){
      //y=10.*log10(y)+30;                                                
   //   xx.push_back(i*(timebase/size));
   //   yy.push_back(y);
-     //outhist->SetBinContent(i, y-80-(10.*log10(band)));//dmb/hz with 80 db of gain             
-     outhist->SetBinContent(i, y);                                  
+     //spectrumHist->SetBinContent(i, y-80-(10.*log10(band)));//dmb/hz with 80 db of gain             
+     spectrumHist->SetBinContent(i, y);                                  
   }
-  // //  double rebinval = 256;
-  // //  outhist->Rebin(size/rebinval);//rebin to make it easier to read       
-  // //  outhist->Scale(rebinval/size);
-  // //cout<<outhist->Integral()<<endl;
-  // outhist->GetXaxis()->SetRangeUser(0,(band/200000));
-  // outhist->GetYaxis()->SetTitle("dBm/Hz");
-  // //   outhist->GetYaxis()->SetTitle("normalized amplitude");      
-  // outhist->GetXaxis()->SetTitle("freq (MHz)");
-  // outhist->GetYaxis()->SetTitleOffset(1.5);
-  // out->Delete();
-  // inhist->Delete();
-  // //outhist->Draw();
-  //TGraph gr(xx.size(), &xx[0], &yy[0]);
-  //TH1F*outt=0;
-  //TH1F* outt = (TH1F*)outhist->Clone();
-  //  outhist->Delete();
+
   out->Delete();
-  return outhist;
-  //  outhist->Delete();
+
+  return spectrumHist;
 
 }
 
 double EventTree::peakFreq(){
   TH1F * hist = getSpectrum();
   double val = hist->GetBinCenter(hist->GetMaximumBin());
-  hist->Delete();
+  //  hist->Delete();
   return val;
 }
