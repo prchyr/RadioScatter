@@ -15,7 +15,7 @@
 
 //#pragma link C++ defined_in "/usr/local/include/CLHEP/Vector/defs.h";
 //#pragma link C++ defined_in "/usr/local/include/CLHEP/Vector/ThreeVector.h";
-#pragma link C++ class EventTree+;
+#pragma link C++ class RadioScatterEvent+;
 
 //#pragma link C++ global gROOT;
 //#pragma link C++ class CLHEP::HepLorentzVector+;

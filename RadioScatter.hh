@@ -24,7 +24,7 @@ antenna effective area
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "CLHEP/Vector/LorentzVector.h"
 #include "CLHEP/Vector/ThreeVector.h"
-#include "EventTree.hh"
+#include "RadioScatterEvent.hh"
 
  using namespace CLHEP;
  using namespace std;
@@ -38,7 +38,7 @@ antenna effective area
 class RadioScatter{
 
 
-  EventTree event;
+  RadioScatterEvent event;
 
 
   TString output_file_name;

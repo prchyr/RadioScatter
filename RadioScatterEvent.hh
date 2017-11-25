@@ -1,8 +1,11 @@
-#ifndef EVENT_TREE_H
-#define EVENT_TREE_H
+#ifndef RS_EVENT_H
+#define RS_EVENT_H
 #include "TObject.h"
+#include "TCanvas.h"
+#include "TRandom.h"
 #include "TFile.h"
 #include "TH1F.h"
+#include "TH2F.h"
 #include "TString.h"
 #include "TTree.h"
 #include "TGraph.h"
@@ -24,15 +27,17 @@
 using namespace CLHEP;
 using namespace std;
 
-class EventTree:public TObject
+class RadioScatterEvent:public TObject
 {
 private:
   //default histogram for storing spectra, etc. 
   TH1F* spectrumHist=new TH1F("spectrumHist", "spectrumHist", 100, 0, 100);
+  TH2F* spectrogramHist=new TH2F("spectrogramHist", "spectrogramHist", 100, 0, 100, 100, 0, 100);
   Int_t dummy;
+  TRandom *ran = new TRandom();
 public:
-  EventTree();
-  //  ~eventTree();
+  RadioScatterEvent();
+
 
   Hep3Vector direction;
   Hep3Vector position;
@@ -59,6 +64,8 @@ public:
   TGraph  getGraph();
   //  TGraph getSpectrum(bool dbflag=false);
   TH1F * getSpectrum(bool dbflag=false);  
+  void spectrogram(Int_t binsize = 128, Int_t overlap=32);
+  int plotEvent(int bins=64, int overlap=8);
   
   double chirpSlope();
   double startFreq();
@@ -71,6 +78,6 @@ public:
   double power();
   int triggered(double thresh);
   
-  ClassDef(EventTree, 2);
+  ClassDef(RadioScatterEvent, 2);
 };
 #endif
