@@ -20,13 +20,16 @@ double RadioScatterEvent::peakV(){
   return eventHist->GetMaximum();
 }
 
+double RadioScatterEvent::primaryParticleEnergy(){
+  return primaryEnergy*nPrimaries*1000000.;//g4 primaries in MeV units
+}
 int RadioScatterEvent::triggered(double thresh){
   int trig=peakV()>thresh?1:0;
   return trig;
 }
 
 double RadioScatterEvent::rms(){
-  double val;
+  double val=0;
   int entries = eventGraph->GetN();
   double * yy = eventGraph->GetY();
   for(int i=0;i<entries;i++){
@@ -36,22 +39,22 @@ double RadioScatterEvent::rms(){
 }
 
 double RadioScatterEvent::startFreq(){
-  double freq;
+  double freq=0;
   return freq;
 }
 
 double RadioScatterEvent::stopFreq(){
-  double freq;
+  double freq=0;
   return freq;
 }
 
 double RadioScatterEvent::bandWidth(){
-  double width;
+  double width=0;
   return width;
 }
 
 double RadioScatterEvent::chirpSlope(){
-  double slope;
+  double slope=0;
   return slope;
 }
 
@@ -188,7 +191,7 @@ void RadioScatterEvent::spectrogram(Int_t binsize, Int_t overlap){
   TH1F *in = new TH1F("inhi", "inhi", binsize, 0, binsize);  
   TH1*outt=0;
   //TH2F *outhist=new TH2F("outhist", "spectrogram", nbins, xmin, xmax, (binsize), 0, samplerate);
-  cout<<binsize<<" "<<samplerate<<endl;
+  //  cout<<binsize<<" "<<samplerate<<endl;
   spectrogramHist->SetBins(nbins, xmin, xmax, (binsize), 0, samplerate);
   Int_t start = 0;
   

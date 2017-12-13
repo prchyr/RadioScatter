@@ -43,7 +43,9 @@ public:
   Hep3Vector position;
   Hep3Vector tx;
   Hep3Vector rx;
+  //the energy of the primary as set in geant
   double primaryEnergy=0;
+
   double sampleRate;
   double nPrimaries=0;
   double txVoltage=0;
@@ -76,6 +78,8 @@ public:
   double rms();
   double duration();
   double power();
+  //energy calculated from the geant4 energy and the number of primaries
+  double primaryParticleEnergy();
   int triggered(double thresh);
   
   ClassDef(RadioScatterEvent, 2);

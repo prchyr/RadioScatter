@@ -713,7 +713,7 @@ int RadioScatter::writeRun(float num_events, int debug){
   TFile *f = ((TFile *)(gROOT->GetListOfFiles()->At(0)));
   TTree *t = (TTree*)f->Get("tree");
   event.nPrimaries = n_primaries;
-
+  //event.primaryEnergy = 
   event.tx=tx;
   event.rx=rx;
   event.eventHist = scaleHist(num_events);

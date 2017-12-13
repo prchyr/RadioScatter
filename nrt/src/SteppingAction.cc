@@ -119,7 +119,7 @@ or both.
   rx_amplitude = fRadio->makeRays(p, edep, step_length, E_i);  
   //  fRadio->makeRaysReal(p, edep, step_length, E_i);
   //fRadio->makeRaysImag(p, edep, step_length, E_i);
-  //  fillParticleInfoTuples(step);
+  //    fillParticleInfoTuples(step);
   
   // advanced_t = fRadio->getRxTime(p);
   //analysisManager->FillH1(0, advanced_t, rx_amplitude);
@@ -194,7 +194,7 @@ void SteppingAction::fillParticleInfoTuples(const G4Step *step){
     //accumulate total energy
     fEventAction->doTotE(edep);
 
-    analysisManager->FillH1(0, track->GetPosition().z(), edep);
+    //  analysisManager->FillH1(0, track->GetPosition().z(), edep);
     //set parameters for full track. to be filled at the last step of the track.
     // trackid = track->GetTrackID();
     // ptype = track->GetParticleDefinition()->GetParticleType();

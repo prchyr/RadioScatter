@@ -194,8 +194,8 @@ void RunAction::BeginOfRunAction(const G4Run* r)
   // G4String runno = G4UIcommand::ConvertToString(r->GetRunID());
   // G4String dir="/home/natas/Documents/physics/geant/root/";
   // //    G4String fileName = "slac_rf_"+runno+"_";
-  //   G4String fileName = "slac_rf_photon";
-  // //    G4String fileName = "slac_rf_particleinfo";
+  // //    G4String fileName = "slac_rf_photon";
+  //     G4String fileName = "shower_particleinfo";
   // //  std::cout<<r->GetRunID()<<std::endl;
   // analysisManager->OpenFile(dir+fileName);
 }
@@ -228,9 +228,9 @@ void RunAction::EndOfRunAction(const G4Run* r)
   
 
   //redundant filling of histogram through geant
-  // auto analysisManager = G4AnalysisManager::Instance();
-  // analysisManager->Write();
-  // analysisManager->CloseFile();
+   // auto analysisManager = G4AnalysisManager::Instance();
+   // analysisManager->Write();
+   // analysisManager->CloseFile();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

@@ -277,6 +277,33 @@ int main(int argc,char** argv)
     // else{
     
     // }
+  
+
+  if(macro=="anglemacro.mac"){
+    Hep3Vector rx(1., 1., 1.);
+    rx.setMag(10000000);
+
+    double radianstep=twopi/40.;
+    //    double halfstep=step/2
+    for(double i=0;i<twopi;i+=radianstep){
+      rx.setPhi(i);
+      for(double j=radianstep;j<pi;j+=radianstep){
+	rx.setTheta(j);
+	radio->setRxPos(rx);
+	//	cout<<rx.phi()<<" "<<radio->rx.phi()<<endl;
+	runManager->BeamOn(1);
+	runManager->BeamOn(1);
+	runManager->BeamOn(1);
+	runManager->BeamOn(1);
+	runManager->BeamOn(1);
+	runManager->BeamOn(1);
+	runManager->BeamOn(1);
+	runManager->BeamOn(1);
+	runManager->BeamOn(1);
+	runManager->BeamOn(1);
+      }
+    }
+  }
   }
   else{
     UImanager->ApplyCommand("/control/execute init_vis.mac");
