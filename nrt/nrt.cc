@@ -304,6 +304,24 @@ int main(int argc,char** argv)
       }
     }
   }
+  
+  if(macro=="collisionmacro.mac"){
+
+    for(int i=0;i<16;i++){
+      radio->setNPrimaries(pow(10, i));
+	//	cout<<rx.phi()<<" "<<radio->rx.phi()<<endl;
+	runManager->BeamOn(10);
+	// runManager->BeamOn(1);
+	// runManager->BeamOn(1);
+	// runManager->BeamOn(1);
+	// runManager->BeamOn(1);
+	// runManager->BeamOn(1);
+	// runManager->BeamOn(1);
+	// runManager->BeamOn(1);
+	// runManager->BeamOn(1);
+	// runManager->BeamOn(1);
+      }
+  }
   }
   else{
     UImanager->ApplyCommand("/control/execute init_vis.mac");
