@@ -123,7 +123,7 @@ public:
   void setRxVals(double s, double gain);
   void setSimulationParameters(double n, char* tx_rx_pol, double relative_index_of_refraction, int flag);
   void setRelativeIndexOfRefraction(double iof);
-  void setCalculateUsingAttnLength(int val=0);
+  void setCalculateUsingAttnLength(double val=0.);
   void setRecordWindowLength(double nanoseconds);
   void setRxSampleRate(double rate);
   void setTxInterfaceDistX(double dist);

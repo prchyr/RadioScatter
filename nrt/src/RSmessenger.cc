@@ -97,7 +97,7 @@ void RSmessenger::SetNewValue(G4UIcommand* command,G4String newValue)
   if(command==windowLengthCommand)rs->setRecordWindowLength(val);
   if(command==indexOfRefractionCommand)rs->setRelativeIndexOfRefraction(val);
   if(command==sampleRateCommand)rs->setRxSampleRate(val);
-  if(command==setCalculateUsingAttnLengthCommand)rs->setCalculateUsingAttnLength((int)val);
+  if(command==setCalculateUsingAttnLengthCommand)rs->setCalculateUsingAttnLength(val);
   if(command==nPrimariesCommand)rs->setNPrimaries(val);
   if(command==showCWCommand)rs->setShowCWFlag(val);
   if(command==setTxOnCommand)rs->setTxOnTime(val);

@@ -60,8 +60,11 @@ void RadioScatter::setRecordWindowLength(double nanoseconds){
   half_window= nanoseconds/2;
 }
 
-void RadioScatter::setCalculateUsingAttnLength(int val){
-  useAttnLengthFlag=val;
+void RadioScatter::setCalculateUsingAttnLength(double val){
+  useAttnLengthFlag=(int)val;
+  if((int)val==1){
+    cout<<"calculating using attenuation length. (Barwick et al)"<<endl;
+  }
 }
 
 void RadioScatter::setTxPos(double xin, double yin, double zin){
@@ -105,6 +108,7 @@ void RadioScatter::setRxPos(Hep3Vector in){
   k = omega/c_light;
   attnLength = attnLength - (180*m*(f/1000.));
   cout<<"tx frequency: "<<f<<endl;
+  cout<<"attn length: "<<attnLength<<endl;
 }
  void RadioScatter::setTxVoltage(double v){
   tx_voltage = v;
@@ -248,7 +252,7 @@ use the calculated refraction vectors (from makeRays()) to sort out the correct 
   double amplitude = (tx_voltage*m/dist)*amp1*amp2*angle_dependence;
 
   if(useAttnLengthFlag==1){
-    amplitude*=exp(-dist/attnLength);
+    amplitude=amplitude*exp(-dist/attnLength);
   }
   return amplitude;
 }
@@ -274,7 +278,9 @@ use the calculated refraction vectors (from makeRays()) to sort out the correct 
   }
 
   double amplitude = (tx_voltage*m/dist)*angle_dependence;
-  
+  if(useAttnLengthFlag==1){
+    amplitude=amplitude*exp(-dist/attnLength);
+  }
 
   return amplitude;
 }
@@ -507,6 +513,7 @@ calculate the phase, the amplitude, and the prefactors for cross-section,
       //    cout<<nu_col<<endl;
       omega_0=plasma_const*sqrt(n_e);
     }
+    //    nu_col=1.;
     event.totNScatterers+=n;//track total number of scatterers
     //for each ionization e scatterer
     //  double filter = exp(-pow(omega, 2)/pow(omega_0, 2));
