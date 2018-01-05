@@ -187,9 +187,9 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
   G4double tgtLength = 12*12*2.54*cm;//12 feet
 
   //  for a full world volume (no refraction)
-  G4double dz=500*m;
-  G4double dy=500*m;
-  G4double dx=500*m;
+  G4double dz=10.*km;
+  G4double dy=1.4*km;
+  G4double dx=10.*km;
   G4double dx1=dx;
 
 
@@ -256,23 +256,23 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
   G4RotationMatrix *rot2 = new G4RotationMatrix();
   rot2->set(G4ThreeVector(-1, 0, 0), pi/2);
   
-  auto txS = new G4Tubs("tx", 0., 10*cm, 30*cm, 0, twopi);
-  auto txLV = new G4LogicalVolume(txS, absorberMaterial, "tx");
-  new G4PVPlacement(rot, G4ThreeVector(-5*m,0, 2*m), txLV, "tx", worldLV, false, 0, fCheckOverlaps);
+  // auto txS = new G4Tubs("tx", 0., 10*cm, 30*cm, 0, twopi);
+  // auto txLV = new G4LogicalVolume(txS, absorberMaterial, "tx");
+  // new G4PVPlacement(rot, G4ThreeVector(-5*m,0, 2*m), txLV, "tx", worldLV, false, 0, fCheckOverlaps);
   
-  auto rxS = new G4Tubs("rx", 0., 10*cm, 30*cm, 0, twopi);
-  auto rxLV = new G4LogicalVolume(rxS, absorberMaterial, "rx");
-  new G4PVPlacement(rot, G4ThreeVector(5*m,0, 2*m), rxLV, "rx", worldLV, false, 0, fCheckOverlaps);
+  // auto rxS = new G4Tubs("rx", 0., 10*cm, 30*cm, 0, twopi);
+  // auto rxLV = new G4LogicalVolume(rxS, absorberMaterial, "rx");
+  // new G4PVPlacement(rot, G4ThreeVector(5*m,0, 2*m), rxLV, "rx", worldLV, false, 0, fCheckOverlaps);
 
-  auto daqS = new G4Box("daq", 15*cm, 10*cm, 20*cm);
-  auto daqLV = new G4LogicalVolume(daqS, psMaterial, "daq");
-  new G4PVPlacement(0, G4ThreeVector(5*m,0, 2.5*m), daqLV, "daq", worldLV, false, 0, fCheckOverlaps);
+  // auto daqS = new G4Box("daq", 15*cm, 10*cm, 20*cm);
+  // auto daqLV = new G4LogicalVolume(daqS, psMaterial, "daq");
+  // new G4PVPlacement(0, G4ThreeVector(5*m,0, 2.5*m), daqLV, "daq", worldLV, false, 0, fCheckOverlaps);
                                 
   // Target
   //  
   auto targetS
     = new G4Box("Target",     // its name
-                 targetSizeXY/2, targetSizeXY/2, targetThickness/2); // its size
+                 dx, dy, dz); // its size
                          
   auto targetLV
     = new G4LogicalVolume(
@@ -282,7 +282,7 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
                                    
   new G4PVPlacement(
                  0,                // no rotation
-                 G4ThreeVector(0,0,targetThickness/2),  // at (0,0,0)
+                 G4ThreeVector(0,0,0), 
                  targetLV,          // its logical volume                         
                  "Target",    // its name
                  worldLV,          // its mother  volume
@@ -291,26 +291,26 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
                  fCheckOverlaps);  // checking overlaps 
 
     //pre-shower plate
-  auto psS 
-    = new G4Box("Ps",             // its name
-                 targetSizeXY/2, targetSizeXY/2, psThickness/2); // its size
+  // auto psS 
+  //   = new G4Box("Ps",             // its name
+  //                targetSizeXY/2, targetSizeXY/2, psThickness/2); // its size
                          
-  auto psLV
-    = new G4LogicalVolume(
-                 psS,             // its solid
-                 psMaterial,      // its material
-                 "Ps");           // its name
+  // auto psLV
+  //   = new G4LogicalVolume(
+  //                psS,             // its solid
+  //                psMaterial,      // its material
+  //                "Ps");           // its name
                                    
-  fPsPV
-    = new G4PVPlacement(
-                 0,                // no rotation
-                 G4ThreeVector(0., 0.,-psThickness), // its position
-                 psLV,            // its logical volume
-                 "Ps",            // its name
-                 worldLV,          // its mother  volume
-                 false,            // no boolean operation
-                 0,                // copy number
-                 fCheckOverlaps);  // checking overlaps 
+  // fPsPV
+  //   = new G4PVPlacement(
+  //                0,                // no rotation
+  //                G4ThreeVector(0., 0.,-psThickness), // its position
+  //                psLV,            // its logical volume
+  //                "Ps",            // its name
+  //                worldLV,          // its mother  volume
+  //                false,            // no boolean operation
+  //                0,                // copy number
+  //                fCheckOverlaps);  // checking overlaps 
 
   //                                 
   // Layer
@@ -318,7 +318,7 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
   auto layerS
     
     = new G4Box("Layer",           // its name
-                 targetSizeXY/2, targetSizeXY/2, layerThickness/2); // its size
+		dx,dy,dz);
                          
   auto layerLV
     = new G4LogicalVolume(
@@ -344,7 +344,7 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
   //uncomment for the full world volume
    auto box = new G4Box("box", dx, dy, dz);
   auto tgtLV = new G4LogicalVolume(box, iceMaterial, "Tgt");
-  fTgtPV = new G4PVPlacement(0, G4ThreeVector(0., -.5*dy, 0.), tgtLV, "Tgt", layerLV, false, 0, fCheckOverlaps);
+  fTgtPV = new G4PVPlacement(0, G4ThreeVector(0., 0., 0.), tgtLV, "Tgt", layerLV, false, 0, fCheckOverlaps);
 
 
   //this is the T510 target
@@ -355,33 +355,33 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
   //  fTgtPV = new G4PVPlacement(0, G4ThreeVector(0., -.5*dy2, 0.), tgtLV, "Tgt", layerLV, false, 0, fCheckOverlaps);
 
 
-  //for a cylinder instead of the T510 target (comment the above stuff)
+  //for a cylinder instead of the T510 target
   // auto tgtS = new G4Tubs("Tgt", 0., tgtRadius, tgtLength/2, 0., twopi);
   // auto tgtLV = new G4LogicalVolume(tgtS, targetMaterial, "Tgt");
   // fTgtPV = new G4PVPlacement(0, G4ThreeVector(0,0,0), tgtLV, "Tgt", layerLV, false, 0, fCheckOverlaps);
   //                               
   // Absorber
   //
-  auto absorberS 
-    = new G4Box("Abso",            // its name
-                 targetSizeXY/2, targetSizeXY/2, absoThickness/2); // its size
+  // auto absorberS 
+  //   = new G4Box("Abso",            // its name
+  //                targetSizeXY/2, targetSizeXY/2, absoThickness/2); // its size
                          
-  auto absorberLV
-    = new G4LogicalVolume(
-                 absorberS,        // its solid
-                 absorberMaterial, // its material
-                 "Abso");          // its name
+  // auto absorberLV
+  //   = new G4LogicalVolume(
+  //                absorberS,        // its solid
+  //                absorberMaterial, // its material
+  //                "Abso");          // its name
                                    
-  fAbsorberPV
-    = new G4PVPlacement(
-                 0,                // no rotation
-                 G4ThreeVector(0., 0., targetThickness+absoThickness/2), // its position
-                 absorberLV,       // its logical volume                         
-                 "Abso",           // its name
-                 worldLV,          // its mother  volume
-                 false,            // no boolean operation
-                 0,                // copy number
-                 fCheckOverlaps);  // checking overlaps 
+  // fAbsorberPV
+  //   = new G4PVPlacement(
+  //                0,                // no rotation
+  //                G4ThreeVector(0., 0., targetThickness+absoThickness/2), // its position
+  //                absorberLV,       // its logical volume                         
+  //                "Abso",           // its name
+  //                worldLV,          // its mother  volume
+  //                false,            // no boolean operation
+  //                0,                // copy number
+  //                fCheckOverlaps);  // checking overlaps 
 
     //                                        
   // Visualization attributes
@@ -397,7 +397,7 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
   auto psVisAtt= new G4VisAttributes(G4Colour(0.9,0.8,1.0));
   psVisAtt->SetVisibility(true);
   psVisAtt->SetForceSolid(true);
-  psLV->SetVisAttributes(psVisAtt);
+  //  psLV->SetVisAttributes(psVisAtt);
   // airLV->SetVisAttributes(psVisAtt);
   //  daqLV->SetVisAttributes(psVisAtt);
   // tankLV->SetVisAttributes(psVisAtt);
@@ -406,13 +406,13 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
   auto tgtVisAtt = new G4VisAttributes(G4Colour(.9, .7, .4));
   tgtVisAtt->SetVisibility(true);
   tgtVisAtt->SetForceSolid(true);
-  tgtLV->SetVisAttributes(tgtVisAtt);
+  tgtLV->SetVisAttributes(airVisAtt);
   
   auto absoVisAtt= new G4VisAttributes(G4Colour(1.0,1.0,1.0));
   absoVisAtt->SetVisibility(true);
   absoVisAtt->SetForceSolid(true);
   absoVisAtt->SetForceAuxEdgeVisible(true);
-  absorberLV->SetVisAttributes(absoVisAtt);
+  //absorberLV->SetVisAttributes(absoVisAtt);
 
   auto bossVisAtt = new G4VisAttributes(G4Colour(.5, .5, 0));
   //  bossLV->SetVisAttributes(bossVisAtt);

@@ -57,6 +57,7 @@ class RadioScatter{
   double E_i=.000038;//default electron ion pair energy
   double e_charge_cgs = 4.803e-10;//statcoloumbs
   double e_mass_cgs = 9.109e-28;//g
+  double k_b = 1.38e-23;//j/k
   //TFile *outfile;
   //  TFile * outfile=new TFile("/home/natas/Documents/physics/geant/root/time.root", "RECREATE");
   TH1F *fft_hist, *power_hist;
@@ -118,6 +119,8 @@ public:
   void setTxVoltage(double v);
   void setNPrimaries(double n);
   void setPrimaryEnergy(double e);
+  void setPrimaryPosition(Hep3Vector p);
+  void setPrimaryDirection(Hep3Vector p);
   void setPolarization(char * p);
   void setTxVals(double f, double power, double gain);
   void setRxVals(double s, double gain);
@@ -160,7 +163,7 @@ public:
   void writeHist(TString filename, float num_events);
   TH1F * scaleHist(float num_events);
   int writeRun(float num_events=1., int debug=0);
-  void writeEvent(TString filename, float num_events);
+  int writeEvent(int debug=0);
   void close();
 
 

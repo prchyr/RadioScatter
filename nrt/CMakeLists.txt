@@ -59,8 +59,7 @@ endif()
 
  include(${Geant4_USE_FILE})
 
-# include_directories(${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include ${ROOT_INCLUDE_DIRS} ${RS_INCLUDE_DIR} ${RS_INCLUDE_DIR}/../)
-# include_directories(${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include ${CLHEP_INCLUDE_DIR} ${ROOT_INCLUDE_DIRS} ${RS_INCLUDE_DIR} ${RS_INCLUDE_DIR}/../)
+
 include_directories(${PROJECT_SOURCE_DIR}/include)
 #----------------------------------------------------------------------------
 # Locate sources and headers for this project
@@ -69,32 +68,16 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 file(GLOB sources ${PROJECT_SOURCE_DIR}/src/*.cc ${RS_INCLUDE_DIR}/*.cc)
 file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh ${RS_INCLUDE_DIR}/*.hh)
 
-# file(GLOB SOURCE_FILES ${RS_INCLUDE_DIR}/*.cc ${CLHEP_INCLUDE_DIR}/Vector/*.icc ${CLHEP_INCLUDE_DIR}/Units/*.icc)
-# file(GLOB HEADER_FILES ${RS_INCLUDE_DIR}/*.hh ${CLHEP_INCLUDE_DIR}/Vector/*.h ${CLHEP_INCLUDE_DIR}/Units/*.h)
-
-
-#make the ROOT dictionaries and shared object library for reading the event tree
-
-#ROOT_GENERATE_DICTIONARY(G__EventTree ${HEADER_FILES} LINKDEF ${RS_INCLUDE_DIR}/LinkDef.h)
-#ROOT_GENERATE_DICTIONARY(G__EventTree ${HEADER_FILES} LINKDEF ${PROJECT_SOURCE_DIR}/../LinkDef.h)
-
-#add_library(EventTree SHARED ${SOURCE_FILES} G__EventTree.cxx)
-
-#target_link_libraries(EventTree ${ROOT_LIBRARIES} CLHEP-Vector-${CLHEP_VERSION})
-#target_link_libraries(EventTree ${ROOT_LIBRARIES} CLHEP::Vector)
-
-
-#add_custom_target(G__EventTree.pcm DEPENDS G__EventTree)
 
 #----------------------------------------------------------------------------
 # Add the executable, and link it to the Geant4 libraries
 #
 
 add_executable(nrt nrt.cc ${sources} ${headers})
-#add_executable(threshscan threshscan.cc ${sources} ${headers})
+
 
 target_link_libraries(nrt  ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} RadioScatterEvent)
-#target_link_libraries(threshscan ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} EventTree)
+
 #----------------------------------------------------------------------------
 # Copy all scripts to the build directory, i.e. the directory in which we
 # build B4a. This is so that we can run the executable directly because it
@@ -124,9 +107,4 @@ endforeach()
 # Install the executable to 'bin' directory under CMAKE_INSTALL_PREFIX
 #
 install(TARGETS nrt DESTINATION ${PROJECT_BINARY_DIR}/bin)
-#install (FILES ${RS_INCLUDE_DIR}/RadioScatter.hh DESTINATION ${RS_INSTALL_DIR})
-#install (FILES ${RS_INCLUDE_DIR}/RadioScatter.cc DESTINATION ${RS_INSTALL_DIR})
-#install (FILES ${RS_INCLUDE_DIR}/EventTree.hh DESTINATION ${RS_INSTALL_DIR})
-#install (FILES ${RS_INCLUDE_DIR}/EventTree.cc DESTINATION ${RS_INSTALL_DIR})
-#install (FILES ${PROJECT_BINARY_DIR}/libEventTree_rdict.pcm DESTINATION ${LIB_INSTALL_DIR})
-#install (TARGETS EventTree LIBRARY DESTINATION ${LIB_INSTALL_DIR})
+

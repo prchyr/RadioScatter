@@ -8,7 +8,7 @@
 # Setup the project
 #
 cmake_minimum_required(VERSION 2.8.10 FATAL_ERROR)
-project(slac)
+project(rs)
 
 
 
@@ -68,43 +68,63 @@ include_directories(${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include ${CLHEP_
 file(GLOB sources ${PROJECT_SOURCE_DIR}/src/*.cc ${RS_INCLUDE_DIR}/*.cc)
 file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh ${RS_INCLUDE_DIR}/*.hh)
 
+file(GLOB SOURCE_FILES ${RS_INCLUDE_DIR}/*.cc ${CLHEP_INCLUDE_DIR}/Vector/*.icc ${CLHEP_INCLUDE_DIR}/Units/*.icc)
+file(GLOB HEADER_FILES ${RS_INCLUDE_DIR}/*.hh ${CLHEP_INCLUDE_DIR}/Vector/*.h ${CLHEP_INCLUDE_DIR}/Units/*.h)
+
+
+#make the ROOT dictionaries and shared object library for reading the event tree
+
+ROOT_GENERATE_DICTIONARY(G__RadioScatterEvent ${HEADER_FILES} LINKDEF ${RS_INCLUDE_DIR}/LinkDef.h)
+
+add_library(RadioScatterEvent SHARED ${SOURCE_FILES} G__RadioScatterEvent.cxx)
+
+#target_link_libraries(RadioScatterEvent ${ROOT_LIBRARIES} CLHEP-Vector-${CLHEP_VERSION})
+target_link_libraries(RadioScatterEvent ${ROOT_LIBRARIES} CLHEP::Vector)
+
+
+#add_custom_target(G__RadioScatterEvent.pcm DEPENDS G__RadioScatterEvent)
 
 #----------------------------------------------------------------------------
 # Add the executable, and link it to the Geant4 libraries
 #
 
-add_executable(slac slac.cc ${sources} ${headers})
-#add_executable(threshscan threshscan.cc ${sources} ${headers})
+# add_executable(slac slac.cc ${sources} ${headers})
+# add_executable(threshscan threshscan.cc ${sources} ${headers})
 
-target_link_libraries(slac  ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} RadioScatterEvent)
-#target_link_libraries(threshscan ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} RadioScatterEvent)
-#----------------------------------------------------------------------------
-# Copy all scripts to the build directory, i.e. the directory in which we
-# build B4a. This is so that we can run the executable directly because it
-# relies on these scripts being in the current working directory.
-#
-set(SLAC_SCRIPTS
-  slac.out
-  slac.in
-  gui.mac
-  init_vis.mac
-  threshmacro.mac
-  run1.mac
-  run2.mac
-  run3.mac
-  vis.mac
-  )
+# target_link_libraries(slac  ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} RadioScatterEvent)
+# target_link_libraries(threshscan ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} RadioScatterEvent)
+# #----------------------------------------------------------------------------
+# # Copy all scripts to the build directory, i.e. the directory in which we
+# # build B4a. This is so that we can run the executable directly because it
+# # relies on these scripts being in the current working directory.
+# #
+# set(SLAC_SCRIPTS
+#   slac.out
+#   slac.in
+#   gui.mac
+#   init_vis.mac
+#   threshmacro.mac
+#   run1.mac
+#   run2.mac
+#   run3.mac
+#   vis.mac
+#   )
 
-foreach(_script ${SLAC_SCRIPTS})
-  configure_file(
-    ${PROJECT_SOURCE_DIR}/${_script}
-    ${PROJECT_BINARY_DIR}/${_script}
-    COPYONLY
-    )
-endforeach()
+# foreach(_script ${SLAC_SCRIPTS})
+#   configure_file(
+#     ${PROJECT_SOURCE_DIR}/${_script}
+#     ${PROJECT_BINARY_DIR}/${_script}
+#     COPYONLY
+#     )
+# endforeach()
 
 #----------------------------------------------------------------------------
 # Install the executable to 'bin' directory under CMAKE_INSTALL_PREFIX
 #
-install(TARGETS slac DESTINATION ${PROJECT_BINARY_DIR}/bin)
-
+#install(TARGETS slac DESTINATION ${PROJECT_BINARY_DIR}/bin)
+install (FILES ${RS_INCLUDE_DIR}/RadioScatter.hh DESTINATION ${RS_INSTALL_DIR})
+install (FILES ${RS_INCLUDE_DIR}/RadioScatter.cc DESTINATION ${RS_INSTALL_DIR})
+install (FILES ${RS_INCLUDE_DIR}/RadioScatterEvent.hh DESTINATION ${RS_INSTALL_DIR})
+install (FILES ${RS_INCLUDE_DIR}/RadioScatterEvent.cc DESTINATION ${RS_INSTALL_DIR})
+install (FILES ${PROJECT_BINARY_DIR}/libRadioScatterEvent_rdict.pcm DESTINATION ${LIB_INSTALL_DIR})
+install (TARGETS RadioScatterEvent LIBRARY DESTINATION ${LIB_INSTALL_DIR})

@@ -9,8 +9,12 @@ GEANT4* (https://geant4.web.cern.ch/geant4/support/download.shtml)
 i'm gonna assume that you know how to use GEANT4 and ROOT. CLHEP is just a nice library for doing calculations with 3 and 4-vectors that i like quite well, so install that too plz. sometimes if you have put CLHEP in a strange place you need to set CLHEP_DIR to the place where you put clhep, but it will probably be found if you put it somewhere logical
 
 
+************
+INSTALL
+************
+
 **********************
-default installation
+radio scatter default installation
 **********************
 
 cd /your/favorite/source/dir  (like /usr/local or something)
@@ -19,24 +23,11 @@ cd RadioScatter
 ./install.sh
 
 
-this will install the header files and shared libraries (for root analysis) to the right places. it will put the libs inside of /usr/local/lib and the header files in /usr/local/include. It will make a build directory (inside the RadioScatter directory) called slac_build, where the GEANT4 program is installed. running this sim will be explained below.
+this will install the header files and shared libraries (for root analysis) to the right places. it will put the libs inside of /usr/local/lib and the header files in /usr/local/include. It will make a build directory (inside the RadioScatter directory) called build, where the build products are placed before they are installed in the proper location.
 
 *********************************
-slightly fancier installation (RECOMMENDED)
+slightly fancier installation 
 *********************************
-
-you can also send an argument to the install script which will install the GEANT4 program to a directory of your choosing. so this is done like so:
-
-cd /your/favorite/source/dir  (like /usr/local or something)
-git clone https://github.com/prchyr/RadioScatter.git
-cd RadioScatter
-./install.sh /your/preferred/GEANT4/app/folder
-
-NOTE** the specified directory is the one that the build files will actually be put into. so don't do /usr/local, instead do /usr/local/slac_build_dir or something like that. 
-
-**********************************
-yet a fancier installation
-**********************************
 
 say you want your libraries and headers installed in some other place than /usr/local, you can set the RS_INSTAL_DIR variable in your bashrc. then libraries will install to RS_INSTALL_DIR/lib and headers to RS_INSTALL_DIR/include
 
@@ -44,13 +35,29 @@ cd /your/favorite/source/dir
 git clone https://github.com/prchyr/RadioScatter.git
 export RS_INSTALL_DIR=/your/preferred/install/dir
 cd RadioScatter
-./install.sh /path/to/your/preferred/GEANT4/app/location
+./install.sh 
 
 
-all of these should work, at least on UBUNTU 16.04
+these should work, at least on UBUNTU 16.04
+
+*************
+GEANT4 modules
+*************
+
+there are 2 different GEANT4 modules included, one for a lab based experiment and one for an in-ice experiment. the experiment one is called slac_rf, so to install it, do
+
+cd /your/GEANT/app/dir
+mkdir slac_rf_build
+cd slac_rf_build
+cmake /path/to/RadioScatter/slac_rf
+make -b -j4
+
+which will make a build directory somewhere you want it to live, then install the GEANT4 simulation there linked to the RadioScatter libraries, once you've installed them as above.
 
 *****************************************************************************************
 *****************************************************************************************
+
+
 
 there is currently no documentation beyond this readme, comments in the header file, and a paper:
 

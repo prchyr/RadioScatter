@@ -58,6 +58,9 @@ double RadioScatterEvent::chirpSlope(){
   return slope;
 }
 
+double RadioScatterEvent::pathLength(){
+  return((tx-position).mag()+(rx-position).mag());
+}
 double RadioScatterEvent::duration(){
   TGraph og= getComplexEnvelope(100);
   double * xx=og.GetX();

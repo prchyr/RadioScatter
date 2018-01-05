@@ -37,8 +37,8 @@ RadioScatter::RadioScatter(){
 
 //called automatically, makes the output hist and figures out where the return pulse will arrive in time
  void RadioScatter::makeTimeHist(){
-
-  double dist = rx.vect().mag();
+   Hep3Vector dv = rx.vect()-event.position;
+  double dist = dv.mag();
   //cout<<dist.mag()<<endl;
   //  start_time = 0.;
   double time =(dist/c_light)-half_window; 
@@ -106,7 +106,8 @@ void RadioScatter::setRxPos(Hep3Vector in){
   period = 1./omega;
   lambda = c_light/frequency;
   k = omega/c_light;
-  attnLength = attnLength - (180*m*(f/1000.));
+  //attnLength = attnLength - (180*m*(f/1000.));
+  attnLength = 1450000;//barwick et all south pole measurement
   cout<<"tx frequency: "<<f<<endl;
   cout<<"attn length: "<<attnLength<<endl;
 }
@@ -130,6 +131,14 @@ void RadioScatter::setRxPos(Hep3Vector in){
 
 void RadioScatter::setPrimaryEnergy(double e){
   event.primaryEnergy=e;
+}
+void RadioScatter::setPrimaryDirection(Hep3Vector p){
+  event.direction=p;
+  RSCAT_HIST_DECLARE=false;
+}
+void RadioScatter::setPrimaryPosition(Hep3Vector p){
+  event.position=p;
+  RSCAT_HIST_DECLARE=false;
 }
 void RadioScatter::setPolarization(char * p){
   pol=p;
@@ -507,8 +516,21 @@ calculate the phase, the amplitude, and the prefactors for cross-section,
     if(step_length!=0){
       //electron number density, using step length cube
       n_e = n*n_primaries/pow(step_length, 3);
-      //collision frequency (approximation from Cravens), multiplied by 3 for e/i, e/e, e/n (BAD APPROXIMATION FIX PLZ)
+      //collision frequency (approximation from Cravens, mostly for difuse plasmas), multiplied by 3 for e/i, e/e, e/n 
       nu_col = 3.*54.*n_e/pow(e_i/k_Boltzmann, 1.5);
+
+      //(boltz(mev/k)*T(k)/m_e(mev m^2 s^-2))^1/2*cross section(mm^2)*n_e(mm^-3)
+      //=m/s*mm^-1 so multiply by 1000 to get mm/s
+      //3 is for 3 species (approx)
+      //nu_col = 3.*sqrt(k_Boltzmann*7.e5*kelvin/electron_mass_c2)*1000.*5.e-9*n_e;
+
+      //number density of ice is roughly 3.04x10^22/cm^3=3.04x10^19/mm^3 so we can try that too:
+      //      nu_col = sqrt(k_Boltzmann*7.e5*kelvin/electron_mass_c2)*1000.*5.e-9*(3.04e19);
+      //but that results in just a static reduction of amplitude because the electron number density is not included. that seems wrong.
+      
+      //(boltzmann(g m^2 s^-2 k^-1)*T(k)/m_e(g))^1/2*(cross section(m^2))*(n_e(m^-3))
+      //=m/s*m^-1=freq
+      //nu_col = sqrt(k_b*1000.*7e5/e_mass_cgs)*(5.e-15)*(n_e/1.e9);
       //plasma frequency, TODO
       //    cout<<nu_col<<endl;
       omega_0=plasma_const*sqrt(n_e);
@@ -516,7 +538,6 @@ calculate the phase, the amplitude, and the prefactors for cross-section,
     //    nu_col=1.;
     event.totNScatterers+=n;//track total number of scatterers
     //for each ionization e scatterer
-    //  double filter = exp(-pow(omega, 2)/pow(omega_0, 2));
     double filter=1.;//TODO
     //the full scattering amplitude pre-factor  
     double prefactor = filter*n*n_primaries*cross_section*rx_amplitude*omega/(pow(omega, 2)+pow(nu_col, 2));
@@ -650,64 +671,64 @@ double RadioScatter::power(){
   cout<<"total number of scatterers: "<<  event.totNScatterers<<endl;
 }
 
-//for a single run in a single file
- void RadioScatter::writeEvent(TString filename, float num_events=1.){
-  TFile *f = new TFile(filename, "recreate");
+// //for a single run in a single file
+//  void RadioScatter::writeEvent(TString filename, float num_events=1.){
+//   TFile *f = new TFile(filename, "recreate");
 
-  RadioScatter *thing = new RadioScatter();
-  //event.primary_energy = e;
-  event.nPrimaries = n_primaries;
-  //  event.position = pos;
-  //event.direction = dir;
-  event.tx=tx;
-  event.rx=rx;
-  event.eventHist = scaleHist(num_events);
-  event.reHist = re_hist;
-  event.imHist = im_hist;
-  event.totNScatterers = event.totNScatterers*n_primaries;
-  vector<double> xvals, yvals;
-  int entries=event.eventHist->GetNbinsX();
-  for(int i=0;i<entries;i++){
-    xvals.push_back(event.eventHist->GetBinCenter(i));
-    yvals.push_back(event.eventHist->GetBinContent(i));
-  }
-  TGraph *ogr = new TGraph(xvals.size(), &xvals[0], &yvals[0]);
-  ogr->SetName("timeTGraph");
-  // TTree *t = (TTree*)f->Get("tree");
-  // t->SetBranchAddress("event_hist", &time_hist);
-  // t->SetBranchAddress("primary_energy", &event.primary_energy);
-  // t->SetBranchAddress("n_primaries", &event.nPrimaries);
-  // t->SetBranchAddress("position", &event.position);  
-  TTree *t = new TTree("tree", "treee");
-   t->Branch("event", &event);
-   //  t->Branch("thing", &thing);
+//   RadioScatter *thing = new RadioScatter();
+//   //event.primary_energy = e;
+//   event.nPrimaries = n_primaries;
+//   //  event.position = pos;
+//   //event.direction = dir;
+//   event.tx=tx;
+//   event.rx=rx;
+//   event.eventHist = scaleHist(num_events);
+//   event.reHist = re_hist;
+//   event.imHist = im_hist;
+//   event.totNScatterers = event.totNScatterers*n_primaries;
+//   vector<double> xvals, yvals;
+//   int entries=event.eventHist->GetNbinsX();
+//   for(int i=0;i<entries;i++){
+//     xvals.push_back(event.eventHist->GetBinCenter(i));
+//     yvals.push_back(event.eventHist->GetBinContent(i));
+//   }
+//   TGraph *ogr = new TGraph(xvals.size(), &xvals[0], &yvals[0]);
+//   ogr->SetName("timeTGraph");
+//   // TTree *t = (TTree*)f->Get("tree");
+//   // t->SetBranchAddress("event_hist", &time_hist);
+//   // t->SetBranchAddress("primary_energy", &event.primary_energy);
+//   // t->SetBranchAddress("n_primaries", &event.nPrimaries);
+//   // t->SetBranchAddress("position", &event.position);  
+//   TTree *t = new TTree("tree", "treee");
+//    t->Branch("event", &event);
+//    //  t->Branch("thing", &thing);
   
-  // t->Branch("event_hist", &event.eventHist);
-  // t->Branch("primary_energy", &event.primary_energy);
-  // t->Branch("n_primaries", &event.nPrimaries);
-  // t->Branch("freq", &frequency);
-  // t->Branch("ev", &event);
-  // t->Branch("tx", &tx);
-  // t->Branch("tx_x", tx.x());
-  // t->Branch("tx_y", tx.y());
-  // t->Branch("tx_z", tx.z());
-  // t->Branch("rx_x", rx.x());
-  // t->Branch("rx_y", rx.y());
-  // t->Branch("rx_z", rx.z());
-  //cout<<"here"<<endl;
-  f->cd();
-  f->Append(ogr);
-  f->Append(event.eventHist);
-  f->Append(event.reHist);
-  f->Append(event.imHist);
+//   // t->Branch("event_hist", &event.eventHist);
+//   // t->Branch("primary_energy", &event.primary_energy);
+//   // t->Branch("n_primaries", &event.nPrimaries);
+//   // t->Branch("freq", &frequency);
+//   // t->Branch("ev", &event);
+//   // t->Branch("tx", &tx);
+//   // t->Branch("tx_x", tx.x());
+//   // t->Branch("tx_y", tx.y());
+//   // t->Branch("tx_z", tx.z());
+//   // t->Branch("rx_x", rx.x());
+//   // t->Branch("rx_y", rx.y());
+//   // t->Branch("rx_z", rx.z());
+//   //cout<<"here"<<endl;
+//   f->cd();
+//   f->Append(ogr);
+//   f->Append(event.eventHist);
+//   f->Append(event.reHist);
+//   f->Append(event.imHist);
 
-  t->Fill();
-  cout<<filename<<endl;
-  f->Write();
-  time_hist->Reset();
-  //  f->Close();
-  //#undef RSCAT_HIST_DECLARE
-}
+//   t->Fill();
+//   cout<<filename<<endl;
+//   f->Write();
+//   time_hist->Reset();
+//   //  f->Close();
+//   //#undef RSCAT_HIST_DECLARE
+// }
 
 int RadioScatter::writeRun(float num_events, int debug){
   //this is a stupid check for multi-threaded mode,
@@ -721,6 +742,8 @@ int RadioScatter::writeRun(float num_events, int debug){
   TTree *t = (TTree*)f->Get("tree");
   event.nPrimaries = n_primaries;
   //event.primaryEnergy = 
+  //  event.direction=primary_direction;
+  //event.position = primary_position;
   event.tx=tx;
   event.rx=rx;
   event.eventHist = scaleHist(num_events);
@@ -751,6 +774,56 @@ int RadioScatter::writeRun(float num_events, int debug){
   im_hist->Reset();
   cout<<"Run total N scatterers:"<<event.totNScatterers<<endl; 
   event.totNScatterers=0;
+  //RSCAT_HIST_DECLARE=false;
+  return 1;
+  //  f->Close();
+  //#undef RSCAT_HIST_DECLARE
+}
+int RadioScatter::writeEvent(int debug){
+  //this is a stupid check for multi-threaded mode,
+  //will only write the run if there has indeed been a run
+  if(event.totNScatterers==0){
+    return 0;
+  }
+  fRunCounter++;
+  //  TFile *f = (TFile *)gROOT->Get("filename");
+  TFile *f = ((TFile *)(gROOT->GetListOfFiles()->At(0)));
+  TTree *t = (TTree*)f->Get("tree");
+  event.nPrimaries = n_primaries;
+  //event.primaryEnergy = 
+  //  event.direction=primary_direction;
+  //event.position = primary_position;
+  event.tx=tx;
+  event.rx=rx;
+  event.eventHist = time_hist;
+  event.reHist = re_hist;
+  event.imHist = im_hist;
+  event.freq=frequency;
+  //total number of electrons per shower * total primaries in the bunch * the number of events in the run. 
+  event.totNScatterers = event.totNScatterers*n_primaries;
+  vector<double> xvals, yvals;
+  int entries=event.eventHist->GetNbinsX();
+  for(int i=0;i<entries;i++){
+    //    xvals.push_back(event.eventHist->GetBinCenter(i));
+    xvals.push_back(i*samplingperiod);
+    yvals.push_back(event.eventHist->GetBinContent(i));
+  }
+  TGraph ogr(xvals.size(), &xvals[0], &yvals[0]);
+  event.eventGraph = &ogr;
+  f->cd();
+
+  //  f->Append(ogr);
+  t->Fill();
+  if(debug==1){
+    cout<<"The RadioScatter root file: "<<endl<<f->GetName()<<endl<<" has been filled. This is run number "<<fRunCounter<<"."<<endl;
+  }
+  //f->Write();
+  time_hist->Reset();
+  re_hist->Reset();
+  im_hist->Reset();
+  cout<<"Run total N scatterers:"<<event.totNScatterers<<endl; 
+  event.totNScatterers=0;
+  //  RSCAT_HIST_DECLARE=false;
   return 1;
   //  f->Close();
   //#undef RSCAT_HIST_DECLARE

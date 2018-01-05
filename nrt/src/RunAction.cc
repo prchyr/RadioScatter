@@ -190,7 +190,7 @@ void RunAction::BeginOfRunAction(const G4Run* r)
   // Get analysis manager
   // auto analysisManager = G4AnalysisManager::Instance();
 
-  // // Open an output file
+  // Open an output file
   // G4String runno = G4UIcommand::ConvertToString(r->GetRunID());
   // G4String dir="/home/natas/Documents/physics/geant/root/";
   // //    G4String fileName = "slac_rf_"+runno+"_";
@@ -213,12 +213,13 @@ void RunAction::EndOfRunAction(const G4Run* r)
   G4String runno = G4UIcommand::ConvertToString(r->GetRunID());
   G4String freq = G4UIcommand::ConvertToString(fRadio->getFreq());
 
-  auto gpsDat=G4GeneralParticleSourceData::Instance();
-  auto gps = gpsDat->GetCurrentSource();
-  fRadio->setPrimaryEnergy(gps->GetParticleEnergy());
-  
+  //   auto gpsDat=G4GeneralParticleSourceData::Instance();
+  // auto gps = gpsDat->GetCurrentSource();
+  // fRadio->setPrimaryEnergy(gps->GetParticleEnergy());
+  // fRadio->setPrimaryDirection(gps->GetParticleMomentumDirection());
+  // fRadio->setPrimaryPosition(gps->GetParticlePosition());
   //be sure to send writeRun the number of events in the run so that it scales the output histogram properly!!! assumes you have opened the root file already in the main program
-  fRadio->writeRun((float)r->GetNumberOfEvent());
+  //  fRadio->writeRun((float)r->GetNumberOfEvent());
   //  fRadio->writeEvent("$HOME/Documents/physics/geant/root/slac_rf_rs_"+runno+"_freq_"+freq+".root", (float)r->GetNumberOfEvent());
 
   //optionally, set the filename in the macro by /RS/setOutputFileName and then here:
@@ -228,8 +229,8 @@ void RunAction::EndOfRunAction(const G4Run* r)
   
 
   //redundant filling of histogram through geant
-   // auto analysisManager = G4AnalysisManager::Instance();
-   // analysisManager->Write();
+  //   auto analysisManager = G4AnalysisManager::Instance();
+  //analysisManager->Write();
    // analysisManager->CloseFile();
 }
 

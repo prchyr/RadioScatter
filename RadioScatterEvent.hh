@@ -78,6 +78,7 @@ public:
   double rms();
   double duration();
   double power();
+  double pathLength();
   //energy calculated from the geant4 energy and the number of primaries
   double primaryParticleEnergy();
   int triggered(double thresh);

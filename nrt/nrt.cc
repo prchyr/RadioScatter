@@ -52,7 +52,8 @@
 #include "RadioScatter/RadioScatter.hh"
 #include "G4VisExecutive.hh"
 #include "G4UIExecutive.hh"
-
+#include "G4GeneralParticleSource.hh"
+#include "G4GeneralParticleSourceData.hh"
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 
@@ -214,6 +215,12 @@ int main(int argc,char** argv)
 	}
       }
    }
+
+   if(macro=="effectivevol.mac"){
+     //nothing here
+     
+   }
+   
    if (macro=="threshmacro.mac"){
 
      Hep3Vector tx, rx;
@@ -234,7 +241,7 @@ int main(int argc,char** argv)
      for(int j=0;j<num;j++){
        for(int i=0;i<num;i++){
 	 for(int k=0;k<num;k++){
-	   for(int l=0;l<num+1;l++){
+	   for(int l=0;l<num+4;l++){
 	     // tx=radio->getTxPos();
 	     // rx=radio->getRxPos();
 	     // cout<<endl<<endl<<"tx position"<<tx.x()<<" "<<tx.y()<<" "<<tx.z()<<endl;
@@ -250,7 +257,7 @@ int main(int argc,char** argv)
 	     // rx.setRThetaPhi(j*m, theta, phi);
 	     // rx.setZ(rx.z()+3.5*m);
 	     //	radio->setTxPos(tx);
-	     double n=10000*pow(10, l);
+	     double n=100*pow(10, l);
 	     radio->setRxPos(rx);
 	     radio->setNPrimaries(n);
 	     //this way we have a different run for each event, and so we can make a threshold curve as a function of position and primary energy

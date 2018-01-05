@@ -39,7 +39,7 @@
 #include "G4VTrajectory.hh"
 #include "G4UIsession.hh"
 #include "G4VisExecutive.hh"
-
+#include "G4GeneralParticleSourceData.hh"
 #include "Randomize.hh"
 #include <iomanip>
 
@@ -47,7 +47,7 @@
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-EventAction::EventAction()
+EventAction::EventAction(RadioScatter *radio)
  : G4UserEventAction(),
    fEnergyAbs(0.),
    fEnergyGap(0.),
@@ -59,6 +59,7 @@ EventAction::EventAction()
    fTrackLIce(0.),
    fEnergyTot(0.)
 {
+  fRadio=radio;
   //G4cout<<track->GetTrackID()<<G4endl;
 }
 
@@ -82,6 +83,11 @@ void EventAction::BeginOfEventAction(const G4Event* /*event*/)
   fTrackLGap = 0.;
   fEnergyTot =0.;
 
+      auto gpsDat=G4GeneralParticleSourceData::Instance();
+  auto gps = gpsDat->GetCurrentSource();
+  fRadio->setPrimaryEnergy(gps->GetParticleEnergy());
+  fRadio->setPrimaryDirection(gps->GetParticleMomentumDirection());
+  fRadio->setPrimaryPosition(gps->GetParticlePosition());
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -178,6 +184,8 @@ void EventAction::EndOfEventAction(const G4Event* event)
 //                                         << G4BestUnit(fTrackLGap,"Length")
 //        << G4endl;
 //   }
- }  
+
+  fRadio->writeRun(1);
+}  
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
