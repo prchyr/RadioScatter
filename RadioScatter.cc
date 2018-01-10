@@ -37,22 +37,63 @@ RadioScatter::RadioScatter(){
 
 //called automatically, makes the output hist and figures out where the return pulse will arrive in time
  void RadioScatter::makeTimeHist(){
-   Hep3Vector dv = rx.vect()-event.position;
-  double dist = dv.mag();
-  //cout<<dist.mag()<<endl;
-  //  start_time = 0.;
-  double time =(dist/c_light)-half_window; 
+   if(RSCAT_HIST_DECLARE==false){
+     // cout<<"before the loop"<<endl;
+     for(int i=0;i<ntx;i++){
+       time_hist.push_back(vector<TH1F*>());
+       re_hist.push_back(vector<TH1F*>());
+       im_hist.push_back(vector<TH1F*>());
+       event_graph.push_back(vector<TGraph*>());
+       for(int j=0;j<nrx;j++){
+	 TString ii=TString::Itoa(i, 10);
+	 TString jj=TString::Itoa(j, 10);
+	 TH1F * newhist = new TH1F(ii+","+jj, ii+","+jj,10,0, 10);
+	 TGraph *tgr=new TGraph();
+	 //	 cout<<"in the loop"<<endl;
+	 time_hist[i].push_back(newhist);
+	 re_hist[i].push_back(newhist);
+	 im_hist[i].push_back(newhist);
+	 event_graph[i].push_back(tgr);
+       }
+     }
+     //cout<<"after the loop"<<endl;
 
-  time<0?start_time=0:start_time=time;
-  end_time = start_time+(2*half_window);
-  //  outfile = new TFile("/home/natas/Documents/physics/geant/root/time.root", "RECREATE");
-  time_hist->SetBins(samplerate*(end_time-start_time), start_time, end_time);
-  re_hist->SetBins(samplerate*(end_time-start_time), start_time, end_time);
-  im_hist->SetBins(samplerate*(end_time-start_time), start_time, end_time);
+   }
+   // RSCAT_HIST_DECLARE==true;
+     //   cout<<"made it through declaration"<<endl;
+   // time_hist.clear();
+   // re_hist.clear();
+   // im_hist.clear();
+   for(int i=0;i<ntx;i++){
+     for(int j=0;j<nrx;j++){
+       Hep3Vector dv = rx[j].vect()-event.position;
+       double dist = dv.mag();
+       // cout<<"after the thing"<<endl;
+       //  start_time = 0.;
+       double time =(dist/c_light)-half_window; 
+       
+       time<0?start_time=0:start_time=time;
+       end_time = start_time+(2*half_window);
+       //  outfile = new TFile("/home/natas/Documents/physics/geant/root/time.root", "RECREATE");
+       //cout<<"before hist"<<endl;
+       time_hist[i][j]->Reset();
+       re_hist[i][j]->Reset();
+       im_hist[i][j]->Reset();
+       time_hist[i][j]->SetBins(samplerate*(end_time-start_time), start_time, end_time);
+       //cout<<"after hist"<<endl;
+       re_hist[i][j]->SetBins(samplerate*(end_time-start_time), start_time, end_time);
+       im_hist[i][j]->SetBins(samplerate*(end_time-start_time), start_time, end_time);
+
+       // time_hist.push_back(t_h);
+       // re_hist.push_back(re_h);
+       // im_hist.push_back(im_h);
+     }
+   }
+   //cout<<"made it through resize"<<endl;
   //outfile.SetOption("RECREATE");
   //time_hist->SetBins(32000, 0, 16000);
   //  time_hist->SetBins(32000, 0, 3200);
-  //  time_hist = hist;
+  //  time_hist = hgetDirectSignal((const TH1F*)time_hist);ist;
   //  cout<<"hist initialized"<<endl;
  }
 
@@ -67,29 +108,29 @@ void RadioScatter::setCalculateUsingAttnLength(double val){
   }
 }
 
-void RadioScatter::setTxPos(double xin, double yin, double zin){
-    tx.setX(xin);
-    tx.setY(yin);
-    tx.setZ(zin);
-    RSCAT_HIST_DECLARE=false;//resize the output histogram
+void RadioScatter::setTxPos(double xin, double yin, double zin, int index){
+    tx[index].setX(xin);
+    tx[index].setY(yin);
+    tx[index].setZ(zin);
+    RSCAT_HIST_RESIZE=false;//resize the output histogram
   }
-void RadioScatter::setRxPos(double xin, double yin, double zin){
-    rx.setX(xin);
-    rx.setY(yin);
-    rx.setZ(zin);
-    RSCAT_HIST_DECLARE=false;
+void RadioScatter::setRxPos(double xin, double yin, double zin, int index){
+    rx[index].setX(xin);
+    rx[index].setY(yin);
+    rx[index].setZ(zin);
+    RSCAT_HIST_RESIZE=false;
   }
-void RadioScatter::setTxPos(Hep3Vector in){
-  tx.setX(in.x());
-  tx.setY(in.y());
-  tx.setZ(in.z());
-  RSCAT_HIST_DECLARE=false;
+void RadioScatter::setTxPos(Hep3Vector in, int index){
+  tx[index].setX(in.x());
+  tx[index].setY(in.y());
+  tx[index].setZ(in.z());
+  RSCAT_HIST_RESIZE=false;
   }
-void RadioScatter::setRxPos(Hep3Vector in){
-  rx.setX(in.x());
-  rx.setY(in.y());
-  rx.setZ(in.z());
-  RSCAT_HIST_DECLARE=false;
+void RadioScatter::setRxPos(Hep3Vector in, int index){
+  rx[index].setX(in.x());
+  rx[index].setY(in.y());
+  rx[index].setZ(in.z());
+  RSCAT_HIST_RESIZE=false;
   }
   void RadioScatter::setTxVals(double f, double power=1., double gain=1.){
     frequency = f*megahertz;
@@ -115,6 +156,10 @@ void RadioScatter::setRxPos(Hep3Vector in){
   tx_voltage = v;
   event.txVoltage=v;
 }
+void RadioScatter::setTxPower(double p){
+  tx_voltage = sqrt(p*50.);
+  event.txVoltage=tx_voltage;
+}
 
  void RadioScatter::setTxOnTime(double on){
   tx_on = on;
@@ -134,11 +179,11 @@ void RadioScatter::setPrimaryEnergy(double e){
 }
 void RadioScatter::setPrimaryDirection(Hep3Vector p){
   event.direction=p;
-  RSCAT_HIST_DECLARE=false;
+  RSCAT_HIST_RESIZE=false;
 }
 void RadioScatter::setPrimaryPosition(Hep3Vector p){
   event.position=p;
-  RSCAT_HIST_DECLARE=false;
+  RSCAT_HIST_RESIZE=false;
 }
 void RadioScatter::setPolarization(char * p){
   pol=p;
@@ -175,33 +220,33 @@ void RadioScatter::setPolarization(char * p){
   samplingperiod = 1./samplerate;
   event.sampleRate=samplerate;
 }
- void RadioScatter::setTxInterfaceDistX(double dist=0){
+ void RadioScatter::setTxInterfaceDistX(int index,double dist=0){
     tx_interface_dist = abs(dist);
     REFRACTION_FLAG=1;
 }
- void RadioScatter::setRxInterfaceDistX(double dist=0){
+ void RadioScatter::setRxInterfaceDistX(int index,double dist=0){
   rx_interface_dist = abs(dist);
 }
- Hep3Vector RadioScatter::getTxPos(){
-  return tx.vect();
+ Hep3Vector RadioScatter::getTxPos(int index){
+  return tx[index].vect();
 }
- Hep3Vector RadioScatter::getRxPos(){
-  return rx.vect();
+ Hep3Vector RadioScatter::getRxPos(int index){
+  return rx[index].vect();
 }
  double RadioScatter::getFreq(){
   return frequency;
 }
 
   //can input gain pattern later
-  double RadioScatter::getTxGain(double angle=0.){
+  double RadioScatter::getTxGain(int index,double angle=0.){
     double gain = tx_gain;
     return gain;
   }
-  double RadioScatter::getRxGain(double angle=0.){
+  double RadioScatter::getRxGain(int index,double angle=0.){
     double gain = rx_gain;
     return gain;
   }
-  double RadioScatter::getTxAmplitude(HepLorentzVector point){
+  double RadioScatter::getTxAmplitude(int index,HepLorentzVector point){
     double gain = getTxGain(point.vect().theta());
     double power = tx_voltage*gain;
     return power;
@@ -212,7 +257,7 @@ void RadioScatter::setPolarization(char * p){
 use the calculated refraction vectors (from makeRays()) to sort out the correct amplitude.
  */
 
- double RadioScatter::getRxAmplitude(HepLorentzVector point, Hep3Vector j1, Hep3Vector j2, Hep3Vector l1, Hep3Vector l2){
+ double RadioScatter::getRxAmplitude(int index,HepLorentzVector point, Hep3Vector j1, Hep3Vector j2, Hep3Vector l1, Hep3Vector l2){
   double dist = j1.mag()+j2.mag()+l1.mag()+l2.mag();
   //refraction things:
 
@@ -234,7 +279,7 @@ use the calculated refraction vectors (from makeRays()) to sort out the correct 
   double theta = atan(point.y()/point.z());
   double angle_dependence=1.;
  
-  Hep3Vector nhat((point-rx).vect().unit());
+  Hep3Vector nhat((point-rx[index]).vect().unit());
 
   Hep3Vector vert(0,1.,0), horiz(0,0,1.); 
   //  l1plane.setTheta(0);
@@ -267,11 +312,11 @@ use the calculated refraction vectors (from makeRays()) to sort out the correct 
 }
 
 //non-refracted amplitude
- double RadioScatter::getRxAmplitude(HepLorentzVector point){
-  double dist = (tx.vect()-point.vect()).mag()+(rx.vect()-point.vect()).mag();
+double RadioScatter::getRxAmplitude(int txindex,int rxindex, HepLorentzVector point){
+  double dist = (tx[txindex].vect()-point.vect()).mag()+(rx[rxindex].vect()-point.vect()).mag();
   //  //refraction things:
-  Hep3Vector one=tx.vect()-point.vect();
-  Hep3Vector two=point.vect()-rx.vect();
+  Hep3Vector one=tx[txindex].vect()-point.vect();
+  Hep3Vector two=point.vect()-rx[rxindex].vect();
 
   double angle_dependence=1.;
   Hep3Vector nhat(two.unit());
@@ -295,7 +340,7 @@ use the calculated refraction vectors (from makeRays()) to sort out the correct 
 }
 
 
-   double RadioScatter::getTxPhase(double t_0){
+double RadioScatter::getTxPhase(double t_0){
   //    HepLorentzVector tx_pr = tx-point;
   double phase = omega*t_0;
   return phase;
@@ -307,21 +352,21 @@ use the calculated refraction vectors (from makeRays()) to sort out the correct 
     return time;
   }
 
-  double RadioScatter::getRxTime(HepLorentzVector point){
+  double RadioScatter::getRxTime(int index,HepLorentzVector point){
   //  double dist = findPathLengthWithRefraction(rx,point, rx_interface_dist);
-    Hep3Vector sep(rx.vect()-point.vect());
+    Hep3Vector sep(rx[index].vect()-point.vect());
   double dist = sep.mag();
   double time = point.t()+(dist/c_light);
 
   return time;
   }
 
-  double RadioScatter::getTxTime(HepLorentzVector point, int direct=0){
-  Hep3Vector distvec = point.vect()-tx.vect();
+  double RadioScatter::getTxTime(int index,HepLorentzVector point, int direct=0){
+  Hep3Vector distvec = point.vect()-tx[index].vect();
   double dist=0;
   if(direct==0){
     if(REFRACTION_FLAG==1){
-      dist = findPathLengthWithRefraction(tx,point, tx_interface_dist);
+      dist = findPathLengthWithRefraction(tx[index],point, tx_interface_dist);
     }
     else{
       dist= distvec.mag();
@@ -344,8 +389,8 @@ use the calculated refraction vectors (from makeRays()) to sort out the correct 
   }
 }
 
- double RadioScatter::getDirectSignalPhase(HepLorentzVector point){
-  double dist = (tx-rx).vect().mag();
+double RadioScatter::getDirectSignalPhase(int txindex, int rxindex, HepLorentzVector point){
+  double dist = (tx[txindex]-rx[rxindex]).vect().mag();
   double t_0 = point.t()-(dist/c_light);
   return t_0*omega;
 }
@@ -354,7 +399,7 @@ using the refraction vectors (calculated in makeRays), calculate the wave vector
 total time-of-flight and phase. the values n_rel, k_r, and c_light_r are the relative index of refraction, and 
 the modified wavenumber and speed of light (for the medium) respectively  
 */
- double RadioScatter::getRxPhase(HepLorentzVector point, Hep3Vector j1, Hep3Vector j2, Hep3Vector l1, Hep3Vector l2){
+double RadioScatter::getRxPhase(HepLorentzVector point, Hep3Vector j1, Hep3Vector j2, Hep3Vector l1, Hep3Vector l2){
   
   //debug:check that snell's law is satisfied for the found paths.
   // cout<<(j1.z()/j1.mag())/(l1.z()/l1.mag())<<endl;
@@ -381,23 +426,23 @@ the modified wavenumber and speed of light (for the medium) respectively
   }
 
 //non-refraction phase finder
-double RadioScatter::getRxPhase(HepLorentzVector point){
-  double rxtime = getRxTime(point);//find advanced time
-  double txtime = getTxTime(point);//find retarted time
+double RadioScatter::getRxPhase(int txindex, int rxindex, HepLorentzVector point){
+  double rxtime = getRxTime(rxindex,point);//find advanced time
+  double txtime = getTxTime(txindex,point);//find retarted time
   double txphase = getTxPhase(txtime);//find phase at retarded time
   //time of full flight
   //  double tof = abs(rxtime-txtime);//time of flight
   //time of flight for zero lifetime(phase is fixed at interaction point)
-  //  double tof = point.t()-(point.vect()-tx.vect()).mag()/c_light;
+  //  double tof = point.t()-(point.vect()-tx[index].vect()).mag()/c_light;
   double tof=point.t()-txtime;
-  HepLorentzVector tx_pr=tx-point, pr_rx = point-rx;//make vectors
+  HepLorentzVector tx_pr=tx[txindex]-point, pr_rx = point-rx[rxindex];//make vectors
   //wave number addition
   Hep3Vector kvec1 = k*tx_pr.vect();
   Hep3Vector kvec2 = k*pr_rx.vect();
   Hep3Vector ktot = kvec1+kvec2;
   double kx = ktot.mag();
   //calculate compton effects
-  //  double inv_omega_c = (1/omega)+(1/omega_e)*(1-cos(tx_pr.vect().unit().angle(pr_rx.vect().unit())));
+  //  double inv_omega_c = (1/omega)+(1/omega_e)*(1-cos(tx_pr.vect().unit().angle(pr_rx[index].vect().unit())));
   //omega_c = 1/inv_omega_c;
   //    cout<<txtime<<" "<<txphase<<" "<<rxtime<<endl;
   return ((kx) - omega*tof + txphase);
@@ -410,10 +455,10 @@ double RadioScatter::getRxPhase(HepLorentzVector point){
 //     double time = getRxTime(point);
 //     HepLorentzVector tx_pr=tx-point, pr_rx = point-rx;
 //     double gamma = 1./(sqrt(1.-pow(v, 2)));
-//     double omega_prime = gamma*omega*(1.+v*cos(tx_pr.vect().unit().angle(pr_rx.vect().unit())));
+//     double omega_prime = gamma*omega*(1.+v*cos(tx_pr.vect().unit().angle(pr_rx[index].vect().unit())));
 //     double k_rel = omega_prime/c_light;
 //     Hep3Vector kvec1 = k_rel*tx_pr.vect();
-//     Hep3Vector kvec2 = k_rel*pr_rx.vect();
+//     Hep3Vector kvec2 = k_rel*pr_rx[index].vect();
 //     Hep3Vector ktot = kvec1+kvec2;
 //     double kx = ktot.mag();
   
@@ -424,14 +469,14 @@ double RadioScatter::getRxPhase(HepLorentzVector point){
 /*
 simulate the direct signal that would be seen at the receiver for CW
  */
- TH1F * RadioScatter::getDirectSignal(const TH1F *in){
+TH1F * RadioScatter::getDirectSignal(int txindex, int rxindex, const TH1F *in){
   TH1F *outhist=(TH1F*)in;
-  HepLorentzVector point=rx;
+  HepLorentzVector point=rx[rxindex];
   double rx_amp, rx_ph, amp;
-  Hep3Vector dist_vec = tx.vect()-rx.vect();
+  Hep3Vector dist_vec = tx[txindex].vect()-rx[rxindex].vect();
   double dist = dist_vec.mag();
   rx_amp = tx_voltage*m/dist;
-  //  cout<<"rx amp: "<<tx_voltage<<" "<<tx_voltage*m<<" "<<(tx.vect()-rx.vect()).mag()<<" "<<rx_amp;
+  //  cout<<"rx amp: "<<tx_voltage<<" "<<tx_voltage*m<<" "<<(tx[index].vect()-rx[index].vect()).mag()<<" "<<rx_amp;
   int size = in->GetNbinsX();
   int start = in->GetXaxis()->GetXmin();
   int end = in->GetXaxis()->GetXmax();
@@ -439,16 +484,16 @@ simulate the direct signal that would be seen at the receiver for CW
   for(int i=0;i<size;i++){
     point.setT(in->GetBinCenter(i));
 
-    rx_ph = getDirectSignalPhase(point);
+    rx_ph = getDirectSignalPhase(txindex, rxindex, point);
     amp =rx_amp*cos(rx_ph);
     //    cout<<amp<<endl;
     //outhist->Fill(i, amp);
     //cout<<"asdfasfd"<<endl;
-    rx.setT(in->GetBinCenter(i));
-    if(checkTxOn(getTxTime(rx, 1))==1){
+    rx[rxindex].setT(in->GetBinCenter(i));
+    if(checkTxOn(getTxTime(txindex, rx[rxindex], 1))==1){
       //  cout<<"flag check OK"<<endl;
       //f      cout<<rx_amp*cos(rx_ph)<<endl;
-      outhist->Fill(rx.t(), (rx_amp*cos(rx_ph)));
+      outhist->Fill(rx[rxindex].t(), (rx_amp*cos(rx_ph)));
     }
   }
 
@@ -465,100 +510,106 @@ calculate the phase, the amplitude, and the prefactors for cross-section,
 
  */
 
-  double RadioScatter::makeRays(HepLorentzVector point, double e, double l, double e_i){
-  if(RSCAT_HIST_DECLARE==false){
+double RadioScatter::makeRays(HepLorentzVector point, double e, double l, double e_i){
+  if(RSCAT_HIST_RESIZE==false){
     makeTimeHist();
+    RSCAT_HIST_RESIZE=true;
     RSCAT_HIST_DECLARE=true;
   }
 
   double rx_time, rx_amplitude, rx_phase;
   // int dumb=1;
   // if(dumb==1){
-  if(checkTxOn(getTxTime(point))==1){
+  for(int i=0;i<ntx;i++){
+    for(int j=0;j<nrx;j++){
+      if(checkTxOn(getTxTime(i,point))!=1)return 0;
 
-    if(REFRACTION_FLAG==1){
-      Hep3Vector  q1 = findRefractionPlane(tx, point);//make a plane where the refraction will happen
-      Hep3Vector j1;
-      j1.setZ(findRefractionPointZ(q1.x(), q1.z(), tx_interface_dist));//find the refraction point in this plane on interface 
-      Hep3Vector  q2 = findRefractionPlane(rx, point);
-      Hep3Vector  j2;
-      j2.setZ(findRefractionPointZ(q2.x(), q2.z(), rx_interface_dist));
-      j1.setX(tx_interface_dist);
-      j1.setY(0);
-      j2.setX(rx_interface_dist);
-      j2.setY(0);
-      Hep3Vector l1;
-      l1.set(q1.x()-tx_interface_dist, 0., q1.z()-j1.z());
-      Hep3Vector l2;
-      l2.set(q2.x()-rx_interface_dist, 0., q2.z()-j2.z());
+	if(REFRACTION_FLAG==1){
+	  Hep3Vector  q1 = findRefractionPlane(tx[i], point);//make a plane where the refraction will happen
+	  Hep3Vector j1;
+	  j1.setZ(findRefractionPointZ(q1.x(), q1.z(), tx_interface_dist));//find the refraction point in this plane on interface 
+	  Hep3Vector  q2 = findRefractionPlane(rx[j], point);
+	  Hep3Vector  j2;
+	  j2.setZ(findRefractionPointZ(q2.x(), q2.z(), rx_interface_dist));
+	  j1.setX(tx_interface_dist);
+	  j1.setY(0);
+	  j2.setX(rx_interface_dist);
+	  j2.setY(0);
+	  Hep3Vector l1;
+	  l1.set(q1.x()-tx_interface_dist, 0., q1.z()-j1.z());
+	  Hep3Vector l2;
+	  l2.set(q2.x()-rx_interface_dist, 0., q2.z()-j2.z());
       
       
       
-      //get the reflected signal amplitude and phase
-      rx_phase = getRxPhase(point, j1, j2, l1, l2);
-      rx_amplitude = getRxAmplitude(point, j1, j2, l1, l2);
+	  //get the reflected signal amplitude and phase
+	  rx_phase = getRxPhase(point, j1, j2, l1, l2);
+	  rx_amplitude = getRxAmplitude(j,point, j1, j2, l1, l2);
       
       
       
-      //get the time ray would arrive at rx, to fill histogram
-      rx_time = getRxTime(point, j2, l2);
-    }
-    else{
-      rx_phase=getRxPhase(point);
-      rx_amplitude=getRxAmplitude(point);
-      rx_time=getRxTime(point);
-    }
+	  //get the time ray would arrive at rx, to fill histogram
+	  rx_time = getRxTime(point, j2, l2);
+	}
+	else{
+	  rx_phase=getRxPhase(i,j,point);
+	  rx_amplitude=getRxAmplitude(i,j,point);
+	  rx_time=getRxTime(j,point);
+	}
       
-    step_length=l;//to make our density approximation
-    double n = e/e_i;//edeposited/ionization E
-    double n_e =1;
-    //calculate plasma freq and collison freq
-    if(step_length!=0){
-      //electron number density, using step length cube
-      n_e = n*n_primaries/pow(step_length, 3);
-      //collision frequency (approximation from Cravens, mostly for difuse plasmas), multiplied by 3 for e/i, e/e, e/n 
-      nu_col = 3.*54.*n_e/pow(e_i/k_Boltzmann, 1.5);
+    
+      
+	step_length=l;//to make our density approximation
+	double n = e/e_i;//edeposited/ionization E
+	double n_e =1;
+	//calculate plasma freq and collison freq
+	if(step_length!=0){
+	  //electron number density, using step length cube
+	  n_e = n*n_primaries/pow(step_length, 3);
+	  //collision frequency (approximation from Cravens, mostly for difuse plasmas), multiplied by 3 for e/i, e/e, e/n 
+	  nu_col = 3.*54.*n_e/pow(e_i/k_Boltzmann, 1.5);
 
-      //(boltz(mev/k)*T(k)/m_e(mev m^2 s^-2))^1/2*cross section(mm^2)*n_e(mm^-3)
-      //=m/s*mm^-1 so multiply by 1000 to get mm/s
-      //3 is for 3 species (approx)
-      //nu_col = 3.*sqrt(k_Boltzmann*7.e5*kelvin/electron_mass_c2)*1000.*5.e-9*n_e;
+	  //(boltz(mev/k)*T(k)/m_e(mev m^2 s^-2))^1/2*cross section(mm^2)*n_e(mm^-3)
+	  //=m/s*mm^-1 so multiply by 1000 to get mm/s
+	  //3 is for 3 species (approx)
+	  //nu_col = 3.*sqrt(k_Boltzmann*7.e5*kelvin/electron_mass_c2)*1000.*5.e-9*n_e;
 
-      //number density of ice is roughly 3.04x10^22/cm^3=3.04x10^19/mm^3 so we can try that too:
-      //      nu_col = sqrt(k_Boltzmann*7.e5*kelvin/electron_mass_c2)*1000.*5.e-9*(3.04e19);
-      //but that results in just a static reduction of amplitude because the electron number density is not included. that seems wrong.
+	  //number density of ice is roughly 3.04x10^22/cm^3=3.04x10^19/mm^3 so we can try that too:
+	  //      nu_col = sqrt(k_Boltzmann*7.e5*kelvin/electron_mass_c2)*1000.*5.e-9*(3.04e19);
+	  //but that results in just a static reduction of amplitude because the electron number density is not included. that seems wrong.
       
-      //(boltzmann(g m^2 s^-2 k^-1)*T(k)/m_e(g))^1/2*(cross section(m^2))*(n_e(m^-3))
-      //=m/s*m^-1=freq
-      //nu_col = sqrt(k_b*1000.*7e5/e_mass_cgs)*(5.e-15)*(n_e/1.e9);
-      //plasma frequency, TODO
-      //    cout<<nu_col<<endl;
-      omega_0=plasma_const*sqrt(n_e);
+	  //(boltzmann(g m^2 s^-2 k^-1)*T(k)/m_e(g))^1/2*(cross section(m^2))*(n_e(m^-3))
+	  //=m/s*m^-1=freq
+	  //nu_col = sqrt(k_b*1000.*7e5/e_mass_cgs)*(5.e-15)*(n_e/1.e9);
+	  //plasma frequency, TODO
+	  //    cout<<nu_col<<endl;
+	  omega_0=plasma_const*sqrt(n_e);
+	}
+	//    nu_col=1.;
+	event.totNScatterers+=n;//track total number of scatterers
+	//for each ionization e scatterer
+	double filter=1.;//TODO
+	//the full scattering amplitude pre-factor  
+	double prefactor = filter*n*n_primaries*cross_section*rx_amplitude*omega/(pow(omega, 2)+pow(nu_col, 2));
+	//now calculate real and imaginary e fields
+	//double E= prefactor*omega*cos(rx_phase)-prefactor*nu_col*sin(rx_phase);
+	double E_real= prefactor*omega*cos(rx_phase)+prefactor*nu_col*sin(rx_phase);
+      
+	double E_imag = prefactor*-nu_col*cos(rx_phase)+prefactor*omega*sin(rx_phase);
+      
+	if(abs(E_real)<tx_voltage){//simple sanity check      
+	  time_hist[i][j]->Fill(rx_time, E_real);
+	  re_hist[i][j]->Fill(rx_time, E_real);
+	  im_hist[i][j]->Fill(rx_time, E_imag);
+	}
+      }
     }
-    //    nu_col=1.;
-    event.totNScatterers+=n;//track total number of scatterers
-    //for each ionization e scatterer
-    double filter=1.;//TODO
-    //the full scattering amplitude pre-factor  
-    double prefactor = filter*n*n_primaries*cross_section*rx_amplitude*omega/(pow(omega, 2)+pow(nu_col, 2));
-    //now calculate real and imaginary e fields
-    //double E= prefactor*omega*cos(rx_phase)-prefactor*nu_col*sin(rx_phase);
-    double E_real= prefactor*omega*cos(rx_phase)+prefactor*nu_col*sin(rx_phase);
-      
-    double E_imag = prefactor*-nu_col*cos(rx_phase)+prefactor*omega*sin(rx_phase);
-      
-    if(abs(E_real)<tx_voltage){//simple sanity check      
-      time_hist->Fill(rx_time, E_real);
-      re_hist->Fill(rx_time, E_real);
-      im_hist->Fill(rx_time, E_imag);
-    }
-      
-    return E_real;
+    return 1;
   }
-  else{
-    return 0;
-  }
-}
+ 
+
+ 
+
 
 
 //calculate the point of refraction in the z direction. n_rel is the relative index of refraction n2/n1
@@ -570,7 +621,7 @@ return jz;
 
 /*
 analytic solution above requires that the tx and rx are in a plane. this function assumes 
-this plane is in the plane containing the x-axis, interaction point, and either tx/rx. 
+this plane is in the plane containing the x-axis, interaction point, and either tx/rx[index]. 
 
 function rotates the k vector to be in the kz plane and then sends this plane to the above function.
 might be completely wrong. but resultant vectors satisfy snell's law.
@@ -584,7 +635,7 @@ might be completely wrong. but resultant vectors satisfy snell's law.
   k.setZ(abs(p2.z()-p1.z()));
   // cout<<endl<<k.x()<<" "<<k.y()<<" "<<k.z()<<endl;
   // cout<<p1.x()<<" "<<p1.y()<<" "<<p1.z()<<endl;
-  // cout<<tx.x()<<" "<<tx.y()<<" "<<tx.z()<<endl;
+  // cout<<tx[index].x()<<" "<<tx[index].y()<<" "<<tx[index].z()<<endl;
   // cout<<p2.x()<<" "<<p2.y()<<" "<<p2.z()<<endl<<endl;
   double theta = atan(k.y()/k.z());
   k.rotateX(theta);
@@ -603,61 +654,83 @@ find the path length including refraction
   return mag;
   
 }
-
-double RadioScatter::power(){
-  double pwr;
-  //  cout<<time_hist->GetNbinsX()<<endl;
-  //time_hist.Draw();
-  for(int i=0;i<time_hist->GetNbinsX();i++){
-    pwr+=pow(time_hist->GetBinContent(i), 2);
-  }
-  //  cout<<p<<endl;
-  return pwr;
-  }
+/*
+don't use these
+*/
+// double RadioScatter::power(){
+//   double pwr;
+//   //  cout<<time_hist->GetNbinsX()<<endl;
+//   //time_hist.Draw();
+//   for(int i=0;i<time_hist->GetNbinsX();i++){
+//     pwr+=pow(time_hist->GetBinContent(i), 2);
+//   }
+//   //  cout<<p<<endl;
+//   return pwr;
+//   }
 //broken
-  void RadioScatter::draw(){
-    time_hist->Draw("l");
-  }
-  void RadioScatter::writeHist(TString filename, float num_events=1.){
-  TFile *t = new TFile(filename, "recreate");
-  time_hist->Scale(1./num_events);
-  re_hist->Scale(1./num_events);
-  im_hist->Scale(1./num_events);
+//   void RadioScatter::draw(){
+//     time_hist->Draw("l");
+//   }
+//   void RadioScatter::writeHist(TString filename, float num_events=1.){
+//   TFile *t = new TFile(filename, "recreate");
+//   time_hist->Scale(1./num_events);
+//   re_hist->Scale(1./num_events);
+//   im_hist->Scale(1./num_events);
   
-  TH1F *outhist=0;
-  if(includeCW_flag==1){
-    //    cout<<"before"<<endl;
-    outhist=getDirectSignal((const TH1F*)time_hist);
-    //cout<<"after"<<endl;
-      //      cout <<getDirectSignal();
-    }
-  else{
-    outhist=time_hist;
-  }
+//   TH1F *outhist=0;
+//   if(includeCW_flag==1){
+//     //    cout<<"before"<<endl;
+//     outhist=getDirectSignal((const TH1F*)time_hist);
+//     //cout<<"after"<<endl;
+//       //      cout <<getDirectSignal();
+//     }
+//   else{
+//     outhist=time_hist;
+//   }
 
-  outhist->Write();
-  // time_hist.BufferEmpty();
-  t->Close();
-  // time_hist->Clear();
-  //outfile.Write();
-  //outfile.Close();
-  //return outhist;
-  cout<<filename<<endl;
-}
+//   outhist->Write();
+//   // time_hist.BufferEmpty();
+//   t->Close();
+//   // time_hist->Clear();
+//   //outfile.Write();
+//   //outfile.Close();
+//   //return outhist;
+//   cout<<filename<<endl;
+// }
 
-  TH1F* RadioScatter::scaleHist(float num_events=1.){
-  time_hist->Scale(1./num_events);
-  re_hist->Scale(1./num_events);
-  im_hist->Scale(1./num_events);
-  TH1F *outhist=0;
+// TH1F* RadioScatter::scaleHist(int txindex, int rxindex,float num_events=1.){
+//   time_hist->Scale(1./num_events);
+//   re_hist->Scale(1./num_events);
+//   im_hist->Scale(1./num_events);
+//   TH1F *outhist=0;
 
-  if(includeCW_flag==1){
-    outhist=getDirectSignal((const TH1F*)time_hist);
-  }
-  else{
+//   if(includeCW_flag==1){
+//     outhist=getDirectSignal((const TH1F*)time_hist);
+//   }
+//   else{
     
-    outhist=time_hist;
+//     outhist=time_hist;
+//   }
+//   return outhist;
+// }
+
+vector<vector<TH1F*>> RadioScatter::scaleHist(float num_events=1.){
+  vector<vector<TH1F*>> outhist(ntx, vector<TH1F*>(nrx));
+  for(int i=0;i<ntx;i++){
+    for(int j=0;j<nrx;j++){
+      time_hist[i][j]->Scale(1./num_events);
+      re_hist[i][j]->Scale(1./num_events);
+      im_hist[i][j]->Scale(1./num_events);
+
+      if(includeCW_flag==1){
+	outhist[i][j]=getDirectSignal(i, j, (const TH1F*)time_hist[i][j]);
+      }
+      else{
+	outhist[i][j]=time_hist[i][j];
+      }
+    }
   }
+  
   return outhist;
 }
 
@@ -709,12 +782,12 @@ double RadioScatter::power(){
 //   // t->Branch("freq", &frequency);
 //   // t->Branch("ev", &event);
 //   // t->Branch("tx", &tx);
-//   // t->Branch("tx_x", tx.x());
-//   // t->Branch("tx_y", tx.y());
-//   // t->Branch("tx_z", tx.z());
-//   // t->Branch("rx_x", rx.x());
-//   // t->Branch("rx_y", rx.y());
-//   // t->Branch("rx_z", rx.z());
+//   // t->Branch("tx_x", tx[index].x());
+//   // t->Branch("tx_y", tx[index].y());
+//   // t->Branch("tx_z", tx[index].z());
+//   // t->Branch("rx_x", rx[index].x());
+//   // t->Branch("rx_y", rx[index].y());
+//   // t->Branch("rx_z", rx[index].z());
 //   //cout<<"here"<<endl;
 //   f->cd();
 //   f->Append(ogr);
@@ -727,7 +800,7 @@ double RadioScatter::power(){
 //   f->Write();
 //   time_hist->Reset();
 //   //  f->Close();
-//   //#undef RSCAT_HIST_DECLARE
+//   //#undef RSCAT_HIST_RESIZE
 // }
 
 int RadioScatter::writeRun(float num_events, int debug){
@@ -753,32 +826,40 @@ int RadioScatter::writeRun(float num_events, int debug){
   //total number of electrons per shower * total primaries in the bunch * the number of events in the run. 
   event.totNScatterers = event.totNScatterers*n_primaries/num_events;
   vector<double> xvals, yvals;
-  int entries=event.eventHist->GetNbinsX();
-  for(int i=0;i<entries;i++){
-    //    xvals.push_back(event.eventHist->GetBinCenter(i));
-    xvals.push_back(i*samplingperiod);
-    yvals.push_back(event.eventHist->GetBinContent(i));
-  }
-  TGraph ogr(xvals.size(), &xvals[0], &yvals[0]);
-  event.eventGraph = &ogr;
-  f->cd();
 
-  //  f->Append(ogr);
-  t->Fill();
-  if(debug==1){
-    cout<<"The RadioScatter root file: "<<endl<<f->GetName()<<endl<<" has been filled. This is run number "<<fRunCounter<<"."<<endl;
+  for(int i=0;i<ntx;i++){
+    for(int j=0;j<nrx;j++){
+      int entries=event.eventHist[i][j]->GetNbinsX();
+      for(int k=0;k<entries;k++){
+	//    xvals.push_back(event.eventHist->GetBinCenter(i));
+	xvals.push_back(k*samplingperiod);
+	yvals.push_back(event.eventHist[i][j]->GetBinContent(k));
+      }
+      TGraph ogr(xvals.size(), &xvals[0], &yvals[0]);
+      event.eventGraph[i][j] = &ogr;
+    }
   }
-  //f->Write();
-  time_hist->Reset();
-  re_hist->Reset();
-  im_hist->Reset();
+      f->cd();
+
+      //  f->Append(ogr);
+      t->Fill();
+      if(debug==1){
+	cout<<"The RadioScatter root file: "<<endl<<f->GetName()<<endl<<" has been filled. This is run number "<<fRunCounter<<"."<<endl;
+      }
+      //f->Write();
+      //time_hist[i][j]->Reset();
+      //re_hist[i][j]->Reset();
+      //im_hist[i][j]->Reset();
+      // }
+      // }
   cout<<"Run total N scatterers:"<<event.totNScatterers<<endl; 
   event.totNScatterers=0;
-  //RSCAT_HIST_DECLARE=false;
+  //RSCAT_HIST_RESIZE=false;
   return 1;
   //  f->Close();
-  //#undef RSCAT_HIST_DECLARE
+  //#undef RSCAT_HIST_RESIZE
 }
+
 int RadioScatter::writeEvent(int debug){
   //this is a stupid check for multi-threaded mode,
   //will only write the run if there has indeed been a run
@@ -793,50 +874,115 @@ int RadioScatter::writeEvent(int debug){
   //event.primaryEnergy = 
   //  event.direction=primary_direction;
   //event.position = primary_position;
+  //cout<<"before assignment"<<endl;
+  event.ntx=ntx;
+  event.nrx=nrx;
   event.tx=tx;
   event.rx=rx;
   event.eventHist = time_hist;
   event.reHist = re_hist;
   event.imHist = im_hist;
   event.freq=frequency;
-  //total number of electrons per shower * total primaries in the bunch * the number of events in the run. 
+  //total number of electrons per shower * total primaries in the bunch * the number of events in the run.
+  //cout<<"after assignment"<<endl;
   event.totNScatterers = event.totNScatterers*n_primaries;
-  vector<double> xvals, yvals;
-  int entries=event.eventHist->GetNbinsX();
-  for(int i=0;i<entries;i++){
-    //    xvals.push_back(event.eventHist->GetBinCenter(i));
-    xvals.push_back(i*samplingperiod);
-    yvals.push_back(event.eventHist->GetBinContent(i));
-  }
-  TGraph ogr(xvals.size(), &xvals[0], &yvals[0]);
-  event.eventGraph = &ogr;
-  f->cd();
 
+
+  for(int i=0;i<ntx;i++){
+    for(int j=0;j<nrx;j++){
+      int entries=event.eventHist[i][j]->GetNbinsX();
+      vector<double> xvals, yvals;
+      for(int k=0;k<entries;k++){
+	//    xvals.push_back(event.eventHist->GetBinCenter(i));
+
+	xvals.push_back(k*samplingperiod);
+	yvals.push_back(event.eventHist[i][j]->GetBinContent(k));
+
+      }
+      //  cout<<"before graph"<<endl;
+      TGraph * ogr=new TGraph(xvals.size(), &xvals[0], &yvals[0]);
+      //cout<<"after graph"<<endl;
+      event_graph[i][j] = ogr;
+      //cout<<"after assigment"<<endl;
+    }
+  }
+  event.eventGraph=event_graph;
+  f->cd();
+  
   //  f->Append(ogr);
   t->Fill();
   if(debug==1){
     cout<<"The RadioScatter root file: "<<endl<<f->GetName()<<endl<<" has been filled. This is run number "<<fRunCounter<<"."<<endl;
   }
   //f->Write();
-  time_hist->Reset();
-  re_hist->Reset();
-  im_hist->Reset();
+
+  
+  
   cout<<"Run total N scatterers:"<<event.totNScatterers<<endl; 
   event.totNScatterers=0;
-  //  RSCAT_HIST_DECLARE=false;
+  //RSCAT_HIST_RESIZE=false;
   return 1;
   //  f->Close();
-  //#undef RSCAT_HIST_DECLARE
+  //#undef RSCAT_HIST_RESIZE
 }
+// int RadioScatter::writeEvent(int debug){
+//   //this is a stupid check for multi-threaded mode,
+//   //will only write the run if there has indeed been a run
+//   if(event.totNScatterers==0){
+//     return 0;
+//   }
+//   fRunCounter++;
+//   //  TFile *f = (TFile *)gROOT->Get("filename");
+//   TFile *f = ((TFile *)(gROOT->GetListOfFiles()->At(0)));
+//   TTree *t = (TTree*)f->Get("tree");
+//   event.nPrimaries = n_primaries;
+//   //event.primaryEnergy = 
+//   //  event.direction=primary_direction;
+//   //event.position = primary_position;
+//   event.tx=tx;
+//   event.rx=rx;
+//   event.eventHist = time_hist;
+//   event.reHist = re_hist;
+//   event.imHist = im_hist;
+//   event.freq=frequency;
+//   //total number of electrons per shower * total primaries in the bunch * the number of events in the run. 
+//   event.totNScatterers = event.totNScatterers*n_primaries;
+//   vector<double> xvals, yvals;
+//   int entries=event.eventHist->GetNbinsX();
+//   for(int i=0;i<entries;i++){
+//     //    xvals.push_back(event.eventHist->GetBinCenter(i));
+//     xvals.push_back(i*samplingperiod);
+//     yvals.push_back(event.eventHist->GetBinContent(i));
+//   }
+//   TGraph ogr(xvals.size(), &xvals[0], &yvals[0]);
+//   event.eventGraph = &ogr;
+//   f->cd();
+
+//   //  f->Append(ogr);
+//   t->Fill();
+//   if(debug==1){
+//     cout<<"The RadioScatter root file: "<<endl<<f->GetName()<<endl<<" has been filled. This is run number "<<fRunCounter<<"."<<endl;
+//   }
+//   //f->Write();
+//   time_hist->Reset();
+//   re_hist->Reset();
+//   im_hist->Reset();
+//   cout<<"Run total N scatterers:"<<event.totNScatterers<<endl; 
+//   event.totNScatterers=0;
+//   //  RSCAT_HIST_RESIZE=false;
+//   return 1;
+//   //  f->Close();
+//   //#undef RSCAT_HIST_RESIZE
+// }
 
   void RadioScatter::close(){
     TFile *f=    ((TFile *)(gROOT->GetListOfFiles()->At(0)));
     cout<<"The RadioScatter root file: "<<endl<<f->GetName()<<endl<<"has been written."<<endl;
     f->Write();
     f->Close();
-    delete(time_hist);
-    delete(fft_hist);
-    delete(power_hist);
+    // delete(time_hist);
+    // delete(fft_hist);
+    // delete(power_hist);
   }
 
  void RadioScatter::testFunc(double testVal){

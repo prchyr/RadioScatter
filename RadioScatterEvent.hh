@@ -11,10 +11,11 @@
 #include "TGraph.h"
 #include "TVirtualFFT.h"
 #include <deque>
+//#include <vector>
 
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "CLHEP/Vector/ThreeVector.h"
-//#include "CLHEP/Vector/LorentzVector.h"
+#include "CLHEP/Vector/LorentzVector.h"
 
 
 
@@ -41,8 +42,8 @@ public:
 
   Hep3Vector direction;
   Hep3Vector position;
-  Hep3Vector tx;
-  Hep3Vector rx;
+  HepLorentzVector *tx;
+  HepLorentzVector *rx;
   //the energy of the primary as set in geant
   double primaryEnergy=0;
 
@@ -52,37 +53,38 @@ public:
   double freq=0;
   //  double power=0;
   double totNScatterers=0;
-  TH1F * eventHist=0;
-  TH1F * reHist=0;
-  TH1F * imHist=0;
+  vector<vector<TH1F*>> eventHist;
+  vector<vector<TH1F*>> reHist;
+  vector<vector<TH1F*>> imHist;
 
-  TGraph * eventGraph=0;
+  vector<vector<TGraph*>> eventGraph;
 
-
+  int ntx=1;
+  int nrx=1;
   //plotting things
 
-  TGraph  getComplexEnvelope(double cutoff=0);
-  TGraph  getLowpassFiltered(double cutoff);
+  TGraph  getComplexEnvelope(int txindex, int rxindex,double cutoff=0);
+  TGraph  getLowpassFiltered(int txindex, int rxindex,double cutoff);
   TGraph  getGraph();
   //  TGraph getSpectrum(bool dbflag=false);
-  TH1F * getSpectrum(bool dbflag=false);  
-  void spectrogram(Int_t binsize = 128, Int_t overlap=32);
-  int plotEvent(int bins=64, int overlap=8);
+  TH1F * getSpectrum(int txindex, int rxindex,bool dbflag=false);  
+  void spectrogram(int txindex, int rxindex,Int_t binsize = 128, Int_t overlap=32);
+  int plotEvent(int txindex, int rxindex,int bins=64, int overlap=8);
   
   double chirpSlope();
   double startFreq();
   double stopFreq();
-  double peakFreq();
+  double peakFreq(int txindex, int rxindex);
   double bandWidth();
-  double peakV();
-  double rms();
-  double duration();
-  double power();
-  double pathLength();
+  double peakV(int txindex, int rxindex);
+  double rms(int txindex, int rxindex);
+  double duration(int txindex, int rxindex);
+  double power(int txindex, int rxindex);
+  double pathLength(int txindex, int rxindex);
   //energy calculated from the geant4 energy and the number of primaries
   double primaryParticleEnergy();
   int triggered(double thresh);
   
-  ClassDef(RadioScatterEvent, 2);
+  ClassDef(RadioScatterEvent, 3);
 };
 #endif

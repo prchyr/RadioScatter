@@ -7,31 +7,38 @@ RadioScatterEvent::RadioScatterEvent(){
   dummy=-1;
 }
 
-double RadioScatterEvent::power(){
+double RadioScatterEvent::power(int txindex, int rxindex){
   double val;
-  int entries=eventHist->GetNbinsX();
+  int entries=eventHist[txindex][rxindex]->GetNbinsX();
   for(int i=0;i<entries;i++){
-    val+=eventHist->GetBinContent(i)*eventHist->GetBinContent(i);
+    val+=eventHist[txindex][rxindex]->GetBinContent(i)*eventHist[txindex][rxindex]->GetBinContent(i);
   }
   return val;
 }
 
-double RadioScatterEvent::peakV(){
-  return eventHist->GetMaximum();
+double RadioScatterEvent::peakV(int txindex, int rxindex){
+  return eventHist[txindex][rxindex]->GetMaximum();
 }
 
 double RadioScatterEvent::primaryParticleEnergy(){
   return primaryEnergy*nPrimaries*1000000.;//g4 primaries in MeV units
 }
+//simple thing-did any receiver trigger?
 int RadioScatterEvent::triggered(double thresh){
-  int trig=peakV()>thresh?1:0;
+  int trig=0;
+  for(int i=0;i<ntx;i++){
+    for(int j=0;j<nrx;j++){
+      trig=peakV(i,j)>thresh?1:0;
+      if(trig==1)return 1;
+    }
+  }
   return trig;
 }
 
-double RadioScatterEvent::rms(){
+double RadioScatterEvent::rms(int txindex, int rxindex){
   double val=0;
-  int entries = eventGraph->GetN();
-  double * yy = eventGraph->GetY();
+  int entries = eventGraph[txindex][rxindex]->GetN();
+  double * yy = eventGraph[txindex][rxindex]->GetY();
   for(int i=0;i<entries;i++){
     val+=(yy[i]*yy[i])/entries;
   }
@@ -58,11 +65,11 @@ double RadioScatterEvent::chirpSlope(){
   return slope;
 }
 
-double RadioScatterEvent::pathLength(){
-  return((tx-position).mag()+(rx-position).mag());
+double RadioScatterEvent::pathLength(int txindex, int rxindex){
+  return((tx[txindex]-position).mag()+(rx[rxindex]-position).mag());
 }
-double RadioScatterEvent::duration(){
-  TGraph og= getComplexEnvelope(100);
+double RadioScatterEvent::duration(int txindex, int rxindex){
+  TGraph og= getComplexEnvelope(txindex,rxindex,100);
   double * xx=og.GetX();
   double * yy=og.GetY();
   int n=og.GetN();
@@ -98,12 +105,12 @@ double RadioScatterEvent::duration(){
 
 }
 
-TGraph RadioScatterEvent::getComplexEnvelope(double cutoff){
+TGraph RadioScatterEvent::getComplexEnvelope(int txindex, int rxindex,double cutoff){
   vector<double> xx, yy;
-  int entries=reHist->GetNbinsX();
+  int entries=reHist[txindex][rxindex]->GetNbinsX();
   for(int i=0;i<entries;i++){
-    xx.push_back(reHist->GetBinCenter(i));
-    yy.push_back(sqrt(pow(reHist->GetBinContent(i), 2)+pow(imHist->GetBinContent(i), 2)));
+    xx.push_back(reHist[txindex][rxindex]->GetBinCenter(i));
+    yy.push_back(sqrt(pow(reHist[txindex][rxindex]->GetBinContent(i), 2)+pow(imHist[txindex][rxindex]->GetBinContent(i), 2)));
   }
   
   if(cutoff>0){
@@ -144,16 +151,16 @@ TGraph RadioScatterEvent::getComplexEnvelope(double cutoff){
   }
 }
 
-TH1F* RadioScatterEvent::getSpectrum(bool dbflag){
-  int size = eventGraph->GetN();
-  int nbins = eventHist->GetNbinsX();
-  double samprate = nbins/(eventHist->GetXaxis()->GetXmax()-eventHist->GetXaxis()->GetXmin());//in samples/ns
+TH1F* RadioScatterEvent::getSpectrum(int txindex, int rxindex,bool dbflag){
+  int size = eventGraph[txindex][rxindex]->GetN();
+  int nbins = eventHist[txindex][rxindex]->GetNbinsX();
+  double samprate = nbins/(eventHist[txindex][rxindex]->GetXaxis()->GetXmax()-eventHist[txindex][rxindex]->GetXaxis()->GetXmin());//in samples/ns
   Float_t band = samprate;//in ghz
   Float_t bandwidth = band/2.;//nyquist
   Float_t timebase = size*(1./samprate);//ns
 
   TH1 *out = 0;
-  out = eventHist->FFT(out, "mag");
+  out = eventHist[txindex][rxindex]->FFT(out, "mag");
 
   spectrumHist->SetBins(nbins/2,0,bandwidth);
 
@@ -175,17 +182,17 @@ TH1F* RadioScatterEvent::getSpectrum(bool dbflag){
 
 }
 
-double RadioScatterEvent::peakFreq(){
-  TH1F * hist = getSpectrum();
+double RadioScatterEvent::peakFreq(int txindex, int rxindex){
+  TH1F * hist = getSpectrum(txindex, rxindex);
   double val = hist->GetBinCenter(hist->GetMaximumBin());
   //  hist->Delete();
   return val;
 }
 
-void RadioScatterEvent::spectrogram(Int_t binsize, Int_t overlap){
-  Int_t size = eventHist->GetNbinsX();
-  Float_t xmax = eventHist->GetXaxis()->GetXmax();
-  Float_t xmin = eventHist->GetXaxis()->GetXmin();
+void RadioScatterEvent::spectrogram(int txindex, int rxindex,Int_t binsize, Int_t overlap){
+  Int_t size = eventHist[txindex][rxindex]->GetNbinsX();
+  Float_t xmax = eventHist[txindex][rxindex]->GetXaxis()->GetXmax();
+  Float_t xmin = eventHist[txindex][rxindex]->GetXaxis()->GetXmin();
 
   Int_t nbins = size/overlap;
   char*timebuff;
@@ -201,7 +208,7 @@ void RadioScatterEvent::spectrogram(Int_t binsize, Int_t overlap){
   for(int i=0;i<=nbins;i++){
     for(int j = 0;j<=binsize;j++){
       if((j+start)>=size)break;
-      in->SetBinContent(j, eventHist->GetBinContent(j+start));
+      in->SetBinContent(j, eventHist[txindex][rxindex]->GetBinContent(j+start));
    
     }
 
@@ -239,14 +246,14 @@ void RadioScatterEvent::spectrogram(Int_t binsize, Int_t overlap){
 }
 
 
-int RadioScatterEvent::plotEvent(int bins, int overlap){
+int RadioScatterEvent::plotEvent(int txindex, int rxindex,int bins, int overlap){
   TCanvas *c = new TCanvas("plotEvent","plotEvent", 800, 400);
   c->Divide(2, 0);
   c->cd(1)->SetGrid();
   Float_t bandwidth = 1e9*sampleRate;//bandwith in Hz
   Float_t kB = 1.831e-23;
   Float_t thermal_noise = sqrt(kB*300.*50.*bandwidth)*1000.;//thermal noise (mV)
-  int nbins = eventHist->GetNbinsX();
+  int nbins = eventHist[txindex][rxindex]->GetNbinsX();
   //  cout<<bandwidth<<thermal_noise<<endl<<setprecision(10)<<nbins;
   Float_t noise, r1, r2, val;
   int j=0;
@@ -256,14 +263,14 @@ int RadioScatterEvent::plotEvent(int bins, int overlap){
     //    if(noise_flag==1){
       noise = r1*thermal_noise;
       //ev->eventHist->Fill(i, noise);
-      eventHist->AddBinContent(i, noise);
+      eventHist[txindex][rxindex]->AddBinContent(i, noise);
       //    val=ev->eventHist->GetBinContent(i);
       //}
   }
-  eventHist->GetXaxis()->SetTitle("ns");
-  eventHist->GetYaxis()->SetTitle("mV");
-  eventHist->Draw("histl");
-  eventHist->SetStats(0);
+  eventHist[txindex][rxindex]->GetXaxis()->SetTitle("ns");
+  eventHist[txindex][rxindex]->GetYaxis()->SetTitle("mV");
+  eventHist[txindex][rxindex]->Draw("histl");
+  eventHist[txindex][rxindex]->SetStats(0);
   //timme->Draw();
   c->cd(2);
   // fft = dofft(eventHist);
@@ -275,7 +282,7 @@ int RadioScatterEvent::plotEvent(int bins, int overlap){
   // fft->Draw();
   // c->cd(3);
   //  g.plot(vals, "with lines");
-  spectrogram(bins, overlap);
+  spectrogram(txindex, rxindex, bins, overlap);
   //  TImage *img =TImage::Create();
   //  img->FromPad(c);
   //img->WriteImage("54mhz_100TeV_proton.png");

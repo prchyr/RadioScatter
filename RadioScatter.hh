@@ -20,6 +20,7 @@ antenna effective area
 #include "TString.h"
 #include "TTree.h"
 #include "TGraph.h"
+#include <vector>
 
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "CLHEP/Vector/LorentzVector.h"
@@ -61,9 +62,14 @@ class RadioScatter{
   //TFile *outfile;
   //  TFile * outfile=new TFile("/home/natas/Documents/physics/geant/root/time.root", "RECREATE");
   TH1F *fft_hist, *power_hist;
-  TH1F *time_hist = new TH1F("eventHist", "eventHist", 100, 0, 10);
-  TH1F *re_hist = new TH1F("reHist", "reHist", 100, 0, 10);
-  TH1F *im_hist = new TH1F("imHist", "imHist", 100, 0, 10);
+  TH1F *t_h = new TH1F("eventHist", "eventHist", 100, 0, 10);
+  TH1F *re_h = new TH1F("reHist", "reHist", 100, 0, 10);
+  TH1F *im_h = new TH1F("imHist", "imHist", 100, 0, 10);
+
+  vector<vector<TH1F*>> time_hist;
+  vector<vector<TH1F*>> re_hist;
+  vector<vector<TH1F*>> im_hist;
+  vector<vector<TGraph*>> event_graph;
   //e^2/m_e
   double plasma_const = sqrt(4*pi*electron_charge*electron_charge/electron_mass_c2);
 
@@ -99,9 +105,10 @@ class RadioScatter{
 
 public:
 
-
-  HepLorentzVector tx;//transmitter
-  HepLorentzVector rx;//reciever
+  int ntx=1;
+  int nrx=1;
+  HepLorentzVector tx[100];//transmitters, allow for multiple
+  HepLorentzVector rx[100];//recievers, allow for multiple
 
 
   
@@ -111,12 +118,13 @@ public:
   void makeOutputTextFile(char* filename);
   void writeToTextFile();
   void makeTimeHist();
-  void setTxPos(double xin, double yin, double zin);
-  void setRxPos(double xin, double yin, double zin);
-  void setTxPos(Hep3Vector in);
-  void setRxPos(Hep3Vector in);
+  void setTxPos(double xin, double yin, double zin, int index=0);
+  void setRxPos(double xin, double yin, double zin, int index=0);
+  void setTxPos(Hep3Vector in, int index=0);
+  void setRxPos(Hep3Vector in, int index=0);
   void setTxFreq(double f);
   void setTxVoltage(double v);
+  void setTxPower(double p);
   void setNPrimaries(double n);
   void setPrimaryEnergy(double e);
   void setPrimaryPosition(Hep3Vector p);
@@ -129,39 +137,39 @@ public:
   void setCalculateUsingAttnLength(double val=0.);
   void setRecordWindowLength(double nanoseconds);
   void setRxSampleRate(double rate);
-  void setTxInterfaceDistX(double dist);
-  void setRxInterfaceDistX(double dist);
+  void setTxInterfaceDistX(int index,double dist);
+  void setRxInterfaceDistX(int index,double dist);
   void setShowCWFlag(double i);
   void setTxOnTime(double on);
   void setTxOffTime(double off);
-  Hep3Vector getTxPos();
-  Hep3Vector getRxPos();
+  Hep3Vector getTxPos(int index=0);
+  Hep3Vector getRxPos(int index=0);
   double getFreq();
-  double getTxGain(double angle);
-  double getRxGain(double angle);
-  double getTxAmplitude(HepLorentzVector point);
-  double getRxAmplitude(HepLorentzVector point, Hep3Vector j1,  Hep3Vector j2, Hep3Vector l1, Hep3Vector l2);
-  double getRxAmplitude(HepLorentzVector point);
+  double getTxGain(int index,double angle);
+  double getRxGain(int index,double angle);
+  double getTxAmplitude(int index,HepLorentzVector point);
+  double getRxAmplitude(int index, HepLorentzVector point, Hep3Vector j1,  Hep3Vector j2, Hep3Vector l1, Hep3Vector l2);
+  double getRxAmplitude(int txindex, int rxindex, HepLorentzVector point);
   double getTxPhase(double t_0);
   double getRxTime(HepLorentzVector point, Hep3Vector j, Hep3Vector l);
-  double getRxTime(HepLorentzVector point);
-  double getTxTime(HepLorentzVector point, int direct);
+  double getRxTime(int index,HepLorentzVector point);
+  double getTxTime(int index,HepLorentzVector point, int direct);
   double getRxPhase(HepLorentzVector point, Hep3Vector j1, Hep3Vector j2, Hep3Vector l1, Hep3Vector l2);
-  double getRxPhase(HepLorentzVector point);
-  double getRxPhaseRel(HepLorentzVector point, double v);
+  double getRxPhase(int txindex, int rxindex, HepLorentzVector point);
+  double getRxPhaseRel(int index,HepLorentzVector point, double v);
   int checkTxOn(double time);
   Hep3Vector findRefractionPlane(HepLorentzVector p1, HepLorentzVector p2);
   double findRefractionPointZ(double kx, double kz, double jx);
   double findPathLengthWithRefraction(HepLorentzVector p1, HepLorentzVector p2, double interface_dist_x); 
-  TH1F* getDirectSignal(const TH1F*);
-  double getDirectSignalPhase(HepLorentzVector point);
+  TH1F* getDirectSignal(int txindex, int rxindex, const TH1F*);
+  double getDirectSignalPhase(int txindex, int rxindex,HepLorentzVector point);
   double makeRays(HepLorentzVector point, double e, double l, double e_i);
   double makeRays(HepLorentzVector point, double e, double l, double e_i, TH1F *hist);
   double power();
   void draw();
   void printEventStats();
   void writeHist(TString filename, float num_events);
-  TH1F * scaleHist(float num_events);
+  vector<vector<TH1F*>> scaleHist(float num_events);
   int writeRun(float num_events=1., int debug=0);
   int writeEvent(int debug=0);
   void close();
@@ -174,6 +182,7 @@ private:
 
   int REFRACTION_FLAG=0;
   bool RSCAT_HIST_DECLARE=false;
+  bool RSCAT_HIST_RESIZE=false;
   int fRunCounter=0;
 };
 

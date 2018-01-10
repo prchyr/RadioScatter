@@ -185,7 +185,7 @@ void EventAction::EndOfEventAction(const G4Event* event)
 //        << G4endl;
 //   }
 
-  fRadio->writeRun(1);
+  fRadio->writeEvent();
 }  
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
