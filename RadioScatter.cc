@@ -37,8 +37,8 @@ RadioScatter::RadioScatter(){
 
 //called automatically, makes the output hist and figures out where the return pulse will arrive in time
  void RadioScatter::makeTimeHist(){
+   //build the transmitter/receiver histograms
    if(RSCAT_HIST_DECLARE==false){
-     // cout<<"before the loop"<<endl;
      for(int i=0;i<ntx;i++){
        time_hist.push_back(vector<TH1F*>());
        re_hist.push_back(vector<TH1F*>());
@@ -48,7 +48,8 @@ RadioScatter::RadioScatter(){
 	 TString ii=TString::Itoa(i, 10);
 	 TString jj=TString::Itoa(j, 10);
 	 TH1F * newhist = new TH1F(ii+","+jj, ii+","+jj,10,0, 10);
-	 TGraph *tgr=new TGraph();
+	 	 TGraph *tgr=new TGraph();
+	 //	 TGraph *tgr=0;
 	 //	 cout<<"in the loop"<<endl;
 	 time_hist[i].push_back(newhist);
 	 re_hist[i].push_back(newhist);
@@ -108,6 +109,12 @@ void RadioScatter::setCalculateUsingAttnLength(double val){
   }
 }
 
+void RadioScatter::setNTx(double n){
+  ntx=(int)n;
+}
+void RadioScatter::setNRx(double n){
+  nrx=(int)n;
+}
 void RadioScatter::setTxPos(double xin, double yin, double zin, int index){
     tx[index].setX(xin);
     tx[index].setY(yin);
@@ -120,12 +127,20 @@ void RadioScatter::setRxPos(double xin, double yin, double zin, int index){
     rx[index].setZ(zin);
     RSCAT_HIST_RESIZE=false;
   }
+void RadioScatter::setTxPos(Hep3Vector in){
+  setTxPos(in, TX_ITERATOR);
+  TX_ITERATOR+=1;
+}
 void RadioScatter::setTxPos(Hep3Vector in, int index){
   tx[index].setX(in.x());
   tx[index].setY(in.y());
   tx[index].setZ(in.z());
   RSCAT_HIST_RESIZE=false;
   }
+void RadioScatter::setRxPos(Hep3Vector in){
+  setRxPos(in, RX_ITERATOR);
+  RX_ITERATOR+=1;
+}
 void RadioScatter::setRxPos(Hep3Vector in, int index){
   rx[index].setX(in.x());
   rx[index].setY(in.y());
@@ -567,20 +582,16 @@ double RadioScatter::makeRays(HepLorentzVector point, double e, double l, double
 	  //electron number density, using step length cube
 	  n_e = n*n_primaries/pow(step_length, 3);
 	  //collision frequency (approximation from Cravens, mostly for difuse plasmas), multiplied by 3 for e/i, e/e, e/n 
-	  nu_col = 3.*54.*n_e/pow(e_i/k_Boltzmann, 1.5);
+	  //	  nu_col = 3.*54.*n_e/pow(e_i/k_Boltzmann, 1.5);
 
+	  //this is from Raizer, and is the simplest, just using a simple cross section
 	  //(boltz(mev/k)*T(k)/m_e(mev m^2 s^-2))^1/2*cross section(mm^2)*n_e(mm^-3)
 	  //=m/s*mm^-1 so multiply by 1000 to get mm/s
 	  //3 is for 3 species (approx)
-	  //nu_col = 3.*sqrt(k_Boltzmann*7.e5*kelvin/electron_mass_c2)*1000.*5.e-9*n_e;
+	  nu_col = 3.*sqrt(k_Boltzmann*7.e5*kelvin/electron_mass_c2)*1000.*5.e-9*n_e;
+	  //nu_col = sqrt(k_Boltzmann*7.e5*kelvin/electron_mass_c2)*1000.*5.e-9*n_e;
 
-	  //number density of ice is roughly 3.04x10^22/cm^3=3.04x10^19/mm^3 so we can try that too:
-	  //      nu_col = sqrt(k_Boltzmann*7.e5*kelvin/electron_mass_c2)*1000.*5.e-9*(3.04e19);
-	  //but that results in just a static reduction of amplitude because the electron number density is not included. that seems wrong.
       
-	  //(boltzmann(g m^2 s^-2 k^-1)*T(k)/m_e(g))^1/2*(cross section(m^2))*(n_e(m^-3))
-	  //=m/s*m^-1=freq
-	  //nu_col = sqrt(k_b*1000.*7e5/e_mass_cgs)*(5.e-15)*(n_e/1.e9);
 	  //plasma frequency, TODO
 	  //    cout<<nu_col<<endl;
 	  omega_0=plasma_const*sqrt(n_e);
@@ -817,8 +828,17 @@ int RadioScatter::writeRun(float num_events, int debug){
   //event.primaryEnergy = 
   //  event.direction=primary_direction;
   //event.position = primary_position;
-  event.tx=tx;
-  event.rx=rx;
+
+  event.ntx=ntx;
+  event.nrx=nrx;
+  for(int i=0;i<ntx;i++){
+    event.tx.push_back(tx[i]);
+  }
+  for(int i=0;i<nrx;i++){
+    event.rx.push_back(rx[i]);
+  }
+  // event.tx=tx;
+  // event.rx=rx;
   event.eventHist = scaleHist(num_events);
   event.reHist = re_hist;
   event.imHist = im_hist;
@@ -875,10 +895,17 @@ int RadioScatter::writeEvent(int debug){
   //  event.direction=primary_direction;
   //event.position = primary_position;
   //cout<<"before assignment"<<endl;
+
   event.ntx=ntx;
   event.nrx=nrx;
-  event.tx=tx;
-  event.rx=rx;
+  for(int i=0;i<ntx;i++){
+    event.tx.push_back(tx[i]);
+  }
+  for(int i=0;i<nrx;i++){
+    event.rx.push_back(rx[i]);
+  }
+  //  event.tx=tx;
+  //  event.rx=rx;
   event.eventHist = time_hist;
   event.reHist = re_hist;
   event.imHist = im_hist;
@@ -900,17 +927,20 @@ int RadioScatter::writeEvent(int debug){
 
       }
       //  cout<<"before graph"<<endl;
-      TGraph * ogr=new TGraph(xvals.size(), &xvals[0], &yvals[0]);
+      //TGraph ogr(xvals.size(), &xvals[0], &yvals[0]);
       //cout<<"after graph"<<endl;
-      event_graph[i][j] = ogr;
-      //cout<<"after assigment"<<endl;
+      //event_graph[i][j] = &ogr;
+      //delete(ogr);
+      //  cout<<"after assigment"<<endl;
     }
   }
-  event.eventGraph=event_graph;
+  //event.eventGraph=event_graph;
+  //  cout<<"after the graph"<<endl;
   f->cd();
   
   //  f->Append(ogr);
   t->Fill();
+  //  cout<<"after fill"<<endl;
   if(debug==1){
     cout<<"The RadioScatter root file: "<<endl<<f->GetName()<<endl<<" has been filled. This is run number "<<fRunCounter<<"."<<endl;
   }

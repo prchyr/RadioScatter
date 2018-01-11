@@ -42,8 +42,10 @@ public:
 
   Hep3Vector direction;
   Hep3Vector position;
-  HepLorentzVector *tx;
-  HepLorentzVector *rx;
+  //HepLorentzVector *tx;
+  //HepLorentzVector *rx;
+  vector<HepLorentzVector> tx;
+  vector<HepLorentzVector> rx;
   //the energy of the primary as set in geant
   double primaryEnergy=0;
 

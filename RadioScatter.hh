@@ -110,6 +110,8 @@ public:
   HepLorentzVector tx[100];//transmitters, allow for multiple
   HepLorentzVector rx[100];//recievers, allow for multiple
 
+  int TX_ITERATOR=0;
+  int RX_ITERATOR=0;
 
   
   RadioScatter();
@@ -118,10 +120,14 @@ public:
   void makeOutputTextFile(char* filename);
   void writeToTextFile();
   void makeTimeHist();
+  void setNTx(double n);
+  void setNRx(double n);
   void setTxPos(double xin, double yin, double zin, int index=0);
   void setRxPos(double xin, double yin, double zin, int index=0);
-  void setTxPos(Hep3Vector in, int index=0);
-  void setRxPos(Hep3Vector in, int index=0);
+  void setTxPos(Hep3Vector in, int index);
+  void setTxPos(Hep3Vector in);
+  void setRxPos(Hep3Vector in, int index);
+  void setRxPos(Hep3Vector in);
   void setTxFreq(double f);
   void setTxVoltage(double v);
   void setTxPower(double p);
