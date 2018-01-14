@@ -39,6 +39,7 @@ RadioScatter::RadioScatter(){
  void RadioScatter::makeTimeHist(){
    //build the transmitter/receiver histograms
    if(RSCAT_HIST_DECLARE==false){
+
      for(int i=0;i<ntx;i++){
        time_hist.push_back(vector<TH1F*>());
        re_hist.push_back(vector<TH1F*>());
@@ -48,7 +49,7 @@ RadioScatter::RadioScatter(){
 	 TString ii=TString::Itoa(i, 10);
 	 TString jj=TString::Itoa(j, 10);
 	 TH1F * newhist = new TH1F(ii+","+jj, ii+","+jj,10,0, 10);
-	 	 TGraph *tgr=new TGraph();
+	 TGraph *tgr=0;
 	 //	 TGraph *tgr=0;
 	 //	 cout<<"in the loop"<<endl;
 	 time_hist[i].push_back(newhist);
@@ -57,7 +58,7 @@ RadioScatter::RadioScatter(){
 	 event_graph[i].push_back(tgr);
        }
      }
-     //cout<<"after the loop"<<endl;
+     cout<<"histograms and graphs initialized"<<endl;
 
    }
    // RSCAT_HIST_DECLARE==true;
@@ -927,10 +928,13 @@ int RadioScatter::writeEvent(int debug){
 
       }
       //  cout<<"before graph"<<endl;
-      //TGraph ogr(xvals.size(), &xvals[0], &yvals[0]);
+      TGraph ogr(xvals.size(), &xvals[0], &yvals[0]);
       //cout<<"after graph"<<endl;
-      //event_graph[i][j] = &ogr;
-      //delete(ogr);
+      //      event_graph[i][j] = r;
+      //event_gr=(TGraph*)ogr.Clone();
+      //event_graph[i][j]=event_gr;
+      //      delete(ogr);
+      
       //  cout<<"after assigment"<<endl;
     }
   }

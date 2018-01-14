@@ -28,7 +28,7 @@ int RadioScatterEvent::triggered(double thresh){
   int trig=0;
   for(int i=0;i<ntx;i++){
     for(int j=0;j<nrx;j++){
-      trig=peakV(i,j)>thresh?1:0;
+      trig=peakV(i,j)>=thresh?1:0;
       if(trig==1)return 1;
     }
   }

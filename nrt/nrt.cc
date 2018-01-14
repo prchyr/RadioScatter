@@ -298,16 +298,17 @@ int main(int argc,char** argv)
 	rx.setTheta(j);
 	radio->setRxPos(rx);
 	//	cout<<rx.phi()<<" "<<radio->rx.phi()<<endl;
-	runManager->BeamOn(1);
-	runManager->BeamOn(1);
-	runManager->BeamOn(1);
-	runManager->BeamOn(1);
-	runManager->BeamOn(1);
-	runManager->BeamOn(1);
-	runManager->BeamOn(1);
-	runManager->BeamOn(1);
-	runManager->BeamOn(1);
-	runManager->BeamOn(1);
+	runManager->BeamOn(10);
+	// runManager->BeamOn(1);
+	// runManager->BeamOn(1);
+	// runManager->BeamOn(1);
+	// runManager->BeamOn(1);
+	// runManager->BeamOn(1);
+	// runManager->BeamOn(1);
+	// runManager->BeamOn(1);
+	// runManager->BeamOn(1);
+	// runManager->BeamOn(1);
+	// runManager->BeamOn(1);
       }
     }
   }

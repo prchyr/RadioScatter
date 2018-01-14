@@ -65,7 +65,8 @@ class RadioScatter{
   TH1F *t_h = new TH1F("eventHist", "eventHist", 100, 0, 10);
   TH1F *re_h = new TH1F("reHist", "reHist", 100, 0, 10);
   TH1F *im_h = new TH1F("imHist", "imHist", 100, 0, 10);
-
+  TGraph *event_gr = new TGraph();
+  
   vector<vector<TH1F*>> time_hist;
   vector<vector<TH1F*>> re_hist;
   vector<vector<TH1F*>> im_hist;
