@@ -16,7 +16,7 @@
 
 /analysis/h1/create "pulse" "received RF signal" 32000 0 3200 "ns"
 
-/gps/particle proton
+/gps/particle e-
 
 # /gps/pos/type Volume
 # /gps/pos/shape Sphere
@@ -30,7 +30,7 @@
 /RS/setRxPos 1000 0 0 m
 /RS/setTxFreq 450
 /RS/setRxSampleRate 10
-/RS/setRecordWindowLength 200
+/RS/setRecordWindowLength 100
 /RS/setTxVoltage 223606 //1kw
 /RS/setCalculateUsingAttnLength 1
 /RS/setPolarization horizontal
@@ -41,28 +41,28 @@
 #/RS/setTxOffTime 40
 
 
-/RS/setNPrimaries 1000
-/run/beamOn 10
-/RS/setNPrimaries 10000
-/run/beamOn 10
-/RS/setNPrimaries 100000
-/run/beamOn 10
-/RS/setNPrimaries 1000000
-/run/beamOn 10
-/RS/setNPrimaries 10000000
-/run/beamOn 10
-/RS/setNPrimaries 100000000
-/run/beamOn 10
-/RS/setNPrimaries 1000000000
-/run/beamOn 10
-/RS/setNPrimaries 10000000000
-/run/beamOn 10
-/RS/setNPrimaries 100000000000
-/run/beamOn 10
-/RS/setNPrimaries 1000000000000
-/run/beamOn 10
-/RS/setNPrimaries 10000000000000
-/run/beamOn 10
+# /RS/setNPrimaries 1000
+# /run/beamOn 10
+# /RS/setNPrimaries 10000
+# /run/beamOn 10
+# /RS/setNPrimaries 100000
+# /run/beamOn 10
+# /RS/setNPrimaries 1000000
+# /run/beamOn 10
+# /RS/setNPrimaries 10000000
+# /run/beamOn 10
+# /RS/setNPrimaries 100000000
+# /run/beamOn 10
+# /RS/setNPrimaries 1000000000
+# /run/beamOn 10
+# /RS/setNPrimaries 10000000000
+# /run/beamOn 10
+# /RS/setNPrimaries 100000000000
+# /run/beamOn 10
+# /RS/setNPrimaries 1000000000000
+# /run/beamOn 10
+# /RS/setNPrimaries 10000000000000
+# /run/beamOn 10
 #/RS/setNPrimaries 1000
 #/run/beamOn 10
 #/RS/setNPrimaries 1000

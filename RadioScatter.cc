@@ -848,18 +848,19 @@ int RadioScatter::writeRun(float num_events, int debug){
   event.totNScatterers = event.totNScatterers*n_primaries/num_events;
   vector<double> xvals, yvals;
 
-  for(int i=0;i<ntx;i++){
-    for(int j=0;j<nrx;j++){
-      int entries=event.eventHist[i][j]->GetNbinsX();
-      for(int k=0;k<entries;k++){
-	//    xvals.push_back(event.eventHist->GetBinCenter(i));
-	xvals.push_back(k*samplingperiod);
-	yvals.push_back(event.eventHist[i][j]->GetBinContent(k));
-      }
-      TGraph ogr(xvals.size(), &xvals[0], &yvals[0]);
-      event.eventGraph[i][j] = &ogr;
-    }
-  }
+  //not working, tgraph broken, need to fix
+  // for(int i=0;i<ntx;i++){
+  //   for(int j=0;j<nrx;j++){
+  //     int entries=event.eventHist[i][j]->GetNbinsX();
+  //     for(int k=0;k<entries;k++){
+  // 	//    xvals.push_back(event.eventHist->GetBinCenter(i));
+  // 	xvals.push_back(k*samplingperiod);
+  // 	yvals.push_back(event.eventHist[i][j]->GetBinContent(k));
+  //     }
+  //     TGraph ogr(xvals.size(), &xvals[0], &yvals[0]);
+  //     event.eventGraph[i][j] = &ogr;
+  //   }
+  // }
       f->cd();
 
       //  f->Append(ogr);
@@ -915,29 +916,30 @@ int RadioScatter::writeEvent(int debug){
   //cout<<"after assignment"<<endl;
   event.totNScatterers = event.totNScatterers*n_primaries;
 
+  //this section here is for the tgraph, which at the moment isn't working correctly (segfault, i'm dumb)
+  // for(int i=0;i<ntx;i++){
+  //   for(int j=0;j<nrx;j++){
+  //     int entries=event.eventHist[i][j]->GetNbinsX();
+  //     vector<double> xvals, yvals;
+  //     for(int k=0;k<entries;k++){
+  // 	//    xvals.push_back(event.eventHist->GetBinCenter(i));
 
-  for(int i=0;i<ntx;i++){
-    for(int j=0;j<nrx;j++){
-      int entries=event.eventHist[i][j]->GetNbinsX();
-      vector<double> xvals, yvals;
-      for(int k=0;k<entries;k++){
-	//    xvals.push_back(event.eventHist->GetBinCenter(i));
+  // 	xvals.push_back(k*samplingperiod);
+  // 	yvals.push_back(event.eventHist[i][j]->GetBinContent(k));
 
-	xvals.push_back(k*samplingperiod);
-	yvals.push_back(event.eventHist[i][j]->GetBinContent(k));
-
-      }
-      //  cout<<"before graph"<<endl;
-      TGraph ogr(xvals.size(), &xvals[0], &yvals[0]);
-      //cout<<"after graph"<<endl;
-      //      event_graph[i][j] = r;
-      //event_gr=(TGraph*)ogr.Clone();
-      //event_graph[i][j]=event_gr;
-      //      delete(ogr);
+  //     }
+  //     //  cout<<"before graph"<<endl;
+  //     //      TGraph ogr(xvals.size(), &xvals[0], &yvals[0]);
+  //     //cout<<"after graph"<<endl;
+  //     //      event_graph[i][j] = r;
+  //     //event_gr=(TGraph*)ogr.Clone();
+  //     //event_graph[i][j]=event_gr;
+  //     //      delete(ogr);
       
-      //  cout<<"after assigment"<<endl;
-    }
-  }
+  //     //  cout<<"after assigment"<<endl;
+  //   }
+  // }
+  
   //event.eventGraph=event_graph;
   //  cout<<"after the graph"<<endl;
   f->cd();
