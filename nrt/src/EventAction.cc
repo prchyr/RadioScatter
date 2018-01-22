@@ -121,10 +121,10 @@ void EventAction::EndOfEventAction(const G4Event* event)
   // analysisManager->FillNtupleDColumn(11, fInitE);
   // analysisManager->AddNtupleRow();  
 
-  auto manager = G4RunManager::GetRunManager();
-  auto run = manager->GetCurrentRun();
+  //  auto manager = G4RunManager::GetRunManager();
+  //auto run = manager->GetCurrentRun();
 
-  if (run->GetNumberOfEvent()<10){
+  if (fRadio->FILL_PARTICLE_INFO==1){
   
     // //for each step in each track in this event,
     // //record the coordinates, time, deposited energy, and logical volume

@@ -53,6 +53,10 @@ RSmessenger::RSmessenger(RadioScatter *rscat)
   setFillByEventCommand->SetGuidance("calculate by event not by run!");
   setFillByEventCommand->SetParameterName("choice", false);
 
+  setFillParticleInfoCommand = new G4UIcmdWithADouble("/RS/setFillParticleInfo", this);
+  setFillParticleInfoCommand->SetGuidance("fill the particle info tuples");
+  setFillParticleInfoCommand->SetParameterName("choice", false);
+
   setCalculateUsingAttnLengthCommand = new G4UIcmdWithADouble("/RS/setCalculateUsingAttnLength", this);
   setCalculateUsingAttnLengthCommand->SetGuidance("set use attn length!");
   setCalculateUsingAttnLengthCommand->SetParameterName("choice", false);
@@ -94,6 +98,7 @@ RSmessenger::~RSmessenger()
   delete setNRxCommand;
   delete windowLengthCommand;
   delete setFillByEventCommand;
+  delete setFillParticleInfoCommand;
   delete voltageCommand;
   delete nPrimariesCommand;
   delete polarizationCommand;
@@ -111,6 +116,7 @@ void RSmessenger::SetNewValue(G4UIcommand* command,G4String newValue)
   if(command==setNTxCommand)rs->setNTx(val);
   if(command==setNRxCommand)rs->setNRx(val);
   if(command==setFillByEventCommand)rs->setFillByEvent(val);
+  if(command==setFillParticleInfoCommand)rs->setFillParticleInfo(val);
   if(command==windowLengthCommand)rs->setRecordWindowLength(val);
   if(command==indexOfRefractionCommand)rs->setRelativeIndexOfRefraction(val);
   if(command==sampleRateCommand)rs->setRxSampleRate(val);
