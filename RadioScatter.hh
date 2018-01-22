@@ -114,6 +114,7 @@ public:
   int TX_ITERATOR=0;
   int RX_ITERATOR=0;
 
+  int FILL_BY_EVENT=1;
   
   RadioScatter();
   
@@ -149,6 +150,7 @@ public:
   void setShowCWFlag(double i);
   void setTxOnTime(double on);
   void setTxOffTime(double off);
+  void setFillByEvent(double i);
   Hep3Vector getTxPos(int index=0);
   Hep3Vector getRxPos(int index=0);
   double getFreq();

@@ -188,16 +188,16 @@ void RunAction::BeginOfRunAction(const G4Run* r)
 
   //redundant root files saved through geant root system
   // Get analysis manager
-  // auto analysisManager = G4AnalysisManager::Instance();
+   auto analysisManager = G4AnalysisManager::Instance();
 
   // Open an output file
-  // G4String runno = G4UIcommand::ConvertToString(r->GetRunID());
-  // G4String dir="/home/natas/Documents/physics/geant/root/";
-  // //    G4String fileName = "slac_rf_"+runno+"_";
-  // //    G4String fileName = "slac_rf_photon";
-  //     G4String fileName = "shower_particleinfo";
-  // //  std::cout<<r->GetRunID()<<std::endl;
-  // analysisManager->OpenFile(dir+fileName);
+  G4String runno = G4UIcommand::ConvertToString(r->GetRunID());
+  G4String dir="/home/natas/Documents/physics/geant/root/";
+  //    G4String fileName = "slac_rf_"+runno+"_";
+  //    G4String fileName = "slac_rf_photon";
+      G4String fileName = "shower_particleinfo";
+  //  std::cout<<r->GetRunID()<<std::endl;
+  analysisManager->OpenFile(dir+fileName);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -219,7 +219,10 @@ void RunAction::EndOfRunAction(const G4Run* r)
   // fRadio->setPrimaryDirection(gps->GetParticleMomentumDirection());
   // fRadio->setPrimaryPosition(gps->GetParticlePosition());
   //be sure to send writeRun the number of events in the run so that it scales the output histogram properly!!! assumes you have opened the root file already in the main program
-  //  fRadio->writeRun((float)r->GetNumberOfEvent());
+  if(fRadio->FILL_BY_EVENT==0){
+    // fRadio->writeRun((float)r->GetNumberOfEvent());
+    fRadio->writeRun(1);
+  }
   //  fRadio->writeEvent("$HOME/Documents/physics/geant/root/slac_rf_rs_"+runno+"_freq_"+freq+".root", (float)r->GetNumberOfEvent());
 
   //optionally, set the filename in the macro by /RS/setOutputFileName and then here:
@@ -229,9 +232,9 @@ void RunAction::EndOfRunAction(const G4Run* r)
   
 
   //redundant filling of histogram through geant
-  //   auto analysisManager = G4AnalysisManager::Instance();
-  //analysisManager->Write();
-   // analysisManager->CloseFile();
+    auto analysisManager = G4AnalysisManager::Instance();
+  analysisManager->Write();
+   analysisManager->CloseFile();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

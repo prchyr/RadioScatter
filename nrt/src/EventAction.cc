@@ -33,6 +33,7 @@
 #include "Analysis.hh"
 
 #include "G4RunManager.hh"
+#include "G4Run.hh"
 #include "G4Event.hh"
 #include "G4Track.hh"
 #include "G4UnitsTable.hh"
@@ -83,7 +84,8 @@ void EventAction::BeginOfEventAction(const G4Event* /*event*/)
   fTrackLGap = 0.;
   fEnergyTot =0.;
 
-      auto gpsDat=G4GeneralParticleSourceData::Instance();
+  //set some parameters of the shower for radioscatter
+  auto gpsDat=G4GeneralParticleSourceData::Instance();
   auto gps = gpsDat->GetCurrentSource();
   fRadio->setPrimaryEnergy(gps->GetParticleEnergy());
   fRadio->setPrimaryDirection(gps->GetParticleMomentumDirection());
@@ -119,73 +121,61 @@ void EventAction::EndOfEventAction(const G4Event* event)
   // analysisManager->FillNtupleDColumn(11, fInitE);
   // analysisManager->AddNtupleRow();  
 
+  auto manager = G4RunManager::GetRunManager();
+  auto run = manager->GetCurrentRun();
 
-  // //for each step in each track in this event,
-  // //record the coordinates, time, deposited energy, and logical volume
+  if (run->GetNumberOfEvent()<10){
+  
+    // //for each step in each track in this event,
+    // //record the coordinates, time, deposited energy, and logical volume
 
-  int size = stepEdep.size();
-  for(int i=0;i<size;i++){
-    analysisManager->FillNtupleIColumn(1, 0, trackID[i]);
-    analysisManager->FillNtupleDColumn(1, 1, trackXVec[i]);
-    analysisManager->FillNtupleDColumn(1, 2, trackYVec[i]);
-    analysisManager->FillNtupleDColumn(1, 3, trackZVec[i]);
-    analysisManager->FillNtupleDColumn(1, 4, trackTVec[i]);
-    analysisManager->FillNtupleSColumn(1, 5, trackPNameVec[i]);
-    analysisManager->FillNtupleSColumn(1, 6, trackPTypeVec[i]);   
-    analysisManager->FillNtupleDColumn(1, 7, trackCVec[i]);
-    analysisManager->FillNtupleDColumn(1, 8, stepEdep[i]);
-    analysisManager->FillNtupleDColumn(1, 9, stepEion[i]);
-    analysisManager->FillNtupleSColumn(1, 10, stepLV[i]);   
-    analysisManager->FillNtupleDColumn(1, 11, stepLength[i]);
-    analysisManager->FillNtupleDColumn(1, 12, stepKE[i]);
-    analysisManager->FillNtupleDColumn(1, 13, stepTotE[i]);
-    analysisManager->FillNtupleDColumn(1, 14, trackPVec[i]);
-    analysisManager->FillNtupleDColumn(1, 15, trackInitE[i]);
-    analysisManager->FillNtupleDColumn(1, 16, trackPTVec[i]);
-    analysisManager->FillNtupleDColumn(1, 17, trackEtaVec[i]);
-    analysisManager->AddNtupleRow(1);
+    int size = stepEdep.size();
+    for(int i=0;i<size;i++){
+      analysisManager->FillNtupleIColumn(1, 0, trackID[i]);
+      analysisManager->FillNtupleDColumn(1, 1, trackXVec[i]);
+      analysisManager->FillNtupleDColumn(1, 2, trackYVec[i]);
+      analysisManager->FillNtupleDColumn(1, 3, trackZVec[i]);
+      analysisManager->FillNtupleDColumn(1, 4, trackTVec[i]);
+      analysisManager->FillNtupleSColumn(1, 5, trackPNameVec[i]);
+      analysisManager->FillNtupleSColumn(1, 6, trackPTypeVec[i]);   
+      analysisManager->FillNtupleDColumn(1, 7, trackCVec[i]);
+      analysisManager->FillNtupleDColumn(1, 8, stepEdep[i]);
+      analysisManager->FillNtupleDColumn(1, 9, stepEion[i]);
+      analysisManager->FillNtupleSColumn(1, 10, stepLV[i]);   
+      analysisManager->FillNtupleDColumn(1, 11, stepLength[i]);
+      analysisManager->FillNtupleDColumn(1, 12, stepKE[i]);
+      analysisManager->FillNtupleDColumn(1, 13, stepTotE[i]);
+      analysisManager->FillNtupleDColumn(1, 14, trackPVec[i]);
+      analysisManager->FillNtupleDColumn(1, 15, trackInitE[i]);
+      analysisManager->FillNtupleDColumn(1, 16, trackPTVec[i]);
+      analysisManager->FillNtupleDColumn(1, 17, trackEtaVec[i]);
+      analysisManager->AddNtupleRow(1);
+    }
+
+    int size2 = idVec.size();
+    for(int i=0;i<size2;i++){
+      analysisManager->FillNtupleIColumn(2, 0, idVec[i]);
+      analysisManager->FillNtupleSColumn(2, 1, ptypeVec[i]);
+      analysisManager->FillNtupleSColumn(2, 2, pnameVec[i]);
+      analysisManager->FillNtupleDColumn(2, 3, chargeVec[i]);
+      analysisManager->FillNtupleDColumn(2, 4, etotVec[i]);
+      analysisManager->FillNtupleSColumn(2, 5, lvVec[i]);
+      analysisManager->FillNtupleDColumn(2, 6, xVec[i]);
+      analysisManager->FillNtupleDColumn(2, 7, yVec[i]);
+      analysisManager->FillNtupleDColumn(2, 8, zVec[i]);
+      analysisManager->FillNtupleDColumn(2, 9, tVec[i]);
+      analysisManager->FillNtupleDColumn(2, 10, eVec[i]);
+      analysisManager->FillNtupleDColumn(2, 11, trackLengthVec[i]);
+      analysisManager->AddNtupleRow(2);
+    }
+    //
+    clearTrajectoryVector();  
+    clearStatVector();
+   
   }
-
-  int size2 = idVec.size();
-  for(int i=0;i<size2;i++){
-    analysisManager->FillNtupleIColumn(2, 0, idVec[i]);
-    analysisManager->FillNtupleSColumn(2, 1, ptypeVec[i]);
-    analysisManager->FillNtupleSColumn(2, 2, pnameVec[i]);
-    analysisManager->FillNtupleDColumn(2, 3, chargeVec[i]);
-    analysisManager->FillNtupleDColumn(2, 4, etotVec[i]);
-    analysisManager->FillNtupleSColumn(2, 5, lvVec[i]);
-    analysisManager->FillNtupleDColumn(2, 6, xVec[i]);
-    analysisManager->FillNtupleDColumn(2, 7, yVec[i]);
-    analysisManager->FillNtupleDColumn(2, 8, zVec[i]);
-    analysisManager->FillNtupleDColumn(2, 9, tVec[i]);
-    analysisManager->FillNtupleDColumn(2, 10, eVec[i]);
-    analysisManager->FillNtupleDColumn(2, 11, trackLengthVec[i]);
-    analysisManager->AddNtupleRow(2);
+  if(fRadio->FILL_BY_EVENT==1){
+    fRadio->writeEvent();
   }
-  //
-  clearTrajectoryVector();  
-  clearStatVector();
-  //  std::cout<<steptot<<std::endl;
-  //auto eventID = event->GetEventID();
-  // G4cout<<"asdffffffasdfadsfasdf"<<eventID<<G4endl;
-//   auto printModulo = G4RunManager::GetRunManager()->GetPrintProgress();
-//   if ( ( printModulo > 0 ) && ( eventID % printModulo == 0 ) ) {
-//     G4cout << "---> End of event: " << eventID << G4endl;     
-
-//     G4cout
-//        << "   Absorber: total energy: " << std::setw(7)
-//                                         << G4BestUnit(fEnergyAbs,"Energy")
-//        << "       total track length: " << std::setw(7)
-//                                         << G4BestUnit(fTrackLAbs,"Length")
-//        << G4endl
-//        << "        Gap: total energy: " << std::setw(7)
-//                                         << G4BestUnit(fEnergyGap,"Energy")
-//        << "       total track length: " << std::setw(7)
-//                                         << G4BestUnit(fTrackLGap,"Length")
-//        << G4endl;
-//   }
-
-  fRadio->writeEvent();
 }  
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

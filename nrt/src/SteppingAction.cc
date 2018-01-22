@@ -35,6 +35,7 @@
 #include "RunAction.hh"
 #include "G4Step.hh"
 #include "G4RunManager.hh"
+#include "G4Run.hh"
 #include "G4SystemOfUnits.hh"
 #include "G4OpticalPhoton.hh"
 //#include "CLHEP/Units/PhysicalConstants.h"
@@ -119,8 +120,12 @@ or both.
   rx_amplitude = fRadio->makeRays(p, edep, step_length, E_i);  
   //  fRadio->makeRaysReal(p, edep, step_length, E_i);
   //fRadio->makeRaysImag(p, edep, step_length, E_i);
-  //    fillParticleInfoTuples(step);
-  
+  auto manager = G4RunManager::GetRunManager();
+  auto run = manager->GetCurrentRun();
+
+  if (run->GetNumberOfEvent()<10){
+    fillParticleInfoTuples(step);
+  }  
   // advanced_t = fRadio->getRxTime(p);
   //analysisManager->FillH1(0, advanced_t, rx_amplitude);
 

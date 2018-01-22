@@ -242,8 +242,11 @@ void RadioScatter::setPolarization(char * p){
 }
  void RadioScatter::setRxInterfaceDistX(int index,double dist=0){
   rx_interface_dist = abs(dist);
+ }
+void RadioScatter::setFillByEvent(double i){
+  FILL_BY_EVENT=(int)i;
 }
- Hep3Vector RadioScatter::getTxPos(int index){
+Hep3Vector RadioScatter::getTxPos(int index){
   return tx[index].vect();
 }
  Hep3Vector RadioScatter::getRxPos(int index){
