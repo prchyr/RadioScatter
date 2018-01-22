@@ -115,6 +115,7 @@ public:
   int RX_ITERATOR=0;
 
   int FILL_BY_EVENT=1;
+  int FILL_PARTICLE_INFO=0;
   
   RadioScatter();
   
@@ -151,6 +152,7 @@ public:
   void setTxOnTime(double on);
   void setTxOffTime(double off);
   void setFillByEvent(double i);
+  void setFillParticleInfo(double i);
   Hep3Vector getTxPos(int index=0);
   Hep3Vector getRxPos(int index=0);
   double getFreq();

@@ -89,6 +89,9 @@ set(NRT_SCRIPTS
   gui.mac
   init_vis.mac
   threshmacro.mac
+  effectivevol.mac
+  single.mac
+  anglemacro.mac
   run1.mac
   run2.mac
   run3.mac

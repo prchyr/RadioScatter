@@ -246,6 +246,9 @@ void RadioScatter::setPolarization(char * p){
 void RadioScatter::setFillByEvent(double i){
   FILL_BY_EVENT=(int)i;
 }
+void RadioScatter::setFillParticleInfo(double i){
+  FILL_PARTICLE_INFO=(int)i;
+}
 Hep3Vector RadioScatter::getTxPos(int index){
   return tx[index].vect();
 }
