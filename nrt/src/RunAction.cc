@@ -61,75 +61,77 @@ RunAction::RunAction(RadioScatter *radio, DetectorConstruction * dc)
   // Create directories 
   //analysisManager->SetHistoDirectoryName("histograms");
   //analysisManager->SetNtupleDirectoryName("ntuple");
-  analysisManager->SetVerboseLevel(1);
-  analysisManager->SetNtupleMerging(true);
+
+  if(fRadio->FILL_PARTICLE_INFO==1){
+    analysisManager->SetVerboseLevel(1);
+    analysisManager->SetNtupleMerging(true);
     // Note: merging ntuples is available only with Root output
 
-  // Book histograms, ntuple
-  //
+    // Book histograms, ntuple
+    //
   
-  // Creating histograms
-  //analysisManager->CreateH1("pulse", "received radio pulse", 250*10, 550., 800., "ns");
-  // analysisManager->CreateH1("Eabs","Edep in absorber", 100, 0., 800*MeV);
-  // analysisManager->CreateH1("Egap","Edep in gap", 100, 0., 100*MeV);
-  // analysisManager->CreateH1("Labs","trackL in absorber", 100, 0., 1*m);
-  // analysisManager->CreateH1("Lgap","trackL in gap", 100, 0., 50*cm);
+    // Creating histograms
+    //analysisManager->CreateH1("pulse", "received radio pulse", 250*10, 550., 800., "ns");
+    // analysisManager->CreateH1("Eabs","Edep in absorber", 100, 0., 800*MeV);
+    // analysisManager->CreateH1("Egap","Edep in gap", 100, 0., 100*MeV);
+    // analysisManager->CreateH1("Labs","trackL in absorber", 100, 0., 1*m);
+    // analysisManager->CreateH1("Lgap","trackL in gap", 100, 0., 50*cm);
 
-  // Creating ntuple
-  //
-  analysisManager->CreateNtuple("event_tots", "Edep and TrackL");
-  analysisManager->CreateNtupleDColumn("Eabs");
-  analysisManager->CreateNtupleDColumn("Egap");
-  analysisManager->CreateNtupleDColumn("Labs");
-  analysisManager->CreateNtupleDColumn("Lgap");
-  analysisManager->CreateNtupleDColumn("Eice");
-  analysisManager->CreateNtupleDColumn("Lice");
-  analysisManager->CreateNtupleDColumn("Eps");
-  analysisManager->CreateNtupleDColumn("Lps");
-  analysisManager->CreateNtupleDColumn("etot");
-  analysisManager->CreateNtupleIColumn("neplus");
-  analysisManager->CreateNtupleIColumn("neminus");
-  analysisManager->CreateNtupleDColumn("inite");
-  analysisManager->FinishNtuple();
+    // Creating ntuple
+    //
+    analysisManager->CreateNtuple("event_tots", "Edep and TrackL");
+    analysisManager->CreateNtupleDColumn("Eabs");
+    analysisManager->CreateNtupleDColumn("Egap");
+    analysisManager->CreateNtupleDColumn("Labs");
+    analysisManager->CreateNtupleDColumn("Lgap");
+    analysisManager->CreateNtupleDColumn("Eice");
+    analysisManager->CreateNtupleDColumn("Lice");
+    analysisManager->CreateNtupleDColumn("Eps");
+    analysisManager->CreateNtupleDColumn("Lps");
+    analysisManager->CreateNtupleDColumn("etot");
+    analysisManager->CreateNtupleIColumn("neplus");
+    analysisManager->CreateNtupleIColumn("neminus");
+    analysisManager->CreateNtupleDColumn("inite");
+    analysisManager->FinishNtuple();
 
-  //  EventAction *eventAction;
- analysisManager->CreateNtuple("tracks", "particle tracks and deposited energy");
- analysisManager->CreateNtupleIColumn("trackid");
- analysisManager->CreateNtupleDColumn("x");
- analysisManager->CreateNtupleDColumn("y");
- analysisManager->CreateNtupleDColumn("z");
- analysisManager->CreateNtupleDColumn("t");//global time
- analysisManager->CreateNtupleSColumn("pname");//p name
- analysisManager->CreateNtupleSColumn("ptype");
- analysisManager->CreateNtupleDColumn("charge");
- analysisManager->CreateNtupleDColumn("edep");
- analysisManager->CreateNtupleDColumn("enonionizing");
- analysisManager->CreateNtupleSColumn("lv");//logical volume of step
- analysisManager->CreateNtupleDColumn("steplength");
- analysisManager->CreateNtupleDColumn("ke");
- analysisManager->CreateNtupleDColumn("tote");
- analysisManager->CreateNtupleDColumn("p");
- analysisManager->CreateNtupleDColumn("inite");
- analysisManager->CreateNtupleDColumn("pt");
- analysisManager->CreateNtupleDColumn("eta");
- analysisManager->FinishNtuple();
+    //  EventAction *eventAction;
+    analysisManager->CreateNtuple("tracks", "particle tracks and deposited energy");
+    analysisManager->CreateNtupleIColumn("trackid");
+    analysisManager->CreateNtupleDColumn("x");
+    analysisManager->CreateNtupleDColumn("y");
+    analysisManager->CreateNtupleDColumn("z");
+    analysisManager->CreateNtupleDColumn("t");//global time
+    analysisManager->CreateNtupleSColumn("pname");//p name
+    analysisManager->CreateNtupleSColumn("ptype");
+    analysisManager->CreateNtupleDColumn("charge");
+    analysisManager->CreateNtupleDColumn("edep");
+    analysisManager->CreateNtupleDColumn("enonionizing");
+    analysisManager->CreateNtupleSColumn("lv");//logical volume of step
+    analysisManager->CreateNtupleDColumn("steplength");
+    analysisManager->CreateNtupleDColumn("ke");
+    analysisManager->CreateNtupleDColumn("tote");
+    analysisManager->CreateNtupleDColumn("p");
+    analysisManager->CreateNtupleDColumn("inite");
+    analysisManager->CreateNtupleDColumn("pt");
+    analysisManager->CreateNtupleDColumn("eta");
+    analysisManager->FinishNtuple();
 
- analysisManager->CreateNtuple("stats", "particle stats, numbers etc.");
- analysisManager->CreateNtupleIColumn("trackid");
- analysisManager->CreateNtupleSColumn("ptype");
- analysisManager->CreateNtupleSColumn("pname");
- analysisManager->CreateNtupleDColumn("charge");
- analysisManager->CreateNtupleDColumn("etot");
- analysisManager->CreateNtupleSColumn("lv");
- analysisManager->CreateNtupleDColumn("x");
- analysisManager->CreateNtupleDColumn("y");
- analysisManager->CreateNtupleDColumn("z");
- analysisManager->CreateNtupleDColumn("t");
- analysisManager->CreateNtupleDColumn("einit");
- analysisManager->CreateNtupleDColumn("tracklength");
- // analysisManager->CreateNtupleDColumn("evno");
- analysisManager->FinishNtuple();
-
+    analysisManager->CreateNtuple("stats", "particle stats, numbers etc.");
+    analysisManager->CreateNtupleIColumn("trackid");
+    analysisManager->CreateNtupleSColumn("ptype");
+    analysisManager->CreateNtupleSColumn("pname");
+    analysisManager->CreateNtupleDColumn("charge");
+    analysisManager->CreateNtupleDColumn("etot");
+    analysisManager->CreateNtupleSColumn("lv");
+    analysisManager->CreateNtupleDColumn("x");
+    analysisManager->CreateNtupleDColumn("y");
+    analysisManager->CreateNtupleDColumn("z");
+    analysisManager->CreateNtupleDColumn("t");
+    analysisManager->CreateNtupleDColumn("einit");
+    analysisManager->CreateNtupleDColumn("tracklength");
+    // analysisManager->CreateNtupleDColumn("evno");
+    analysisManager->FinishNtuple();
+  }
  
 }
 
@@ -149,34 +151,34 @@ void RunAction::BeginOfRunAction(const G4Run* r)
   
   /*
 *************
-    set the RadioScatter parameters. 
+set the RadioScatter parameters. 
     
-    these can be set here, or more simply (and efficiently) in the macro file using the RSmessenger. 
-    that way, they can be changed at run-time, without the need to re-compile. 
-    set them here if you want some default values between runs, without needing to re-define in the macro, if you want. 
+these can be set here, or more simply (and efficiently) in the macro file using the RSmessenger. 
+that way, they can be changed at run-time, without the need to re-compile. 
+set them here if you want some default values between runs, without needing to re-define in the macro, if you want. 
     
-    there is one exception: the tx/interacion medium/rx distances, which must come from the GEANT4 system,
-    must be sent to radioscatter if the refraction machinery is to work. 
+there is one exception: the tx/interacion medium/rx distances, which must come from the GEANT4 system,
+must be sent to radioscatter if the refraction machinery is to work. 
 
-    if these distances are not provided, the simulation assumes that the shower is happening in free space, with no refraction calculation.
+if these distances are not provided, the simulation assumes that the shower is happening in free space, with no refraction calculation.
 
-    set the transmitter frequency, output power, and amplification
+set the transmitter frequency, output power, and amplification
 
-    *******
+*******
 
-    some example commands below, all of which can (and should) be set in the macro file.
+some example commands below, all of which can (and should) be set in the macro file.
 
   */
   //fRadio->setTxVoltage(200.);
   //fRadio->setTxFreq(1400.);
-    /*//    fRadio->setRxVals(20., 1.);//samplerate (ns^-1), gain (not db, 100=40db)
+  /*//    fRadio->setRxVals(20., 1.);//samplerate (ns^-1), gain (not db, 100=40db)
     //fRadio->setTxPos(4.5*m, 0.*m, -1.*m);
     //fRadio->setRxPos(-4.3*m, 0.*m, -1.*m);
     //fRadio->makeTimeHist();
     // fRadio->setTxOnTime(0);
     //fRadio->setTxOffTime(30);
     
-  */
+    */
 
   //THESE CALLS ARE MANDATORY FOR THE REFRACTION CALCULATIONS
   //if not set, it is assumed everything happens in free space.
@@ -185,19 +187,20 @@ void RunAction::BeginOfRunAction(const G4Run* r)
   //fRadio->setRxInterfaceDistX(fDetConstruction->GetTgtPV()->GetLogicalVolume()->GetSolid()->DistanceToIn(fRadio->getRxPos()));
 
   
+  if(fRadio->FILL_PARTICLE_INFO==1){
+    //redundant root files saved through geant root system
+    // Get analysis manager
+    auto analysisManager = G4AnalysisManager::Instance();
 
-  //redundant root files saved through geant root system
-  // Get analysis manager
-   auto analysisManager = G4AnalysisManager::Instance();
-
-  // Open an output file
-  G4String runno = G4UIcommand::ConvertToString(r->GetRunID());
-  G4String dir="/home/natas/Documents/physics/geant/root/";
-  //    G4String fileName = "slac_rf_"+runno+"_";
-  //    G4String fileName = "slac_rf_photon";
-      G4String fileName = "shower_particleinfo";
-  //  std::cout<<r->GetRunID()<<std::endl;
-  analysisManager->OpenFile(dir+fileName);
+    // Open an output file
+    G4String runno = G4UIcommand::ConvertToString(r->GetRunID());
+    G4String dir="/home/natas/Documents/physics/geant/root/";
+    //    G4String fileName = "slac_rf_"+runno+"_";
+    //    G4String fileName = "slac_rf_photon";
+    G4String fileName = "shower_particleinfo";
+    //  std::cout<<r->GetRunID()<<std::endl;
+    analysisManager->OpenFile(dir+fileName);
+  }
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -232,9 +235,11 @@ void RunAction::EndOfRunAction(const G4Run* r)
   
 
   //redundant filling of histogram through geant
+  if(fRadio->FILL_PARTICLE_INFO==1){
     auto analysisManager = G4AnalysisManager::Instance();
-  analysisManager->Write();
-   analysisManager->CloseFile();
+    analysisManager->Write();
+    analysisManager->CloseFile();
+  }
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
