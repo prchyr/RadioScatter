@@ -62,7 +62,7 @@ RunAction::RunAction(RadioScatter *radio, DetectorConstruction * dc)
   //analysisManager->SetHistoDirectoryName("histograms");
   //analysisManager->SetNtupleDirectoryName("ntuple");
 
-  if(fRadio->FILL_PARTICLE_INFO==1){
+  //  if(fRadio->FILL_PARTICLE_INFO==1){
     analysisManager->SetVerboseLevel(1);
     analysisManager->SetNtupleMerging(true);
     // Note: merging ntuples is available only with Root output
@@ -131,7 +131,7 @@ RunAction::RunAction(RadioScatter *radio, DetectorConstruction * dc)
     analysisManager->CreateNtupleDColumn("tracklength");
     // analysisManager->CreateNtupleDColumn("evno");
     analysisManager->FinishNtuple();
-  }
+    //  }
  
 }
 
