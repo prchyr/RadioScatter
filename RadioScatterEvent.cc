@@ -251,10 +251,19 @@ void RadioScatterEvent::spectrogram(int txindex, int rxindex,Int_t binsize, Int_
 
 
 int RadioScatterEvent::plotEvent(int txindex, int rxindex, int show_geom, int bins, int overlap){
-  TCanvas *c = new TCanvas("plotEvent","plotEvent", 800, 400);
+  // TCanvas *c=0;
+  // TCanvas *openc = (TCanvas*)gROOT->GetListOfCanvases()->At(0);
+  // if(!openc){
+  //   c = new TCanvas("plotEvent","plotEvent", 800, 400);
+  // }
+  // else{
+  //   cout<<openc->GetName()<<endl;
+  //   c=openc;
+  // }
+  TCanvas *c = new TCanvas("plotEvent", "plotEvent", 800, 400);
   if(show_geom==0){
-    c->Divide(2, 0);
-    c->GetPad(1)->Divide(1, 0);
+    c->Divide(1, 0);
+    c->GetPad(1)->Divide(2, 0);
   }
   else{
     c->Divide(1, 2);
@@ -302,40 +311,60 @@ int RadioScatterEvent::plotEvent(int txindex, int rxindex, int show_geom, int bi
   //  img->FromPad(c);
   //img->WriteImage("54mhz_100TeV_proton.png");
 
-  if(show_geom==1){
+  if(show_geom>0){
     c->cd(2);
-    TH3F *rxhist = new TH3F("rxhist", "rxhist", 40, 1, -1, 40, 1, -1, 40, 1, -1);
+    TH3F *rxhist = new TH3F("rxhist", "rxhist", 101, 1, -1, 101, 1, -1, 101, 1, -1);
     
     for(int i=0;i<nrx;i++){
-      rxhist->Fill(rx[i].z(), rx[i].x(), rx[i].y());
+      if(i==rxindex)continue;
+      rxhist->Fill(rx[i].z()/1000., rx[i].x()/1000., rx[i].y()/1000.);
     }
     rxhist->BufferEmpty();
 
-    TH3F *txhist = new TH3F("txhist", "txhist", 40, rxhist->GetXaxis()->GetXmin(), rxhist->GetXaxis()->GetXmax(), 40,rxhist->GetYaxis()->GetXmin(), rxhist->GetYaxis()->GetXmax(),40, rxhist->GetZaxis()->GetXmin(), rxhist->GetZaxis()->GetXmax());
-    TH3F *vertexhist = new TH3F("vertexhist", "vertexhist", 40, rxhist->GetXaxis()->GetXmin(), rxhist->GetXaxis()->GetXmax(), 40,rxhist->GetYaxis()->GetXmin(), rxhist->GetYaxis()->GetXmax(),40, rxhist->GetZaxis()->GetXmin(), rxhist->GetZaxis()->GetXmax());
+    TH3F *txhist = new TH3F("txhist", "txhist", 101, rxhist->GetXaxis()->GetXmin(), rxhist->GetXaxis()->GetXmax(), 101,rxhist->GetYaxis()->GetXmin(), rxhist->GetYaxis()->GetXmax(),101, rxhist->GetZaxis()->GetXmin(), rxhist->GetZaxis()->GetXmax());
+    TH3F *vertexhist = new TH3F("vertexhist", "vertexhist", 101, rxhist->GetXaxis()->GetXmin(), rxhist->GetXaxis()->GetXmax(), 101,rxhist->GetYaxis()->GetXmin(), rxhist->GetYaxis()->GetXmax(),101, rxhist->GetZaxis()->GetXmin(), rxhist->GetZaxis()->GetXmax());
+    TH3F *triggeredhist = new TH3F("triggeredhist", "triggeredhist", 101, rxhist->GetXaxis()->GetXmin(), rxhist->GetXaxis()->GetXmax(), 101,rxhist->GetYaxis()->GetXmin(), rxhist->GetYaxis()->GetXmax(),101, rxhist->GetZaxis()->GetXmin(), rxhist->GetZaxis()->GetXmax());
     
     for(int i=0;i<ntx;i++){
-      txhist->Fill(tx[i].z(), tx[i].x(), tx[i].y());
-      cout<<tx[i].z()<<" "<<tx[i].x()<<" "<<tx[i].y()<<endl;    
+      txhist->Fill(tx[i].z()/1000., tx[i].x()/1000., tx[i].y()/1000.);
+      //      cout<<tx[i].z()<<" "<<tx[i].x()<<" "<<tx[i].y()<<endl;    
     }
-
-    vertexhist->Fill(position.z(), position.x(), position.y());
+    triggeredhist->Fill(rx[rxindex].z()/1000., rx[rxindex].x()/1000., rx[rxindex].y()/1000.);
+    vertexhist->Fill(position.z()/1000., position.x()/1000., position.y()/1000.);
 
     txhist->SetMarkerStyle(3);
     txhist->SetMarkerColor(kRed);
     rxhist->SetMarkerStyle(8);
     rxhist->SetMarkerColor(kBlack);
-    vertexhist->SetMarkerStyle(28);
+    rxhist->SetTitle("geometry");
+    vertexhist->SetMarkerStyle(34);
     vertexhist->SetMarkerColor(kViolet);
     txhist->SetMarkerSize(2);
     rxhist->SetMarkerSize(2);
     vertexhist->SetMarkerSize(2);
-
-
+    triggeredhist->SetMarkerColor(kGreen);
+    triggeredhist->SetMarkerStyle(8);
+    triggeredhist->SetMarkerSize(2.5);
+    
+    TPolyLine3D *line = new TPolyLine3D(2);
+    double scale = rxhist->GetXaxis()->GetXmax()/4.;
+    line->SetPoint(0,position.z()/1000., position.x()/1000., position.y()/1000.);
+    line->SetPoint(1,(position.z()/1000.)+((direction.z())*scale), (position.x()/1000.)+((direction.x())*scale), (position.y()/1000.)+((direction.y())*scale));
+    line->SetLineWidth(2);
+    line->SetLineColor(kViolet);
     rxhist->Draw("p");
     txhist->Draw("p same");
     vertexhist->Draw("p same");
-    
+    triggeredhist->Draw("p same");
+    line->Draw("same");
+
+    TLegend *leg = new TLegend(.7,.7,.9,.9);
+    leg->AddEntry(rxhist, "receivers", "p");
+    leg->AddEntry(txhist, "transmitter", "p");
+    leg->AddEntry(vertexhist, "vertex", "p");
+    leg->AddEntry(triggeredhist, "this rx", "p");
+    leg->Draw();
+    //    c->Update();
   }
   
 }

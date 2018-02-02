@@ -1,5 +1,6 @@
 #ifndef RS_EVENT_H
 #define RS_EVENT_H
+#include "TROOT.h"
 #include "TObject.h"
 #include "TCanvas.h"
 #include "TRandom.h"
@@ -11,6 +12,8 @@
 #include "TTree.h"
 #include "TGraph.h"
 #include "TGraph2D.h"
+#include "TPolyLine3D.h"
+#include "TLegend.h"
 #include "TVirtualFFT.h"
 #include <deque>
 //#include <vector>
