@@ -7,6 +7,7 @@ RadioScatterEvent::RadioScatterEvent(){
   dummy=-1;
 }
 
+
 double RadioScatterEvent::power(int txindex, int rxindex){
   double val;
   int entries=eventHist[txindex][rxindex]->GetNbinsX();
@@ -37,10 +38,11 @@ int RadioScatterEvent::triggered(double thresh){
 
 double RadioScatterEvent::rms(int txindex, int rxindex){
   double val=0;
-  int entries = eventGraph[txindex][rxindex]->GetN();
-  double * yy = eventGraph[txindex][rxindex]->GetY();
+  int entries = eventHist[txindex][rxindex]->GetNbinsX();
+  //  double * yy = eventHist[txindex][rxindex]->GetY();
   for(int i=0;i<entries;i++){
-    val+=(yy[i]*yy[i])/entries;
+    double yy= eventHist[txindex][rxindex]->GetBinContent(i);
+    val+=(yy*yy)/entries;
   }
   return sqrt(val);
 }
@@ -152,8 +154,10 @@ TGraph RadioScatterEvent::getComplexEnvelope(int txindex, int rxindex,double cut
 }
 
 TH1F* RadioScatterEvent::getSpectrum(int txindex, int rxindex,bool dbflag){
-  int size = eventGraph[txindex][rxindex]->GetN();
+  //  int size = eventGraph[txindex][rxindex]->GetN();
+
   int nbins = eventHist[txindex][rxindex]->GetNbinsX();
+  int size=nbins;
   double samprate = nbins/(eventHist[txindex][rxindex]->GetXaxis()->GetXmax()-eventHist[txindex][rxindex]->GetXaxis()->GetXmin());//in samples/ns
   Float_t band = samprate;//in ghz
   Float_t bandwidth = band/2.;//nyquist
@@ -218,7 +222,7 @@ void RadioScatterEvent::spectrogram(int txindex, int rxindex,Int_t binsize, Int_
       Double_t y = outt->GetBinContent(j);
       y = (10.*log10(pow(y, 2.)/50.));//mv->dbm
 	//y=10.*log10(y)+30;
-            spectrogramHist->SetBinContent(i,j,(y-(10.*log10(bandwidth/binsize))));//dmb/hz
+      spectrogramHist->SetBinContent(i,j,(y-(10.*log10(bandwidth))));//dmb/hz
 	    //	spectrogramHist->SetBinContent(i,j,y);//dmb
 
     }
@@ -246,10 +250,21 @@ void RadioScatterEvent::spectrogram(int txindex, int rxindex,Int_t binsize, Int_
 }
 
 
-int RadioScatterEvent::plotEvent(int txindex, int rxindex,int bins, int overlap){
+int RadioScatterEvent::plotEvent(int txindex, int rxindex, int show_geom, int bins, int overlap){
   TCanvas *c = new TCanvas("plotEvent","plotEvent", 800, 400);
-  c->Divide(2, 0);
-  c->cd(1)->SetGrid();
+  if(show_geom==0){
+    c->Divide(2, 0);
+    c->GetPad(1)->Divide(1, 0);
+  }
+  else{
+    c->Divide(1, 2);
+    c->GetPad(1)->Divide(2, 0);
+
+    c->SetWindowSize(700, 700);
+    
+  }
+
+  c->cd(1)->cd(1)->SetGrid();
   Float_t bandwidth = 1e9*sampleRate;//bandwith in Hz
   Float_t kB = 1.831e-23;
   Float_t thermal_noise = sqrt(kB*300.*50.*bandwidth)*1000.;//thermal noise (mV)
@@ -272,7 +287,7 @@ int RadioScatterEvent::plotEvent(int txindex, int rxindex,int bins, int overlap)
   eventHist[txindex][rxindex]->Draw("histl");
   eventHist[txindex][rxindex]->SetStats(0);
   //timme->Draw();
-  c->cd(2);
+  c->cd(1)->cd(2);
   // fft = dofft(eventHist);
   // fft->GetXaxis()->SetRangeUser(0, fft->GetXaxis()->GetXmax()/2);
   // fft->SetTitle("psd");
@@ -287,4 +302,40 @@ int RadioScatterEvent::plotEvent(int txindex, int rxindex,int bins, int overlap)
   //  img->FromPad(c);
   //img->WriteImage("54mhz_100TeV_proton.png");
 
+  if(show_geom==1){
+    c->cd(2);
+    TH3F *rxhist = new TH3F("rxhist", "rxhist", 40, 1, -1, 40, 1, -1, 40, 1, -1);
+    
+    for(int i=0;i<nrx;i++){
+      rxhist->Fill(rx[i].z(), rx[i].x(), rx[i].y());
+    }
+    rxhist->BufferEmpty();
+
+    TH3F *txhist = new TH3F("txhist", "txhist", 40, rxhist->GetXaxis()->GetXmin(), rxhist->GetXaxis()->GetXmax(), 40,rxhist->GetYaxis()->GetXmin(), rxhist->GetYaxis()->GetXmax(),40, rxhist->GetZaxis()->GetXmin(), rxhist->GetZaxis()->GetXmax());
+    TH3F *vertexhist = new TH3F("vertexhist", "vertexhist", 40, rxhist->GetXaxis()->GetXmin(), rxhist->GetXaxis()->GetXmax(), 40,rxhist->GetYaxis()->GetXmin(), rxhist->GetYaxis()->GetXmax(),40, rxhist->GetZaxis()->GetXmin(), rxhist->GetZaxis()->GetXmax());
+    
+    for(int i=0;i<ntx;i++){
+      txhist->Fill(tx[i].z(), tx[i].x(), tx[i].y());
+      cout<<tx[i].z()<<" "<<tx[i].x()<<" "<<tx[i].y()<<endl;    
+    }
+
+    vertexhist->Fill(position.z(), position.x(), position.y());
+
+    txhist->SetMarkerStyle(3);
+    txhist->SetMarkerColor(kRed);
+    rxhist->SetMarkerStyle(8);
+    rxhist->SetMarkerColor(kBlack);
+    vertexhist->SetMarkerStyle(28);
+    vertexhist->SetMarkerColor(kViolet);
+    txhist->SetMarkerSize(2);
+    rxhist->SetMarkerSize(2);
+    vertexhist->SetMarkerSize(2);
+
+
+    rxhist->Draw("p");
+    txhist->Draw("p same");
+    vertexhist->Draw("p same");
+    
+  }
+  
 }

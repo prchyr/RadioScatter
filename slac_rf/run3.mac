@@ -25,16 +25,16 @@
 
 /gps/position 0 0 -10 m
 /gps/direction 0 0 1
-/gps/energy 13.4 GeV
-/RS/setTxPos 100 0 3.5 m
-/RS/setRxPos -10000 0 4.5 m
-/RS/setTxFreq 1450
+/gps/energy 5 GeV
+/RS/setTxPos 6 0 .5 m
+/RS/setRxPos 6 0 1.5 m
+/RS/setTxFreq 950
 /RS/setRxSampleRate 10
-/RS/setTxVoltage 200
+/RS/setTxVoltage 35000
 /RS/setPolarization vertical
 /RS/setIndexOfRefraction 1.51
 /RS/setNPrimaries 1e9
-/RS/setRecordWindowLength 800
+/RS/setRecordWindowLength 200
 /RS/setShowCWFlag 0
 #/RS/setTxOnTime 0
 #/RS/setTxOffTime 40

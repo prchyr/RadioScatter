@@ -48,13 +48,15 @@ RadioScatter::RadioScatter(){
        for(int j=0;j<nrx;j++){
 	 TString ii=TString::Itoa(i, 10);
 	 TString jj=TString::Itoa(j, 10);
-	 TH1F * newhist = new TH1F(ii+","+jj, ii+","+jj,10,0, 10);
+	 TH1F * newthist = new TH1F(ii+"t,"+jj, ii+"t,"+jj,10,0, 10);
+	 TH1F * newrhist = new TH1F(ii+"r,"+jj, ii+"r,"+jj,10,0, 10);
+	 TH1F * newihist = new TH1F(ii+"i,"+jj, ii+"i,"+jj,10,0, 10);
 	 TGraph *tgr=0;
 	 //	 TGraph *tgr=0;
 	 //	 cout<<"in the loop"<<endl;
-	 time_hist[i].push_back(newhist);
-	 re_hist[i].push_back(newhist);
-	 im_hist[i].push_back(newhist);
+	 time_hist[i].push_back(newthist);
+	 re_hist[i].push_back(newrhist);
+	 im_hist[i].push_back(newihist);
 	 event_graph[i].push_back(tgr);
        }
      }
@@ -236,12 +238,12 @@ void RadioScatter::setPolarization(char * p){
   samplingperiod = 1./samplerate;
   event.sampleRate=samplerate;
 }
- void RadioScatter::setTxInterfaceDistX(int index,double dist=0){
-    tx_interface_dist = abs(dist);
+void RadioScatter::setTxInterfaceDistX(double dist, int index){
+    tx_interface_dist[index] = abs(dist);
     REFRACTION_FLAG=1;
 }
- void RadioScatter::setRxInterfaceDistX(int index,double dist=0){
-  rx_interface_dist = abs(dist);
+void RadioScatter::setRxInterfaceDistX(double dist, int index){
+  rx_interface_dist[index] = abs(dist);
  }
 void RadioScatter::setFillByEvent(double i){
   FILL_BY_EVENT=(int)i;
@@ -388,7 +390,7 @@ double RadioScatter::getTxPhase(double t_0){
   double dist=0;
   if(direct==0){
     if(REFRACTION_FLAG==1){
-      dist = findPathLengthWithRefraction(tx[index],point, tx_interface_dist);
+      dist = findPathLengthWithRefraction(tx[index],point, tx_interface_dist[index]);
     }
     else{
       dist= distvec.mag();
@@ -549,18 +551,18 @@ double RadioScatter::makeRays(HepLorentzVector point, double e, double l, double
 	if(REFRACTION_FLAG==1){
 	  Hep3Vector  q1 = findRefractionPlane(tx[i], point);//make a plane where the refraction will happen
 	  Hep3Vector j1;
-	  j1.setZ(findRefractionPointZ(q1.x(), q1.z(), tx_interface_dist));//find the refraction point in this plane on interface 
+	  j1.setZ(findRefractionPointZ(q1.x(), q1.z(), tx_interface_dist[i]));//find the refraction point in this plane on interface 
 	  Hep3Vector  q2 = findRefractionPlane(rx[j], point);
 	  Hep3Vector  j2;
-	  j2.setZ(findRefractionPointZ(q2.x(), q2.z(), rx_interface_dist));
-	  j1.setX(tx_interface_dist);
+	  j2.setZ(findRefractionPointZ(q2.x(), q2.z(), rx_interface_dist[j]));
+	  j1.setX(tx_interface_dist[i]);
 	  j1.setY(0);
-	  j2.setX(rx_interface_dist);
+	  j2.setX(rx_interface_dist[j]);
 	  j2.setY(0);
 	  Hep3Vector l1;
-	  l1.set(q1.x()-tx_interface_dist, 0., q1.z()-j1.z());
+	  l1.set(q1.x()-tx_interface_dist[i], 0., q1.z()-j1.z());
 	  Hep3Vector l2;
-	  l2.set(q2.x()-rx_interface_dist, 0., q2.z()-j2.z());
+	  l2.set(q2.x()-rx_interface_dist[j], 0., q2.z()-j2.z());
       
       
       
@@ -616,9 +618,9 @@ double RadioScatter::makeRays(HepLorentzVector point, double e, double l, double
 	double E_imag = prefactor*-nu_col*cos(rx_phase)+prefactor*omega*sin(rx_phase);
       
 	if(abs(E_real)<tx_voltage){//simple sanity check      
-	  time_hist[i][j]->Fill(rx_time, E_real);
-	  re_hist[i][j]->Fill(rx_time, E_real);
-	  im_hist[i][j]->Fill(rx_time, E_imag);
+	  time_hist[i][j]->Fill(rx_time, E_real/samplingperiod);
+	  re_hist[i][j]->Fill(rx_time, E_real/samplingperiod);
+	  im_hist[i][j]->Fill(rx_time, E_imag/samplingperiod);
 	}
       }
     }
@@ -734,9 +736,12 @@ don't use these
 
 vector<vector<TH1F*>> RadioScatter::scaleHist(float num_events=1.){
   vector<vector<TH1F*>> outhist(ntx, vector<TH1F*>(nrx));
+  //  cout<<time_hist[0][0]->GetMaximum()<<endl;
   for(int i=0;i<ntx;i++){
     for(int j=0;j<nrx;j++){
       time_hist[i][j]->Scale(1./num_events);
+      //    cout<<time_hist[0][0]->GetMaximum()<<endl;
+      //cout<<num_events<<" "<<i<<" "<<j<<endl;
       re_hist[i][j]->Scale(1./num_events);
       im_hist[i][j]->Scale(1./num_events);
 

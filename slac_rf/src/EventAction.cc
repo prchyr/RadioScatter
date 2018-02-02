@@ -39,7 +39,7 @@
 #include "G4VTrajectory.hh"
 #include "G4UIsession.hh"
 #include "G4VisExecutive.hh"
-
+#include "G4GeneralParticleSourceData.hh"
 #include "Randomize.hh"
 #include <iomanip>
 
@@ -82,6 +82,7 @@ void EventAction::BeginOfEventAction(const G4Event* /*event*/)
   fTrackLGap = 0.;
   fEnergyTot =0.;
 
+  
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

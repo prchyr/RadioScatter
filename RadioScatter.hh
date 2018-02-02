@@ -20,6 +20,7 @@ antenna effective area
 #include "TString.h"
 #include "TTree.h"
 #include "TGraph.h"
+
 #include <vector>
 
 #include "CLHEP/Units/PhysicalConstants.h"
@@ -97,7 +98,7 @@ class RadioScatter{
   
   double k_r, c_light_r, mag1, mag2;//, tof, txphase, kx;
   //distance from the antennas to the interface, must be set by user
-  double tx_interface_dist,rx_interface_dist;
+  double tx_interface_dist[100],rx_interface_dist[100];
   //relative index of refraction, calculated to always be >1.
   double n_rel=1.5;
 
@@ -146,8 +147,8 @@ public:
   void setCalculateUsingAttnLength(double val=0.);
   void setRecordWindowLength(double nanoseconds);
   void setRxSampleRate(double rate);
-  void setTxInterfaceDistX(int index,double dist);
-  void setRxInterfaceDistX(int index,double dist);
+  void setTxInterfaceDistX(double dist, int index=0);
+  void setRxInterfaceDistX(double dist, int index=0);
   void setShowCWFlag(double i);
   void setTxOnTime(double on);
   void setTxOffTime(double off);

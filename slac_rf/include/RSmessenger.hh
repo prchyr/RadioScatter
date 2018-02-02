@@ -22,9 +22,13 @@ private:
   RadioScatter* rs;
   G4UIdirectory*             RSDir;
   G4UIcmdWithADouble*        freqCommand;
+  G4UIcmdWithADouble*        setNTxCommand;
+  G4UIcmdWithADouble*        setNRxCommand;
   G4UIcmdWithADouble*        voltageCommand;
   G4UIcmdWithADouble*        windowLengthCommand;
   G4UIcmdWithAString*        polarizationCommand;
+  G4UIcmdWithADouble*        setFillByEventCommand;
+  G4UIcmdWithADouble*        setFillParticleInfoCommand;
   G4UIcmdWithADouble*        nPrimariesCommand;
   G4UIcmdWithADouble*        sampleRateCommand;
   G4UIcmdWithADouble*        indexOfRefractionCommand;

@@ -61,7 +61,7 @@ RunAction::RunAction(RadioScatter *radio, DetectorConstruction * dc)
   // Create directories 
   //analysisManager->SetHistoDirectoryName("histograms");
   //analysisManager->SetNtupleDirectoryName("ntuple");
-  analysisManager->SetVerboseLevel(1);
+  //  analysisManager->SetVerboseLevel(1);
   analysisManager->SetNtupleMerging(true);
     // Note: merging ntuples is available only with Root output
 
@@ -181,8 +181,12 @@ void RunAction::BeginOfRunAction(const G4Run* r)
   //THESE CALLS ARE MANDATORY FOR THE REFRACTION CALCULATIONS
   //if not set, it is assumed everything happens in free space.
   //they tell RadioScatter the distance to the refraction boundary
-  fRadio->setTxInterfaceDistX(fDetConstruction->GetTgtPV()->GetLogicalVolume()->GetSolid()->DistanceToIn(fRadio->getTxPos()));
-  fRadio->setRxInterfaceDistX(fDetConstruction->GetTgtPV()->GetLogicalVolume()->GetSolid()->DistanceToIn(fRadio->getRxPos()));
+  for(int i=0;i<fRadio->ntx;i++){
+    fRadio->setTxInterfaceDistX(fDetConstruction->GetTgtPV()->GetLogicalVolume()->GetSolid()->DistanceToIn(fRadio->getTxPos(i)), i);
+  }
+  for(int i=0;i<fRadio->nrx;i++){
+    fRadio->setRxInterfaceDistX(fDetConstruction->GetTgtPV()->GetLogicalVolume()->GetSolid()->DistanceToIn(fRadio->getRxPos(i)), i);
+  }
 
   
 
@@ -213,12 +217,18 @@ void RunAction::EndOfRunAction(const G4Run* r)
   G4String runno = G4UIcommand::ConvertToString(r->GetRunID());
   G4String freq = G4UIcommand::ConvertToString(fRadio->getFreq());
 
-  auto gpsDat=G4GeneralParticleSourceData::Instance();
+  // auto gpsDat=G4GeneralParticleSourceData::Instance();
+  // auto gps = gpsDat->GetCurrentSource();
+  // fRadio->setPrimaryEnergy(gps->GetParticleEnergy());
+auto gpsDat=G4GeneralParticleSourceData::Instance();
   auto gps = gpsDat->GetCurrentSource();
   fRadio->setPrimaryEnergy(gps->GetParticleEnergy());
-  
+  fRadio->setPrimaryDirection(gps->GetParticleMomentumDirection());
+  fRadio->setPrimaryPosition(gps->GetParticlePosition());
+    
   //be sure to send writeRun the number of events in the run so that it scales the output histogram properly!!! assumes you have opened the root file already in the main program
-  fRadio->writeRun((float)r->GetNumberOfEvent());
+    fRadio->writeRun((float)r->GetNumberOfEvent());
+  //  fRadio->writeRun(1);
   //  fRadio->writeEvent("$HOME/Documents/physics/geant/root/slac_rf_rs_"+runno+"_freq_"+freq+".root", (float)r->GetNumberOfEvent());
 
   //optionally, set the filename in the macro by /RS/setOutputFileName and then here:

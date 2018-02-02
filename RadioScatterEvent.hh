@@ -6,9 +6,11 @@
 #include "TFile.h"
 #include "TH1F.h"
 #include "TH2F.h"
+#include "TH3F.h"
 #include "TString.h"
 #include "TTree.h"
 #include "TGraph.h"
+#include "TGraph2D.h"
 #include "TVirtualFFT.h"
 #include <deque>
 //#include <vector>
@@ -71,7 +73,7 @@ public:
   //  TGraph getSpectrum(bool dbflag=false);
   TH1F * getSpectrum(int txindex, int rxindex,bool dbflag=false);  
   void spectrogram(int txindex, int rxindex,Int_t binsize = 128, Int_t overlap=32);
-  int plotEvent(int txindex, int rxindex,int bins=64, int overlap=8);
+  int plotEvent(int txindex, int rxindex, int show_geom=0, int bins=64, int overlap=8);
   
   double chirpSlope();
   double startFreq();
