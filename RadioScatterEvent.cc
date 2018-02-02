@@ -317,7 +317,7 @@ int RadioScatterEvent::plotEvent(int txindex, int rxindex, int show_geom, int bi
     
     for(int i=0;i<nrx;i++){
       if(i==rxindex)continue;
-      rxhist->Fill(rx[i].z()/1000., rx[i].x()/1000., rx[i].y()/1000.);
+      rxhist->Fill(rx[i].z()/1000., rx[i].x()/1000., rx[i].y()/1000., 1.);
     }
     rxhist->BufferEmpty();
 
@@ -326,11 +326,11 @@ int RadioScatterEvent::plotEvent(int txindex, int rxindex, int show_geom, int bi
     TH3F *triggeredhist = new TH3F("triggeredhist", "triggeredhist", 101, rxhist->GetXaxis()->GetXmin(), rxhist->GetXaxis()->GetXmax(), 101,rxhist->GetYaxis()->GetXmin(), rxhist->GetYaxis()->GetXmax(),101, rxhist->GetZaxis()->GetXmin(), rxhist->GetZaxis()->GetXmax());
     
     for(int i=0;i<ntx;i++){
-      txhist->Fill(tx[i].z()/1000., tx[i].x()/1000., tx[i].y()/1000.);
+      txhist->Fill(tx[i].z()/1000., tx[i].x()/1000., tx[i].y()/1000., 1.);
       //      cout<<tx[i].z()<<" "<<tx[i].x()<<" "<<tx[i].y()<<endl;    
     }
-    triggeredhist->Fill(rx[rxindex].z()/1000., rx[rxindex].x()/1000., rx[rxindex].y()/1000.);
-    vertexhist->Fill(position.z()/1000., position.x()/1000., position.y()/1000.);
+    triggeredhist->Fill(rx[rxindex].z()/1000., rx[rxindex].x()/1000., rx[rxindex].y()/1000., 1.);
+    vertexhist->Fill(position.z()/1000., position.x()/1000., position.y()/1000., 1.);
 
     txhist->SetMarkerStyle(3);
     txhist->SetMarkerColor(kRed);
