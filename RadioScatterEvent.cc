@@ -176,8 +176,8 @@ TH1F* RadioScatterEvent::getSpectrum(int txindex, int rxindex,bool dbflag){
      //y=10.*log10(y)+30;                                                
   //   xx.push_back(i*(timebase/size));
   //   yy.push_back(y);
-     //spectrumHist->SetBinContent(i, y-80-(10.*log10(band)));//dmb/hz with 80 db of gain             
-     spectrumHist->SetBinContent(i, y);                                  
+     spectrumHist->SetBinContent(i, y-(10.*log10(band)));//dmb/hz with 80 db of gain             
+     //spectrumHist->SetBinContent(i, y);                                  
   }
 
   out->Delete();
@@ -266,10 +266,18 @@ int RadioScatterEvent::plotEvent(int txindex, int rxindex, int show_geom, int bi
     c->GetPad(1)->Divide(2, 0);
   }
   else{
-    c->Divide(1, 2);
-    c->GetPad(1)->Divide(2, 0);
-
-    c->SetWindowSize(700, 700);
+    //vertical canvas
+    //    c->Divide(1, 2);
+    //    c->GetPad(1)->SetPad(.005, .6525, .995, .995);
+    //c->GetPad(1)->Divide(2, 0);
+    //c->GetPad(2)->SetPad(.005, .005, .995, .6475);
+    //c->SetWindowSize(500, 700);
+    //horizontal canvas
+    c->Divide(2, 0);
+    c->GetPad(1)->SetPad(.005, .005, .3475, .995);
+    c->GetPad(1)->Divide(0, 2);
+    c->GetPad(2)->SetPad(.3525, .005, .995, .995);
+    c->SetWindowSize(1200, 700);
     
   }
 
@@ -291,7 +299,7 @@ int RadioScatterEvent::plotEvent(int txindex, int rxindex, int show_geom, int bi
       //    val=ev->eventHist->GetBinContent(i);
       //}
   }
-  eventHist[txindex][rxindex]->GetXaxis()->SetTitle("ns");
+  eventHist[txindex][rxindex]->GetXaxis()->SetTitle("Time (ns)");
   eventHist[txindex][rxindex]->GetYaxis()->SetTitle("mV");
   eventHist[txindex][rxindex]->Draw("histl");
   eventHist[txindex][rxindex]->SetStats(0);
@@ -330,13 +338,19 @@ int RadioScatterEvent::plotEvent(int txindex, int rxindex, int show_geom, int bi
       //      cout<<tx[i].z()<<" "<<tx[i].x()<<" "<<tx[i].y()<<endl;    
     }
     triggeredhist->Fill(1.+rx[rxindex].z()/1000., 1.+rx[rxindex].x()/1000., 1.+rx[rxindex].y()/1000., 1.);
-    vertexhist->Fill(position.z()/1000., position.x()/1000., position.y()/1000., 1.);
+    vertexhist->Fill(1.+position.z()/1000., 1.+position.x()/1000., 1.+position.y()/1000., 1.);
 
     txhist->SetMarkerStyle(3);
     txhist->SetMarkerColor(kRed);
     rxhist->SetMarkerStyle(8);
     rxhist->SetMarkerColor(kBlack);
     rxhist->SetTitle("geometry");
+    rxhist->GetXaxis()->SetTitle("x (meters)");
+    rxhist->GetXaxis()->SetTitleOffset(1.5);
+    rxhist->GetYaxis()->SetTitle("y (meters)");
+    rxhist->GetYaxis()->SetTitleOffset(1.5);
+    rxhist->GetZaxis()->SetTitle("z (meters)");
+    rxhist->GetZaxis()->SetTitleOffset(1.5);
     vertexhist->SetMarkerStyle(34);
     vertexhist->SetMarkerColor(kViolet);
     txhist->SetMarkerSize(2);
@@ -348,8 +362,8 @@ int RadioScatterEvent::plotEvent(int txindex, int rxindex, int show_geom, int bi
     
     TPolyLine3D *line = new TPolyLine3D(2);
     double scale = rxhist->GetXaxis()->GetXmax()/4.;
-    line->SetPoint(0,position.z()/1000., position.x()/1000., position.y()/1000.);
-    line->SetPoint(1,(position.z()/1000.)+((direction.z())*scale), (position.x()/1000.)+((direction.x())*scale), (position.y()/1000.)+((direction.y())*scale));
+    line->SetPoint(0,1.+position.z()/1000., 1.+position.x()/1000., 1.+position.y()/1000.);
+    line->SetPoint(1,(1.+position.z()/1000.)+((direction.z())*scale), (1.+position.x()/1000.)+((direction.x())*scale), (1.+position.y()/1000.)+((direction.y())*scale));
     line->SetLineWidth(2);
     line->SetLineColor(kViolet);
     rxhist->Draw("p");
@@ -359,10 +373,12 @@ int RadioScatterEvent::plotEvent(int txindex, int rxindex, int show_geom, int bi
     line->Draw("same");
 
     TLegend *leg = new TLegend(.7,.7,.9,.9);
-    leg->AddEntry(rxhist, "receivers", "p");
+
     leg->AddEntry(txhist, "transmitter", "p");
     leg->AddEntry(vertexhist, "vertex", "p");
-    leg->AddEntry(triggeredhist, "this rx", "p");
+    leg->AddEntry(line, "shower", "l");
+    leg->AddEntry(rxhist, "receivers", "p");
+    leg->AddEntry(triggeredhist, "this receiver", "p");
     leg->Draw();
     //    c->Update();
   }
