@@ -37,8 +37,14 @@ class RadioScatterEvent:public TObject
 {
 private:
   //default histogram for storing spectra, etc. 
+  TCanvas *ccc=0;
   TH1F* spectrumHist=new TH1F("spectrumHist", "spectrumHist", 100, 0, 100);
   TH2F* spectrogramHist=new TH2F("spectrogramHist", "spectrogramHist", 100, 0, 100, 100, 0, 100);
+  TH3F* rxhist = new TH3F("rxhist", "rxhist", 100, 1, -1, 100, 1, -1, 100, 1, -1);
+  TH3F* txhist = new TH3F("txhist", "txhist", 100, 1, -1, 100, 1, -1, 100, 1, -1);
+  TH3F* vertexhist = new TH3F("vertexhist", "vertexhist", 100, 1, -1, 100, 1, -1, 100, 1, -1);
+  TH3F* triggeredhist = new TH3F("triggeredhist", "triggeredhist", 100, 1, -1, 100, 1, -1, 100, 1, -1);
+  //  TPolyLine3D *shower_indicator_line = new TPolyLine3D(2);
   Int_t dummy;
   TRandom *ran = new TRandom();
 public:
@@ -90,7 +96,7 @@ public:
   double pathLength(int txindex, int rxindex);
   //energy calculated from the geant4 energy and the number of primaries
   double primaryParticleEnergy();
-  int triggered(double thresh);
+  int triggered(double thresh, int n_antennas=1);
   
   ClassDef(RadioScatterEvent, 3);
 };
