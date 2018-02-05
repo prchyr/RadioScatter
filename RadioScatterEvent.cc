@@ -444,7 +444,7 @@ HepLorentzVector RadioScatterEvent::findSource(){
   else{ 
     HepLorentzVector dr[nrx];
     double aa[nrx], bb[nrx], cc[nrx], dd[nrx];
-
+    int num_ants=0;
     vector<double>gsl_a_dat, gsl_b_dat;
     double tmin=9999999.;
     for(int i=0;i<nrx;i++){
@@ -472,17 +472,18 @@ HepLorentzVector RadioScatterEvent::findSource(){
 	gsl_a_dat.push_back(cc[i]);
       
 	gsl_b_dat.push_back(dd[i]);
+	num_ants++;
       }
     }
 
-    gsl_matrix_view amat = gsl_matrix_view_array(&gsl_a_dat[0], nrx-2, 3);
+    gsl_matrix_view amat = gsl_matrix_view_array(&gsl_a_dat[0], num_ants, 3);
 
-    gsl_vector_view bvec = gsl_vector_view_array(&gsl_b_dat[0], nrx-2);
+    gsl_vector_view bvec = gsl_vector_view_array(&gsl_b_dat[0], num_ants);
 
     gsl_vector *tau = gsl_vector_alloc(3);
 
     gsl_vector *xx = gsl_vector_alloc(3);
-    gsl_vector *resid = gsl_vector_alloc(nrx-2);
+    gsl_vector *resid = gsl_vector_alloc(num_ants);
     gsl_linalg_QR_decomp(&amat.matrix, tau);
     gsl_linalg_QR_lssolve(&amat.matrix, tau, &bvec.vector, xx, resid);
 
@@ -493,7 +494,11 @@ HepLorentzVector RadioScatterEvent::findSource(){
     source.setX(-gsl_vector_get(xx, 0));
     source.setY(gsl_vector_get(xx, 1));
     source.setZ(-gsl_vector_get(xx, 2));
-
+    // gsl_matrix_free(&amat.matrix);
+    // gsl_vector_free(&bvec.vector);
+    // gsl_vector_free(xx);
+    // gsl_vector_free(tau);
+    // gsl_vector_free(resid);
   
     //cout<<source.x()<<" "<<source.y()<<" "<<source.z()<<endl;
     return source;
