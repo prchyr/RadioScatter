@@ -13,6 +13,8 @@
 #pragma link C++ class Hep3Vector+;
 #pragma link C++ class HepLorentzVector+;
 
+//#pragma link C++ class 
+
 //#pragma link C++ defined_in "/usr/local/include/CLHEP/Vector/defs.h";
 //#pragma link C++ defined_in "/usr/local/include/CLHEP/Vector/ThreeVector.h";
 #pragma link C++ class RadioScatterEvent+;

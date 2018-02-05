@@ -30,7 +30,7 @@ unset(CMAKE_MODULE_PATH)
 #use the CLHEP things
 #will generate a bunch of library modules CLHEP::stuff that can be linked to
 find_package(CLHEP REQUIRED)
-
+find_package(GSL REQUIRED)
 #use the ROOT things
 list(APPEND CMAKE_PREFIX_PATH $ENV{ROOTSYS})
 #list(APPEND CMAKE_PREFIX_PATH $ENV{CLHEP_ROOT_DIR})
@@ -79,7 +79,7 @@ ROOT_GENERATE_DICTIONARY(G__RadioScatterEvent ${HEADER_FILES} LINKDEF ${RS_INCLU
 add_library(RadioScatterEvent SHARED ${SOURCE_FILES} G__RadioScatterEvent.cxx)
 
 #target_link_libraries(RadioScatterEvent ${ROOT_LIBRARIES} CLHEP-Vector-${CLHEP_VERSION})
-target_link_libraries(RadioScatterEvent ${ROOT_LIBRARIES} CLHEP::Vector)
+target_link_libraries(RadioScatterEvent ${ROOT_LIBRARIES} ${GSL_LIBRARIES} CLHEP::Vector)
 
 
 #add_custom_target(G__RadioScatterEvent.pcm DEPENDS G__RadioScatterEvent)
