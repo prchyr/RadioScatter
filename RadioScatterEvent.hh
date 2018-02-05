@@ -45,6 +45,7 @@ private:
   TH3F* rxhist = new TH3F("rxhist", "rxhist", 100, 1, -1, 100, 1, -1, 100, 1, -1);
   TH3F* txhist = new TH3F("txhist", "txhist", 100, 1, -1, 100, 1, -1, 100, 1, -1);
   TH3F* vertexhist = new TH3F("vertexhist", "vertexhist", 100, 1, -1, 100, 1, -1, 100, 1, -1);
+  TH3F* pointingHist = new TH3F("pointingHist", "pointingHist", 100, 1, -1, 100, 1, -1, 100, 1, -1);
   TH3F* triggeredhist = new TH3F("triggeredhist", "triggeredhist", 100, 1, -1, 100, 1, -1, 100, 1, -1);
   //  TPolyLine3D *shower_indicator_line = new TPolyLine3D(2);
   Int_t dummy;
@@ -87,6 +88,7 @@ public:
   int plotEvent(int txindex, int rxindex, int show_geom=0, int bins=64, int overlap=8);
 
   HepLorentzVector findSource();
+  double thermalNoiseRMS();
   double chirpSlope();
   double startFreq();
   double stopFreq();
@@ -100,7 +102,7 @@ public:
   //energy calculated from the geant4 energy and the number of primaries
   double primaryParticleEnergy();
   int triggered(double thresh, int n_antennas=1);
-  
+  int trigSingle(double thresh, int ant=0);  
   ClassDef(RadioScatterEvent, 3);
 };
 #endif
