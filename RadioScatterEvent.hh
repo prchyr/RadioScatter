@@ -16,13 +16,14 @@
 #include "TLegend.h"
 #include "TVirtualFFT.h"
 #include <deque>
+
 //#include <vector>
 
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "CLHEP/Vector/ThreeVector.h"
 #include "CLHEP/Vector/LorentzVector.h"
 
-
+#include <gsl/gsl_linalg.h>
 
 
 // class TH1F;
@@ -39,6 +40,7 @@ private:
   //default histogram for storing spectra, etc. 
   TCanvas *ccc=0;
   TH1F* spectrumHist=new TH1F("spectrumHist", "spectrumHist", 100, 0, 100);
+  TH1F* ceHist = new TH1F("cehist", "cehist", 100, 1, -1);//complex envelope
   TH2F* spectrogramHist=new TH2F("spectrogramHist", "spectrogramHist", 100, 0, 100, 100, 0, 100);
   TH3F* rxhist = new TH3F("rxhist", "rxhist", 100, 1, -1, 100, 1, -1, 100, 1, -1);
   TH3F* txhist = new TH3F("txhist", "txhist", 100, 1, -1, 100, 1, -1, 100, 1, -1);
@@ -76,14 +78,15 @@ public:
   int nrx=1;
   //plotting things
 
-  TGraph  getComplexEnvelope(int txindex, int rxindex,double cutoff=0);
+  TH1F *  getComplexEnvelope(int txindex, int rxindex,double cutoff=0);
   TGraph  getLowpassFiltered(int txindex, int rxindex,double cutoff);
   TGraph  getGraph();
   //  TGraph getSpectrum(bool dbflag=false);
   TH1F * getSpectrum(int txindex, int rxindex,bool dbflag=false);  
   void spectrogram(int txindex, int rxindex,Int_t binsize = 128, Int_t overlap=32);
   int plotEvent(int txindex, int rxindex, int show_geom=0, int bins=64, int overlap=8);
-  
+
+  HepLorentzVector findSource();
   double chirpSlope();
   double startFreq();
   double stopFreq();

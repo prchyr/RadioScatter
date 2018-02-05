@@ -108,12 +108,16 @@ double RadioScatterEvent::duration(int txindex, int rxindex){
 
 }
 
-TGraph RadioScatterEvent::getComplexEnvelope(int txindex, int rxindex,double cutoff){
+TH1F * RadioScatterEvent::getComplexEnvelope(int txindex, int rxindex,double cutoff){
   vector<double> xx, yy;
   int entries=reHist[txindex][rxindex]->GetNbinsX();
+  ceHist->SetBins(entries, reHist[txindex][rxindex]->GetXaxis()->GetXmin(), reHist[txindex][rxindex]->GetXaxis()->GetXmax());
+  
+
   for(int i=0;i<entries;i++){
     xx.push_back(reHist[txindex][rxindex]->GetBinCenter(i));
     yy.push_back(sqrt(pow(reHist[txindex][rxindex]->GetBinContent(i), 2)+pow(imHist[txindex][rxindex]->GetBinContent(i), 2)));
+    ceHist->SetBinContent(i, sqrt(pow(reHist[txindex][rxindex]->GetBinContent(i)+imHist[txindex][rxindex]->GetBinContent(i), 2)));
   }
   
   if(cutoff>0){
@@ -129,29 +133,32 @@ TGraph RadioScatterEvent::getComplexEnvelope(int txindex, int rxindex,double cut
     //cout<<setprecision(12);
     //cout<<"filter coefficients"<<endl<<a<<endl<<b<<endl<<c<<endl;
     int size = yy.size();
+    
     for(int i=0;i<size;i++){
       if(i>0){
 	
 	value = a*yy[i]+b*out[i-1];
-	
+	ceHist->SetBinContent(i, value);
 	out.push_back(value);
       }
       if(i==0){
 	value = a*yy[i];
 	out.push_back(value);
+	ceHist->SetBinContent(i, value);
       } 
     }
   
   
-  TGraph og(xx.size(), &xx[0], &out[0]);
+    //TGraph og(xx.size(), &xx[0], &out[0]);
 
-  return og;
+  return ceHist;
   }
   else{
-    TGraph og(xx.size(), &xx[0], &yy[0]);
-
-    return og;
-  }
+    //     TGraph og(xx.size(), &xx[0], &yy[0]);
+     return ceHist;
+  //   return og;
+   }
+  
 }
 
 TH1F* RadioScatterEvent::getSpectrum(int txindex, int rxindex,bool dbflag){
@@ -349,8 +356,9 @@ int RadioScatterEvent::plotEvent(int txindex, int rxindex, int show_geom, int bi
       //      cout<<tx[i].z()<<" "<<tx[i].x()<<" "<<tx[i].y()<<endl;    
     }
     triggeredhist->Fill(1.+rx[rxindex].z()/1000., 1.+rx[rxindex].x()/1000., 1.+rx[rxindex].y()/1000., 1.);
-    vertexhist->Fill(1.+position.z()/1000., 1.+position.x()/1000., 1.+position.y()/1000., 1.);
-
+    //    vertexhist->Fill(1.+position.z()/1000., 1.+position.x()/1000., 1.+position.y()/1000., 1.);
+    HepLorentzVector vvv = findSource();
+    vertexhist->Fill(1.+vvv.z()/1000., 1.+vvv.x()/1000., 1400-(1.+vvv.y()/1000.), 1.);
     txhist->SetMarkerStyle(3);
     txhist->SetMarkerColor(kRed);
     rxhist->SetMarkerStyle(8);
@@ -400,4 +408,66 @@ int RadioScatterEvent::plotEvent(int txindex, int rxindex, int show_geom, int bi
     //    ccc->Update();
   }
   
+}
+
+HepLorentzVector RadioScatterEvent::findSource(){
+  HepLorentzVector source;
+
+  HepLorentzVector dr[nrx];
+  double aa[nrx], bb[nrx], cc[nrx], dd[nrx];
+  //  double gsl_a_dat[3*(nrx-2)], gsl_b_dat[nrx-2];
+  vector<double>gsl_a_dat, gsl_b_dat;
+  double tmin=9999999.;
+  for(int i=0;i<nrx;i++){
+    getComplexEnvelope(0, i, 300);//puts results in ceHist
+    rx[i].setT(ceHist->GetXaxis()->GetBinCenter(ceHist->GetMaximumBin()));
+    tmin=rx[i].t()<tmin?rx[i].t():tmin;
+  }
+
+  for(int i=1;i<nrx;i++){
+    dr[i].setT(rx[i].t()-rx[0].t());
+    dr[i].setX(rx[i].x()-rx[0].x());
+    dr[i].setY(rx[i].y()-rx[0].y());
+    dr[i].setZ(rx[i].z()-rx[0].z());
+    cout<<dr[i].t()<<" "<<dr[i].x()<<endl;
+    if(i>1){
+      aa[i]=(2.*dr[i].x()/dr[i].t())-(2.*dr[1].x()/dr[1].t());
+      bb[i]=(2.*dr[i].y()/dr[i].t())-(2.*dr[1].y()/dr[1].t());
+      cc[i]=(2.*dr[i].z()/dr[i].t())-(2.*dr[1].z()/dr[1].t());
+      dd[i]=dr[i].t()-dr[1].t()-((pow(dr[i].x(), 2)+pow(dr[i].y(), 2)+pow(dr[i].z(), 2))/dr[i].t())+((pow(dr[1].x(), 2)+pow(dr[1].y(), 2)+pow(dr[1].z(), 2))/dr[1].t());
+      
+      gsl_a_dat.push_back(aa[i]);
+      gsl_a_dat.push_back(bb[i]);
+      gsl_a_dat.push_back(cc[i]);
+      
+      gsl_b_dat.push_back(dd[i]);
+    }
+  }
+
+  gsl_matrix_view amat = gsl_matrix_view_array(&gsl_a_dat[0], nrx-2, 3);
+  //  gsl_matrix_view mmat = gsl_matrix_view_array(&gsl_a_dat[0], 3, 3);
+  gsl_vector_view bvec = gsl_vector_view_array(&gsl_b_dat[0], nrx-2);
+  //gsl_vector_view bmat = gsl_vector_view_array(&gsl_b_dat[0], 3);
+  gsl_vector *tau = gsl_vector_alloc(3);
+  //  gsl_vector *bvec = gsl_vector_alloc(3);
+  gsl_vector *xx = gsl_vector_alloc(3);
+  gsl_vector *resid = gsl_vector_alloc(nrx-2);
+  gsl_linalg_QR_decomp(&amat.matrix, tau);
+  gsl_linalg_QR_lssolve(&amat.matrix, tau, &bvec.vector, xx, resid);
+    //    int ss;
+    //gsl_permutation *pp = gsl_permutation_alloc(3);
+    //gsl_linalg_LU_decomp(&mmat.matrix, pp, &ss);
+    //gsl_linalg_LU_solve(&mmat.matrix, pp, &bmat.vector, xx);
+    
+  gsl_vector_fprintf (stdout, xx, "%g");
+  source.setX(-gsl_vector_get(xx, 0));
+  source.setY(gsl_vector_get(xx, 1));
+  source.setZ(-gsl_vector_get(xx, 2));
+
+  //   source.setX(gsl_vector_get(xx, 0)+rx[0].x());
+  // source.setY(gsl_vector_get(xx, 1)+rx[0].y());
+  // source.setZ(gsl_vector_get(xx, 2)+rx[0].z());
+
+  cout<<source.x()<<" "<<source.y()<<" "<<source.z()<<endl;
+  return source;
 }
