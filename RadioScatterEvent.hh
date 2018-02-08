@@ -54,7 +54,7 @@ private:
   double dt[64000][3];
   HepLorentzVector source[64000];
   int POINTING_MAP_BUILT=0;
-  
+  int RXHIST_FILLED=0;  
 public:
   RadioScatterEvent();
 

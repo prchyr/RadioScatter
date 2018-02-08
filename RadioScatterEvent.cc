@@ -4,6 +4,7 @@
 ClassImp(RadioScatterEvent)
 
 RadioScatterEvent::RadioScatterEvent(){
+
   dummy=-1;
 }
 
@@ -346,19 +347,21 @@ int RadioScatterEvent::plotEvent(int txindex, int rxindex, int show_geom, int bi
   //img->WriteImage("54mhz_100TeV_proton.png");
 
   if(show_geom>0){
-    rxhist->Reset();
+    //rxhist->Reset();
     txhist->Reset();
     vertexhist->Reset();
     triggeredhist->Reset();
     pointingHist->Reset();
     ccc->cd(2);
     //TH3F *rxhist = new TH3F("rxhist", "rxhist", 101, 1, -1, 101, 1, -1, 101, 1, -1);
-    
-    for(int i=0;i<nrx;i++){
-      if(i==rxindex)continue;
-      rxhist->Fill(1.+rx[i].z()/1000., 1.+rx[i].x()/1000., 1.+rx[i].y()/1000., 1.);
+    if(RXHIST_FILLED==0){    
+      for(int i=0;i<nrx;i++){
+	if(i==rxindex)continue;
+	rxhist->Fill(1.+rx[i].z()/1000., 1.+rx[i].x()/1000., 1.+rx[i].y()/1000., 1.);
+      }
+      rxhist->BufferEmpty();
+      RXHIST_FILLED=1;
     }
-    rxhist->BufferEmpty();
 
     txhist->SetBins(101, rxhist->GetXaxis()->GetXmin(), rxhist->GetXaxis()->GetXmax(), 101,rxhist->GetYaxis()->GetXmin(), rxhist->GetYaxis()->GetXmax(),101, rxhist->GetZaxis()->GetXmin(), rxhist->GetZaxis()->GetXmax());
     vertexhist->SetBins(101, rxhist->GetXaxis()->GetXmin(), rxhist->GetXaxis()->GetXmax(), 101,rxhist->GetYaxis()->GetXmin(), rxhist->GetYaxis()->GetXmax(),101, rxhist->GetZaxis()->GetXmin(), rxhist->GetZaxis()->GetXmax());
@@ -558,17 +561,28 @@ int RadioScatterEvent::buildMap(){
   //decided on 40x40x40 points of resoultion. arbitrary.
   //dt is [64000][3] and source is  [64000] which is a linearized matrix.
   double ndiv=40;
- 
-  //distances and baselines hard-coded for now but are simple to
-  //put in terms of variables that can be filled (TODO).
-  double xmin=-500000;
-  double ymin=-1000000;
-  double zmin=-500000;
+  //this sets the volume where we'll calculate the dts
+  //redundant but that's OK
+  if(RXHIST_FILLED==0){
+    for(int i=0;i<nrx;i++){
+      rxhist->Fill(1.+rx[i].z()/1000., 1.+rx[i].x()/1000., 1.+rx[i].y()/1000., 1.);
+    }
+    rxhist->BufferEmpty();
+    RXHIST_FILLED=1;
+  }
+
+  double xmin=rxhist->GetYaxis()->GetXmin()*m;
+  double ymin=rxhist->GetZaxis()->GetXmin()*m;
+  double zmin=rxhist->GetXaxis()->GetXmin()*m;
+
+  double xmax=rxhist->GetYaxis()->GetXmax()*m;
+  double ymax=rxhist->GetZaxis()->GetXmax()*m;
+  double zmax=rxhist->GetXaxis()->GetXmax()*m;
 
 
-  double xdiv = (1000000.)/ndiv;
-  double ydiv = xdiv;
-  double zdiv = xdiv;
+  double xdiv = (xmax-xmin)/ndiv;
+  double ydiv = (ymax-ymin)/ndiv;
+  double zdiv = (zmax-zmin)/ndiv;
 
   //make a linearized 'matrix' of time delays
   //and another for the x,y,z coords for each calculated delay (store as hep3vector)
@@ -597,6 +611,9 @@ int RadioScatterEvent::buildMap(){
 
 
 HepLorentzVector RadioScatterEvent::pointUsingMap(){
+  if(POINTING_MAP_BUILT==0){
+    buildMap();
+  }
   //find the measured dts.
   for(int i=0;i<nrx;i++){
     //find the peak of the event envelope (corresponds to shower max)
