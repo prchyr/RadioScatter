@@ -50,6 +50,11 @@ private:
   //  TPolyLine3D *shower_indicator_line = new TPolyLine3D(2);
   Int_t dummy;
   TRandom *ran = new TRandom();
+
+  double dt[64000][3];
+  HepLorentzVector source[64000];
+  int POINTING_MAP_BUILT=0;
+  
 public:
   RadioScatterEvent();
 
@@ -87,7 +92,6 @@ public:
   void spectrogram(int txindex, int rxindex,Int_t binsize = 128, Int_t overlap=32);
   int plotEvent(int txindex, int rxindex, int show_geom=0, int bins=64, int overlap=8);
 
-  HepLorentzVector findSource();
   double thermalNoiseRMS();
   double chirpSlope();
   double startFreq();
@@ -102,7 +106,17 @@ public:
   //energy calculated from the geant4 energy and the number of primaries
   double primaryParticleEnergy();
   int triggered(double thresh, int n_antennas=1);
-  int trigSingle(double thresh, int ant=0);  
+  int trigSingle(double thresh, int ant=0);
+
+  //pointing things
+
+  HepLorentzVector findSource(int debug=0);
+  HepLorentzVector pointingTest();
+  int buildMap();
+  HepLorentzVector pointUsingMap();
+
+
+
   ClassDef(RadioScatterEvent, 3);
 };
 #endif

@@ -190,12 +190,14 @@ TH1F* RadioScatterEvent::getSpectrum(int txindex, int rxindex,bool dbflag){
     Double_t y = out->GetBinContent(i);
      if(dbflag==true){
        y = (10.*log10(pow(y, 2.)/50.))+30.;//normalized mv->dbW->dbm
+       spectrumHist->SetBinContent(i, y-(10.*log10(band)));//dmb/hz with 80 db of gain             
      }
      //y=10.*log10(y)+30;                                                
   //   xx.push_back(i*(timebase/size));
   //   yy.push_back(y);
-     spectrumHist->SetBinContent(i, y-(10.*log10(band)));//dmb/hz with 80 db of gain             
-     //spectrumHist->SetBinContent(i, y);                                  
+     else{
+       spectrumHist->SetBinContent(i, y);
+     }
   }
 
   out->Delete();
@@ -371,8 +373,16 @@ int RadioScatterEvent::plotEvent(int txindex, int rxindex, int show_geom, int bi
     vertexhist->Fill(1.+position.z()/1000., 1.+position.x()/1000., 1.+position.y()/1000., 1.);
 
     //see if we can reconstruct the event
-    HepLorentzVector vvv = findSource();
-    pointingHist->Fill(1.+vvv.z()/1000., 1.+vvv.x()/1000., 1400-(1.+vvv.y()/1000.), 1.);
+    //    if(POINTING_MAP_BUILT==0){
+      buildMap();
+      //}
+    HepLorentzVector vvv = pointUsingMap();
+
+    //pointingHist->Fill(1.+vvv.z()/1000., 1.+vvv.x()/1000., rxhist->GetZaxis()->GetXmax()+(vvv.y()/1000.), 1.);
+    //    HepLorentzVector vvv = pointingTest();
+    
+    //    pointingHist->Fill(1.+vvv.z(), 1.+vvv.x(), vvv.y(), 1.);
+    pointingHist->Fill(1.+vvv.z()/1000., 1.+vvv.x()/1000., (vvv.y()/1000.), 1.);
 
     txhist->SetMarkerStyle(3);
     txhist->SetMarkerColor(kRed);
@@ -432,13 +442,14 @@ int RadioScatterEvent::plotEvent(int txindex, int rxindex, int show_geom, int bi
 //this is not the best. requires 5 antennas. but pointing is pretty OK...
 //TODO: find another (better) method.
 
-HepLorentzVector RadioScatterEvent::findSource(){
+HepLorentzVector RadioScatterEvent::findSource(int debug){
   HepLorentzVector source;
+  source.setX(9999999);
+  source.setY(9999999);
+  source.setZ(9999999);
   //if we don't have enough ants to point, return nonsense.
-  if(!triggered(thermalNoiseRMS(), 5)){
-    source.setX(999999999);
-    source.setY(999999999);
-    source.setZ(999999999);
+  if(triggered(thermalNoiseRMS()*2., 5)==0){
+    
     return source;
   }
   else{ 
@@ -448,59 +459,185 @@ HepLorentzVector RadioScatterEvent::findSource(){
     vector<double>gsl_a_dat, gsl_b_dat;
     double tmin=9999999.;
     for(int i=0;i<nrx;i++){
-      getComplexEnvelope(0, i, 100);//puts results in ceHist
+      getComplexEnvelope(0, i, 200);//puts results in ceHist
       rx[i].setT(ceHist->GetXaxis()->GetBinCenter(ceHist->GetMaximumBin()));
       tmin=rx[i].t()<tmin?rx[i].t():tmin;
     }
 
-  
+    // double vsquared = pow(c_light/m, 2);
+    // for(int i=1;i<nrx;i++){
+    //   //      if(!trigSingle(thermalNoiseRMS()*2., i))continue;
+    //   dr[i].setT((rx[i].t()-rx[0].t()));
+    //   dr[i].setX((rx[i].x()/m)-(rx[0].x()/m));
+    //   dr[i].setY(((rx[i].y()/m)-(rx[0].y()/m)));
+    //   dr[i].setZ((rx[i].z()/m)-(rx[0].z()/m));
+    //   //dr[i].setVect(rx[i]-rx[0]);
+    //   //      dr[i]=rx[i]-rx[0];
+
+    //   //if(debug==1)cout<<dr[i].t()<<" "<<dr[i].x()<<endl;
+    //   if(i>1){
+    // 	aa[i]=(2.*dr[i].x()/dr[i].t())-(2.*dr[1].x()/dr[1].t());
+    // 	bb[i]=(2.*dr[i].y()/dr[i].t())-(2.*dr[1].y()/dr[1].t());
+    // 	cc[i]=(2.*dr[i].z()/dr[i].t())-(2.*dr[1].z()/dr[1].t());
+    // 	dd[i]=vsquared*dr[i].t()-vsquared*dr[1].t()-((pow(dr[i].x(), 2)+pow(dr[i].y(), 2)+pow(dr[i].z(), 2))/dr[i].t())+((pow(dr[1].x(), 2)+pow(dr[1].y(), 2)+pow(dr[1].z(), 2))/dr[1].t());
+      
+    // 	gsl_a_dat.push_back(aa[i]);
+    // 	gsl_a_dat.push_back(bb[i]);
+    // 	gsl_a_dat.push_back(cc[i]);
+    // 	gsl_b_dat.push_back(-dd[i]);
+    // 	num_ants++;
+    //   }
+    // }
+    //works well for the 15 antenna case
     for(int i=1;i<nrx;i++){
       if(!trigSingle(thermalNoiseRMS()*2., i))continue;
-      dr[i].setT(rx[i].t()-rx[0].t());
-      dr[i].setX(rx[i].x()-rx[0].x());
-      dr[i].setY(rx[i].y()-rx[0].y());
-      dr[i].setZ(rx[i].z()-rx[0].z());
-      //      cout<<dr[i].t()<<" "<<dr[i].x()<<endl;
+      dr[i].setT((rx[i].t()-rx[0].t()));
+      dr[i].setX((rx[i].x())-(rx[0].x()));
+      dr[i].setY((rx[i].y())-(rx[0].y()));
+      dr[i].setZ((rx[i].z())-(rx[0].z()));
+      //      if(debug==1)cout<<dr[i].t()<<" "<<dr[i].x()<<endl;
       if(i>1){
-	aa[i]=(2.*dr[i].x()/dr[i].t())-(2.*dr[1].x()/dr[1].t());
-	bb[i]=(2.*dr[i].y()/dr[i].t())-(2.*dr[1].y()/dr[1].t());
-	cc[i]=(2.*dr[i].z()/dr[i].t())-(2.*dr[1].z()/dr[1].t());
-	dd[i]=dr[i].t()-dr[1].t()-((pow(dr[i].x(), 2)+pow(dr[i].y(), 2)+pow(dr[i].z(), 2))/dr[i].t())+((pow(dr[1].x(), 2)+pow(dr[1].y(), 2)+pow(dr[1].z(), 2))/dr[1].t());
+    	aa[i]=(2.*dr[i].x()/dr[i].t())-(2.*dr[1].x()/dr[1].t());
+    	bb[i]=(2.*dr[i].y()/dr[i].t())-(2.*dr[1].y()/dr[1].t());
+    	cc[i]=(2.*dr[i].z()/dr[i].t())-(2.*dr[1].z()/dr[1].t());
+    	dd[i]=dr[i].t()-dr[1].t()-((pow(dr[i].x(), 2)+pow(dr[i].y(), 2)+pow(dr[i].z(), 2))/dr[i].t())+((pow(dr[1].x(), 2)+pow(dr[1].y(), 2)+pow(dr[1].z(), 2))/dr[1].t());
       
-	gsl_a_dat.push_back(aa[i]);
-	gsl_a_dat.push_back(bb[i]);
-	gsl_a_dat.push_back(cc[i]);
+    	gsl_a_dat.push_back(aa[i]);
+    	gsl_a_dat.push_back(bb[i]);
+    	gsl_a_dat.push_back(cc[i]);
       
-	gsl_b_dat.push_back(dd[i]);
-	num_ants++;
+    	gsl_b_dat.push_back(-dd[i]);
+    	num_ants++;
       }
     }
-
+    if(num_ants<5)return source;
     gsl_matrix_view amat = gsl_matrix_view_array(&gsl_a_dat[0], num_ants, 3);
 
     gsl_vector_view bvec = gsl_vector_view_array(&gsl_b_dat[0], num_ants);
 
     gsl_vector *tau = gsl_vector_alloc(3);
 
-    gsl_vector *xx = gsl_vector_alloc(3);
+    gsl_vector *xvec = gsl_vector_alloc(3);
     gsl_vector *resid = gsl_vector_alloc(num_ants);
-    gsl_linalg_QR_decomp(&amat.matrix, tau);
-    gsl_linalg_QR_lssolve(&amat.matrix, tau, &bvec.vector, xx, resid);
+
 
     
-    //gsl_vector_fprintf (stdout, xx, "%g");
 
-    //need to have minus signs on 2 values. i don't like that i don't know why. 
-    source.setX(-gsl_vector_get(xx, 0));
-    source.setY(gsl_vector_get(xx, 1));
-    source.setZ(-gsl_vector_get(xx, 2));
+    //gsl_linalg_QR_decomp(&amat.matrix, tau);
+    //gsl_linalg_QR_lssolve(&amat.matrix, tau, &bvec.vector, xvec, resid);
+
+    gsl_permutation *p = gsl_permutation_alloc(3);
+    int signum=1;
+    gsl_vector *norm = gsl_vector_alloc(3);
+    gsl_linalg_QRPT_decomp(&amat.matrix, tau, p, &signum, norm);
+    gsl_linalg_QRPT_lssolve(&amat.matrix, tau, p, &bvec.vector, xvec, resid);
+
+    
+    source.setX(gsl_vector_get(xvec, 0));
+    source.setY(gsl_vector_get(xvec, 1));
+    source.setZ(gsl_vector_get(xvec, 2));
     // gsl_matrix_free(&amat.matrix);
     // gsl_vector_free(&bvec.vector);
     // gsl_vector_free(xx);
     // gsl_vector_free(tau);
     // gsl_vector_free(resid);
-  
-    //cout<<source.x()<<" "<<source.y()<<" "<<source.z()<<endl;
+    if(debug==1){
+      //      gsl_vector_fprintf (stdout, xvec, "%g");
+      //cout<<endl<<aa[4]<<" "<<bb[4]<<" "<<cc[4]<<endl;
+      //cout<<"matrix: "<<endl;
+
+      //gsl_matrix_fprintf(stdout, &amat.matrix, "%g");
+      cout<<"pointed: "<<source.x()/1000.<<" "<<source.y()/1000.<<" "<<source.z()/1000.<<endl;
+      cout<<"true: "<<position.x()/1000.<<" "<<position.y()/1000.<<" "<<position.z()/1000.<<endl;
+    }
     return source;
   }
+}
+
+int RadioScatterEvent::buildMap(){
+  double ndiv=40;
+  //double dt[3][64000];
+  //Hep3Vector source[64000];
+  for(int i=0;i<nrx;i++){
+    getComplexEnvelope(0, i, 200);//puts results in ceHist
+    rx[i].setT(ceHist->GetBinCenter(ceHist->GetMaximumBin()));
+    // cout<<rx[i].t()<<endl;
+  }
+  //  TH3F *maptest = new TH3F("maptest", "maptest", ndiv, -500000, 500000, ndiv, -500000, 500000, ndiv, -1000000, 0);
+  double xmin=-500000;
+  double ymin=-1000000;
+  double zmin=-500000;
+  //cout<<endl<<endl<<xmin<<endl<<ymin<<endl<<zmin<<endl;
+
+  double xdiv = (1000000.)/ndiv;
+  double ydiv = xdiv;
+  double zdiv = xdiv;
+  
+  for(int i=0;i<ndiv;i++){
+    for(int j=0;j<ndiv;j++){
+      for(int k=0;k<ndiv;k++){
+	int index=(((i*ndiv)+j)*ndiv)+k;
+	source[index].setX(xmin+(i*xdiv));
+	source[index].setY(ymin+(j*ydiv));
+	source[index].setZ(zmin+(k*zdiv));
+
+	double dt0 = ((source[index].vect()-rx[1].vect()).mag()-(source[index].vect()-rx[0].vect()).mag())/c_light;
+	double dt1 = ((source[index].vect()-rx[2].vect()).mag()-(source[index].vect()-rx[0].vect()).mag())/c_light;
+	double dt2 = ((source[index].vect()-rx[6].vect()).mag()-(source[index].vect()-rx[2].vect()).mag())/c_light;
+	dt[index][0]=dt0;
+	dt[index][1]=dt1;
+	dt[index][2]=dt2;
+	//	maptest->Fill(source[index].x(), source[index].y(), source[index].z(), 1.);
+      }
+    }
+  }
+  cout<<"pointing map built"<<endl;
+  //maptest->Draw("box");
+  POINTING_MAP_BUILT=1;
+  return 1;
+}
+
+
+HepLorentzVector RadioScatterEvent::pointUsingMap(){
+  double dt0=rx[1].t()-rx[0].t();
+  double dt1=rx[2].t()-rx[0].t();
+  double dt2=rx[6].t()-rx[2].t();
+  //  TH1F* hist = new TH1F("sdf", "asdf", 100, 1, -1);
+  if(triggered(thermalNoiseRMS()*2, 5)==0){
+    HepLorentzVector dummy(99999999,99999999,99999999,99999999);
+    cout<<"can't point, not enough antennas"<<endl;
+    return dummy;
+  }
+  int ind0, ind1, ind2, index;
+  double min0=999999, min1=999999,min2=999999, min=9999;
+    for(int j=0;j<64000;j++){
+      if(abs(dt[j][0]-dt0)<min0){
+	ind0=j;
+	min0=abs(dt[j][0]-dt0);
+      }
+      if(abs(dt[j][1]-dt1)<min1){
+	ind1=j;
+	min1=abs(dt[j][1]-dt1);
+      }
+      if(abs(dt[j][2]-dt2)<min2){
+	ind2=j;
+	min2=abs(dt[j][2]-dt2);
+      }
+      if(abs(dt[j][0]-dt0)+abs(dt[j][1]-dt1)+abs(dt[j][2]-dt2)<min){
+	index=j;
+	min=abs(dt[j][0]-dt0)+abs(dt[j][1]-dt1)+abs(dt[j][2]-dt2);
+      }
+      //      hist->Fill(dt[j][1]-dt1);
+    }
+  
+//   hist->Draw();
+// cout<<ind0<<" "<<min0<<endl;
+// cout<<ind1<<" "<<min1<<endl;
+// cout<<ind2<<" "<<min2<<endl;
+//   cout<<"real "<<position.x()<<" "<<position.y()<<" "<<position.z()<<endl;
+   cout<<source[index]<<endl;
+  //  cout<<"calculated "<<((position-rx[2].vect()).mag()-(position-rx[1].vect()).mag())/c_light<<endl;
+  //cout<<"actual dt"<<rx[2].t()-rx[1].t()<<endl;
+  return source[index];
+  
 }
