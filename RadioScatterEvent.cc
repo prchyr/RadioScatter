@@ -373,9 +373,9 @@ int RadioScatterEvent::plotEvent(int txindex, int rxindex, int show_geom, int bi
     vertexhist->Fill(1.+position.z()/1000., 1.+position.x()/1000., 1.+position.y()/1000., 1.);
 
     //see if we can reconstruct the event
-    //    if(POINTING_MAP_BUILT==0){
+    if(POINTING_MAP_BUILT==0){
       buildMap();
-      //}
+    }
     HepLorentzVector vvv = pointUsingMap();
 
     //pointingHist->Fill(1.+vvv.z()/1000., 1.+vvv.x()/1000., rxhist->GetZaxis()->GetXmax()+(vvv.y()/1000.), 1.);
@@ -555,24 +555,23 @@ HepLorentzVector RadioScatterEvent::findSource(int debug){
 }
 
 int RadioScatterEvent::buildMap(){
+  //decided on 40x40x40 points of resoultion. arbitrary.
+  //dt is [64000][3] and source is  [64000] which is a linearized matrix.
   double ndiv=40;
-  //double dt[3][64000];
-  //Hep3Vector source[64000];
-  for(int i=0;i<nrx;i++){
-    getComplexEnvelope(0, i, 200);//puts results in ceHist
-    rx[i].setT(ceHist->GetBinCenter(ceHist->GetMaximumBin()));
-    // cout<<rx[i].t()<<endl;
-  }
-  //  TH3F *maptest = new TH3F("maptest", "maptest", ndiv, -500000, 500000, ndiv, -500000, 500000, ndiv, -1000000, 0);
+ 
+  //distances and baselines hard-coded for now but are simple to
+  //put in terms of variables that can be filled (TODO).
   double xmin=-500000;
   double ymin=-1000000;
   double zmin=-500000;
-  //cout<<endl<<endl<<xmin<<endl<<ymin<<endl<<zmin<<endl;
+
 
   double xdiv = (1000000.)/ndiv;
   double ydiv = xdiv;
   double zdiv = xdiv;
-  
+
+  //make a linearized 'matrix' of time delays
+  //and another for the x,y,z coords for each calculated delay (store as hep3vector)
   for(int i=0;i<ndiv;i++){
     for(int j=0;j<ndiv;j++){
       for(int k=0;k<ndiv;k++){
@@ -580,64 +579,74 @@ int RadioScatterEvent::buildMap(){
 	source[index].setX(xmin+(i*xdiv));
 	source[index].setY(ymin+(j*ydiv));
 	source[index].setZ(zmin+(k*zdiv));
-
+	//antenna pairs hardcoded for now, but will eventually be a loop over all antennas (TODO)
 	double dt0 = ((source[index].vect()-rx[1].vect()).mag()-(source[index].vect()-rx[0].vect()).mag())/c_light;
 	double dt1 = ((source[index].vect()-rx[2].vect()).mag()-(source[index].vect()-rx[0].vect()).mag())/c_light;
 	double dt2 = ((source[index].vect()-rx[6].vect()).mag()-(source[index].vect()-rx[2].vect()).mag())/c_light;
 	dt[index][0]=dt0;
 	dt[index][1]=dt1;
 	dt[index][2]=dt2;
-	//	maptest->Fill(source[index].x(), source[index].y(), source[index].z(), 1.);
+
       }
     }
   }
   cout<<"pointing map built"<<endl;
-  //maptest->Draw("box");
   POINTING_MAP_BUILT=1;
   return 1;
 }
 
 
 HepLorentzVector RadioScatterEvent::pointUsingMap(){
+  //find the measured dts.
+  for(int i=0;i<nrx;i++){
+    //find the peak of the event envelope (corresponds to shower max)
+    getComplexEnvelope(0, i, 200);//puts results in ceHist
+    rx[i].setT(ceHist->GetBinCenter(ceHist->GetMaximumBin()));
+  }
+
+  //calculate the dts for this event for the corresponding antenna pairs
+  //hardcoded for now, will update later
   double dt0=rx[1].t()-rx[0].t();
   double dt1=rx[2].t()-rx[0].t();
   double dt2=rx[6].t()-rx[2].t();
-  //  TH1F* hist = new TH1F("sdf", "asdf", 100, 1, -1);
-  if(triggered(thermalNoiseRMS()*2, 5)==0){
+
+  //make sure we have 4 antennas (requisite number to point 3 pairs)
+  if(triggered(thermalNoiseRMS()*2, 4)==0){
     HepLorentzVector dummy(99999999,99999999,99999999,99999999);
     cout<<"can't point, not enough antennas"<<endl;
     return dummy;
   }
+  
   int ind0, ind1, ind2, index;
   double min0=999999, min1=999999,min2=999999, min=9999;
-    for(int j=0;j<64000;j++){
-      if(abs(dt[j][0]-dt0)<min0){
-	ind0=j;
-	min0=abs(dt[j][0]-dt0);
-      }
-      if(abs(dt[j][1]-dt1)<min1){
-	ind1=j;
-	min1=abs(dt[j][1]-dt1);
-      }
-      if(abs(dt[j][2]-dt2)<min2){
-	ind2=j;
-	min2=abs(dt[j][2]-dt2);
-      }
-      if(abs(dt[j][0]-dt0)+abs(dt[j][1]-dt1)+abs(dt[j][2]-dt2)<min){
-	index=j;
-	min=abs(dt[j][0]-dt0)+abs(dt[j][1]-dt1)+abs(dt[j][2]-dt2);
-      }
-      //      hist->Fill(dt[j][1]-dt1);
+//minimize time differences
+  for(int j=0;j<64000;j++){
+    //pair 0
+    if(abs(dt[j][0]-dt0)<min0){
+      ind0=j;
+      min0=abs(dt[j][0]-dt0);
     }
-  
-//   hist->Draw();
-// cout<<ind0<<" "<<min0<<endl;
-// cout<<ind1<<" "<<min1<<endl;
-// cout<<ind2<<" "<<min2<<endl;
-//   cout<<"real "<<position.x()<<" "<<position.y()<<" "<<position.z()<<endl;
-   cout<<source[index]<<endl;
-  //  cout<<"calculated "<<((position-rx[2].vect()).mag()-(position-rx[1].vect()).mag())/c_light<<endl;
-  //cout<<"actual dt"<<rx[2].t()-rx[1].t()<<endl;
+    //pair 1
+    if(abs(dt[j][1]-dt1)<min1){
+      ind1=j;
+      min1=abs(dt[j][1]-dt1);
+    }
+    //pair 2
+    if(abs(dt[j][2]-dt2)<min2){
+      ind2=j;
+      min2=abs(dt[j][2]-dt2);
+    }
+    //minize the sum of all three, works OK.
+    //don't need the others really, can do this with just 1 loop through
+    //the array. can do interpolation on the values here to acheive
+    //better pointing.
+    if(abs(dt[j][0]-dt0)+abs(dt[j][1]-dt1)+abs(dt[j][2]-dt2)<min){
+      index=j;
+      min=abs(dt[j][0]-dt0)+abs(dt[j][1]-dt1)+abs(dt[j][2]-dt2);
+    }
+  }
+  //for now, return the vector at that index. in future, can calculate a better
+  //source vector using interpolation
   return source[index];
-  
+    
 }
