@@ -30,7 +30,7 @@ unset(CMAKE_MODULE_PATH)
 #use the CLHEP things
 #will generate a bunch of library modules CLHEP::stuff that can be linked to
 find_package(CLHEP REQUIRED)
-find_package(GSL REQUIRED)
+#find_package(GSL REQUIRED)
 #use the ROOT things
 list(APPEND CMAKE_PREFIX_PATH $ENV{ROOTSYS})
 #list(APPEND CMAKE_PREFIX_PATH $ENV{CLHEP_ROOT_DIR})
@@ -59,7 +59,7 @@ endif()
 
 include(${Geant4_USE_FILE})
 
-include_directories(${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include ${CLHEP_INCLUDE_DIR} ${ROOT_INCLUDE_DIRS} ${GSL_INCLUDE_DIRS} ${RS_INCLUDE_DIR} ${RS_INCLUDE_DIR}/../)
+include_directories(${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include ${CLHEP_INCLUDE_DIR} ${ROOT_INCLUDE_DIRS} ${RS_INCLUDE_DIR} ${RS_INCLUDE_DIR}/../)
 
 #----------------------------------------------------------------------------
 # Locate sources and headers for this project
@@ -69,7 +69,7 @@ file(GLOB sources ${PROJECT_SOURCE_DIR}/src/*.cc ${RS_INCLUDE_DIR}/*.cc)
 file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh ${RS_INCLUDE_DIR}/*.hh)
 
 file(GLOB SOURCE_FILES ${RS_INCLUDE_DIR}/*.cc ${CLHEP_INCLUDE_DIR}/Vector/*.icc ${CLHEP_INCLUDE_DIR}/Units/*.icc)
-file(GLOB HEADER_FILES ${RS_INCLUDE_DIR}/*.hh ${CLHEP_INCLUDE_DIR}/Vector/*.h ${CLHEP_INCLUDE_DIR}/Units/*.h ${GSL_INCLUDE_DIRS}/gsl/*.h)
+file(GLOB HEADER_FILES ${RS_INCLUDE_DIR}/*.hh ${CLHEP_INCLUDE_DIR}/Vector/*.h ${CLHEP_INCLUDE_DIR}/Units/*.h)# ${GSL_INCLUDE_DIRS}/gsl/*.h)
 
 
 #make the ROOT dictionaries and shared object library for reading the event tree
@@ -79,7 +79,7 @@ ROOT_GENERATE_DICTIONARY(G__RadioScatterEvent ${HEADER_FILES} LINKDEF ${RS_INCLU
 add_library(RadioScatterEvent SHARED ${SOURCE_FILES} G__RadioScatterEvent.cxx)
 
 #target_link_libraries(RadioScatterEvent ${ROOT_LIBRARIES} CLHEP-Vector-${CLHEP_VERSION})
-target_link_libraries(RadioScatterEvent ${ROOT_LIBRARIES} ${GSL_LIBRARIES} CLHEP::Vector)
+target_link_libraries(RadioScatterEvent ${ROOT_LIBRARIES} CLHEP::Vector)
 
 
 #add_custom_target(G__RadioScatterEvent.pcm DEPENDS G__RadioScatterEvent)

@@ -23,7 +23,7 @@
 #include "CLHEP/Vector/ThreeVector.h"
 #include "CLHEP/Vector/LorentzVector.h"
 
-#include <gsl/gsl_linalg.h>
+//#include <gsl/gsl_linalg.h>
 
 
 // class TH1F;
@@ -110,8 +110,8 @@ public:
 
   //pointing things
 
-  HepLorentzVector findSource(int debug=0);
-  HepLorentzVector pointingTest();
+  //HepLorentzVector findSource(int debug=0);
+  // HepLorentzVector pointingTest();
   int buildMap();
   HepLorentzVector pointUsingMap();
 
