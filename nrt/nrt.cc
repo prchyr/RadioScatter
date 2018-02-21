@@ -168,11 +168,60 @@ int main(int argc,char** argv)
   if ( macro.size() ) {
     // batch mode
   
+  
 
     //    isInteractiveSession=true;
    G4String command = "/control/execute ";
    UImanager->ApplyCommand(command+macro);
 
+   if(macro=="anglemacro.mac"){
+     TRandom *ran = new TRandom();
+     Hep3Vector rx(1., 1., 1.), tx(1., 1., 1.);
+    double mag=1000000;
+    rx.setMag(mag);
+    rx.setTheta(pi/2);
+    rx.setPhi(pi);
+    radio->setNTx(1);
+
+    //    double div=25.;
+    double div=20.;
+    double radianstep=twopi/div;
+    radio->setNRx(div*(div/2));
+    //    double halfstep=step/2
+    //    for(double i=0;i<twopi;i+=radianstep){
+    double i=0.0001;
+    tx.setPhi(pi);
+    tx.setTheta(pi/2.);
+    int n=0;
+    while(i<twopi){
+      i+=radianstep;
+      double j=0.;
+      while(j<pi){
+	//for(double j=radianstep;j<pi;j+=radianstep){
+	j+=radianstep;
+	rx.setTheta(j);
+	rx.setPhi(i);
+
+	rx.setMag(mag);
+	radio->setRxPos(rx, n);
+	n++;
+	cout<<rx.x()<<" "<<rx.y()<<" "<<rx.z()<<endl;
+	//	cout<<rx.r()<<" "<<rx.theta()<<" "<<rx.phi()<<endl;
+      }
+
+    }
+    cout<<endl<<n<<endl<<endl;
+    for(int i=1;i<100;i++){
+      tx.setPhi(ran->Rndm()*twopi);
+      tx.setTheta(ran->Rndm()*(pi/2));
+      //      tx.setMag(10000.*i);
+      tx.setMag(ran->Rndm()*1000000.);
+      radio->setTxPos(tx, 0);
+      runManager->BeamOn(1);
+      //      cout<<tx.x()<<" "<<tx.y()<<" "<<tx.z()<<endl;
+    }
+    //    runManager->BeamOn(100);
+  }
 
 
    if (macro=="run1.mac"){
@@ -286,32 +335,6 @@ int main(int argc,char** argv)
     // }
   
 
-  if(macro=="anglemacro.mac"){
-    Hep3Vector rx(1., 1., 1.);
-    rx.setMag(10000000);
-
-    double radianstep=twopi/40.;
-    //    double halfstep=step/2
-    for(double i=0;i<twopi;i+=radianstep){
-      rx.setPhi(i);
-      for(double j=radianstep;j<pi;j+=radianstep){
-	rx.setTheta(j);
-	radio->setRxPos(rx);
-	//	cout<<rx.phi()<<" "<<radio->rx.phi()<<endl;
-	runManager->BeamOn(10);
-	// runManager->BeamOn(1);
-	// runManager->BeamOn(1);
-	// runManager->BeamOn(1);
-	// runManager->BeamOn(1);
-	// runManager->BeamOn(1);
-	// runManager->BeamOn(1);
-	// runManager->BeamOn(1);
-	// runManager->BeamOn(1);
-	// runManager->BeamOn(1);
-	// runManager->BeamOn(1);
-      }
-    }
-  }
   
   if(macro=="collisionmacro.mac"){
 
@@ -328,7 +351,7 @@ int main(int argc,char** argv)
 	// runManager->BeamOn(1);
 	// runManager->BeamOn(1);
 	// runManager->BeamOn(1);
-      }
+    }
   }
   }
   else{

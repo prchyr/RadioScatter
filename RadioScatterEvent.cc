@@ -8,6 +8,13 @@ RadioScatterEvent::RadioScatterEvent(){
   dummy=-1;
 }
 
+int RadioScatterEvent::reset(){
+  rx.clear();
+  tx.clear();
+  nPrimaries=0;
+  totNScatterers=0;
+  return 1;
+}
 
 double RadioScatterEvent::power(int txindex, int rxindex){
   double val;
@@ -175,15 +182,15 @@ TH1F * RadioScatterEvent::getComplexEnvelope(int txindex, int rxindex,double cut
 TH1F* RadioScatterEvent::getSpectrum(int txindex, int rxindex,bool dbflag){
   //  int size = eventGraph[txindex][rxindex]->GetN();
 
-  int nbins = eventHist[txindex][rxindex]->GetNbinsX();
+  int nbins = reHist[txindex][rxindex]->GetNbinsX();
   int size=nbins;
-  double samprate = nbins/(eventHist[txindex][rxindex]->GetXaxis()->GetXmax()-eventHist[txindex][rxindex]->GetXaxis()->GetXmin());//in samples/ns
+  double samprate = nbins/(reHist[txindex][rxindex]->GetXaxis()->GetXmax()-reHist[txindex][rxindex]->GetXaxis()->GetXmin());//in samples/ns
   Float_t band = samprate;//in ghz
   Float_t bandwidth = band/2.;//nyquist
   Float_t timebase = size*(1./samprate);//ns
 
   TH1 *out = 0;
-  out = eventHist[txindex][rxindex]->FFT(out, "mag");
+  out = reHist[txindex][rxindex]->FFT(out, "mag");
 
   spectrumHist->SetBins(nbins/2,0,bandwidth);
 

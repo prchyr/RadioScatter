@@ -14,6 +14,7 @@ antenna effective area
 #include "TROOT.h"
 #include "TRint.h"
 #include "TSystem.h"
+#include "TRandom.h"
 #include "TObject.h"
 #include "TFile.h"
 #include "TH1F.h"
@@ -98,7 +99,7 @@ class RadioScatter{
   
   double k_r, c_light_r, mag1, mag2;//, tof, txphase, kx;
   //distance from the antennas to the interface, must be set by user
-  double tx_interface_dist[100],rx_interface_dist[100];
+  double tx_interface_dist[1000],rx_interface_dist[1000];
   //relative index of refraction, calculated to always be >1.
   double n_rel=1.5;
 
@@ -109,8 +110,8 @@ public:
 
   int ntx=1;
   int nrx=1;
-  HepLorentzVector tx[100];//transmitters, allow for multiple
-  HepLorentzVector rx[100];//recievers, allow for multiple
+  HepLorentzVector tx[1000];//transmitters, allow for multiple
+  HepLorentzVector rx[1000];//recievers, allow for multiple
 
   int TX_ITERATOR=0;
   int RX_ITERATOR=0;

@@ -92,6 +92,7 @@ public:
   void spectrogram(int txindex, int rxindex,Int_t binsize = 128, Int_t overlap=32);
   int plotEvent(int txindex, int rxindex, int show_geom=0, int bins=64, int overlap=8);
 
+  int reset();
   double thermalNoiseRMS();
   double chirpSlope();
   double startFreq();

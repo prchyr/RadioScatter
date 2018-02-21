@@ -33,6 +33,7 @@
 
 #include "Analysis.hh"
 #include "G4UserEventAction.hh"
+#include "RadioScatter/RadioScatter.hh"
 #include "globals.hh"
 #include "G4RunManager.hh"
 #include "G4Event.hh"
@@ -51,7 +52,7 @@
 class EventAction : public G4UserEventAction
 {
   public:
-    EventAction();
+    EventAction(RadioScatter *radio);
     virtual ~EventAction();
 
     virtual void  BeginOfEventAction(const G4Event* event);
@@ -74,6 +75,7 @@ class EventAction : public G4UserEventAction
   std::vector<G4double>& t(){return trackTVec;}
 
 private:
+  RadioScatter *fRadio;
   G4double  fEnergyAbs;
   G4double  fEnergyGap;
   G4double  fTrackLAbs; 

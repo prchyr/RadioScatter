@@ -886,7 +886,8 @@ int RadioScatter::writeRun(float num_events, int debug){
       // }
       // }
   cout<<"Run total N scatterers:"<<event.totNScatterers<<endl; 
-  event.totNScatterers=0;
+  //  event.totNScatterers=0;
+  event.reset();
   //RSCAT_HIST_RESIZE=false;
   return 1;
   //  f->Close();
@@ -965,8 +966,9 @@ int RadioScatter::writeEvent(int debug){
 
   
   
-  cout<<"Run total N scatterers:"<<event.totNScatterers<<endl; 
-  event.totNScatterers=0;
+  cout<<"Event total N scatterers:"<<event.totNScatterers<<endl; 
+  //  event.totNScatterers=0;
+  event.reset();
   //RSCAT_HIST_RESIZE=false;
   return 1;
   //  f->Close();
