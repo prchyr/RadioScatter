@@ -18,23 +18,24 @@
 
 /gps/particle e-
 
-# /gps/pos/type Volume
-# /gps/pos/shape Sphere
-# /gps/pos/centre 0 0 .3 km
-# /gps/pos/radius .3 km
+#/gps/pos/type Volume
+#/gps/pos/shape Sphere
+#/gps/pos/centre 0 0 0 km
+#/gps/pos/radius 1 km
 
-/gps/position 0 0 -10 m
-/gps/ang/type iso
+/gps/position 0 0 0 m
+
+#/gps/ang/type iso
 
 #/gps/direction 0 0 1
 
-/gps/energy .1 GeV
-/RS/setTxPos 0 0 0 m
+/gps/energy 1 GeV
+/RS/setTxPos 1000 0 0 m
 #/RS/setRxPos -5 0 0 m
 /RS/setTxFreq 450
 /RS/setRxSampleRate 2.4
 /RS/setRecordWindowLength 200
-/RS/setTxVoltage 7500
+/RS/setTxVoltage 223000
 /RS/setCalculateUsingAttnLength 1
 /RS/setPolarization horizontal
 /RS/setIndexOfRefraction 1.51
@@ -46,7 +47,7 @@
 
 
 
-#/run/beamOn 1000
+#/run/beamOn 100
 #/RS/setTxPos 4. 0 2.5 m
 #/RS/setRxPos -6. 0 0.5 m
 #/run/beamOn 10
