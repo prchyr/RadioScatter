@@ -62,8 +62,8 @@
 /RS/setTxFreq 450
 /RS/setRxSampleRate 2.4
 /RS/setRecordWindowLength 100
-/RS/setTxVoltage 70711 #100w
-#/RS/setTxVoltage 223606 #1kw
+#/RS/setTxVoltage 70711 #100w
+/RS/setTxVoltage 223606 #1kw
 #/RS/setTxVoltage 707107 #10kw
 /RS/setCalculateUsingAttnLength 1
 /RS/setPolarization horizontal
