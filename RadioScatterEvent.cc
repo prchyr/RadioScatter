@@ -50,6 +50,17 @@ int RadioScatterEvent::triggered(double thresh, int n_antennas){
   }
   return trig;
 }
+//how many triggered?
+int RadioScatterEvent::nTriggered(double thresh){
+  int trig=0,num=0;
+  for(int i=0;i<ntx;i++){
+    for(int j=0;j<nrx;j++){
+      trig=peakV(i,j)>=thresh?1:0;
+      if(trig==1)num++;
+    }
+  }
+  return num;
+}
 
 int RadioScatterEvent::trigSingle(double thresh, int ant){
  return peakV(0,ant)>=thresh?1:0;
@@ -97,7 +108,7 @@ double RadioScatterEvent::duration(int txindex, int rxindex){
   double lastval=0, val, time1=0, time2=0, avg=0, last_avg=0;
   //  std::deque<double> avg_vec(10, 0);
   double thresh=.01;
-    double highthresh=.01, lowthresh=.0001;
+  double highthresh=.01, lowthresh=.0001;
   for(int i=10;i<n-10;i++){
     // avg_vec.pop_front();
     // avg_vec.push_back(yy[i]);

@@ -194,11 +194,11 @@ int main(int argc,char** argv)
     tx.setTheta(pi/2.);
     int n=0;
     while(i<twopi){
-      i+=radianstep;
-      double j=0.;
+
+      double j=0.0001;
       while(j<pi){
 	//for(double j=radianstep;j<pi;j+=radianstep){
-	j+=radianstep;
+
 	rx.setTheta(j);
 	rx.setPhi(i);
 
@@ -206,20 +206,30 @@ int main(int argc,char** argv)
 	radio->setRxPos(rx, n);
 	n++;
 	cout<<rx.x()<<" "<<rx.y()<<" "<<rx.z()<<endl;
+	j+=radianstep;
 	//	cout<<rx.r()<<" "<<rx.theta()<<" "<<rx.phi()<<endl;
       }
-
+      i+=radianstep;
     }
     cout<<endl<<n<<endl<<endl;
+
+    double stepp=pi/100.;
+    auto gpsDat=G4GeneralParticleSourceData::Instance();
+    auto gps = gpsDat->GetCurrentSource();
     for(int i=1;i<100;i++){
-      tx.setPhi(ran->Rndm()*twopi);
-      tx.setTheta(ran->Rndm()*(pi/2));
+      //  tx.setPhi(ran->Rndm()*twopi);
+      //tx.setTheta(ran->Rndm()*(pi/2));
       //      tx.setMag(10000.*i);
-      tx.setMag(ran->Rndm()*1000000.);
-      radio->setTxPos(tx, 0);
+      //tx.setMag(ran->Rndm()*1000000.);
+      tx.setPhi(0);
+      tx.setTheta((i*stepp)-(pi/2.));
+      tx.setMag(1000000.);
+      //radio->setTxPos(tx, 0);
+      gps->GetAngDist()->SetParticleMomentumDirection(tx);  
       runManager->BeamOn(1);
       //      cout<<tx.x()<<" "<<tx.y()<<" "<<tx.z()<<endl;
     }
+    //        runManager->BeamOn(100);
     //    runManager->BeamOn(100);
   }
 

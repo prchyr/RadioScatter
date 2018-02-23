@@ -107,6 +107,7 @@ public:
   //energy calculated from the geant4 energy and the number of primaries
   double primaryParticleEnergy();
   int triggered(double thresh, int n_antennas=1);
+  int nTriggered(double thresh);
   int trigSingle(double thresh, int ant=0);
 
   //pointing things
