@@ -99,7 +99,7 @@ class RadioScatter{
   
   double k_r, c_light_r, mag1, mag2;//, tof, txphase, kx;
   //distance from the antennas to the interface, must be set by user
-  double tx_interface_dist[1000],rx_interface_dist[1000];
+  vector<double> tx_interface_dist,rx_interface_dist;
   //relative index of refraction, calculated to always be >1.
   double n_rel=1.5;
 
@@ -110,8 +110,8 @@ public:
 
   int ntx=1;
   int nrx=1;
-  HepLorentzVector tx[1000];//transmitters, allow for multiple
-  HepLorentzVector rx[1000];//recievers, allow for multiple
+  vector<HepLorentzVector> tx{1};//transmitters, allow for multiple
+  vector<HepLorentzVector> rx{1};//recievers, allow for multiple
 
   int TX_ITERATOR=0;
   int RX_ITERATOR=0;

@@ -32,7 +32,7 @@ double RadioScatterEvent::thermalNoiseRMS(){
 }
 
 double RadioScatterEvent::peakV(int txindex, int rxindex){
-  return eventHist[txindex][rxindex]->GetMaximum();
+  return reHist[txindex][rxindex]->GetMaximum();
 }
 
 double RadioScatterEvent::primaryParticleEnergy(){

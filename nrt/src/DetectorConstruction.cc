@@ -188,7 +188,8 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
 
   //  for a full world volume (no refraction)
   G4double dz=10.*km;
-  G4double dy=1.4*km;
+  //  G4double dy=1.4*km;
+  G4double dy=10.*km;
   G4double dx=10.*km;
   G4double dx1=dx;
 

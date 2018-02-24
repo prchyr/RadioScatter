@@ -184,33 +184,55 @@ int main(int argc,char** argv)
     radio->setNTx(1);
 
     //    double div=25.;
-    double div=20.;
-    double radianstep=twopi/div;
-    radio->setNRx(div*(div/2));
+
+    
+    
+    
     //    double halfstep=step/2
     //    for(double i=0;i<twopi;i+=radianstep){
     double i=0.0001;
     tx.setPhi(pi);
     tx.setTheta(pi/2.);
     int n=0;
+
+    //make a sphere
+    double div=25;
+    double radianstep=twopi/div;
+    radio->setNRx(div*(div/2));
     while(i<twopi){
 
       double j=0.0001;
       while(j<pi){
-	//for(double j=radianstep;j<pi;j+=radianstep){
+    	//for(double j=radianstep;j<pi;j+=radianstep){
 
-	rx.setTheta(j);
-	rx.setPhi(i);
+    	rx.setTheta(j);
+    	rx.setPhi(i);
 
-	rx.setMag(mag);
-	radio->setRxPos(rx, n);
-	n++;
-	cout<<rx.x()<<" "<<rx.y()<<" "<<rx.z()<<endl;
-	j+=radianstep;
-	//	cout<<rx.r()<<" "<<rx.theta()<<" "<<rx.phi()<<endl;
+    	rx.setMag(mag);
+    	radio->setRxPos(rx, n);
+    	n++;
+    	cout<<rx.x()<<" "<<rx.y()<<" "<<rx.z()<<endl;
+    	j+=radianstep;
+    	//	cout<<rx.r()<<" "<<rx.theta()<<" "<<rx.phi()<<endl;
       }
       i+=radianstep;
     }
+    
+    //make a filled cube
+    // double div=6.;
+    //double step = mag/div;
+    // radio->setNRx(div*div*div);
+    // for(int i=0;i<div;i++){
+    //   for(int j=0;j<div;j++){
+    // 	for(int k=0;k<div;k++){
+    // 	  rx.setX(i*step);
+    // 	  rx.setY(j*step);
+    // 	  rx.setZ(k*step);
+    // 	  radio->setRxPos(rx, n);
+    // 	  n++;
+    // 	}
+    //   }
+    // }
     cout<<endl<<n<<endl<<endl;
 
     double stepp=pi/100.;
@@ -223,7 +245,7 @@ int main(int argc,char** argv)
       //tx.setMag(ran->Rndm()*1000000.);
       tx.setPhi(0);
       tx.setTheta((i*stepp)-(pi/2.));
-      tx.setMag(1000000.);
+      tx.setMag(mag);
       //radio->setTxPos(tx, 0);
       gps->GetAngDist()->SetParticleMomentumDirection(tx);  
       runManager->BeamOn(1);
