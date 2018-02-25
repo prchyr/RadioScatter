@@ -45,7 +45,7 @@ else()
 endif()
 
 if(DEFINED ENV{RS_INSTALL_DIR})
-  set(RS_INSTALL_DIR $ENV{RS_INSTALL_DIR}/include)
+  set(RS_INSTALL_DIR $ENV{RS_INSTALL_DIR}/RadioScatter/include)
   set(LIB_INSTALL_DIR $ENV{RS_INSTALL_DIR}/lib)
 else()
   set(RS_INSTALL_DIR /usr/local/include/RadioScatter)
