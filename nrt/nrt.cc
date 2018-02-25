@@ -196,7 +196,7 @@ int main(int argc,char** argv)
     int n=0;
 
     //make a sphere
-    double div=25;
+    double div=30;
     double radianstep=twopi/div;
     radio->setNRx(div*(div/2));
     while(i<twopi){
@@ -235,10 +235,10 @@ int main(int argc,char** argv)
     // }
     cout<<endl<<n<<endl<<endl;
 
-    double stepp=pi/100.;
+    double stepp=pi/1000.;
     auto gpsDat=G4GeneralParticleSourceData::Instance();
     auto gps = gpsDat->GetCurrentSource();
-    for(int i=1;i<100;i++){
+    for(int i=1;i<1000;i++){
       //  tx.setPhi(ran->Rndm()*twopi);
       //tx.setTheta(ran->Rndm()*(pi/2));
       //      tx.setMag(10000.*i);
