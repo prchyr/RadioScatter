@@ -9,7 +9,8 @@ steven prohira
 
 
 RadioScatter::RadioScatter(){
-   
+  setNTx(1);
+  setNRx(1);
 }
 
 
