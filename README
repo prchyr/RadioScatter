@@ -6,7 +6,7 @@ GEANT4* (https://geant4.web.cern.ch/geant4/support/download.shtml)
 
 *technically you can use any monte-carlo program you want with RadioScatter, but this installation requires GEANT4 in order to build the module into a working simulation.
 
-i'm gonna assume that you know how to use GEANT4 and ROOT. CLHEP is just a nice library for doing calculations with 3 and 4-vectors that i like quite well, so install that too plz. sometimes if you have put CLHEP in a strange place you need to set CLHEP_DIR to the place where you put clhep, but it will probably be found if you put it somewhere logical
+i'm gonna assume that you know how to use GEANT4 and ROOT. CLHEP is just a nice library for doing calculations with 3 and 4-vectors that i like quite well, so install that too plz. sometimes if you have put CLHEP in a strange place you need to set CLHEP_DIR to the place where you put clhep, but it will probably be found if you put it somewhere logical (like installed it to usr/local)
 
 
 ************
@@ -26,7 +26,7 @@ cd RadioScatter
 this will install the header files and shared libraries (for root analysis) to the right places. it will put the libs inside of /usr/local/lib and the header files in /usr/local/include. It will make a build directory (inside the RadioScatter directory) called build, where the build products are placed before they are installed in the proper location.
 
 *********************************
-slightly fancier installation 
+slightly fancier installation (or if you can't write to /usr/local) 
 *********************************
 
 say you want your libraries and headers installed in some other place than /usr/local, you can set the RS_INSTAL_DIR variable in your bashrc. then libraries will install to RS_INSTALL_DIR/lib and headers to RS_INSTALL_DIR/include
@@ -38,7 +38,9 @@ cd RadioScatter
 ./install.sh 
 
 
-these should work, at least on UBUNTU 16.04
+these should work. tested on:
+UBUNTU 16.04/gcc 5.4
+Red Hat Enterprise server 6.9/gcc 4.8.5
 
 *************
 GEANT4 modules

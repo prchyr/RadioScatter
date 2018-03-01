@@ -86,7 +86,7 @@ void ActionInitialization::Build() const
 
   SetUserAction(new PrimaryGeneratorAction);
   SetUserAction(new RunAction(fRadio, fDetConstruction));
-  auto eventAction = new EventAction;
+  auto eventAction = new EventAction(fRadio);
   SetUserAction(eventAction);
   SetUserAction(new SteppingAction(fDetConstruction,eventAction, fRadio));
 

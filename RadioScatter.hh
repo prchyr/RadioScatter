@@ -125,8 +125,8 @@ public:
   void makeOutputTextFile(char* filename);
   void writeToTextFile();
   void makeTimeHist();
-  void setNTx(double n);
-  void setNRx(double n);
+  int setNTx(double n);
+  int setNRx(double n);
   void setTxPos(double xin, double yin, double zin, int index=0);
   void setRxPos(double xin, double yin, double zin, int index=0);
   void setTxPos(Hep3Vector in, int index);

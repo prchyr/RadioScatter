@@ -112,20 +112,23 @@ void RadioScatter::setCalculateUsingAttnLength(double val){
   }
 }
 
-void RadioScatter::setNTx(double n){
+int RadioScatter::setNTx(double n){
   ntx=(int)n;
   HepLorentzVector vec;
+  if(tx.size()==ntx)return 1;
   for(int i=0;i<ntx;i++){
     tx.push_back(vec);
   }
-    
+  return 1;
 }
-void RadioScatter::setNRx(double n){
+int RadioScatter::setNRx(double n){
   nrx=(int)n;
   HepLorentzVector vec;
+  if(rx.size()==nrx)return 1;
   for(int i=0;i<nrx;i++){
     rx.push_back(vec);
   }
+  return 1;
 }
 void RadioScatter::setTxPos(double xin, double yin, double zin, int index){
     tx[index].setX(xin);
