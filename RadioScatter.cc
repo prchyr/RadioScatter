@@ -118,6 +118,7 @@ int RadioScatter::setNTx(double n){
   if(tx.size()==ntx)return 1;
   for(int i=0;i<ntx;i++){
     tx.push_back(vec);
+    tx_interface_dist.push_back(0);
   }
   return 1;
 }
@@ -127,6 +128,7 @@ int RadioScatter::setNRx(double n){
   if(rx.size()==nrx)return 1;
   for(int i=0;i<nrx;i++){
     rx.push_back(vec);
+    rx_interface_dist.push_back(0);
   }
   return 1;
 }
