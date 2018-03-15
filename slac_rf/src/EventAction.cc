@@ -169,25 +169,10 @@ void EventAction::EndOfEventAction(const G4Event* event)
   //
   clearTrajectoryVector();  
   clearStatVector();
-  //  std::cout<<steptot<<std::endl;
-  //auto eventID = event->GetEventID();
-  // G4cout<<"asdffffffasdfadsfasdf"<<eventID<<G4endl;
-//   auto printModulo = G4RunManager::GetRunManager()->GetPrintProgress();
-//   if ( ( printModulo > 0 ) && ( eventID % printModulo == 0 ) ) {
-//     G4cout << "---> End of event: " << eventID << G4endl;     
-
-//     G4cout
-//        << "   Absorber: total energy: " << std::setw(7)
-//                                         << G4BestUnit(fEnergyAbs,"Energy")
-//        << "       total track length: " << std::setw(7)
-//                                         << G4BestUnit(fTrackLAbs,"Length")
-//        << G4endl
-//        << "        Gap: total energy: " << std::setw(7)
-//                                         << G4BestUnit(fEnergyGap,"Energy")
-//        << "       total track length: " << std::setw(7)
-//                                         << G4BestUnit(fTrackLGap,"Length")
-//        << G4endl;
-//   }
+  if(fRadio->FILL_BY_EVENT==1){
+    fRadio->writeEvent();
+  }
+  
  }  
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

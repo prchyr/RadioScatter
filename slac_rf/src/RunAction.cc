@@ -227,8 +227,11 @@ auto gpsDat=G4GeneralParticleSourceData::Instance();
   fRadio->setPrimaryPosition(gps->GetParticlePosition());
     
   //be sure to send writeRun the number of events in the run so that it scales the output histogram properly!!! assumes you have opened the root file already in the main program
-    fRadio->writeRun((float)r->GetNumberOfEvent());
-  //  fRadio->writeRun(1);
+   
+if(fRadio->FILL_BY_EVENT==0){
+     fRadio->writeRun((float)r->GetNumberOfEvent());
+    //    fRadio->writeRun(1);
+  }
   //  fRadio->writeEvent("$HOME/Documents/physics/geant/root/slac_rf_rs_"+runno+"_freq_"+freq+".root", (float)r->GetNumberOfEvent());
 
   //optionally, set the filename in the macro by /RS/setOutputFileName and then here:
@@ -238,9 +241,12 @@ auto gpsDat=G4GeneralParticleSourceData::Instance();
   
 
   //redundant filling of histogram through geant
-  // auto analysisManager = G4AnalysisManager::Instance();
-  // analysisManager->Write();
-  // analysisManager->CloseFile();
+  if(fRadio->FILL_PARTICLE_INFO==1){
+    auto analysisManager = G4AnalysisManager::Instance();
+    analysisManager->Write();
+    analysisManager->CloseFile();
+  }
+   
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

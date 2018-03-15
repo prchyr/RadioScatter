@@ -636,6 +636,10 @@ double RadioScatter::makeRays(HepLorentzVector point, double e, double l, double
 	  time_hist[i][j]->Fill(rx_time, E_real/samplingperiod);
 	  re_hist[i][j]->Fill(rx_time, E_real/samplingperiod);
 	  im_hist[i][j]->Fill(rx_time, E_imag/samplingperiod);
+
+	  // time_hist[i][j]->Fill(rx_time, E_real);
+	  // re_hist[i][j]->Fill(rx_time, E_real);
+	  // im_hist[i][j]->Fill(rx_time, E_imag);
 	}
       }
     }
