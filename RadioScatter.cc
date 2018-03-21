@@ -328,14 +328,14 @@ use the calculated refraction vectors (from makeRays()) to sort out the correct 
     //refraction angle change
     theta = theta+(pi/2.);
 
-    angle_dependence = vert.cross(nhat).mag();
-    //    angle_dependence = nhat.cross(nhat.cross(vert)).mag();
+    //angle_dependence = vert.cross(nhat).mag();
+    angle_dependence = nhat.cross(nhat.cross(vert)).mag();
 
   }
   else{
 
-    angle_dependence = horiz.cross(nhat).mag();
-    //    angle_dependence = nhat.cross(nhat.cross(horiz)).mag();
+    //angle_dependence = horiz.cross(nhat).mag();
+    angle_dependence = nhat.cross(nhat.cross(horiz)).mag();
 
   }
   double amp1 = sqrt(pow(E1_para*cos(theta), 2)+pow(E1_perp*sin(theta), 2));
@@ -561,8 +561,11 @@ double RadioScatter::makeRays(HepLorentzVector point, double e, double l, double
   // if(dumb==1){
   for(int i=0;i<ntx;i++){
     for(int j=0;j<nrx;j++){
+
+      //would RF from the transmitter reached this point?
       if(checkTxOn(getTxTime(i,point))!=1)return 0;
 
+      //are we calculating in a refraction region?
 	if(REFRACTION_FLAG==1){
 	  Hep3Vector  q1 = findRefractionPlane(tx[i], point);//make a plane where the refraction will happen
 	  Hep3Vector j1;
@@ -578,18 +581,13 @@ double RadioScatter::makeRays(HepLorentzVector point, double e, double l, double
 	  l1.set(q1.x()-tx_interface_dist[i], 0., q1.z()-j1.z());
 	  Hep3Vector l2;
 	  l2.set(q2.x()-rx_interface_dist[j], 0., q2.z()-j2.z());
-      
-      
-      
-	  //get the reflected signal amplitude and phase
+      	  //get the reflected signal amplitude and phase
 	  rx_phase = getRxPhase(point, j1, j2, l1, l2);
 	  rx_amplitude = getRxAmplitude(j,point, j1, j2, l1, l2);
-      
-      
-      
-	  //get the time ray would arrive at rx, to fill histogram
+      	  //get the time ray would arrive at rx, to fill histogram
 	  rx_time = getRxTime(point, j2, l2);
 	}
+
 	else{
 	  rx_phase=getRxPhase(i,j,point);
 	  rx_amplitude=getRxAmplitude(i,j,point);
@@ -613,24 +611,23 @@ double RadioScatter::makeRays(HepLorentzVector point, double e, double l, double
 	  //=m/s*mm^-1 so multiply by 1000 to get mm/s
 	  //3 is for 3 species (approx)
 	  nu_col = 3.*sqrt(k_Boltzmann*7.e5*kelvin/electron_mass_c2)*1000.*5.e-9*n_e;
-	  //nu_col = sqrt(k_Boltzmann*7.e5*kelvin/electron_mass_c2)*1000.*5.e-9*n_e;
-
-      
-	  //plasma frequency, TODO
-	  //    cout<<nu_col<<endl;
-	  omega_0=plasma_const*sqrt(n_e);
 	}
-	//    nu_col=1.;
+	//debug
+	//nu_col=1.;
 	event.totNScatterers+=n;//track total number of scatterers
 	//for each ionization e scatterer
 	double filter=1.;//TODO
 	//the full scattering amplitude pre-factor  
 	double prefactor = filter*n*n_primaries*cross_section*rx_amplitude*omega/(pow(omega, 2)+pow(nu_col, 2));
+
+	//screwing around with plasma parameter
+	//double m_eff=1./(.033*pow(k_Boltzmann*7.e5/pow(n_e, .33), 1.5));
+	//prefactor*=m_eff;
+
 	//now calculate real and imaginary e fields
-	//double E= prefactor*omega*cos(rx_phase)-prefactor*nu_col*sin(rx_phase);
-	double E_real= prefactor*omega*cos(rx_phase)+prefactor*nu_col*sin(rx_phase);
+	double E_real= -prefactor*omega*cos(rx_phase)+prefactor*nu_col*sin(rx_phase);
       
-	double E_imag = prefactor*-nu_col*cos(rx_phase)+prefactor*omega*sin(rx_phase);
+	double E_imag = -prefactor*-nu_col*cos(rx_phase)+prefactor*omega*sin(rx_phase);
       
 	if(abs(E_real)<tx_voltage){//simple sanity check      
 	  time_hist[i][j]->Fill(rx_time, E_real/samplingperiod);
