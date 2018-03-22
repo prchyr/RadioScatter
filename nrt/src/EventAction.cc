@@ -83,13 +83,14 @@ void EventAction::BeginOfEventAction(const G4Event* /*event*/)
   fTrackLAbs = 0.;
   fTrackLGap = 0.;
   fEnergyTot =0.;
-
-  //set some parameters of the shower for radioscatter
-  auto gpsDat=G4GeneralParticleSourceData::Instance();
-  auto gps = gpsDat->GetCurrentSource();
-  fRadio->setPrimaryEnergy(gps->GetParticleEnergy());
-  fRadio->setPrimaryDirection(gps->GetParticleMomentumDirection());
-  fRadio->setPrimaryPosition(gps->GetParticlePosition());
+  if(fRadio->FILL_BY_EVENT==1){
+    //set some parameters of the shower for radioscatter
+    auto gpsDat=G4GeneralParticleSourceData::Instance();
+    auto gps = gpsDat->GetCurrentSource();
+    fRadio->setPrimaryEnergy(gps->GetParticleEnergy());
+    fRadio->setPrimaryDirection(gps->GetParticleMomentumDirection());
+    fRadio->setPrimaryPosition(gps->GetParticlePosition());
+  }
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

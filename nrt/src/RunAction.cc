@@ -223,7 +223,12 @@ void RunAction::EndOfRunAction(const G4Run* r)
   // fRadio->setPrimaryPosition(gps->GetParticlePosition());
   //be sure to send writeRun the number of events in the run so that it scales the output histogram properly!!! assumes you have opened the root file already in the main program
   if(fRadio->FILL_BY_EVENT==0){
-     fRadio->writeRun((float)r->GetNumberOfEvent());
+    auto gpsDat=G4GeneralParticleSourceData::Instance();
+    auto gps = gpsDat->GetCurrentSource();
+    fRadio->setPrimaryEnergy(gps->GetParticleEnergy());
+    fRadio->setPrimaryDirection(gps->GetParticleMomentumDirection());
+    fRadio->setPrimaryPosition(gps->GetParticlePosition());
+    fRadio->writeRun((float)r->GetNumberOfEvent());
     //    fRadio->writeRun(1);
   }
   //  fRadio->writeEvent("$HOME/Documents/physics/geant/root/slac_rf_rs_"+runno+"_freq_"+freq+".root", (float)r->GetNumberOfEvent());

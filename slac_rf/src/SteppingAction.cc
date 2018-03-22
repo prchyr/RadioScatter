@@ -120,7 +120,14 @@ or both.
   //  fRadio->makeRaysReal(p, edep, step_length, E_i);
   //fRadio->makeRaysImag(p, edep, step_length, E_i);
   //  fillParticleInfoTuples(step);
-  
+  if(fRadio->FILL_PARTICLE_INFO==1){
+    //auto manager = G4RunManager::GetRunManager();
+    //auto run = manager->GetCurrentRun();
+    
+    //if (run->GetNumberOfEvent()<10){
+      fillParticleInfoTuples(step);
+      // }
+  }  
   // advanced_t = fRadio->getRxTime(p);
   //analysisManager->FillH1(0, advanced_t, rx_amplitude);
 

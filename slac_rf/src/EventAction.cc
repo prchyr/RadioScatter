@@ -83,14 +83,15 @@ void EventAction::BeginOfEventAction(const G4Event* /*event*/)
   fTrackLAbs = 0.;
   fTrackLGap = 0.;
   fEnergyTot =0.;
-
+  
+  if(fRadio->FILL_BY_EVENT==1){
     //set some parameters of the shower for radioscatter
-  auto gpsDat=G4GeneralParticleSourceData::Instance();
-  auto gps = gpsDat->GetCurrentSource();
-  fRadio->setPrimaryEnergy(gps->GetParticleEnergy());
-  fRadio->setPrimaryDirection(gps->GetParticleMomentumDirection());
-  fRadio->setPrimaryPosition(gps->GetParticlePosition());
-
+    auto gpsDat=G4GeneralParticleSourceData::Instance();
+    auto gps = gpsDat->GetCurrentSource();
+    fRadio->setPrimaryEnergy(gps->GetParticleEnergy());
+    fRadio->setPrimaryDirection(gps->GetParticleMomentumDirection());
+    fRadio->setPrimaryPosition(gps->GetParticlePosition());
+  }
   
 }
 
@@ -123,7 +124,7 @@ void EventAction::EndOfEventAction(const G4Event* event)
   // analysisManager->FillNtupleDColumn(11, fInitE);
   // analysisManager->AddNtupleRow();  
 
-
+  if (fRadio->FILL_PARTICLE_INFO==1){
   // //for each step in each track in this event,
   // //record the coordinates, time, deposited energy, and logical volume
 
@@ -169,7 +170,9 @@ void EventAction::EndOfEventAction(const G4Event* event)
   //
   clearTrajectoryVector();  
   clearStatVector();
+  }
   if(fRadio->FILL_BY_EVENT==1){
+    //    cout<<"here"<<endl;
     fRadio->writeEvent();
   }
   

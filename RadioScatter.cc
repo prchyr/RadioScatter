@@ -94,7 +94,7 @@ RadioScatter::RadioScatter(){
        // im_hist.push_back(im_h);
      }
    }
-   //cout<<"made it through resize"<<endl;
+   //   cout<<"made it through resize"<<endl;
   //outfile.SetOption("RECREATE");
   //time_hist->SetBins(32000, 0, 16000);
   //  time_hist->SetBins(32000, 0, 3200);
@@ -366,12 +366,12 @@ double RadioScatter::getRxAmplitude(int txindex,int rxindex, HepLorentzVector po
   Hep3Vector vert(0,1.,0), horiz(0,0,1.); 
 
   if(polarization=="vertical"){
-    angle_dependence = vert.cross(nhat).mag();
-    //angle_dependence = nhat.cross(nhat.cross(vert)).mag();
+    //angle_dependence = vert.cross(nhat).mag();
+    angle_dependence = nhat.cross(nhat.cross(vert)).mag();
   }
   else{
-    angle_dependence = horiz.cross(nhat).mag();
-    //angle_dependence = nhat.cross(nhat.cross(horiz)).mag();
+    //angle_dependence = horiz.cross(nhat).mag();
+    angle_dependence = nhat.cross(nhat.cross(horiz)).mag();
   }
 
   double amplitude = (tx_voltage*m/dist)*angle_dependence;
@@ -715,8 +715,8 @@ double RadioScatter::makeRays(HepLorentzVector point, double e, double l, double
 	  rx_amplitude = getRxAmplitude(j, point_temp, j1, j2, l1, l2);
  	  rx_time = getRxTime(point_temp, j2, l2);
 
-	  double E_real= -prefactor*rx_amplitude*(omega*cos(rx_phase)+nu_col*sin(rx_phase));
-      	  double E_imag = -prefactor*rx_amplitude*(-nu_col*cos(rx_phase)+omega*sin(rx_phase));
+	  double E_real= prefactor*rx_amplitude*(omega*cos(rx_phase)+nu_col*sin(rx_phase));
+      	  double E_imag = prefactor*rx_amplitude*(-nu_col*cos(rx_phase)+omega*sin(rx_phase));
       
 	  if(abs(E_real)<tx_voltage){//simple sanity check      
 	    time_hist[i][j]->Fill(rx_time, E_real/samplingperiod);
@@ -739,8 +739,8 @@ double RadioScatter::makeRays(HepLorentzVector point, double e, double l, double
 	  rx_amplitude=getRxAmplitude(i,j,point_temp);
 	  rx_time=getRxTime(j,point_temp);
 
-	  double E_real= -prefactor*rx_amplitude*(omega*cos(rx_phase)+nu_col*sin(rx_phase));
-	  double E_imag = -prefactor*rx_amplitude*(-nu_col*cos(rx_phase)+omega*sin(rx_phase));
+	  double E_real= prefactor*rx_amplitude*(omega*cos(rx_phase)+nu_col*sin(rx_phase));
+	  double E_imag = prefactor*rx_amplitude*(-nu_col*cos(rx_phase)+omega*sin(rx_phase));
 
 	  if(abs(E_real)<tx_voltage){//simple sanity check
 	    time_hist[i][j]->Fill(rx_time, E_real/samplingperiod);
@@ -1014,7 +1014,7 @@ int RadioScatter::writeRun(float num_events, int debug){
       // }
   cout<<"Run total N scatterers:"<<event.totNScatterers<<endl; 
   //  event.totNScatterers=0;
-  event.reset();
+  //  event.reset();
   //RSCAT_HIST_RESIZE=false;
   return 1;
   //  f->Close();
