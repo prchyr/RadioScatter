@@ -224,7 +224,11 @@ void RadioScatter::setPolarization(char * p){
   polarization=TString(pol);
   //cout<<"polarization: "<<polarization<<endl;
 }
-  void RadioScatter::setRxVals(double s=1., double gain=1.){
+
+void RadioScatter::setPlasmaLifetime(double l){
+  lifetime=l;
+}
+void RadioScatter::setRxVals(double s=1., double gain=1.){
     samplerate = s*nanosecond;
     samplingperiod = 1./samplerate;
     rx_gain = gain;
@@ -549,6 +553,103 @@ calculate the phase, the amplitude, and the prefactors for cross-section,
 
  */
 
+// double RadioScatter::makeRays(HepLorentzVector point, double e, double l, double e_i){
+//   if(RSCAT_HIST_RESIZE==false){
+//     makeTimeHist();
+//     RSCAT_HIST_RESIZE=true;
+//     RSCAT_HIST_DECLARE=true;
+//   }
+
+//   double rx_time, rx_amplitude, rx_phase;
+//   // int dumb=1;
+//   // if(dumb==1){
+//   for(int i=0;i<ntx;i++){
+//     for(int j=0;j<nrx;j++){
+
+//       //would RF from the transmitter reached this point?
+//       if(checkTxOn(getTxTime(i,point))!=1)return 0;
+
+//       //are we calculating in a refraction region?
+// 	if(REFRACTION_FLAG==1){
+// 	  Hep3Vector  q1 = findRefractionPlane(tx[i], point);//make a plane where the refraction will happen
+// 	  Hep3Vector j1;
+// 	  j1.setZ(findRefractionPointZ(q1.x(), q1.z(), tx_interface_dist[i]));//find the refraction point in this plane on interface 
+// 	  Hep3Vector  q2 = findRefractionPlane(rx[j], point);
+// 	  Hep3Vector  j2;
+// 	  j2.setZ(findRefractionPointZ(q2.x(), q2.z(), rx_interface_dist[j]));
+// 	  j1.setX(tx_interface_dist[i]);
+// 	  j1.setY(0);
+// 	  j2.setX(rx_interface_dist[j]);
+// 	  j2.setY(0);
+// 	  Hep3Vector l1;
+// 	  l1.set(q1.x()-tx_interface_dist[i], 0., q1.z()-j1.z());
+// 	  Hep3Vector l2;
+// 	  l2.set(q2.x()-rx_interface_dist[j], 0., q2.z()-j2.z());
+//       	  //get the reflected signal amplitude and phase
+// 	  rx_phase = getRxPhase(point, j1, j2, l1, l2);
+// 	  rx_amplitude = getRxAmplitude(j,point, j1, j2, l1, l2);
+//       	  //get the time ray would arrive at rx, to fill histogram
+// 	  rx_time = getRxTime(point, j2, l2);
+// 	}
+
+// 	else{
+// 	  rx_phase=getRxPhase(i,j,point);
+// 	  rx_amplitude=getRxAmplitude(i,j,point);
+// 	  rx_time=getRxTime(j,point);
+// 	}
+      
+    
+      
+// 	step_length=l;//to make our density approximation
+// 	double n = e/e_i;//edeposited/ionization E
+// 	double n_e =1;
+// 	//calculate plasma freq and collison freq
+// 	if(step_length!=0){
+// 	  //electron number density, using step length cube
+// 	  n_e = n*n_primaries/pow(step_length, 3);
+// 	  //collision frequency (approximation from Cravens, mostly for difuse plasmas), multiplied by 3 for e/i, e/e, e/n 
+// 	  //	  nu_col = 3.*54.*n_e/pow(e_i/k_Boltzmann, 1.5);
+
+// 	  //this is from Raizer, and is the simplest, just using a simple cross section
+// 	  //(boltz(mev/k)*T(k)/m_e(mev m^2 s^-2))^1/2*cross section(mm^2)*n_e(mm^-3)
+// 	  //=m/s*mm^-1 so multiply by 1000 to get mm/s
+// 	  //3 is for 3 species (approx)
+// 	  nu_col = 3.*sqrt(k_Boltzmann*7.e5*kelvin/electron_mass_c2)*1000.*5.e-9*n_e;
+// 	}
+// 	//debug
+// 	//nu_col=1.;
+// 	event.totNScatterers+=n;//track total number of scatterers
+// 	//for each ionization e scatterer
+// 	double filter=1.;//TODO
+// 	//the full scattering amplitude pre-factor  
+// 	double prefactor = filter*n*n_primaries*cross_section*rx_amplitude*omega/(pow(omega, 2)+pow(nu_col, 2));
+
+// 	//screwing around with plasma parameter
+// 	//double m_eff=1./(.033*pow(k_Boltzmann*7.e5/pow(n_e, .33), 1.5));
+// 	//prefactor*=m_eff;
+
+// 	//now calculate real and imaginary e fields
+// 	double E_real= -prefactor*omega*cos(rx_phase)+prefactor*nu_col*sin(rx_phase);
+      
+// 	double E_imag = -prefactor*-nu_col*cos(rx_phase)+prefactor*omega*sin(rx_phase);
+      
+// 	if(abs(E_real)<tx_voltage){//simple sanity check      
+// 	  time_hist[i][j]->Fill(rx_time, E_real/samplingperiod);
+// 	  re_hist[i][j]->Fill(rx_time, E_real/samplingperiod);
+// 	  im_hist[i][j]->Fill(rx_time, E_imag/samplingperiod);
+
+// 	  // time_hist[i][j]->Fill(rx_time, E_real);
+// 	  // re_hist[i][j]->Fill(rx_time, E_real);
+// 	  // im_hist[i][j]->Fill(rx_time, E_imag);
+// 	}
+//       }
+//     }
+//     return 1;
+//   }
+
+
+
+//makeRays with lifetime included
 double RadioScatter::makeRays(HepLorentzVector point, double e, double l, double e_i){
   if(RSCAT_HIST_RESIZE==false){
     makeTimeHist();
@@ -556,95 +657,105 @@ double RadioScatter::makeRays(HepLorentzVector point, double e, double l, double
     RSCAT_HIST_DECLARE=true;
   }
 
-  double rx_time, rx_amplitude, rx_phase;
-  // int dumb=1;
-  // if(dumb==1){
+  double rx_time, rx_amplitude, rx_phase, point_time, t_step=0.;
+
+  
   for(int i=0;i<ntx;i++){
     for(int j=0;j<nrx;j++){
 
       //would RF from the transmitter reached this point?
       if(checkTxOn(getTxTime(i,point))!=1)return 0;
-
+      
+      step_length=l;//to make our density approximation
+      double n = e/e_i;//edeposited/ionization E
+      double n_e =1;
+      //calculate plasma freq and collison freq
+      if(step_length!=0){
+	//electron number density, using step length cube
+	n_e = n*n_primaries/pow(step_length, 3);
+	//collision frequency (approximation from Cravens, mostly for difuse plasmas), multiplied by 3 for e/i, e/e, e/n 
+	//	  nu_col = 3.*54.*n_e/pow(e_i/k_Boltzmann, 1.5);
+	
+	//this is from Raizer, and is the simplest, just using a simple cross section
+	//(boltz(mev/k)*T(k)/m_e(mev m^2 s^-2))^1/2*cross section(mm^2)*n_e(mm^-3)
+	//=m/s*mm^-1 so multiply by 1000 to get mm/s
+	//3 is for 3 species (approx)
+	nu_col = 3.*sqrt(k_Boltzmann*7.e5*kelvin/electron_mass_c2)*1000.*5.e-9*n_e;
+      }
+      //debug
+      //nu_col=1.;
+      event.totNScatterers+=n;//track total number of scatterers
+      //the full scattering amplitude pre-factor  
+      double prefactor = n*n_primaries*cross_section*omega/(pow(omega, 2)+pow(nu_col, 2));
+      
+      HepLorentzVector point_temp=point;      
       //are we calculating in a refraction region?
-	if(REFRACTION_FLAG==1){
-	  Hep3Vector  q1 = findRefractionPlane(tx[i], point);//make a plane where the refraction will happen
-	  Hep3Vector j1;
-	  j1.setZ(findRefractionPointZ(q1.x(), q1.z(), tx_interface_dist[i]));//find the refraction point in this plane on interface 
-	  Hep3Vector  q2 = findRefractionPlane(rx[j], point);
-	  Hep3Vector  j2;
-	  j2.setZ(findRefractionPointZ(q2.x(), q2.z(), rx_interface_dist[j]));
-	  j1.setX(tx_interface_dist[i]);
-	  j1.setY(0);
-	  j2.setX(rx_interface_dist[j]);
-	  j2.setY(0);
-	  Hep3Vector l1;
-	  l1.set(q1.x()-tx_interface_dist[i], 0., q1.z()-j1.z());
-	  Hep3Vector l2;
-	  l2.set(q2.x()-rx_interface_dist[j], 0., q2.z()-j2.z());
-      	  //get the reflected signal amplitude and phase
-	  rx_phase = getRxPhase(point, j1, j2, l1, l2);
-	  rx_amplitude = getRxAmplitude(j,point, j1, j2, l1, l2);
-      	  //get the time ray would arrive at rx, to fill histogram
-	  rx_time = getRxTime(point, j2, l2);
+      if(REFRACTION_FLAG==1){
+	Hep3Vector  q1 = findRefractionPlane(tx[i], point);//make a plane where the refraction will happen
+	Hep3Vector j1;
+	j1.setZ(findRefractionPointZ(q1.x(), q1.z(), tx_interface_dist[i]));//find the refraction point in this plane on interface 
+	Hep3Vector  q2 = findRefractionPlane(rx[j], point);
+	Hep3Vector  j2;
+	j2.setZ(findRefractionPointZ(q2.x(), q2.z(), rx_interface_dist[j]));
+	j1.setX(tx_interface_dist[i]);
+	j1.setY(0);
+	j2.setX(rx_interface_dist[j]);
+	j2.setY(0);
+	Hep3Vector l1;
+	l1.set(q1.x()-tx_interface_dist[i], 0., q1.z()-j1.z());
+	Hep3Vector l2;
+	l2.set(q2.x()-rx_interface_dist[j], 0., q2.z()-j2.z());
+
+
+	point_time=point_temp.t();
+	double point_time_end=point_time+lifetime;
+	while(point_time<point_time_end){
+	  //get the reflected signal amplitude and phase
+	  rx_phase = getRxPhase(point_temp, j1, j2, l1, l2);
+	  rx_amplitude = getRxAmplitude(j, point_temp, j1, j2, l1, l2);
+ 	  rx_time = getRxTime(point_temp, j2, l2);
+
+	  double E_real= -prefactor*rx_amplitude*(omega*cos(rx_phase)+nu_col*sin(rx_phase));
+      	  double E_imag = -prefactor*rx_amplitude*(-nu_col*cos(rx_phase)+omega*sin(rx_phase));
+      
+	  if(abs(E_real)<tx_voltage){//simple sanity check      
+	    time_hist[i][j]->Fill(rx_time, E_real/samplingperiod);
+	    re_hist[i][j]->Fill(rx_time, E_real/samplingperiod);
+	    im_hist[i][j]->Fill(rx_time, E_imag/samplingperiod);
+	  }
+	  point_time+=samplingperiod;
+	  point_temp.setT(point_time);
+
+
 	}
-
-	else{
-	  rx_phase=getRxPhase(i,j,point);
-	  rx_amplitude=getRxAmplitude(i,j,point);
-	  rx_time=getRxTime(j,point);
-	}
+	
+      }
       
-    
-      
-	step_length=l;//to make our density approximation
-	double n = e/e_i;//edeposited/ionization E
-	double n_e =1;
-	//calculate plasma freq and collison freq
-	if(step_length!=0){
-	  //electron number density, using step length cube
-	  n_e = n*n_primaries/pow(step_length, 3);
-	  //collision frequency (approximation from Cravens, mostly for difuse plasmas), multiplied by 3 for e/i, e/e, e/n 
-	  //	  nu_col = 3.*54.*n_e/pow(e_i/k_Boltzmann, 1.5);
+      else{
+	point_time=point_temp.t();
+	double point_time_end=point_time+lifetime;
+	while(point_time<point_time_end){
+	  rx_phase=getRxPhase(i,j,point_temp);
+	  rx_amplitude=getRxAmplitude(i,j,point_temp);
+	  rx_time=getRxTime(j,point_temp);
 
-	  //this is from Raizer, and is the simplest, just using a simple cross section
-	  //(boltz(mev/k)*T(k)/m_e(mev m^2 s^-2))^1/2*cross section(mm^2)*n_e(mm^-3)
-	  //=m/s*mm^-1 so multiply by 1000 to get mm/s
-	  //3 is for 3 species (approx)
-	  nu_col = 3.*sqrt(k_Boltzmann*7.e5*kelvin/electron_mass_c2)*1000.*5.e-9*n_e;
-	}
-	//debug
-	//nu_col=1.;
-	event.totNScatterers+=n;//track total number of scatterers
-	//for each ionization e scatterer
-	double filter=1.;//TODO
-	//the full scattering amplitude pre-factor  
-	double prefactor = filter*n*n_primaries*cross_section*rx_amplitude*omega/(pow(omega, 2)+pow(nu_col, 2));
+	  double E_real= -prefactor*rx_amplitude*(omega*cos(rx_phase)+nu_col*sin(rx_phase));
+	  double E_imag = -prefactor*rx_amplitude*(-nu_col*cos(rx_phase)+omega*sin(rx_phase));
 
-	//screwing around with plasma parameter
-	//double m_eff=1./(.033*pow(k_Boltzmann*7.e5/pow(n_e, .33), 1.5));
-	//prefactor*=m_eff;
+	  if(abs(E_real)<tx_voltage){//simple sanity check
+	    time_hist[i][j]->Fill(rx_time, E_real/samplingperiod);
+	    re_hist[i][j]->Fill(rx_time, E_real/samplingperiod);
+	    im_hist[i][j]->Fill(rx_time, E_imag/samplingperiod);
+	  }
+	  point_time+=samplingperiod;
+	  point_temp.setT(point_time);
 
-	//now calculate real and imaginary e fields
-	double E_real= -prefactor*omega*cos(rx_phase)+prefactor*nu_col*sin(rx_phase);
-      
-	double E_imag = -prefactor*-nu_col*cos(rx_phase)+prefactor*omega*sin(rx_phase);
-      
-	if(abs(E_real)<tx_voltage){//simple sanity check      
-	  time_hist[i][j]->Fill(rx_time, E_real/samplingperiod);
-	  re_hist[i][j]->Fill(rx_time, E_real/samplingperiod);
-	  im_hist[i][j]->Fill(rx_time, E_imag/samplingperiod);
-
-	  // time_hist[i][j]->Fill(rx_time, E_real);
-	  // re_hist[i][j]->Fill(rx_time, E_real);
-	  // im_hist[i][j]->Fill(rx_time, E_imag);
 	}
       }
     }
     return 1;
   }
- 
-
- 
+}
 
 
 

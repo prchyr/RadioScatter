@@ -88,6 +88,8 @@ class RadioScatter{
   double frequency, period, lambda, k;
 
   double samplerate=10, samplingperiod=.1, start_time=0, end_time=1000;
+  //plasma lifetime, set to the samplingperiod by default
+  double lifetime=.1;
 
   double txp, tx_on=-999999999., tx_off=999999999.;
 
@@ -141,6 +143,7 @@ public:
   void setPrimaryEnergy(double e);
   void setPrimaryPosition(Hep3Vector p);
   void setPrimaryDirection(Hep3Vector p);
+  void setPlasmaLifetime(double l);
   void setPolarization(char * p);
   void setTxVals(double f, double power, double gain);
   void setRxVals(double s, double gain);

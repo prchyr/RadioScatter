@@ -37,6 +37,10 @@ RSmessenger::RSmessenger(RadioScatter *rscat)
   voltageCommand->SetGuidance("set voltage!");
   voltageCommand->SetParameterName("choice", false);
 
+  lifetimeCommand = new G4UIcmdWithADouble("/RS/setPlasmaLifetime", this);
+  lifetimeCommand->SetGuidance("set lifetime!");
+  lifetimeCommand->SetParameterName("choice", false);
+
   polarizationCommand = new G4UIcmdWithAString("/RS/setPolarization", this);
   polarizationCommand->SetGuidance("set Polarization!");
   polarizationCommand->SetParameterName("choice", false);
@@ -96,6 +100,7 @@ RSmessenger::~RSmessenger()
   delete freqCommand;
   delete setNTxCommand;
   delete setNRxCommand;
+  delete lifetimeCommand;
   delete windowLengthCommand;
   delete setFillByEventCommand;
   delete setFillParticleInfoCommand;
@@ -115,6 +120,7 @@ void RSmessenger::SetNewValue(G4UIcommand* command,G4String newValue)
   if(command==voltageCommand)rs->setTxVoltage(val);
   if(command==setNTxCommand)rs->setNTx(val);
   if(command==setNRxCommand)rs->setNRx(val);
+  if(command==lifetimeCommand)rs->setPlasmaLifetime(val);
   if(command==setFillByEventCommand)rs->setFillByEvent(val);
   if(command==setFillParticleInfoCommand)rs->setFillParticleInfo(val);
   if(command==windowLengthCommand)rs->setRecordWindowLength(val);

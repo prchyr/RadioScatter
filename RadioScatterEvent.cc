@@ -309,6 +309,7 @@ int RadioScatterEvent::plotEvent(int txindex, int rxindex, int show_geom, int bi
     ccc->Divide(1, 0);
     ccc->GetPad(1)->Divide(2, 0);
     ccc->SetWindowSize(800,400);
+    cout<<"single event view"<<endl;
   }
   else if (show_geom>0&&redraw_canvas==1){
     //vertical canvas

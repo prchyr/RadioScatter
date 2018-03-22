@@ -238,7 +238,7 @@ int main(int argc,char** argv)
     double stepp=pi/1000.;
     auto gpsDat=G4GeneralParticleSourceData::Instance();
     auto gps = gpsDat->GetCurrentSource();
-    for(int i=1;i<1000;i++){
+    for(int i=1;i<100;i++){
       //  tx.setPhi(ran->Rndm()*twopi);
       //tx.setTheta(ran->Rndm()*(pi/2));
       //      tx.setMag(10000.*i);
