@@ -28,23 +28,28 @@
 /gps/direction 0 0 1
 /gps/energy 5 GeV
 
+/RS/setNTx 1
 /RS/setNRx 6
-/RS/setTxPos 5.8 0 5.1 m
+/RS/setTxPos 5.8 0 .1 m
+
 /RS/setRxPos 6 0 0 m
-/RS/setRxPos 6 0 3 m
-/RS/setRxPos 6 0 6 m
-/RS/setRxPos -6 0 0 m
-/RS/setRxPos -6 0 3 m	
-/RS/setRxPos -6 0 6 m
-/RS/setTxFreq 950
-/RS/setRxSampleRate 4
+ /RS/setRxPos 6 0 3 m
+ /RS/setRxPos 6 0 6 m
+ /RS/setRxPos -6 0 0 m
+ /RS/setRxPos -6 0 3 m	
+ /RS/setRxPos -6 0 6 m
+
+/RS/setTxFreq 1150
+/RS/setRxSampleRate 10
 #/RS/setTxVoltage 35000 #25W
 #/RS/setTxVoltage 70711 #100W
 #/RS/setTxVoltage 50000 #50W	
-/RS/setTxVoltage 200
-/RS/setPolarization vertical
+/RS/setTxVoltage 2236 #100mW
+/RS/setPolarization horizontal
 /RS/setIndexOfRefraction 1.51
+/RS/setPlasmaLifetime 1
 /RS/setNPrimaries 1e9
+/RS/setFillByEvent 0
 /RS/setRecordWindowLength 100
 /RS/setShowCWFlag 0
 #/RS/setTxOnTime 0
@@ -52,7 +57,7 @@
 
 
 
-/run/beamOn 20
+/run/beamOn 40
 #/RS/setTxPos 4. 0 2.5 m
 #/RS/setRxPos -6. 0 0.5 m
 #/run/beamOn 10
