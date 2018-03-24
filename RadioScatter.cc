@@ -832,7 +832,8 @@ double RadioScatter::doScreening(TTree * tree, int entry){
       double amp = getAmplitudeFromAt(tx_voltage, *test, point);
       double phase = getPhaseFromAt(*test, point);
       double ee = -(cross_section*amp*cos(phase)*n_e*n_primaries);//negative from polarity flip
-	if(ee!=0&&!isnan(ee)&&!isinf(ee))E_eff+=ee;
+      //	if(ee!=0&&!isnan(ee)&&!isinf(ee))E_eff+=ee;
+	E_eff+=ee;
 	//	cout<<i-entry<<endl;
 	//      cout<<"amp: "<<amp<<" phase: "<<phase<<" E: "<<E_eff<<" "<<ee<<endl;
       //cout<<point.x()<<" "<<test->x()<<" "<<endl;
