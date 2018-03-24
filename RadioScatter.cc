@@ -382,6 +382,53 @@ double RadioScatter::getRxAmplitude(int txindex,int rxindex, HepLorentzVector po
   return amplitude;
 }
 
+double RadioScatter::getAmplitudeFromAt(double E_0,HepLorentzVector from, HepLorentzVector at){
+  double dist=(tx[0].vect()-from.vect()).mag()+(from.vect()-at.vect()).mag();
+
+  Hep3Vector one=tx[0].vect()-from.vect();
+  Hep3Vector two=from.vect()-at.vect();
+
+  double angle_dependence=1.;
+  Hep3Vector nhat(two.unit());
+  Hep3Vector vert(0,1.,0), horiz(0,0,1.);
+
+  if(polarization=="vertical"){
+    //angle_dependence = vert.cross(nhat).mag();
+    angle_dependence = nhat.cross(nhat.cross(vert)).mag();
+  }
+  else{
+    //angle_dependence = horiz.cross(nhat).mag();
+    angle_dependence = nhat.cross(nhat.cross(horiz)).mag();
+  }
+
+  double amplitude = (tx_voltage*m/dist)*angle_dependence;
+  if(useAttnLengthFlag==1){
+    amplitude=amplitude*exp(-dist/attnLength);
+  }
+  return amplitude;
+}
+
+double RadioScatter::getPhaseFromAt(HepLorentzVector from, HepLorentzVector at){
+  double txtime = getTxTime(0,from, 0);//find retarted time
+  double txphase = getTxPhase(txtime);//find phase at retarded time
+  //time of full flight
+  //  double tof = abs(rxtime-txtime);//time of flight
+  //time of flight for zero lifetime(phase is fixed at interaction point)
+  //  double tof = point.t()-(point.vect()-tx[index].vect()).mag()/c_light;
+  double tof=from.t()-txtime;
+  HepLorentzVector tx_pr=tx[0]-from, pr_rx = from-at;//make vectors
+  //wave number addition
+  Hep3Vector kvec1 = k*tx_pr.vect();
+  Hep3Vector kvec2 = k*pr_rx.vect();
+  Hep3Vector ktot = kvec1+kvec2;
+  double kx = ktot.mag();
+  //calculate compton effects
+  //  double inv_omega_c = (1/omega)+(1/omega_e)*(1-cos(tx_pr.vect().unit().angle(pr_rx[index].vect().unit())));
+  //omega_c = 1/inv_omega_c;
+  //    cout<<txtime<<" "<<txphase<<" "<<rxtime<<endl;
+  return ((kx) - omega*tof + txphase);
+}
+
 
 double RadioScatter::getTxPhase(double t_0){
   //    HepLorentzVector tx_pr = tx-point;
@@ -449,12 +496,12 @@ double RadioScatter::getRxPhase(HepLorentzVector point, Hep3Vector j1, Hep3Vecto
   // cout<<(j2.z()/j2.mag())/(l2.z()/l2.mag())<<endl<<endl;
   
   //calculate the time of flight using correct values for velocity
-   //  double  tof = j1.mag()/c_light + l1.mag()/c_light_r + j2.mag()/c_light + l2.mag()/c_light_r;
+  //double  tof = j1.mag()/c_light + l1.mag()/c_light_r + j2.mag()/c_light + l2.mag()/c_light_r;
 
    //this is possibly incorrect. for a lifetime of zero, it may be correct to stop at the reflection point
   //and propagate the phase at the point of scattering. so the signal is a delta function with a fixed
   //phase (polarity).
-     double  tof = j1.mag()/c_light + l1.mag()/c_light_r;
+  double  tof = j1.mag()/c_light + l1.mag()/c_light_r;
   
   double txphase = getTxPhase(point.t()-tof);//find phase at retarded time
   //wave vector calculation, with correct phase velocity
@@ -730,7 +777,7 @@ double RadioScatter::makeRays(HepLorentzVector point, double e, double l, double
 	}
 	
       }
-      
+      //assuming transmitter and interaction and receiver are in a medium with same refractive index.    
       else{
 	point_time=point_temp.t();
 	double point_time_end=point_time+lifetime;
@@ -756,6 +803,54 @@ double RadioScatter::makeRays(HepLorentzVector point, double e, double l, double
     return 1;
   }
 }
+
+
+
+//calculate screeing effects. at the moment, cannot be run in 'realtime' inside of GEANT4.
+double RadioScatter::doScreening(TTree * tree, int entry){
+  HepLorentzVector  point(0,0,0,0);
+  HepLorentzVector * test=0;
+  double n_e;
+  tree->SetBranchAddress("point", &test);
+  tree->SetBranchAddress("n_e", &n_e);
+  tree->GetEntry(entry);
+  point=*test;//assign "point" to this electron
+  int entries = tree->GetEntries();
+  double E_eff=0;
+    for(int i=entry-40000;i<entry+40000;i++){
+  //  for(int i=0;i<entries;i++){
+    if(i>entries)break;
+    if(i<0)continue;
+    tree->GetEntry(i);
+    //    cout<<i<<endl;
+    double tof=(test->vect()-point.vect()).mag()/c_light;
+    double t_a0=test->t()+tof;
+    double t_a1=t_a0+lifetime;
+    double t_b0=point.t();
+    double t_b1=t_b0+lifetime;
+    if(t_a0>t_b1||t_a1<t_b0)continue;
+      double amp = getAmplitudeFromAt(tx_voltage, *test, point);
+      double phase = getPhaseFromAt(*test, point);
+      double ee = -(cross_section*amp*cos(phase)*n_e*n_primaries);//negative from polarity flip
+	if(ee!=0&&!isnan(ee)&&!isinf(ee))E_eff+=ee;
+	//	cout<<i-entry<<endl;
+	//      cout<<"amp: "<<amp<<" phase: "<<phase<<" E: "<<E_eff<<" "<<ee<<endl;
+      //cout<<point.x()<<" "<<test->x()<<" "<<endl;
+    
+	//    cout<<E_eff<<endl;
+  }
+  return E_eff;
+}
+
+
+
+
+
+
+
+
+
+
 
 
 

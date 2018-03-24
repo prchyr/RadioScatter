@@ -172,8 +172,12 @@ public:
   double getRxTime(int index,HepLorentzVector point);
   double getTxTime(int index,HepLorentzVector point, int direct);
   double getRxPhase(HepLorentzVector point, Hep3Vector j1, Hep3Vector j2, Hep3Vector l1, Hep3Vector l2);
+
   double getRxPhase(int txindex, int rxindex, HepLorentzVector point);
   double getRxPhaseRel(int index,HepLorentzVector point, double v);
+  double getAmplitudeFromAt(double E_0, HepLorentzVector from, HepLorentzVector at);
+  double getPhaseFromAt(HepLorentzVector from, HepLorentzVector at);
+  double doScreening(TTree *tree, int entry);
   int checkTxOn(double time);
   Hep3Vector findRefractionPlane(HepLorentzVector p1, HepLorentzVector p2);
   double findRefractionPointZ(double kx, double kz, double jx);
