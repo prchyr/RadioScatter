@@ -16,7 +16,7 @@ int RadioScatterEvent::reset(){
   return 1;
 }
 
-double RadioScatterEvent::power(int txindex, int rxindex){
+double RadioScatterEvent::integratedPower(int txindex, int rxindex){
   double val;
   int entries=eventHist[txindex][rxindex]->GetNbinsX();
   for(int i=0;i<entries;i++){
@@ -24,6 +24,13 @@ double RadioScatterEvent::power(int txindex, int rxindex){
   }
   return val;
 }
+
+double RadioScatterEvent::peakPowerMW(int txindex, int rxindex){
+  double val=1000.*pow((peakV(txindex, rxindex)*.001), 2)/50.;
+
+  return val;
+}
+
 
 double RadioScatterEvent::thermalNoiseRMS(){
   double bandwidth = 1e9*sampleRate;//bandwith in Hz

@@ -373,7 +373,7 @@ int main(int argc,char** argv)
     for(int i=0;i<14;i++){
       radio->setNPrimaries(pow(10, i));
 	//	cout<<rx.phi()<<" "<<radio->rx.phi()<<endl;
-	runManager->BeamOn(10);
+	runManager->BeamOn(1);
 	// runManager->BeamOn(1);
 	// runManager->BeamOn(1);
 	// runManager->BeamOn(1);

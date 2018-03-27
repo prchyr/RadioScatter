@@ -21,6 +21,7 @@ antenna effective area
 #include "TString.h"
 #include "TTree.h"
 #include "TGraph.h"
+#include "TGraph2D.h"
 
 #include <vector>
 
@@ -178,6 +179,7 @@ public:
   double getAmplitudeFromAt(double E_0, HepLorentzVector from, HepLorentzVector at);
   double getPhaseFromAt(HepLorentzVector from, HepLorentzVector at);
   double doScreening(TTree *tree, int entry);
+  double plotCausalCharges(TTree *tree, int entry);
   int checkTxOn(double time);
   Hep3Vector findRefractionPlane(HepLorentzVector p1, HepLorentzVector p2);
   double findRefractionPointZ(double kx, double kz, double jx);

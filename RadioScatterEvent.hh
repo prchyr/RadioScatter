@@ -102,7 +102,8 @@ public:
   double peakV(int txindex, int rxindex);
   double rms(int txindex, int rxindex);
   double duration(int txindex, int rxindex);
-  double power(int txindex, int rxindex);
+  double integratedPower(int txindex, int rxindex);
+  double peakPowerMW(int txindex, int rxindex);
   double pathLength(int txindex, int rxindex);
   //energy calculated from the geant4 energy and the number of primaries
   double primaryParticleEnergy();

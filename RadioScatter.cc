@@ -730,11 +730,27 @@ double RadioScatter::makeRays(HepLorentzVector point, double e, double l, double
 	nu_col = 3.*sqrt(k_Boltzmann*7.e5*kelvin/electron_mass_c2)*1000.*5.e-9*n_e;
       }
       //debug
-      //nu_col=1.;
+                        nu_col=1.;
       event.totNScatterers+=n;//track total number of scatterers
       //the full scattering amplitude pre-factor  
       double prefactor = n*n_primaries*cross_section*omega/(pow(omega, 2)+pow(nu_col, 2));
-      
+
+      double dist = (point.vect()-tx[i].vect()).mag();
+
+      //introduce an effective mass, to approach the macroscopic ideal
+      //      double m_eff=1./(1+(n_e/1.e6));
+            step_length=lambda/4.;
+      double NN=n_e*pow((lambda/2), 3);
+      //double NN=n*n_primaries;
+      //      double m_eff = exp(-(cross_section*NN/step_length));
+      //      step_length=.1;
+      double alpha = cross_section*NN/step_length;
+       double m_eff = exp(-alpha);
+      // double m_eff=1-alpha+(pow(alpha, 2)/2.)-(NN*pow(cross_section/step_length, 2)/2.);
+
+      //      double m_eff = 1+(cross_section/step_length)-(cross_section*NN/step_length)+(NN*pow(cross_section/step_length, 2))-pow(cross_section*NN/step_length, 2);
+            prefactor*=m_eff;
+
       HepLorentzVector point_temp=point;      
       //are we calculating in a refraction region?
       if(REFRACTION_FLAG==1){
@@ -786,6 +802,7 @@ double RadioScatter::makeRays(HepLorentzVector point, double e, double l, double
 	  rx_amplitude=getRxAmplitude(i,j,point_temp);
 	  rx_time=getRxTime(j,point_temp);
 
+	  
 	  double E_real= prefactor*rx_amplitude*(omega*cos(rx_phase)+nu_col*sin(rx_phase));
 	  double E_imag = prefactor*rx_amplitude*(-nu_col*cos(rx_phase)+omega*sin(rx_phase));
 
@@ -843,6 +860,47 @@ double RadioScatter::doScreening(TTree * tree, int entry){
   return E_eff;
 }
 
+
+// double RadioScatter::plotCausalCharges(TTree * tree, int entry){
+//   HepLorentzVector  point(0,0,0,0);
+//   HepLorentzVector * test=0;
+//   double n_e;
+//   tree->SetBranchAddress("point", &test);
+//   tree->SetBranchAddress("n_e", &n_e);
+//   tree->GetEntry(entry);
+//   //TH3F *hist = new TH3F("asdf", "asdf", 40, 1, -1, 40, 1, -1, 40, 1, -1);
+//   vector<double> xx, yy, zz;
+//   point=*test;//assign "point" to this electron
+//   int entries = tree->GetEntries();
+//   double E_eff=0;
+//     for(int i=0;i<entries;i++){
+//     tree->GetEntry(i);
+//     //    cout<<i<<endl;
+//     double tof=(test->vect()-point.vect()).mag()/c_light;
+//     double t_a0=test->t()+tof;
+//     double t_a1=t_a0+lifetime;
+//     double t_b0=point.t();
+//     double t_b1=t_b0+lifetime;
+//     if(t_a0>t_b1||t_a1<t_b0)continue;
+//     xx.push_back(test->x());
+//     yy.push_back(test->y());
+//     zz.push_back(test->z());
+//     double amp = getAmplitudeFromAt(tx_voltage, *test, point);
+//     double phase = getPhaseFromAt(*test, point);
+//     double ee = -(cross_section*amp*cos(phase)*n_e*n_primaries);//negative from polarity flip
+//     //	if(ee!=0&&!isnan(ee)&&!isinf(ee))E_eff+=ee;
+//     E_eff+=ee;
+//     //	cout<<i-entry<<endl;
+//     cout<<"amp: "<<amp<<" phase: "<<phase<<" E: "<<E_eff<<" "<<ee<<endl;
+//     //cout<<point.x()<<" "<<test->x()<<" "<<endl;
+
+// 	//    cout<<E_eff<<endl;
+//   }
+//     cout<<"ssdf"<<xx.size()<<endl;
+//     TGraph2D *gr=new TGraph2D(xx.size(), &xx[0], &yy[0], &zz[0]);
+//     gr->Draw("ap");
+//     return E_eff;
+// }
 
 
 
