@@ -203,8 +203,8 @@ TH1F* RadioScatterEvent::getSpectrum(int txindex, int rxindex,bool dbflag){
   int nbins = reHist[txindex][rxindex]->GetNbinsX();
   int size=nbins;
   double samprate = nbins/(reHist[txindex][rxindex]->GetXaxis()->GetXmax()-reHist[txindex][rxindex]->GetXaxis()->GetXmin());//in samples/ns
-  Float_t band = samprate;//in ghz
-  Float_t bandwidth = band/2.;//nyquist
+  Float_t band = samprate*1.e9;//in hz
+  Float_t bandwidth = samprate/2.;//nyquist
   Float_t timebase = size*(1./samprate);//ns
 
   TH1 *out = 0;
@@ -216,7 +216,7 @@ TH1F* RadioScatterEvent::getSpectrum(int txindex, int rxindex,bool dbflag){
     Double_t y = out->GetBinContent(i);
      if(dbflag==true){
        y = (10.*log10(pow(y, 2.)/50.))+30.;//normalized mv->dbW->dbm
-       spectrumHist->SetBinContent(i, y-(10.*log10(band)));//dmb/hz with 80 db of gain             
+       spectrumHist->SetBinContent(i, y-(10.*log10(band)));//dmb/hz            
      }
      //y=10.*log10(y)+30;                                                
   //   xx.push_back(i*(timebase/size));
