@@ -71,6 +71,7 @@ public:
   double sampleRate;
   double nPrimaries=0;
   double txVoltage=0;
+  double txPowerW=0;
   double freq=0;
   //  double power=0;
   double totNScatterers=0;
@@ -100,11 +101,14 @@ public:
   double peakFreq(int txindex, int rxindex);
   double bandWidth();
   double peakV(int txindex, int rxindex);
+  double effectiveCrossSection(int txindex, int rxindex);
   double rms(int txindex, int rxindex);
   double duration(int txindex, int rxindex);
   double integratedPower(int txindex, int rxindex);
   double peakPowerMW(int txindex, int rxindex);
-  double pathLength(int txindex, int rxindex);
+  double peakPowerW(int txindex, int rxindex);
+  double pathLengthM(int txindex, int rxindex);
+  double pathLengthMM(int txindex, int rxindex);
   //energy calculated from the geant4 energy and the number of primaries
   double primaryParticleEnergy();
   int triggered(double thresh, int n_antennas=1);
@@ -120,6 +124,6 @@ public:
 
 
 
-  ClassDef(RadioScatterEvent, 3);
+  ClassDef(RadioScatterEvent, 4);
 };
 #endif

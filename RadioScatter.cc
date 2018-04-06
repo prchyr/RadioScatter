@@ -31,6 +31,7 @@ RadioScatter::RadioScatter(){
   fRunCounter=0;
 }
 //just makes the output file stream for a text file
+//not using now cause txt files are dumb
  void RadioScatter::makeOutputTextFile(char* filename){
   //  ofstream f(filename);
   //  of=f;
@@ -188,10 +189,12 @@ void RadioScatter::setRxPos(Hep3Vector in, int index){
  void RadioScatter::setTxVoltage(double v){
   tx_voltage = v;
   event.txVoltage=v;
+  event.txPowerW=pow(v*.001, 2)/50.;
 }
 void RadioScatter::setTxPower(double p){
   tx_voltage = sqrt(p*50.);
   event.txVoltage=tx_voltage;
+  event.txPowerW=p*.001;
 }
 
  void RadioScatter::setTxOnTime(double on){
@@ -301,7 +304,7 @@ use the calculated refraction vectors (from makeRays()) to sort out the correct 
  */
 
  double RadioScatter::getRxAmplitude(int index,HepLorentzVector point, Hep3Vector j1, Hep3Vector j2, Hep3Vector l1, Hep3Vector l2){
-  double dist = j1.mag()+j2.mag()+l1.mag()+l2.mag();
+   double dist = (j1.mag()+j2.mag())*(l1.mag()+l2.mag());
   //refraction things:
 
 
@@ -346,7 +349,7 @@ use the calculated refraction vectors (from makeRays()) to sort out the correct 
   double amp2 = sqrt(pow(E2_para*cos(theta), 2)+pow(E2_perp*sin(theta), 2));
 
 
-  double amplitude = (tx_voltage*m/dist)*amp1*amp2*angle_dependence;
+  double amplitude = (tx_voltage*m*m/dist)*amp1*amp2*angle_dependence;
 
   if(useAttnLengthFlag==1){
     amplitude=amplitude*exp(-dist/attnLength);
@@ -356,7 +359,7 @@ use the calculated refraction vectors (from makeRays()) to sort out the correct 
 
 //non-refracted amplitude
 double RadioScatter::getRxAmplitude(int txindex,int rxindex, HepLorentzVector point){
-  double dist = (tx[txindex].vect()-point.vect()).mag()+(rx[rxindex].vect()-point.vect()).mag();
+  double dist = ((tx[txindex].vect()-point.vect()).mag()/m)*((rx[rxindex].vect()-point.vect()).mag()/m);
   //  //refraction things:
   Hep3Vector one=tx[txindex].vect()-point.vect();
   Hep3Vector two=point.vect()-rx[rxindex].vect();
@@ -374,7 +377,7 @@ double RadioScatter::getRxAmplitude(int txindex,int rxindex, HepLorentzVector po
     angle_dependence = nhat.cross(nhat.cross(horiz)).mag();
   }
 
-  double amplitude = (tx_voltage*m/dist)*angle_dependence;
+  double amplitude = ((tx_voltage)/dist)*angle_dependence;
   if(useAttnLengthFlag==1){
     amplitude=amplitude*exp(-dist/attnLength);
   }
@@ -383,7 +386,7 @@ double RadioScatter::getRxAmplitude(int txindex,int rxindex, HepLorentzVector po
 }
 
 double RadioScatter::getAmplitudeFromAt(double E_0,HepLorentzVector from, HepLorentzVector at){
-  double dist=(tx[0].vect()-from.vect()).mag()+(from.vect()-at.vect()).mag();
+  double dist=(tx[0].vect()-from.vect()).mag()*(from.vect()-at.vect()).mag();
 
   Hep3Vector one=tx[0].vect()-from.vect();
   Hep3Vector two=from.vect()-at.vect();
@@ -401,7 +404,7 @@ double RadioScatter::getAmplitudeFromAt(double E_0,HepLorentzVector from, HepLor
     angle_dependence = nhat.cross(nhat.cross(horiz)).mag();
   }
 
-  double amplitude = (tx_voltage*m/dist)*angle_dependence;
+  double amplitude = (tx_voltage*m*m/dist)*angle_dependence;
   if(useAttnLengthFlag==1){
     amplitude=amplitude*exp(-dist/attnLength);
   }
@@ -566,7 +569,7 @@ TH1F * RadioScatter::getDirectSignal(int txindex, int rxindex, const TH1F *in){
   Hep3Vector dist_vec = tx[txindex].vect()-rx[rxindex].vect();
   double dist = dist_vec.mag();
   rx_amp = tx_voltage*m/dist;
-  //  cout<<"rx amp: "<<tx_voltage<<" "<<tx_voltage*m<<" "<<(tx[index].vect()-rx[index].vect()).mag()<<" "<<rx_amp;
+  //  cout<<"rx amp: "<<tx_voltage<<" "<<tx_voltage*m*m<<" "<<(tx[index].vect()-rx[index].vect()).mag()<<" "<<rx_amp;
   int size = in->GetNbinsX();
   int start = in->GetXaxis()->GetXmin();
   int end = in->GetXaxis()->GetXmax();
@@ -730,7 +733,7 @@ double RadioScatter::makeRays(HepLorentzVector point, double e, double l, double
 	nu_col = 3.*sqrt(k_Boltzmann*7.e5*kelvin/electron_mass_c2)*1000.*5.e-9*n_e;
       }
       //debug
-            nu_col=1.;
+      //      nu_col=1.;
       event.totNScatterers+=n;//track total number of scatterers
       //the full scattering amplitude pre-factor  
       double prefactor = n*n_primaries*cross_section*omega/(pow(omega, 2)+pow(nu_col, 2));
@@ -749,11 +752,10 @@ double RadioScatter::makeRays(HepLorentzVector point, double e, double l, double
       //      step_length=.1;
       double alpha = cross_section*NN/step_length;
       //      double alpha = cross_section*NN*m/.0001;
-      //      double m_eff = exp(-alpha);
+      double m_eff = exp(-alpha);
       //      double m_eff = exp(-n_e/1.e6);
-      double m_eff = exp(-cross_section*m*n_e*pow(rad,2));
+      //      double m_eff = exp(-cross_section*m*n_e*pow(rad,2));
       //double m_eff=1.-alpha+(pow(alpha, 2)/2.)-(NN*pow(cross_section/step_length, 2)/2.);
-
       //double m_eff=1.-alpha+(pow(alpha, 2)/2.)-(pow(alpha, 3)/6.)+(pow(alpha, 4)/24.);
       //double m_eff = 1+(cross_section/step_length)-(cross_section*NN/step_length)+(NN*pow(cross_section/step_length, 2))-pow(cross_section*NN/step_length, 2);
       prefactor=prefactor*m_eff;

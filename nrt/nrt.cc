@@ -235,7 +235,7 @@ int main(int argc,char** argv)
     // }
     cout<<endl<<n<<endl<<endl;
 
-    double stepp=pi/1000.;
+    double stepp=pi/100.;
     auto gpsDat=G4GeneralParticleSourceData::Instance();
     auto gps = gpsDat->GetCurrentSource();
     for(int i=1;i<100;i++){

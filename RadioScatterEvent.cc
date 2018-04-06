@@ -30,6 +30,21 @@ double RadioScatterEvent::peakPowerMW(int txindex, int rxindex){
 
   return val;
 }
+double RadioScatterEvent::peakPowerW(int txindex, int rxindex){
+  double val=pow((peakV(txindex, rxindex)*.001), 2)/50.;
+
+  return val;
+}
+
+double RadioScatterEvent::effectiveCrossSection(int txindex, int rxindex){
+  double r_tx = (tx[txindex].vect()-position).mag()/1000.;//m
+  double r_rx = (rx[rxindex].vect()-position).mag()/1000.;
+  double lambda = 3.e8/(freq*1.e9);
+  cout<<r_rx<<" "<<r_tx<<" "<<lambda<<" "<<peakPowerW(txindex, rxindex)<<endl;
+
+  //  return (pow(4.*pi, 2)*pow(pathLengthM(txindex, rxindex), 2)*peakPowerW(txindex, rxindex))/(txPowerW*pow(lambda, 2));
+  return (pow(4.*pi, 2)*pow(r_tx, 2)*pow(r_rx, 2)*peakPowerW(txindex, rxindex))/(txPowerW*pow(lambda, 2));
+}
 
 
 double RadioScatterEvent::thermalNoiseRMS(){
@@ -104,8 +119,11 @@ double RadioScatterEvent::chirpSlope(){
   return slope;
 }
 
-double RadioScatterEvent::pathLength(int txindex, int rxindex){
+double RadioScatterEvent::pathLengthMM(int txindex, int rxindex){
   return((tx[txindex]-position).mag()+(rx[rxindex]-position).mag());
+}
+double RadioScatterEvent::pathLengthM(int txindex, int rxindex){
+  return((tx[txindex]-position).mag()+(rx[rxindex]-position).mag())/1000.;
 }
 double RadioScatterEvent::duration(int txindex, int rxindex){
   TGraph og= getComplexEnvelope(txindex,rxindex,100);
