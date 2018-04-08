@@ -177,7 +177,7 @@ int main(int argc,char** argv)
    if(macro=="anglemacro.mac"){
      TRandom *ran = new TRandom();
      Hep3Vector rx(1., 1., 1.), tx(1., 1., 1.);
-    double mag=1000000;
+    double mag=100000;
     rx.setMag(mag);
     rx.setTheta(pi/2);
     rx.setPhi(pi);
@@ -196,7 +196,7 @@ int main(int argc,char** argv)
     int n=0;
 
     //make a sphere
-    double div=30;
+    double div=20;
     double radianstep=twopi/div;
     radio->setNRx(div*(div/2));
     while(i<twopi){
@@ -235,23 +235,23 @@ int main(int argc,char** argv)
     // }
     cout<<endl<<n<<endl<<endl;
 
-    double stepp=pi/100.;
-    auto gpsDat=G4GeneralParticleSourceData::Instance();
-    auto gps = gpsDat->GetCurrentSource();
-    for(int i=1;i<100;i++){
-      //  tx.setPhi(ran->Rndm()*twopi);
-      //tx.setTheta(ran->Rndm()*(pi/2));
-      //      tx.setMag(10000.*i);
-      //tx.setMag(ran->Rndm()*1000000.);
-      tx.setPhi(0);
-      tx.setTheta((i*stepp)-(pi/2.));
-      tx.setMag(mag);
-      //radio->setTxPos(tx, 0);
-      gps->GetAngDist()->SetParticleMomentumDirection(tx);  
-      runManager->BeamOn(1);
-      //      cout<<tx.x()<<" "<<tx.y()<<" "<<tx.z()<<endl;
-    }
-    //        runManager->BeamOn(100);
+    // double stepp=pi/100.;
+    // auto gpsDat=G4GeneralParticleSourceData::Instance();
+    // auto gps = gpsDat->GetCurrentSource();
+    // for(int i=1;i<100;i++){
+    //   //  tx.setPhi(ran->Rndm()*twopi);
+    //   //tx.setTheta(ran->Rndm()*(pi/2));
+    //   //      tx.setMag(10000.*i);
+    //   //tx.setMag(ran->Rndm()*1000000.);
+    //   tx.setPhi(0);
+    //   tx.setTheta((i*stepp)-(pi/2.));
+    //   tx.setMag(mag);
+    //   //radio->setTxPos(tx, 0);
+    //   gps->GetAngDist()->SetParticleMomentumDirection(tx);  
+    //   runManager->BeamOn(1);
+    //   //      cout<<tx.x()<<" "<<tx.y()<<" "<<tx.z()<<endl;
+    // }
+            runManager->BeamOn(100);
     //    runManager->BeamOn(100);
   }
 
@@ -369,20 +369,24 @@ int main(int argc,char** argv)
 
   
   if(macro=="collisionmacro.mac"){
-
-    for(int i=0;i<14;i++){
+    auto gpsDat=G4GeneralParticleSourceData::Instance();
+    auto gps = gpsDat->GetCurrentSource();
+    radio->setPrimaryEnergy(gps->GetParticleEnergy());
+ 
+    for(int i=14;i>1;i--){
       radio->setNPrimaries(pow(10, i));
-	//	cout<<rx.phi()<<" "<<radio->rx.phi()<<endl;
-	runManager->BeamOn(1);
-	// runManager->BeamOn(1);
-	// runManager->BeamOn(1);
-	// runManager->BeamOn(1);
-	// runManager->BeamOn(1);
-	// runManager->BeamOn(1);
-	// runManager->BeamOn(1);
-	// runManager->BeamOn(1);
-	// runManager->BeamOn(1);
-	// runManager->BeamOn(1);
+            radio->setScaleByEnergy(1);
+      //	cout<<rx.phi()<<" "<<radio->rx.phi()<<endl;
+    	runManager->BeamOn(1);
+    	// runManager->BeamOn(1);
+    	// runManager->BeamOn(1);
+    	// runManager->BeamOn(1);
+    	// runManager->BeamOn(1);
+    	// runManager->BeamOn(1);
+    	// runManager->BeamOn(1);
+    	// runManager->BeamOn(1);
+    	// runManager->BeamOn(1);
+    	// runManager->BeamOn(1);
     }
   }
   }

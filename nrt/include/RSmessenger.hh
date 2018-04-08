@@ -26,6 +26,7 @@ private:
   G4UIcmdWithADouble*        setNRxCommand;
   G4UIcmdWithADouble*        voltageCommand;
   G4UIcmdWithADouble*        powerCommand;
+  G4UIcmdWithADouble*        setScaleByEnergyCommand;
   G4UIcmdWithADouble*        lifetimeCommand;
   G4UIcmdWithADouble*        windowLengthCommand;
   G4UIcmdWithAString*        polarizationCommand;

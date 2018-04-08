@@ -111,10 +111,6 @@ void SteppingAction::UserSteppingAction(const G4Step* step)
   /*
 make the rays. 
 
-will fill a histogram with default parameters if makeHist was called in run action. 
-otherwise, will output the resultant E_field, and can be put into a G4 histogram. 
-
-or both. 
    */
 
   rx_amplitude = fRadio->makeRays(p, edep, step_length, E_i);  

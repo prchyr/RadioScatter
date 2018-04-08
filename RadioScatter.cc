@@ -206,12 +206,37 @@ void RadioScatter::setTxPower(double p){
  void RadioScatter::setNPrimaries(double n){
   n_primaries=n;
   event.nPrimaries=n_primaries;
+
   cout<<"n primaries: "<<n_primaries<<endl;
+  NPRIMARIES_SET=1;
   //  cout<<"cross-section"<<cross_section<<" "<<cross_section*m<<endl;
 }
-
+void RadioScatter::setTargetEnergy(double e){
+  setNPrimaries(e-event.primaryEnergy);
+  NPRIMARIES_SET=1;
+}
+int RadioScatter::setScaleByEnergy(double val){
+  if((int)val==1){
+    if(PRIMARY_ENERGY_SET==0){
+      cout<<"primary energy has not been set in RadioScatter, scaling will not work. please call setPrimaryEnergy to tell RadioScatter what energy your primary is!"<<endl;
+      return 0;
+    }
+    if(NPRIMARIES_SET==0){
+      cout<<"number of primaries/target energy has not been set in RadioScatter, scaling will not work. please call setNPrimaries or setTargetEnergy to tell RadioScatter how to scale!"<<endl;
+      return 0;
+    }
+    
+    zscale = (3000.*log10(event.nPrimaries)+6000.)/((log10(event.primaryEnergy/1000.)*3000.)+6000);
+    cout<<zscale<<endl;
+    tscale = (10.*log10(event.nPrimaries)+22.)/((log10(event.primaryEnergy/1000.)*10.)+22);
+        cout<<tscale<<endl;
+    SCALE_BY_ENERGY=1;
+    return 1;
+  }
+}
 void RadioScatter::setPrimaryEnergy(double e){
   event.primaryEnergy=e;
+  PRIMARY_ENERGY_SET=1;
 }
 void RadioScatter::setPrimaryDirection(Hep3Vector p){
   event.direction=p;
@@ -708,7 +733,12 @@ double RadioScatter::makeRays(HepLorentzVector point, double e, double l, double
   }
 
   double rx_time, rx_amplitude, rx_phase, point_time, t_step=0.;
-
+  double zz=point.z()*zscale;
+  double tt=point.t()*tscale;
+  //cout<<point.z()<<" ";
+  point.setZ(zz);
+  //  cout<<zscale<<" "<<point.z()<<endl;
+  point.setT(tt);
   
   for(int i=0;i<ntx;i++){
     for(int j=0;j<nrx;j++){
@@ -733,7 +763,7 @@ double RadioScatter::makeRays(HepLorentzVector point, double e, double l, double
 	nu_col = 3.*sqrt(k_Boltzmann*7.e5*kelvin/electron_mass_c2)*1000.*5.e-9*n_e;
       }
       //debug
-      //      nu_col=1.;
+      //     nu_col=1.;
       event.totNScatterers+=n;//track total number of scatterers
       //the full scattering amplitude pre-factor  
       double prefactor = n*n_primaries*cross_section*omega/(pow(omega, 2)+pow(nu_col, 2));
@@ -758,7 +788,7 @@ double RadioScatter::makeRays(HepLorentzVector point, double e, double l, double
       //double m_eff=1.-alpha+(pow(alpha, 2)/2.)-(NN*pow(cross_section/step_length, 2)/2.);
       //double m_eff=1.-alpha+(pow(alpha, 2)/2.)-(pow(alpha, 3)/6.)+(pow(alpha, 4)/24.);
       //double m_eff = 1+(cross_section/step_length)-(cross_section*NN/step_length)+(NN*pow(cross_section/step_length, 2))-pow(cross_section*NN/step_length, 2);
-      prefactor=prefactor*m_eff;
+      //prefactor=prefactor*m_eff;
 
       HepLorentzVector point_temp=point;      
       //are we calculating in a refraction region?

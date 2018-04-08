@@ -61,6 +61,11 @@ RSmessenger::RSmessenger(RadioScatter *rscat)
   setFillByEventCommand->SetGuidance("calculate by event not by run!");
   setFillByEventCommand->SetParameterName("choice", false);
 
+  setScaleByEnergyCommand = new G4UIcmdWithADouble("/RS/setScaleByEnergy", this);
+  setScaleByEnergyCommand->SetGuidance("set scale by energy!");
+  setScaleByEnergyCommand->SetParameterName("choice", false);
+
+  
   setFillParticleInfoCommand = new G4UIcmdWithADouble("/RS/setFillParticleInfo", this);
   setFillParticleInfoCommand->SetGuidance("fill the particle info tuples");
   setFillParticleInfoCommand->SetParameterName("choice", false);
@@ -107,6 +112,7 @@ RSmessenger::~RSmessenger()
   delete lifetimeCommand;
   delete windowLengthCommand;
   delete setFillByEventCommand;
+  delete setScaleByEnergyCommand;
   delete setFillParticleInfoCommand;
   delete voltageCommand;
   delete powerCommand;
@@ -126,6 +132,7 @@ void RSmessenger::SetNewValue(G4UIcommand* command,G4String newValue)
   if(command==powerCommand)rs->setTxPower(val);
   if(command==setNTxCommand)rs->setNTx(val);
   if(command==setNRxCommand)rs->setNRx(val);
+  if(command==setScaleByEnergyCommand)rs->setScaleByEnergy(val);
   if(command==lifetimeCommand)rs->setPlasmaLifetime(val);
   if(command==setFillByEventCommand)rs->setFillByEvent(val);
   if(command==setFillParticleInfoCommand)rs->setFillParticleInfo(val);

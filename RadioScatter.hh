@@ -3,7 +3,7 @@ todo:
 antenna effective height
 antenna effective area
 (currently these are both set to 1 accross all frequencies)
-
+change the system of primary energy and scaling to be more intuitive
  
  */
 #ifndef R_Scat
@@ -54,10 +54,12 @@ class RadioScatter{
   double tcs = .655e-24;//thompson cross section
   double n_primaries = 1;//set this based on number of events in run
   double tx_voltage = 1.;//mW
+  double zscale=1.;//the longitudinal scale factor
+  double tscale=1.;//the time scale factor
   double impedance = 50;
   double tx_gain=1.;
   double rx_gain=1.;
-  double step_length=0;//default g4 steplength
+  double step_length=1;//default g4 steplength
   double E_i=.000038;//default electron ion pair energy
   double e_charge_cgs = 4.803e-10;//statcoloumbs
   double e_mass_cgs = 9.109e-28;//g
@@ -122,6 +124,10 @@ public:
 
   int FILL_BY_EVENT=1;
   int FILL_PARTICLE_INFO=0;
+
+  int NPRIMARIES_SET=0;
+  int PRIMARY_ENERGY_SET=0;
+  int SCALE_BY_ENERGY=0;
   
   RadioScatter();
   
@@ -144,6 +150,8 @@ public:
   void setPrimaryEnergy(double e);
   void setPrimaryPosition(Hep3Vector p);
   void setPrimaryDirection(Hep3Vector p);
+  void setTargetEnergy(double e);//not gonna work yet
+  int setScaleByEnergy(double val);
   void setPlasmaLifetime(double l);
   void setPolarization(char * p);
   void setTxVals(double f, double power, double gain);
