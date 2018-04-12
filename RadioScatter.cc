@@ -225,7 +225,9 @@ int RadioScatter::setScaleByEnergy(double val){
       cout<<"number of primaries/target energy has not been set in RadioScatter, scaling will not work. please call setNPrimaries or setTargetEnergy to tell RadioScatter how to scale!"<<endl;
       return 0;
     }
-    
+    double current_energy = event.primaryEnergy/1000.;//gev
+    double target_energy = (current_energy+event.nPrimaries);//gev
+
     zscale = (3000.*log10(event.nPrimaries)+6000.)/((log10(event.primaryEnergy/1000.)*3000.)+6000);
     cout<<zscale<<endl;
     tscale = (10.*log10(event.nPrimaries)+22.)/((log10(event.primaryEnergy/1000.)*10.)+22);
@@ -377,14 +379,15 @@ use the calculated refraction vectors (from makeRays()) to sort out the correct 
   double amplitude = (tx_voltage*m*m/dist)*amp1*amp2*angle_dependence;
 
   if(useAttnLengthFlag==1){
-    amplitude=amplitude*exp(-dist/attnLength);
+    double attn_dist = (j1.mag()+j2.mag())+(l1.mag()+l2.mag());
+    amplitude=amplitude*exp(-attn_dist/attnLength);
   }
   return amplitude;
 }
 
 //non-refracted amplitude
 double RadioScatter::getRxAmplitude(int txindex,int rxindex, HepLorentzVector point){
-  double dist = ((tx[txindex].vect()-point.vect()).mag()/m)*((rx[rxindex].vect()-point.vect()).mag()/m);
+  double dist = ((tx[txindex].vect()-point.vect()).mag()/m)*((rx[rxindex].vect()-point.vect()).mag()/m);//here we've used the product of the distances as the radiated amplitude E~(E_0/R_1)/R_2. 
   //  //refraction things:
   Hep3Vector one=tx[txindex].vect()-point.vect();
   Hep3Vector two=point.vect()-rx[rxindex].vect();
@@ -404,7 +407,8 @@ double RadioScatter::getRxAmplitude(int txindex,int rxindex, HepLorentzVector po
 
   double amplitude = ((tx_voltage)/dist)*angle_dependence;
   if(useAttnLengthFlag==1){
-    amplitude=amplitude*exp(-dist/attnLength);
+    double attn_dist = ((tx[txindex].vect()-point.vect()).mag()/m)+((rx[rxindex].vect()-point.vect()).mag()/m);//here the overall attenuation is just calculated over the full path length. 
+    amplitude=amplitude*exp(-attn_dist/attnLength);
   }
 
   return amplitude;
@@ -735,11 +739,13 @@ double RadioScatter::makeRays(HepLorentzVector point, double e, double l, double
   double rx_time, rx_amplitude, rx_phase, point_time, t_step=0.;
   double zz=point.z()*zscale;
   double tt=point.t()*tscale;
+
   //cout<<point.z()<<" ";
   point.setZ(zz);
   //  cout<<zscale<<" "<<point.z()<<endl;
   point.setT(tt);
-  
+
+
   for(int i=0;i<ntx;i++){
     for(int j=0;j<nrx;j++){
 
@@ -750,10 +756,14 @@ double RadioScatter::makeRays(HepLorentzVector point, double e, double l, double
       double n = e/e_i;//edeposited/ionization E
       double n_e =1.;
       //calculate plasma freq and collison freq
-      if(step_length!=0){
+      if(step_length==0)return 0;
+
 	//electron number density, using step length cube
-	n_e = n*n_primaries/pow(step_length, 3);
-	//collision frequency (approximation from Cravens, mostly for difuse plasmas), multiplied by 3 for e/i, e/e, e/n 
+      n_e = n*n_primaries/pow(step_length, 3);
+      // n_e = n*n_primaries;//1mm^-3
+      //n_e=n*n_primaries*1000.;
+      if(n_e==0)return 0;
+      //collision frequency (approximation from Cravens, mostly for difuse plasmas), multiplied by 3 for e/i, e/e, e/n 
 	//	  nu_col = 3.*54.*n_e/pow(e_i/k_Boltzmann, 1.5);
 	
 	//this is from Raizer, and is the simplest, just using a simple cross section
@@ -761,34 +771,39 @@ double RadioScatter::makeRays(HepLorentzVector point, double e, double l, double
 	//=m/s*mm^-1 so multiply by 1000 to get mm/s
 	//3 is for 3 species (approx)
 	nu_col = 3.*sqrt(k_Boltzmann*7.e5*kelvin/electron_mass_c2)*1000.*5.e-9*n_e;
-      }
+	//}
       //debug
-      //     nu_col=1.;
+	//nu_col=1.;
       event.totNScatterers+=n;//track total number of scatterers
       //the full scattering amplitude pre-factor  
       double prefactor = n*n_primaries*cross_section*omega/(pow(omega, 2)+pow(nu_col, 2));
 
       double dist = (point.vect()-tx[i].vect()).mag();
-      double rad = 700./(sqrt(pow(point.x(), 2)+pow(point.y(), 2)));
-      //      double lambda_d = sqrt(k_Boltzmann*7.e5*kelvin/n_e);
-      double lambda_d = 1.;
+      double rad = 70./(sqrt(pow(point.x(), 2)+pow(point.y(), 2)));
+      //      double lambda_d = sqrt(epsilon0*k_b*7.e5*kelvin/(n_e*pow(e_SI, 2)))/pow(m, 2);
+      //      double lambda_d = sqrt(k_Boltzmann*7.e5*kelvin*m/(n_e*4*pi));
+      double lambda_d = 740.*sqrt(7.e5/n_e)*cm;
+      
+      //      double lambda_d = step_length*zscale;
       //introduce an effective mass, to approach the macroscopic ideal
       //double m_eff=1./(1+(n_e/1.e6));
-      step_length=lambda/4;
+      //step_length=lambda/4;
       double NN=n_e*pow((2.*lambda), 3.);
+      //double NN=n_e*pow(step_length, 3);
       //double NN=n_e*pow(lambda_d, 3.);
-      //double NN=n*n_primaries;
+      //      double NN=n_e*pow(70, 3);
       //      double m_eff = exp(-(cross_section*NN/step_length));
       //      step_length=.1;
       double alpha = cross_section*NN/step_length;
       //      double alpha = cross_section*NN*m/.0001;
       double m_eff = exp(-alpha);
       //      double m_eff = exp(-n_e/1.e6);
-      //      double m_eff = exp(-cross_section*m*n_e*pow(rad,2));
+      //double m_eff = exp(-cross_section*n_e*pow(rad,2));
+      //            cout<<lambda_d<<" "<<" "<<cross_section<<" "<<n_e<<" "<<m_eff<<endl;
       //double m_eff=1.-alpha+(pow(alpha, 2)/2.)-(NN*pow(cross_section/step_length, 2)/2.);
       //double m_eff=1.-alpha+(pow(alpha, 2)/2.)-(pow(alpha, 3)/6.)+(pow(alpha, 4)/24.);
       //double m_eff = 1+(cross_section/step_length)-(cross_section*NN/step_length)+(NN*pow(cross_section/step_length, 2))-pow(cross_section*NN/step_length, 2);
-      //prefactor=prefactor*m_eff;
+      prefactor=prefactor*m_eff;
 
       HepLorentzVector point_temp=point;      
       //are we calculating in a refraction region?

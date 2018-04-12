@@ -163,7 +163,7 @@ void DetectorConstruction::DefineMaterials()
   wood->AddElement(elH, fractionmass = .02);
 
   
-  //    G4cout << *(G4Material::GetMaterialTable()) << G4endl;
+  //G4cout << *(G4Material::GetMaterialTable()) << G4endl;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
