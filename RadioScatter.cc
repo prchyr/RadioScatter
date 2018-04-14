@@ -773,7 +773,7 @@ double RadioScatter::makeRays(HepLorentzVector point, double e, double l, double
 	nu_col = 3.*sqrt(k_Boltzmann*7.e5*kelvin/electron_mass_c2)*1000.*5.e-9*n_e;
 	//}
       //debug
-	//nu_col=1.;
+	//		nu_col=1.;
       event.totNScatterers+=n;//track total number of scatterers
       //the full scattering amplitude pre-factor  
       double prefactor = n*n_primaries*cross_section*omega/(pow(omega, 2)+pow(nu_col, 2));
@@ -787,14 +787,15 @@ double RadioScatter::makeRays(HepLorentzVector point, double e, double l, double
       //      double lambda_d = step_length*zscale;
       //introduce an effective mass, to approach the macroscopic ideal
       //double m_eff=1./(1+(n_e/1.e6));
-      //step_length=lambda/4;
-      double NN=n_e*pow((2.*lambda), 3.);
-      //double NN=n_e*pow(step_length, 3);
+            step_length=lambda/4;
+            double NN=n_e*pow((2.*lambda), 3.);
+	    //double NN=n_e*pow(lambda/2, 3);
       //double NN=n_e*pow(lambda_d, 3.);
       //      double NN=n_e*pow(70, 3);
       //      double m_eff = exp(-(cross_section*NN/step_length));
       //      step_length=.1;
-      double alpha = cross_section*NN/step_length;
+	    //            double alpha = cross_section*NN/(step_length);
+      double alpha = cross_section*n_e*m*pow(step_length, 2);
       //      double alpha = cross_section*NN*m/.0001;
       double m_eff = exp(-alpha);
       //      double m_eff = exp(-n_e/1.e6);
@@ -1359,10 +1360,26 @@ int RadioScatter::writeEvent(int debug){
 //   //#undef RSCAT_HIST_RESIZE
 // }
 
+// int RadioScatter::makeSummary(TFile *f){
+//   RadioScatterEvent *RSout = new RadioScatterEvent();
+//   TTree *outtree = (TTree*)f->Get("tree");
+//   outtree->SetBranchAddress("event", &RSout);
+
+//   TString fname = f->GetName();
+//   fname.ReplaceAll(".root", "_summary.root");
+//   TFile *off=new TFile(fname, 
+//   RSEventSummary *RSS = new RSEventSummary();
+  
+  
+//   return 0;
+// }
   void RadioScatter::close(){
     TFile *f=    ((TFile *)(gROOT->GetListOfFiles()->At(0)));
-    cout<<"The RadioScatter root file: "<<endl<<f->GetName()<<endl<<"has been written."<<endl;
     f->Write();
+    cout<<"The RadioScatter root file: "<<endl<<f->GetName()<<endl<<"has been written."<<endl;
+    // if(MAKE_SUMMARY_FILE==1){
+    //   makeSummary(f);
+    // }
     f->Close();
     // delete(time_hist);
     // delete(fft_hist);
