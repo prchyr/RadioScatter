@@ -377,7 +377,7 @@ int main(int argc,char** argv)
       radio->setNPrimaries(pow(10, i));
       //      radio->setScaleByEnergy(1);
       //	cout<<rx.phi()<<" "<<radio->rx.phi()<<endl;
-    	runManager->BeamOn(10);
+    	runManager->BeamOn(1);
     	// runManager->BeamOn(1);
     	// runManager->BeamOn(1);
     	// runManager->BeamOn(1);

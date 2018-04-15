@@ -772,7 +772,7 @@ double RadioScatter::makeRays(HepLorentzVector point, double e, double l, double
 	//(boltz(mev/k)*T(k)/m_e(mev m^2 s^-2))^1/2*cross section(mm^2)*n_e(mm^-3)
 	//=m/s*mm^-1 so multiply by 1000 to get mm/s
 	//3 is for 3 species (approx)
-	nu_col = 9*sqrt(k_Boltzmann*7.e5*kelvin/electron_mass_c2)*1000.*5.e-9*n_e/zscale;
+	nu_col = 3*sqrt(k_Boltzmann*7.e5*kelvin/electron_mass_c2)*1000.*5.e-9*n_e/zscale;
 	//}
       //debug
 	//	nu_col=1.;
@@ -789,7 +789,7 @@ double RadioScatter::makeRays(HepLorentzVector point, double e, double l, double
       //      double lambda_d = step_length*zscale;
       //introduce an effective mass, to approach the macroscopic ideal
       //      double m_eff=1./(1+(n_e/1.e7));
-      step_length=lambda;
+      step_length=lambda/4;
       double NN=n_e*pow((2.*lambda), 3.);
       //double NN=n_e*pow(lambda/2, 3);
       //double NN=n_e*pow(lambda_d, 3.);
@@ -797,18 +797,18 @@ double RadioScatter::makeRays(HepLorentzVector point, double e, double l, double
       //      double m_eff = exp(-(cross_section*NN/step_length));
       //      step_length=.1;
 	    //            double alpha = cross_section*NN/(step_length);
-      double alpha = cross_section*n_e*m*pow(step_length, 2);
+      double alpha = cross_section*n_e*pow(step_length, 2);
       //      double alpha = cross_section*NN*m/.0001;
-      //      double m_eff = exp(-alpha);
+            double m_eff = exp(-alpha);
       //      double m_eff = exp(-n_e/1.e9);
-      double m_eff=1-alpha;
+      //      double m_eff=1-alpha;
       //double m_eff = exp(-cross_section*n_e*pow(rad,2));
       //            cout<<lambda_d<<" "<<" "<<cross_section<<" "<<n_e<<" "<<m_eff<<endl;
       //cout<<n<<" "<<l<<" "<<n_primaries<<" "<<n_e_test<<" "<<n*n_primaries/pow(l, 3)<<" "<<m_eff<<endl;
       // double m_eff=1.-alpha+(pow(alpha, 2)/2.)-(NN*pow(cross_section/step_length, 2)/2.);
       //double m_eff=1.-alpha+(pow(alpha, 2)/2.)-(pow(alpha, 3)/6.)+(pow(alpha, 4)/24.);
       //double m_eff = 1+(cross_section/step_length)-(cross_section*NN/step_length)+(NN*pow(cross_section/step_length, 2))-pow(cross_section*NN/step_length, 2);
-      //prefactor=prefactor*m_eff;
+      prefactor=prefactor*m_eff;
 
       HepLorentzVector point_temp=point;      
       //are we calculating in a refraction region?
