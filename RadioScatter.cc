@@ -760,9 +760,11 @@ double RadioScatter::makeRays(HepLorentzVector point, double e, double l, double
 
 	//electron number density, using step length cube
       n_e = n*n_primaries/pow(step_length, 3);
-      // n_e = n*n_primaries;//1mm^-3
-      //n_e=n*n_primaries*1000.;
+      //n_e = n*n_primaries;//1mm^-3
+      double n_e_test=n*n_primaries*.001;
+      n_e=n_e_test;
       if(n_e==0)return 0;
+      //      if(n_e>1e8)n_e=1e8;
       //collision frequency (approximation from Cravens, mostly for difuse plasmas), multiplied by 3 for e/i, e/e, e/n 
 	//	  nu_col = 3.*54.*n_e/pow(e_i/k_Boltzmann, 1.5);
 	
@@ -770,10 +772,10 @@ double RadioScatter::makeRays(HepLorentzVector point, double e, double l, double
 	//(boltz(mev/k)*T(k)/m_e(mev m^2 s^-2))^1/2*cross section(mm^2)*n_e(mm^-3)
 	//=m/s*mm^-1 so multiply by 1000 to get mm/s
 	//3 is for 3 species (approx)
-	nu_col = 3.*sqrt(k_Boltzmann*7.e5*kelvin/electron_mass_c2)*1000.*5.e-9*n_e;
+	nu_col = 9*sqrt(k_Boltzmann*7.e5*kelvin/electron_mass_c2)*1000.*5.e-9*n_e/zscale;
 	//}
       //debug
-	//		nu_col=1.;
+	//	nu_col=1.;
       event.totNScatterers+=n;//track total number of scatterers
       //the full scattering amplitude pre-factor  
       double prefactor = n*n_primaries*cross_section*omega/(pow(omega, 2)+pow(nu_col, 2));
@@ -786,10 +788,10 @@ double RadioScatter::makeRays(HepLorentzVector point, double e, double l, double
       
       //      double lambda_d = step_length*zscale;
       //introduce an effective mass, to approach the macroscopic ideal
-      //double m_eff=1./(1+(n_e/1.e6));
-            step_length=lambda/4;
-            double NN=n_e*pow((2.*lambda), 3.);
-	    //double NN=n_e*pow(lambda/2, 3);
+      //      double m_eff=1./(1+(n_e/1.e7));
+      step_length=lambda;
+      double NN=n_e*pow((2.*lambda), 3.);
+      //double NN=n_e*pow(lambda/2, 3);
       //double NN=n_e*pow(lambda_d, 3.);
       //      double NN=n_e*pow(70, 3);
       //      double m_eff = exp(-(cross_section*NN/step_length));
@@ -797,14 +799,16 @@ double RadioScatter::makeRays(HepLorentzVector point, double e, double l, double
 	    //            double alpha = cross_section*NN/(step_length);
       double alpha = cross_section*n_e*m*pow(step_length, 2);
       //      double alpha = cross_section*NN*m/.0001;
-      double m_eff = exp(-alpha);
-      //      double m_eff = exp(-n_e/1.e6);
+      //      double m_eff = exp(-alpha);
+      //      double m_eff = exp(-n_e/1.e9);
+      double m_eff=1-alpha;
       //double m_eff = exp(-cross_section*n_e*pow(rad,2));
       //            cout<<lambda_d<<" "<<" "<<cross_section<<" "<<n_e<<" "<<m_eff<<endl;
-      //double m_eff=1.-alpha+(pow(alpha, 2)/2.)-(NN*pow(cross_section/step_length, 2)/2.);
+      //cout<<n<<" "<<l<<" "<<n_primaries<<" "<<n_e_test<<" "<<n*n_primaries/pow(l, 3)<<" "<<m_eff<<endl;
+      // double m_eff=1.-alpha+(pow(alpha, 2)/2.)-(NN*pow(cross_section/step_length, 2)/2.);
       //double m_eff=1.-alpha+(pow(alpha, 2)/2.)-(pow(alpha, 3)/6.)+(pow(alpha, 4)/24.);
       //double m_eff = 1+(cross_section/step_length)-(cross_section*NN/step_length)+(NN*pow(cross_section/step_length, 2))-pow(cross_section*NN/step_length, 2);
-      prefactor=prefactor*m_eff;
+      //prefactor=prefactor*m_eff;
 
       HepLorentzVector point_temp=point;      
       //are we calculating in a refraction region?
