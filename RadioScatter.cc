@@ -103,6 +103,9 @@ RadioScatter::RadioScatter(){
   //  cout<<"hist initialized"<<endl;
  }
 
+void RadioScatter::setMakeSummary(double val){
+  MAKE_SUMMARY_FILE=(int)val;
+}
 void RadioScatter::setRecordWindowLength(double nanoseconds){
   half_window= nanoseconds/2;
 }
@@ -1364,26 +1367,68 @@ int RadioScatter::writeEvent(int debug){
 //   //#undef RSCAT_HIST_RESIZE
 // }
 
-// int RadioScatter::makeSummary(TFile *f){
-//   RadioScatterEvent *RSout = new RadioScatterEvent();
-//   TTree *outtree = (TTree*)f->Get("tree");
-//   outtree->SetBranchAddress("event", &RSout);
+int RadioScatter::makeSummary(TFile *f){
+  RadioScatterEvent *rs = new RadioScatterEvent();
+  TTree *intree = (TTree*)f->Get("tree");
+  intree->SetBranchAddress("event", &rs);
+  intree->GetEntry(0);
+  TString fname = f->GetName();
+  fname.ReplaceAll(".root", "_summary.root");
+  TFile *outfile=new TFile(fname, "RECREATE"); 
+  RSEventSummary *rss = new RSEventSummary(rs->ntx, rs->nrx);
+  TTree *outtree= new TTree("sumTree", "tree of the things");
+  outtree->Branch("summary", &rss);
+  
+  int entries = intree->GetEntries();
+  for(int i=0;i<entries;i++){
+    intree->GetEntry(i);
+    rss->position=rs->position;
+    rss->direction=rs->direction;
+    rss->primaryParticleEnergy=rs->primaryParticleEnergy();
+    rss->primaryEnergyG4=rs->primaryEnergy;
+    rss->sampleRate=rs->sampleRate;
+    rss->txVoltageV=rs->txVoltage;
+    rss->txPowerW=rs->txPowerW;
+    rss->freq=rs->freq;
+    rss->totNScatterers=rs->totNScatterers;
+    rss->tx=rs->tx;
+    rss->rx=rs->rx;
+    rss->ntx=rs->ntx;
+    rss->nrx=rs->nrx;
+    
+    for(int j=0;j<rs->ntx;j++){
+      for(int k=0;k<rs->nrx;k++){
+	rss->peakV[j][k]=rs->peakV(j,k);
+	rss->peakFreq[j][k]=rs->peakFreq(j,k);
+	rss->duration[j][k]=rs->duration(j,k);
+	rss->peakPowerW[j][k]=rs->peakPowerW(j,k);
+	rss->integratedPower[j][k]=rs->integratedPower(j,k);
+	rss->pathLengthM[j][k]=rs->pathLengthM(j,k);
+	rss->rms[j][k]=rs->rms(j,k);
+	rss->effectiveCrossSection[j][k]=rs->effectiveCrossSection(j,k);
+      }
+    }
+    outfile->cd();
+    outtree->Fill();
+  }
+  outfile->Write();
+  cout<<"the summary file:"<<endl<<outfile->GetName()<<endl<<"has been written."<<endl;
+  outfile->Close();
+  return 0;
+}
 
-//   TString fname = f->GetName();
-//   fname.ReplaceAll(".root", "_summary.root");
-//   TFile *off=new TFile(fname, 
-//   RSEventSummary *RSS = new RSEventSummary();
-  
-  
-//   return 0;
-// }
+    
   void RadioScatter::close(){
     TFile *f=    ((TFile *)(gROOT->GetListOfFiles()->At(0)));
+    TString fname = f->GetName();
     f->Write();
-    cout<<"The RadioScatter root file: "<<endl<<f->GetName()<<endl<<"has been written."<<endl;
-    // if(MAKE_SUMMARY_FILE==1){
-    //   makeSummary(f);
-    // }
+    cout<<"The RadioScatter root file: "<<endl<<fname<<endl<<"has been written."<<endl;
+    f->Close();
+
+    f=TFile::Open(fname);
+    if(MAKE_SUMMARY_FILE==1){
+      makeSummary(f);
+    }
     f->Close();
     // delete(time_hist);
     // delete(fft_hist);

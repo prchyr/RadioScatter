@@ -29,6 +29,7 @@ change the system of primary energy and scaling to be more intuitive
 #include "CLHEP/Vector/LorentzVector.h"
 #include "CLHEP/Vector/ThreeVector.h"
 #include "RadioScatterEvent.hh"
+#include "RSEventSummary.hh"
 
  using namespace CLHEP;
  using namespace std;
@@ -124,7 +125,8 @@ public:
 
   int FILL_BY_EVENT=1;
   int FILL_PARTICLE_INFO=0;
-
+  int MAKE_SUMMARY_FILE=0;
+  
   int NPRIMARIES_SET=0;
   int PRIMARY_ENERGY_SET=0;
   int SCALE_BY_ENERGY=0;
@@ -135,6 +137,7 @@ public:
   void makeOutputTextFile(char* filename);
   void writeToTextFile();
   void makeTimeHist();
+  void setMakeSummary(double val);
   int setNTx(double n);
   int setNRx(double n);
   void setTxPos(double xin, double yin, double zin, int index=0);
@@ -203,6 +206,7 @@ public:
   vector<vector<TH1F*>> scaleHist(float num_events);
   int writeRun(float num_events=1., int debug=0);
   int writeEvent(int debug=0);
+  int makeSummary(TFile *f);
   void close();
 
 
