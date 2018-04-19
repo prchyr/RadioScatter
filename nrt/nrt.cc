@@ -196,7 +196,7 @@ int main(int argc,char** argv)
     int n=0;
 
     //make a sphere
-    double div=40;
+    double div=20;
     double radianstep=twopi/div;
     radio->setNRx(div*(div/2));
     while(i<twopi){
@@ -377,7 +377,7 @@ int main(int argc,char** argv)
       radio->setNPrimaries(pow(10, i));
       //      radio->setScaleByEnergy(1);
       //	cout<<rx.phi()<<" "<<radio->rx.phi()<<endl;
-    	runManager->BeamOn(10);
+    	runManager->BeamOn(1);
     	// runManager->BeamOn(1);
     	// runManager->BeamOn(1);
     	// runManager->BeamOn(1);

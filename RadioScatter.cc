@@ -763,9 +763,11 @@ double RadioScatter::makeRays(HepLorentzVector point, double e, double l, double
 
 	//electron number density, using step length cube
       n_e = n*n_primaries/pow(step_length, 3);
-      //n_e = n*n_primaries;//1mm^-3
+
+      //this is the number density, but over 1cm^3. it may under-estimate. 
       double n_e_test=n*n_primaries*.001;
       n_e=n_e_test;
+      
       if(n_e==0)return 0;
       //      if(n_e>1e8)n_e=1e8;
       //collision frequency (approximation from Cravens, mostly for difuse plasmas), multiplied by 3 for e/i, e/e, e/n 
@@ -775,7 +777,7 @@ double RadioScatter::makeRays(HepLorentzVector point, double e, double l, double
 	//(boltz(mev/k)*T(k)/m_e(mev m^2 s^-2))^1/2*cross section(mm^2)*n_e(mm^-3)
 	//=m/s*mm^-1 so multiply by 1000 to get mm/s
 	//3 is for 3 species (approx)
-	nu_col = 3*sqrt(k_Boltzmann*7.e5*kelvin/electron_mass_c2)*1000.*5.e-9*n_e/zscale;
+	nu_col = 3*sqrt(k_Boltzmann*7.e5*kelvin/electron_mass_c2)*1000.*5.e-9*n_e;
 	//}
       //debug
 	//	nu_col=1.;
@@ -783,27 +785,32 @@ double RadioScatter::makeRays(HepLorentzVector point, double e, double l, double
       //the full scattering amplitude pre-factor  
       double prefactor = n*n_primaries*cross_section*omega/(pow(omega, 2)+pow(nu_col, 2));
 
-      double dist = (point.vect()-tx[i].vect()).mag();
-      double rad = 70./(sqrt(pow(point.x(), 2)+pow(point.y(), 2)));
+      double dist = (sqrt(pow(point.x(), 2)+pow(point.y(), 2)));
+      if(dist>100)dist=100;
+      double rad = 100.- dist;
+      if(rad<0)rad=100;
       //      double lambda_d = sqrt(epsilon0*k_b*7.e5*kelvin/(n_e*pow(e_SI, 2)))/pow(m, 2);
-      //      double lambda_d = sqrt(k_Boltzmann*7.e5*kelvin*m/(n_e*4*pi));
-      double lambda_d = 740.*sqrt(7.e5/n_e)*cm;
+      double lambda_d = sqrt(k_Boltzmann*7.e5*kelvin*m/(n_e*4*pi));
       
-      //      double lambda_d = step_length*zscale;
-      //introduce an effective mass, to approach the macroscopic ideal
-      //      double m_eff=1./(1+(n_e/1.e7));
-      step_length=lambda/4;
-      double NN=n_e*pow((2.*lambda), 3.);
-      //double NN=n_e*pow(lambda/2, 3);
-      //double NN=n_e*pow(lambda_d, 3.);
-      //      double NN=n_e*pow(70, 3);
-      //      double m_eff = exp(-(cross_section*NN/step_length));
-      //      step_length=.1;
-	    //            double alpha = cross_section*NN/(step_length);
-      double alpha = cross_section*n_e*pow(step_length, 2);
-      //      double alpha = cross_section*NN*m/.0001;
-            double m_eff = exp(-alpha);
-      //      double m_eff = exp(-n_e/1.e9);
+
+      //this is the derived one where we use the interrogating wavelength as the volume/length.
+      //step_length=lambda/4;
+      //double alpha = cross_section*n_e*pow(step_length, 2);
+
+      //this one intoduces the 'causal volume', or the region in which the shielding electrons live. it is in terms of cm (due to the number density, to get the units right) but alpha is a unitless parameter 
+      double alpha = cross_section*pow(n_e, 4./3.)*pow(2.*lifetime*c_light/10., 3)/10.;
+      //      double alpha = cross_section*pow(n_e, 4./3.)*(.5*pi*pow(10., 2)*5.);
+      //double alpha = cross_section*n_e*pow(4.*lifetime*c_light, 2);
+      //this one uses the above substitution but plugs it into our expression
+      //      double alpha = cross_section*n_e*sqrt(rad/(cross_section*n_e));
+      
+      
+      //this one uses the moliere radius as the upper bound on d, using r=sqrt(cross_section*n_e*d^4) results in
+      //      double alpha = pow(cross_section, 2)*pow(n*n_primaries, 2)*1e8;
+      
+
+      double m_eff = exp(-alpha);
+	    //      double m_eff = exp(-n_e/1.e9);
       //      double m_eff=1-alpha;
       //double m_eff = exp(-cross_section*n_e*pow(rad,2));
       //            cout<<lambda_d<<" "<<" "<<cross_section<<" "<<n_e<<" "<<m_eff<<endl;
