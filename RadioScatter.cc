@@ -212,7 +212,7 @@ void RadioScatter::setTxPower(double p){
 
   cout<<"n primaries: "<<n_primaries<<endl;
   NPRIMARIES_SET=1;
-  //  cout<<"cross-section"<<cross_section<<" "<<cross_section*m<<endl;
+  //  cout<<"cross-section"<<e_radius<<" "<<e_radius*m<<endl;
 }
 void RadioScatter::setTargetEnergy(double e){
   setNPrimaries(e-event.primaryEnergy);
@@ -354,7 +354,8 @@ use the calculated refraction vectors (from makeRays()) to sort out the correct 
   //find angle between plane of incidence and polarization vector
   double theta = atan(point.y()/point.z());
   double angle_dependence=1.;
- 
+
+  
   Hep3Vector nhat((point-rx[index]).vect().unit());
 
   Hep3Vector vert(0,1.,0), horiz(0,0,1.); 
@@ -400,12 +401,15 @@ double RadioScatter::getRxAmplitude(int txindex,int rxindex, HepLorentzVector po
   Hep3Vector vert(0,1.,0), horiz(0,0,1.); 
 
   if(polarization=="vertical"){
+    Hep3Vector pol=-one.unit().cross(one.unit().cross(vert));//for a dipole rad pattern
     //angle_dependence = vert.cross(nhat).mag();
-    angle_dependence = nhat.cross(nhat.cross(vert)).mag();
+    //    angle_dependence = nhat.cross(nhat.cross(vert)).mag();
+    angle_dependence = nhat.cross(nhat.cross(pol)).mag();
   }
   else{
+    Hep3Vector pol=-one.unit().cross(one.unit().cross(horiz));
     //angle_dependence = horiz.cross(nhat).mag();
-    angle_dependence = nhat.cross(nhat.cross(horiz)).mag();
+    angle_dependence = nhat.cross(nhat.cross(pol)).mag();
   }
 
   double amplitude = ((tx_voltage)/dist)*angle_dependence;
@@ -704,7 +708,7 @@ calculate the phase, the amplitude, and the prefactors for cross-section,
 // 	//for each ionization e scatterer
 // 	double filter=1.;//TODO
 // 	//the full scattering amplitude pre-factor  
-// 	double prefactor = filter*n*n_primaries*cross_section*rx_amplitude*omega/(pow(omega, 2)+pow(nu_col, 2));
+// 	double prefactor = filter*n*n_primaries*e_radius*rx_amplitude*omega/(pow(omega, 2)+pow(nu_col, 2));
 
 // 	//screwing around with plasma parameter
 // 	//double m_eff=1./(.033*pow(k_Boltzmann*7.e5/pow(n_e, .33), 1.5));
@@ -754,71 +758,48 @@ double RadioScatter::makeRays(HepLorentzVector point, double e, double l, double
 
       //would RF from the transmitter reached this point?
       if(checkTxOn(getTxTime(i,point))!=1)return 0;
+
+      //calculate plasma freq and collison freq
       
       step_length=l;//to make our density approximation
       double n = e/e_i;//edeposited/ionization E
       double n_e =1.;
-      //calculate plasma freq and collison freq
+      
       if(step_length==0)return 0;
-
-	//electron number density, using step length cube
+      //electron number density, using step length cube, it may over-estimate.
       n_e = n*n_primaries/pow(step_length, 3);
-
       //this is the number density, but over 1cm^3. it may under-estimate. 
       double n_e_test=n*n_primaries*.001;
-      n_e=n_e_test;
-      
+      n_e=n_e_test/1000.;//in mm^-3
       if(n_e==0)return 0;
-      //      if(n_e>1e8)n_e=1e8;
-      //collision frequency (approximation from Cravens, mostly for difuse plasmas), multiplied by 3 for e/i, e/e, e/n 
-	//	  nu_col = 3.*54.*n_e/pow(e_i/k_Boltzmann, 1.5);
-	
-	//this is from Raizer, and is the simplest, just using a simple cross section
-	//(boltz(mev/k)*T(k)/m_e(mev m^2 s^-2))^1/2*cross section(mm^2)*n_e(mm^-3)
-	//=m/s*mm^-1 so multiply by 1000 to get mm/s
-	//3 is for 3 species (approx)
-	nu_col = 3*sqrt(k_Boltzmann*7.e5*kelvin/electron_mass_c2)*1000.*5.e-9*n_e;
+
+      //this is from Raizer, and is the simplest, just using a simple cross section
+      //(boltz(mev/k)*T(k)/m_e(mev mm^2 ns^-2))^1/2*cross section(mm^2)*n_e(mm^-3)
+      //3 is for 3 species (approx)
+      //it's tricky because the collision rates are not well defined. this may over or under estimate
+      nu_col = 3*sqrt(k_Boltzmann*7.e5*kelvin/electron_mass_c2)*5.e-9*(n_e);
 	//}
       //debug
-	//	nu_col=1.;
+      //	nu_col=1.;
       event.totNScatterers+=n;//track total number of scatterers
+
       //the full scattering amplitude pre-factor  
-      double prefactor = n*n_primaries*cross_section*omega/(pow(omega, 2)+pow(nu_col, 2));
+      double prefactor = n*n_primaries*e_radius*omega/(pow(omega, 2)+pow(nu_col, 2));
 
-      double dist = (sqrt(pow(point.x(), 2)+pow(point.y(), 2)));
-      if(dist>100)dist=100;
-      double rad = 100.- dist;
-      if(rad<0)rad=100;
-      //      double lambda_d = sqrt(epsilon0*k_b*7.e5*kelvin/(n_e*pow(e_SI, 2)))/pow(m, 2);
-      double lambda_d = sqrt(k_Boltzmann*7.e5*kelvin*m/(n_e*4*pi));
+      //debye length, not used.
+      //      double lambda_d = sqrt(k_Boltzmann*7.e5*kelvin*m/(n_e*4*pi));
       
-
-      //this is the derived one where we use the interrogating wavelength as the volume/length.
+      //screening term
+      //this is the derived screening term where we use the interrogating wavelength as the volume/length.
       //step_length=lambda/4;
-      //double alpha = cross_section*n_e*pow(step_length, 2);
+      //double alpha = e_radius*n_e*pow(step_length, 2);
 
-      //this one intoduces the 'causal volume', or the region in which the shielding electrons live. it is in terms of cm (due to the number density, to get the units right) but alpha is a unitless parameter 
-      double alpha = cross_section*pow(n_e, 4./3.)*pow(2.*lifetime*c_light/10., 3)/10.;
-      //      double alpha = cross_section*pow(n_e, 4./3.)*(.5*pi*pow(10., 2)*5.);
-      //double alpha = cross_section*n_e*pow(4.*lifetime*c_light, 2);
-      //this one uses the above substitution but plugs it into our expression
-      //      double alpha = cross_section*n_e*sqrt(rad/(cross_section*n_e));
+      //this one intoduces the 'causal volume', or the region in which the shielding electrons live. 
+      double alpha = e_radius*pow((n_e), 4./3.)*pow(2.*lifetime*c_light, 3);
       
-      
-      //this one uses the moliere radius as the upper bound on d, using r=sqrt(cross_section*n_e*d^4) results in
-      //      double alpha = pow(cross_section, 2)*pow(n*n_primaries, 2)*1e8;
-      
+      double attn_factor = exp(-alpha);
 
-      double m_eff = exp(-alpha);
-	    //      double m_eff = exp(-n_e/1.e9);
-      //      double m_eff=1-alpha;
-      //double m_eff = exp(-cross_section*n_e*pow(rad,2));
-      //            cout<<lambda_d<<" "<<" "<<cross_section<<" "<<n_e<<" "<<m_eff<<endl;
-      //cout<<n<<" "<<l<<" "<<n_primaries<<" "<<n_e_test<<" "<<n*n_primaries/pow(l, 3)<<" "<<m_eff<<endl;
-      // double m_eff=1.-alpha+(pow(alpha, 2)/2.)-(NN*pow(cross_section/step_length, 2)/2.);
-      //double m_eff=1.-alpha+(pow(alpha, 2)/2.)-(pow(alpha, 3)/6.)+(pow(alpha, 4)/24.);
-      //double m_eff = 1+(cross_section/step_length)-(cross_section*NN/step_length)+(NN*pow(cross_section/step_length, 2))-pow(cross_section*NN/step_length, 2);
-      prefactor=prefactor*m_eff;
+      prefactor=prefactor*attn_factor;
 
       HepLorentzVector point_temp=point;      
       //are we calculating in a refraction region?
@@ -851,9 +832,13 @@ double RadioScatter::makeRays(HepLorentzVector point, double e, double l, double
       	  double E_imag = prefactor*rx_amplitude*(-nu_col*cos(rx_phase)+omega*sin(rx_phase));
       
 	  if(abs(E_real)<tx_voltage){//simple sanity check      
-	    time_hist[i][j]->Fill(rx_time, E_real/samplingperiod);
-	    re_hist[i][j]->Fill(rx_time, E_real/samplingperiod);
-	    im_hist[i][j]->Fill(rx_time, E_imag/samplingperiod);
+	    //time_hist[i][j]->Fill(rx_time, E_real/samplingperiod);
+	    //re_hist[i][j]->Fill(rx_time, E_real/samplingperiod);
+	    //im_hist[i][j]->Fill(rx_time, E_imag/samplingperiod);
+
+	    time_hist[i][j]->Fill(rx_time, E_real);
+	    re_hist[i][j]->Fill(rx_time, E_real);
+	    im_hist[i][j]->Fill(rx_time, E_imag);
 	  }
 	  point_time+=samplingperiod;
 	  point_temp.setT(point_time);
@@ -876,9 +861,13 @@ double RadioScatter::makeRays(HepLorentzVector point, double e, double l, double
 	  double E_imag = prefactor*rx_amplitude*(-nu_col*cos(rx_phase)+omega*sin(rx_phase));
 
 	  if(abs(E_real)<tx_voltage){//simple sanity check
-	    time_hist[i][j]->Fill(rx_time, E_real/samplingperiod);
-	    re_hist[i][j]->Fill(rx_time, E_real/samplingperiod);
-	    im_hist[i][j]->Fill(rx_time, E_imag/samplingperiod);
+	    //time_hist[i][j]->Fill(rx_time, E_real/samplingperiod);
+	    //re_hist[i][j]->Fill(rx_time, E_real/samplingperiod);
+	    //im_hist[i][j]->Fill(rx_time, E_imag/samplingperiod);
+
+	    time_hist[i][j]->Fill(rx_time, E_real);
+	    re_hist[i][j]->Fill(rx_time, E_real);
+	    im_hist[i][j]->Fill(rx_time, E_imag);
 	  }
 	  point_time+=samplingperiod;
 	  point_temp.setT(point_time);
@@ -917,7 +906,7 @@ double RadioScatter::doScreening(TTree * tree, int entry){
     if(t_a0>t_b1||t_a1<t_b0)continue;
       double amp = getAmplitudeFromAt(tx_voltage, *test, point);
       double phase = getPhaseFromAt(*test, point);
-      double ee = -(cross_section*amp*cos(phase)*n_e*n_primaries);//negative from polarity flip
+      double ee = -(e_radius*amp*cos(phase)*n_e*n_primaries);//negative from polarity flip
       //	if(ee!=0&&!isnan(ee)&&!isinf(ee))E_eff+=ee;
 	E_eff+=ee;
 	//	cout<<i-entry<<endl;
@@ -956,7 +945,7 @@ double RadioScatter::doScreening(TTree * tree, int entry){
 //     zz.push_back(test->z());
 //     double amp = getAmplitudeFromAt(tx_voltage, *test, point);
 //     double phase = getPhaseFromAt(*test, point);
-//     double ee = -(cross_section*amp*cos(phase)*n_e*n_primaries);//negative from polarity flip
+//     double ee = -(e_radius*amp*cos(phase)*n_e*n_primaries);//negative from polarity flip
 //     //	if(ee!=0&&!isnan(ee)&&!isinf(ee))E_eff+=ee;
 //     E_eff+=ee;
 //     //	cout<<i-entry<<endl;

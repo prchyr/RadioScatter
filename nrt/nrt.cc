@@ -196,7 +196,7 @@ int main(int argc,char** argv)
     int n=0;
 
     //make a sphere
-    double div=20;
+    double div=40;
     double radianstep=twopi/div;
     radio->setNRx(div*(div/2));
     while(i<twopi){
@@ -251,7 +251,7 @@ int main(int argc,char** argv)
     //   runManager->BeamOn(1);
     //   //      cout<<tx.x()<<" "<<tx.y()<<" "<<tx.z()<<endl;
     // }
-            runManager->BeamOn(100);
+            runManager->BeamOn(1);
     //    runManager->BeamOn(100);
   }
 

@@ -80,13 +80,13 @@ class RadioScatter{
   //e^2/m_e
   double plasma_const = sqrt(4*pi*electron_charge*electron_charge/electron_mass_c2);
 
-  //e^2/(4pi epislon0 m c^2), dividing by meters puts things in terms of meters, not mm as is default. makes distance calculations correct, i.e. at a distance of 1 meter, a received voltage from a 1 V output power 
-  double cross_section=classic_electr_radius/m;
+  //e^2/(4pi epislon0 m c^2), in units of m
+  double e_radius=classic_electr_radius/m;
 
   double half_window = 300;//number of nanoseconds in 1/2 of the record window. can be changed;   
 
   int useAttnLengthFlag=0;
-  double attnLength=460*m;
+  double attnLength=460;//meters
   //  ofstream of;
   
   double frequency, period, lambda, k;

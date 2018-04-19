@@ -53,6 +53,10 @@ RSmessenger::RSmessenger(RadioScatter *rscat)
   nPrimariesCommand->SetGuidance("set NPrimaries!");
   nPrimariesCommand->SetParameterName("choice", false);
 
+  makeSummaryCommand = new G4UIcmdWithADouble("/RS/setMakeSummary", this);
+  makeSummaryCommand->SetGuidance("set makeSummary!");
+  makeSummaryCommand->SetParameterName("choice", false);
+  
   showCWCommand = new G4UIcmdWithADouble("/RS/setShowCWFlag", this);
   showCWCommand->SetGuidance("set ShowCW!");
   showCWCommand->SetParameterName("choice", false);
@@ -112,6 +116,7 @@ RSmessenger::~RSmessenger()
   delete lifetimeCommand;
   delete windowLengthCommand;
   delete setFillByEventCommand;
+  delete makeSummaryCommand;
   delete setScaleByEnergyCommand;
   delete setFillParticleInfoCommand;
   delete voltageCommand;
@@ -132,6 +137,7 @@ void RSmessenger::SetNewValue(G4UIcommand* command,G4String newValue)
   if(command==powerCommand)rs->setTxPower(val);
   if(command==setNTxCommand)rs->setNTx(val);
   if(command==setNRxCommand)rs->setNRx(val);
+  if(command==makeSummaryCommand)rs->setMakeSummary(val);
   if(command==setScaleByEnergyCommand)rs->setScaleByEnergy(val);
   if(command==lifetimeCommand)rs->setPlasmaLifetime(val);
   if(command==setFillByEventCommand)rs->setFillByEvent(val);
