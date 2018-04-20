@@ -251,7 +251,7 @@ int main(int argc,char** argv)
     //   runManager->BeamOn(1);
     //   //      cout<<tx.x()<<" "<<tx.y()<<" "<<tx.z()<<endl;
     // }
-    //            runManager->BeamOn(1);
+    //runManager->BeamOn(1);
     runManager->BeamOn(100);
   }
 

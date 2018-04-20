@@ -76,7 +76,7 @@ file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh ${RS_INCLUDE_DIR}/*.hh)
 add_executable(slac slac.cc ${sources} ${headers})
 #add_executable(threshscan threshscan.cc ${sources} ${headers})
 
-target_link_libraries(slac  ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} RadioScatterEvent)
+target_link_libraries(slac  ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} RadioScatter)
 #target_link_libraries(threshscan ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} RadioScatterEvent)
 #----------------------------------------------------------------------------
 # Copy all scripts to the build directory, i.e. the directory in which we
