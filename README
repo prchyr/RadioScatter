@@ -77,7 +77,7 @@ The RadioScatter module calculates rf scattering from a point in 4 space. this p
 
 some examples:
 
-the examples directory has some use cases that don't involve geant4. to compile, be sure to link to the radio scatter event library, i e -lRadioScatterEvent
+the examples directory has some use cases that don't involve geant4. to compile, be sure to link to the radio scatter library, i e -lRadioScatter
 
 how it works within GEANT4:
 
