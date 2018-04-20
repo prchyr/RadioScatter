@@ -174,7 +174,7 @@ int main(int argc,char** argv)
    G4String command = "/control/execute ";
    UImanager->ApplyCommand(command+macro);
 
-   if(macro=="anglemacro.mac"){
+   if(macro.contains("anglemacro.mac")){
      TRandom *ran = new TRandom();
      Hep3Vector rx(1., 1., 1.), tx(1., 1., 1.);
     double mag=100000;
@@ -251,12 +251,12 @@ int main(int argc,char** argv)
     //   runManager->BeamOn(1);
     //   //      cout<<tx.x()<<" "<<tx.y()<<" "<<tx.z()<<endl;
     // }
-    //runManager->BeamOn(1);
-    runManager->BeamOn(100);
+    runManager->BeamOn(1);
+    //runManager->BeamOn(100);
   }
 
 
-   if (macro=="run1.mac"){
+   if (macro.contains("run1.mac")){
 
      Hep3Vector tx, rx;
       double theta=0, phi=0;
@@ -297,12 +297,12 @@ int main(int argc,char** argv)
       }
    }
 
-   if(macro=="effectivevol.mac"){
+   if(macro.contains("effectivevol.mac")){
      //nothing here
      
    }
    
-   if (macro=="threshmacro.mac"){
+   if (macro.contains("threshmacro.mac")){
 
      Hep3Vector tx, rx;
      double theta=0, phi=0;
@@ -368,7 +368,7 @@ int main(int argc,char** argv)
   
 
   
-  if(macro=="collisionmacro.mac"){
+     if(macro.contains("collisionmacro.mac")){
     auto gpsDat=G4GeneralParticleSourceData::Instance();
     auto gps = gpsDat->GetCurrentSource();
     radio->setPrimaryEnergy(gps->GetParticleEnergy());
