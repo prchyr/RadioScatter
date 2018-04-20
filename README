@@ -2,11 +2,14 @@ this is the RadioScatter module. It has been made to run independently of, or wi
 
 ROOT 6.08 or higher (https://root.cern.ch/downloading-root)
 CLHEP (https://gitlab.cern.ch/CLHEP/CLHEP)
+
+to run inside of GEANT4, you'll need to have that installed
+
 GEANT4* (https://geant4.web.cern.ch/geant4/support/download.shtml)
 
-*technically you can use any monte-carlo program you want with RadioScatter, but this installation requires GEANT4 in order to build the module into a working simulation.
+*technically you can use any monte-carlo program you want with RadioScatter, but this package includes some GEANT4 programs, built on their examples, that harness the full power of GEANT to make realistic rf scattering signals. if you want to use those, i'm gonna assume that you know how to use GEANT4 and ROOT.
 
-i'm gonna assume that you know how to use GEANT4 and ROOT. CLHEP is just a nice library for doing calculations with 3 and 4-vectors that i like quite well, so install that too plz. sometimes if you have put CLHEP in a strange place you need to set CLHEP_DIR to the place where you put clhep, but it will probably be found if you put it somewhere logical (like installed it to usr/local)
+CLHEP is just a nice library for doing calculations with 3 and 4-vectors that i like quite well, so install that too plz. sometimes if you have put CLHEP in a strange place you need to set CLHEP_DIR to the place where you put clhep, but it will probably be found if you put it somewhere logical (like installed it to usr/local)
 
 
 ************
@@ -65,12 +68,16 @@ there is currently no documentation beyond this readme, comments in the header f
 
 http://arxiv.org/abs/1710.02883
 
-The included slac_rf module is built around one of the GEANT4 examples, and i only claim responsibility for my changes-the underlying beauty of GEANT4 is not in any way my doing!
+The included slac_rf and nrt modules are built around one of the GEANT4 examples, and i only claim responsibility for my changes-the underlying beauty of GEANT4 is not in any way my doing!
 
 
 how it works, breifly:
 
 The RadioScatter module calculates rf scattering from a point in 4 space. this point can be anything. it is most useful to have the points be from some monte-carlo generation, like GEANT4, which is what i used to write it. you can probably fit it into any MC program with relative ease. details of the math are in the paper linked above.
+
+some examples:
+
+the examples directory has some use cases that don't involve geant4. to compile, be sure to link to the radio scatter event library, i e -lRadioScatterEvent
 
 how it works within GEANT4:
 

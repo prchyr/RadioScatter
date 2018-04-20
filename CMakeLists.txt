@@ -12,20 +12,6 @@ project(rs)
 
 
 
-#----------------------------------------------------------------------------
-# Find Geant4 package, activating all available UI and Vis drivers by default
-# You can set WITH_GEANT4_UIVIS to OFF via the command line or ccmake/cmake-gui
-# to build a batch mode only executable
-#
-option(WITH_GEANT4_UIVIS "Build example with Geant4 UI and Vis drivers" ON)
-if(WITH_GEANT4_UIVIS)
-  find_package(Geant4 REQUIRED ui_all vis_all)
-else()
-  find_package(Geant4 REQUIRED)
-endif()
-
-
-
 unset(CMAKE_MODULE_PATH)
 #use the CLHEP things
 #will generate a bunch of library modules CLHEP::stuff that can be linked to
@@ -51,13 +37,7 @@ else()
   set(RS_INSTALL_DIR /usr/local/include/RadioScatter)
   set(LIB_INSTALL_DIR /usr/local/lib)
 endif()
-# # Setup Geant4 include directories and compile definitions
-# Setup include directory for this project
-#
 
-
-
-include(${Geant4_USE_FILE})
 
 include_directories(${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include ${CLHEP_INCLUDE_DIR} ${ROOT_INCLUDE_DIRS} ${RS_INCLUDE_DIR} ${RS_INCLUDE_DIR}/../)
 
@@ -74,52 +54,15 @@ file(GLOB HEADER_FILES ${RS_INCLUDE_DIR}/*.hh ${CLHEP_INCLUDE_DIR}/Vector/*.h ${
 
 #make the ROOT dictionaries and shared object library for reading the event tree
 
-ROOT_GENERATE_DICTIONARY(G__RadioScatterEvent ${HEADER_FILES} LINKDEF ${RS_INCLUDE_DIR}/LinkDef.h)
-#ROOT_GENERATE_DICTIONARY(G__RSEventSummary ${HEADER_FILES} LINKDEF ${RS_INCLUDE_DIR}/LinkDef.h)
-
-add_library(RadioScatterEvent SHARED ${SOURCE_FILES} G__RadioScatterEvent.cxx)
-#add_library(RSEventSummary SHARED ${SOURCE_FILES} G__RSEventSummary.cxx)
-
-#target_link_libraries(RadioScatterEvent ${ROOT_LIBRARIES} CLHEP-Vector-${CLHEP_VERSION})
-target_link_libraries(RadioScatterEvent ${ROOT_LIBRARIES} CLHEP::Vector)
-#target_link_libraries(RSEventSummary ${ROOT_LIBRARIES} CLHEP::Vector)
+ROOT_GENERATE_DICTIONARY(G__RadioScatter ${HEADER_FILES} LINKDEF ${RS_INCLUDE_DIR}/LinkDef.h)
 
 
-#add_custom_target(G__RadioScatterEvent.pcm DEPENDS G__RadioScatterEvent)
+add_library(RadioScatter SHARED ${SOURCE_FILES} G__RadioScatter.cxx)
 
-#----------------------------------------------------------------------------
-# Add the executable, and link it to the Geant4 libraries
-#
 
-# add_executable(slac slac.cc ${sources} ${headers})
-# add_executable(threshscan threshscan.cc ${sources} ${headers})
 
-# target_link_libraries(slac  ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} RadioScatterEvent)
-# target_link_libraries(threshscan ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} RadioScatterEvent)
-# #----------------------------------------------------------------------------
-# # Copy all scripts to the build directory, i.e. the directory in which we
-# # build B4a. This is so that we can run the executable directly because it
-# # relies on these scripts being in the current working directory.
-# #
-# set(SLAC_SCRIPTS
-#   slac.out
-#   slac.in
-#   gui.mac
-#   init_vis.mac
-#   threshmacro.mac
-#   run1.mac
-#   run2.mac
-#   run3.mac
-#   vis.mac
-#   )
+target_link_libraries(RadioScatter ${ROOT_LIBRARIES} CLHEP::Vector)
 
-# foreach(_script ${SLAC_SCRIPTS})
-#   configure_file(
-#     ${PROJECT_SOURCE_DIR}/${_script}
-#     ${PROJECT_BINARY_DIR}/${_script}
-#     COPYONLY
-#     )
-# endforeach()
 
 #----------------------------------------------------------------------------
 # Install the executable to 'bin' directory under CMAKE_INSTALL_PREFIX
@@ -129,11 +72,11 @@ install (FILES ${RS_INCLUDE_DIR}/RadioScatter.hh DESTINATION ${RS_INSTALL_DIR})
 install (FILES ${RS_INCLUDE_DIR}/RadioScatter.cc DESTINATION ${RS_INSTALL_DIR})
 install (FILES ${RS_INCLUDE_DIR}/RadioScatterEvent.hh DESTINATION ${RS_INSTALL_DIR})
 install (FILES ${RS_INCLUDE_DIR}/RadioScatterEvent.cc DESTINATION ${RS_INSTALL_DIR})
-install (FILES ${PROJECT_BINARY_DIR}/libRadioScatterEvent_rdict.pcm DESTINATION ${LIB_INSTALL_DIR})
+install (FILES ${PROJECT_BINARY_DIR}/libRadioScatter_rdict.pcm DESTINATION ${LIB_INSTALL_DIR})
 
 install (FILES ${RS_INCLUDE_DIR}/RSEventSummary.hh DESTINATION ${RS_INSTALL_DIR})
 install (FILES ${RS_INCLUDE_DIR}/RSEventSummary.cc DESTINATION ${RS_INSTALL_DIR})
 #install (FILES ${PROJECT_BINARY_DIR}/libRSEventSummary_rdict.pcm DESTINATION ${LIB_INSTALL_DIR})
 
-install (TARGETS RadioScatterEvent LIBRARY DESTINATION ${LIB_INSTALL_DIR})
+install (TARGETS RadioScatter LIBRARY DESTINATION ${LIB_INSTALL_DIR})
 #install (TARGETS RSEventSummary LIBRARY DESTINATION ${LIB_INSTALL_DIR})
