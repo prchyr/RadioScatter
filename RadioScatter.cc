@@ -678,7 +678,7 @@ double RadioScatter::makeRays(HepLorentzVector point, double e, double l, double
       n_e = n*n_primaries/pow(step_length, 3);
       //this is the number density, but over 1cm^3. it may under-estimate. 
       double n_e_test=n*n_primaries*.001;
-      n_e=n_e_test/1000.;//in mm^-3
+      n_e=n_e_test;
       if(n_e==0)return 0;
 
       //this is from Raizer, and is the simplest, just using a simple cross section
@@ -688,27 +688,21 @@ double RadioScatter::makeRays(HepLorentzVector point, double e, double l, double
       nu_col = 3*sqrt(k_Boltzmann*7.e5*kelvin/electron_mass_c2)*5.e-9*(n_e);
 	//}
       //debug
-      //	nu_col=1.;
+      nu_col=0.;
       event.totNScatterers+=n;//track total number of scatterers
 
       //the full scattering amplitude pre-factor  
-      double prefactor = n*n_primaries*e_radius*omega/(pow(omega, 2)+pow(nu_col, 2));
+      double prefactor = -n*n_primaries*e_radius*omega/(pow(omega, 2)+pow(nu_col, 2));
 
-      //debye length, not used.
-      //      double lambda_d = sqrt(k_Boltzmann*7.e5*kelvin*m/(n_e*4*pi));
+      //the screening term. as derived in paper.
+      double alpha = e_radius*.01*n_e*(omega*1.e9);
+
+
       
-      //screening term
-      //this is the derived screening term where we use the interrogating wavelength as the volume/length.
-      //step_length=lambda/4;
-      //double alpha = e_radius*n_e*pow(step_length, 2);
+       double attn_factor = exp(-alpha);
 
-      //this one intoduces the 'causal volume', or the region in which the shielding electrons live. 
-      double alpha = e_radius*pow((n_e), 4./3.)*pow(2.*lifetime*c_light, 3);
+       prefactor=prefactor*attn_factor;
       
-      double attn_factor = exp(-alpha);
-
-      prefactor=prefactor*attn_factor;
-
       HepLorentzVector point_temp=point;      
       //are we calculating in a refraction region?
       if(REFRACTION_FLAG==1){
@@ -769,13 +763,13 @@ double RadioScatter::makeRays(HepLorentzVector point, double e, double l, double
 	  double E_imag = prefactor*rx_amplitude*(-nu_col*cos(rx_phase)+omega*sin(rx_phase));
 
 	  if(abs(E_real)<tx_voltage){//simple sanity check
-	    //time_hist[i][j]->Fill(rx_time, E_real/samplingperiod);
-	    //re_hist[i][j]->Fill(rx_time, E_real/samplingperiod);
-	    //im_hist[i][j]->Fill(rx_time, E_imag/samplingperiod);
+	    time_hist[i][j]->Fill(rx_time, E_real/samplingperiod);
+	    re_hist[i][j]->Fill(rx_time, E_real/samplingperiod);
+	    im_hist[i][j]->Fill(rx_time, E_imag/samplingperiod);
 
-	    time_hist[i][j]->Fill(rx_time, E_real);
-	    re_hist[i][j]->Fill(rx_time, E_real);
-	    im_hist[i][j]->Fill(rx_time, E_imag);
+	    // time_hist[i][j]->Fill(rx_time, E_real);
+	    // re_hist[i][j]->Fill(rx_time, E_real);
+	    // im_hist[i][j]->Fill(rx_time, E_imag);
 	  }
 	  point_time+=samplingperiod;
 	  point_temp.setT(point_time);

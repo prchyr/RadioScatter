@@ -86,7 +86,8 @@ class RadioScatter{
   double half_window = 300;//number of nanoseconds in 1/2 of the record window. can be changed;   
 
   int useAttnLengthFlag=0;
-  double attnLength=460;//meters
+  //  double attnLength=460;//meters
+  double attnLength=1400.;//dzb length for upper 1.5km at pole
   //  ofstream of;
   
   double frequency, period, lambda, k;

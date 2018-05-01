@@ -43,7 +43,7 @@ double RadioScatterEvent::effectiveCrossSection(int txindex, int rxindex){
   //  cout<<r_rx<<" "<<r_tx<<" "<<lambda<<" "<<peakPowerW(txindex, rxindex)<<endl;
 
   //  return (pow(4.*pi, 2)*pow(pathLengthM(txindex, rxindex), 2)*peakPowerW(txindex, rxindex))/(txPowerW*pow(lambda, 2));
-  return (pow(4.*pi, 2)*pow(r_tx, 2)*pow(r_rx, 2)*peakPowerW(txindex, rxindex))/(txPowerW*pow(lambda, 2));
+  return (pow(4.*pi, 3)*pow(r_tx, 2)*pow(r_rx, 2)*peakPowerW(txindex, rxindex))/(txPowerW*pow(lambda, 2));
 }
 
 

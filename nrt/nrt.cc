@@ -373,7 +373,8 @@ int main(int argc,char** argv)
     auto gps = gpsDat->GetCurrentSource();
     radio->setPrimaryEnergy(gps->GetParticleEnergy());
  
-    for(int i=15;i>1;i--){
+    //    for(int i=15;i>1;i--){
+      for(int i=2;i<16;i++){
       radio->setNPrimaries(pow(10, i));
       //      radio->setScaleByEnergy(1);
       //	cout<<rx.phi()<<" "<<radio->rx.phi()<<endl;
