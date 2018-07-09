@@ -620,7 +620,7 @@ TH1F * RadioScatter::getDirectSignal(int txindex, int rxindex, const TH1F *in){
     //cout<<"asdfasfd"<<endl;
     rx[rxindex].setT(in->GetBinCenter(i));
     if(checkTxOn(getTxTime(txindex, rx[rxindex], 1))==1){
-      //  cout<<"flag check OK"<<endl;
+      //      cout<<"flag check OK"<<endl;
       //f      cout<<rx_amp*cos(rx_ph)<<endl;
       outhist->Fill(rx[rxindex].t(), (rx_amp*cos(rx_ph)));
     }
@@ -685,10 +685,10 @@ double RadioScatter::makeRays(HepLorentzVector point, double e, double l, double
       //(boltz(mev/k)*T(k)/m_e(mev mm^2 ns^-2))^1/2*cross section(mm^2)*n_e(mm^-3)
       //3 is for 3 species (approx)
       //it's tricky because the collision rates are not well defined. this may over or under estimate
-      nu_col = 3*sqrt(k_Boltzmann*7.e5*kelvin/electron_mass_c2)*5.e-9*(n_e);
+      nu_col = 3.*sqrt(k_Boltzmann*7.e5*kelvin/electron_mass_c2)*5.e-9*(n_e);
 	//}
       //debug
-      nu_col=0.;
+      //nu_col=0.;
       event.totNScatterers+=n;//track total number of scatterers
 
       //the full scattering amplitude pre-factor  
@@ -763,13 +763,13 @@ double RadioScatter::makeRays(HepLorentzVector point, double e, double l, double
 	  double E_imag = prefactor*rx_amplitude*(-nu_col*cos(rx_phase)+omega*sin(rx_phase));
 
 	  if(abs(E_real)<tx_voltage){//simple sanity check
-	    time_hist[i][j]->Fill(rx_time, E_real/samplingperiod);
-	    re_hist[i][j]->Fill(rx_time, E_real/samplingperiod);
-	    im_hist[i][j]->Fill(rx_time, E_imag/samplingperiod);
+	    // time_hist[i][j]->Fill(rx_time, E_real/samplingperiod);
+	    // re_hist[i][j]->Fill(rx_time, E_real/samplingperiod);
+	    // im_hist[i][j]->Fill(rx_time, E_imag/samplingperiod);
 
-	    // time_hist[i][j]->Fill(rx_time, E_real);
-	    // re_hist[i][j]->Fill(rx_time, E_real);
-	    // im_hist[i][j]->Fill(rx_time, E_imag);
+	    time_hist[i][j]->Fill(rx_time, E_real);
+	    re_hist[i][j]->Fill(rx_time, E_real);
+	    im_hist[i][j]->Fill(rx_time, E_imag);
 	  }
 	  point_time+=samplingperiod;
 	  point_temp.setT(point_time);
@@ -982,12 +982,13 @@ vector<vector<TH1F*>> RadioScatter::scaleHist(float num_events=1.){
     for(int j=0;j<nrx;j++){
       time_hist[i][j]->Scale(1./num_events);
       //    cout<<time_hist[0][0]->GetMaximum()<<endl;
-      //cout<<num_events<<" "<<i<<" "<<j<<endl;
+      //      cout<<num_events<<" "<<i<<" "<<j<<endl;
       re_hist[i][j]->Scale(1./num_events);
       im_hist[i][j]->Scale(1./num_events);
 
       if(includeCW_flag==1){
 	outhist[i][j]=getDirectSignal(i, j, (const TH1F*)time_hist[i][j]);
+	//cout<<"hi"<<endl;
       }
       else{
 	outhist[i][j]=time_hist[i][j];
@@ -1138,12 +1139,12 @@ int RadioScatter::writeRun(float num_events, int debug){
 int RadioScatter::writeEvent(int debug){
   //this is a stupid check for multi-threaded mode,
   //will only write the run if there has indeed been a run
-  if(event.totNScatterers==0){
-    return 0;
-  }
+  //  if(event.totNScatterers==0){
+  // return 0;
+  // }
   fRunCounter++;
   //  TFile *f = (TFile *)gROOT->Get("filename");
-  TFile *f = ((TFile *)(gROOT->GetListOfFiles()->At(0)));
+  TFile *f = ((TFile *)(gROOT->GetFile(output_file_name)));
   TTree *t = (TTree*)f->Get("tree");
   event.nPrimaries = n_primaries;
   //event.primaryEnergy = 
@@ -1317,7 +1318,7 @@ int RadioScatter::makeSummary(TFile *f){
 
     
   void RadioScatter::close(){
-    TFile *f=    ((TFile *)(gROOT->GetListOfFiles()->At(0)));
+    TFile *f=    ((TFile *)(gROOT->GetFile(output_file_name)));
     TString fname = f->GetName();
     f->Write();
     cout<<"The RadioScatter root file: "<<endl<<fname<<endl<<"has been written."<<endl;

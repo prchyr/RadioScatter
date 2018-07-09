@@ -172,16 +172,25 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
 {
   // Geometry parameters
   G4int nofLayers = 1;
-  G4double psThickness = 1.8*cm;
+  G4double psThickness = .0000001*mm;
   G4double absoThickness = 1.*m;
 
-  //for the T510 poly target
+  // //for the T510 poly target
+  // G4double dx1= .5*61*cm;
+  // G4double dx2= .5*61*cm;
+  // G4double dy2= .5*97*cm;//Because of getting the Half of the trapezoid
+  // G4double dy1= .5*25.4*cm;
+  // G4double dz=  .5*396*cm;
+
+  //for the T510 poly target in t576 configuration
   G4double dx1= .5*61*cm;
   G4double dx2= .5*61*cm;
-  G4double dy2= .5*97*cm;//Because of getting the Half of the trapezoid
-  G4double dy1= .5*25.4*cm;
+  G4double dy2= .5*51.44*cm;
+  G4double dy1= .5*51.44*cm;
   G4double dz=  .5*396*cm;
 
+
+  
   //for the poly cylinder
   G4double tgtRadius = 1.5*2.54*cm;//1.5 inches
   G4double tgtLength = 12*12*2.54*cm;//12 feet
@@ -218,7 +227,7 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
   //  auto compressedAirMaterial = G4Material::GetMaterial("wood");
   auto iceMaterial = G4Material::GetMaterial("Ice");
   auto tankMaterial = G4Material::GetMaterial("G4_AIR");
-  auto psMaterial = G4Material::GetMaterial("G4_Fe");
+  auto psMaterial = G4Material::GetMaterial("G4_Pb");
   auto bossMaterial = G4Material::GetMaterial("G4_Fe");
   if ( ! defaultMaterial || ! absorberMaterial || ! tankMaterial ) {
     G4ExceptionDescription msg;
@@ -348,11 +357,19 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
 
 
   //this is the T510 target
-  auto trapezoid = new G4Trd("trapezoid", dx1, dx2, dy1, dy2, dz);
-  auto box = new G4Box("box", 2.*dx1, dy2, 2.*dz);
-  auto tgtS = new G4SubtractionSolid("Tgt", trapezoid, box, G4Translate3D(0., -dy1-dy2, 0.));
-  auto tgtLV = new G4LogicalVolume(tgtS, targetMaterial, "Tgt");
-   fTgtPV = new G4PVPlacement(0, G4ThreeVector(0., -.5*dy2, 0.), tgtLV, "Tgt", layerLV, false, 0, fCheckOverlaps);
+  // auto trapezoid = new G4Trd("trapezoid", dx1, dx2, dy1, dy2, dz);
+  // auto box = new G4Box("box", 2.*dx1, dy2, 2.*dz);
+  // auto tgtS = new G4SubtractionSolid("Tgt", trapezoid, box, G4Translate3D(0., -dy1-dy2, 0.));
+  // auto tgtLV = new G4LogicalVolume(tgtS, targetMaterial, "Tgt");
+  //  fTgtPV = new G4PVPlacement(0, G4ThreeVector(0., -.5*dy2, 0.), tgtLV, "Tgt", layerLV, false, 0, fCheckOverlaps);
+
+
+     //this is the T510 target in the t576 configuration
+  //auto trapezoid = new G4Trd("trapezoid", dx1, dx2, dy1, dy2, dz);
+  auto box = new G4Box("Tgt", dx1, dy1, dz);
+  //  auto tgtS = new G4SubtractionSolid("Tgt", trapezoid, box, G4Translate3D(0., -dy1-dy2, 0.));
+  auto tgtLV = new G4LogicalVolume(box, targetMaterial, "Tgt");
+   fTgtPV = new G4PVPlacement(0, G4ThreeVector(0., 0, 0.), tgtLV, "Tgt", layerLV, false, 0, fCheckOverlaps);
 
 
   //for a cylinder instead of the T510 target (comment the above stuff)

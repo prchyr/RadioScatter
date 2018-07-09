@@ -41,7 +41,7 @@ change the system of primary energy and scaling to be more intuitive
 
 
 class RadioScatter{
-
+public:
 
   RadioScatterEvent event;
 
@@ -114,7 +114,7 @@ class RadioScatter{
   
   double testvalue;
 
-public:
+  //public:
 
   int ntx=1;
   int nrx=1;
@@ -131,7 +131,9 @@ public:
   int NPRIMARIES_SET=0;
   int PRIMARY_ENERGY_SET=0;
   int SCALE_BY_ENERGY=0;
-  
+
+
+  int REAL_DATA=0;
   RadioScatter();
   
   void makeOutputFile(TString filename);

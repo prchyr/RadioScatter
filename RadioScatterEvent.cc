@@ -15,12 +15,27 @@ int RadioScatterEvent::reset(){
   totNScatterers=0;
   return 1;
 }
-
+//not memory safe.
+TGraph * RadioScatterEvent::getGraph(int txindex, int rxindex){
+  TGraph *outgr=new TGraph(eventHist[txindex][rxindex]);
+  return outgr;
+}
 double RadioScatterEvent::integratedPower(int txindex, int rxindex){
   double val;
   int entries=eventHist[txindex][rxindex]->GetNbinsX();
   for(int i=0;i<entries;i++){
     val+=eventHist[txindex][rxindex]->GetBinContent(i)*eventHist[txindex][rxindex]->GetBinContent(i);
+  }
+  return val;
+}
+
+double RadioScatterEvent::integratedPower(int txindex, int rxindex, double tlow, double thigh, double dcoffset){
+  double val;
+  //  int entries=eventHist[txindex][rxindex]->GetNbinsX();
+  int binlow=eventHist[txindex][rxindex]->FindBin(tlow);
+  int binhigh=eventHist[txindex][rxindex]->FindBin(thigh);
+  for(int i=binlow;i<binhigh;i++){
+    val+=(dcoffset+eventHist[txindex][rxindex]->GetBinContent(i))*(dcoffset+eventHist[txindex][rxindex]->GetBinContent(i));
   }
   return val;
 }
@@ -293,7 +308,7 @@ void RadioScatterEvent::spectrogram(int txindex, int rxindex,Int_t binsize, Int_
     start+=overlap-1;
   }
   //cout<<"here"<<endl;
-  gPad->SetRightMargin(.15);
+  //  gPad->SetRightMargin(.15);
   spectrogramHist->GetYaxis()->SetRangeUser(0, spectrogramHist->GetYaxis()->GetXmax()/2);
   spectrogramHist->GetXaxis()->SetTitle("Time (ns)");
   spectrogramHist->GetYaxis()->SetTitleOffset(1.3);
@@ -313,8 +328,54 @@ void RadioScatterEvent::spectrogram(int txindex, int rxindex,Int_t binsize, Int_
   //return outdat;
 }
 
+double RadioScatterEvent::sineSubtract(int txindex, int rxindex, double rangestart, double rangeend, double p0, double p1, double p2){
+  TF1 *fun = new TF1("fun", "[0]*sin(2.*pi*[1]*x+[2])", rangestart, rangeend);
+  //  TF1 *fun = new TF1("fun", "[0]*sin(2.*pi*.8*x+[1])", rangestart, rangeend);
+  fun->SetParameters(p0, p1, p2);
 
-int RadioScatterEvent::plotEvent(int txindex, int rxindex, int show_geom, int bins, int overlap){
+  
+  fun->SetParLimits(0, p0-(.1*p0),p0+(.1*p0));
+  fun->SetParLimits(1, p1-(.1*p1), p1+(.1*p1));
+  fun->SetParLimits(2, 0, 100.);
+
+  eventHist[txindex][rxindex]->Fit(fun, "R");
+  TF1 *fun2 = fun;
+  fun2->SetParameter(0, -fun->GetParameter(0));
+  fun2->SetParameter(1, fun->GetParameter(1));
+  fun2->SetParameter(2, fun->GetParameter(2));
+  //  fun->Draw();
+  eventHist[txindex][rxindex]->Eval(fun2, "A");
+ 
+  return fun->GetParameter(0)/abs(fun->GetParameter(0))*fun->GetParameter(2)/(fun->GetParameter(1)*2.*pi);
+  //  return (fun->GetParameter(0)/abs(fun->GetParameter(0)))*fun->GetParameter(1)/(p2*2.*pi);
+}
+
+int RadioScatterEvent::backgroundSubtract(int txindex, int rxindex, TH1F *bSubHist){
+  eventHist[txindex][rxindex]->Add(bSubHist, -1);
+  return 1;
+}
+
+TH1F* RadioScatterEvent::makeBackgroundSubtractHist(int txindex, int rxindex, TString bfile){
+  
+  TFile *ff=TFile::Open(bfile);
+  TTree *tree = (TTree*)ff->Get("tree");
+  RadioScatterEvent *rse = new RadioScatterEvent();
+  tree->SetBranchAddress("event", &rse);
+  TH1F *bSubHist = new TH1F("bsub", "bsub", eventHist[txindex][rxindex]->GetNbinsX(), 0, eventHist[txindex][rxindex]->GetNbinsX()/sampleRate);
+  int entries = tree->GetEntries();
+  for(int i=0;i<entries;i++){
+    tree->GetEntry(i);
+    bSubHist->Add(rse->eventHist[txindex][rxindex]);
+  }
+  bSubHist->Scale(1./entries);
+  //ff->Close();
+  //  delete(ff);
+  //delete(tree);
+  return bSubHist;
+}
+
+
+int RadioScatterEvent::plotEvent(int txindex, int rxindex, int noise_flag, int show_geom, int bins, int overlap){
   // TCanvas *c=0;
   TSeqCollection *canlist = gROOT->GetListOfCanvases();
   TCanvas *openc = (TCanvas*)canlist->At(canlist->GetEntries()-1);
@@ -363,12 +424,15 @@ int RadioScatterEvent::plotEvent(int txindex, int rxindex, int show_geom, int bi
   for(int i=0;i<nbins;i++){
     j=i-(sampleRate*20);
     ran->Rannor(r1, r2);
-    //    if(noise_flag==1){
+    if(noise_flag==1){
       noise = r1*thermal_noise;
       //ev->eventHist->Fill(i, noise);
       eventHist[txindex][rxindex]->AddBinContent(i, noise);
       //    val=ev->eventHist->GetBinContent(i);
-      //}
+      }
+    if(SINE_SUBTRACT==1){
+      sineSubtract(txindex, rxindex);
+    }
   }
   eventHist[txindex][rxindex]->GetXaxis()->SetTitle("Time (ns)");
   eventHist[txindex][rxindex]->GetYaxis()->SetTitle("mV");

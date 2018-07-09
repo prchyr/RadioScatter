@@ -15,6 +15,7 @@
 #include "TPolyLine3D.h"
 #include "TLegend.h"
 #include "TVirtualFFT.h"
+#include "TF1.h"
 #include <deque>
 
 //#include <vector>
@@ -81,23 +82,27 @@ public:
 
   vector<vector<TGraph*>> eventGraph;
 
+  int SINE_SUBTRACT=0;
   int ntx=1;
   int nrx=1;
   //plotting things
 
   TH1F *  getComplexEnvelope(int txindex, int rxindex,double cutoff=0);
   TGraph  getLowpassFiltered(int txindex, int rxindex,double cutoff);
-  TGraph  getGraph();
+  TGraph * getGraph(int txindex, int rxindex);
   //  TGraph getSpectrum(bool dbflag=false);
   TH1F * getSpectrum(int txindex, int rxindex,bool dbflag=false);  
   void spectrogram(int txindex, int rxindex,Int_t binsize = 128, Int_t overlap=32);
-  int plotEvent(int txindex, int rxindex, int show_geom=0, int bins=64, int overlap=8);
+  int plotEvent(int txindex, int rxindex, int noise_flag=0, int show_geom=0, int bins=64, int overlap=8);
 
   int reset();
   double thermalNoiseRMS();
   double chirpSlope();
   double startFreq();
   double stopFreq();
+  double sineSubtract(int txindex, int rxindex, double rangestart=0, double rangeend=240, double p0=.02, double p1=1., double p2=0.);
+  int backgroundSubtract(int txindex, int rxindex, TH1F *bSubHist);
+  TH1F* makeBackgroundSubtractHist(int txindex, int rxindex, TString bfile);
   double peakFreq(int txindex, int rxindex);
   double bandWidth();
   double peakV(int txindex, int rxindex);
@@ -105,6 +110,7 @@ public:
   double rms(int txindex, int rxindex);
   double duration(int txindex, int rxindex);
   double integratedPower(int txindex, int rxindex);
+  double integratedPower(int txindex, int rxindex, double tlow, double thigh, double dcoffset=0.);
   double peakPowerMW(int txindex, int rxindex);
   double peakPowerW(int txindex, int rxindex);
   double pathLengthM(int txindex, int rxindex);
@@ -124,6 +130,6 @@ public:
 
 
 
-  ClassDef(RadioScatterEvent, 4);
+  ClassDef(RadioScatterEvent, 5);
 };
 #endif

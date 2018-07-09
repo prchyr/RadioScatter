@@ -237,7 +237,7 @@ if(fRadio->FILL_BY_EVENT==0){
   fRadio->setPrimaryEnergy(gps->GetParticleEnergy());
   fRadio->setPrimaryDirection(gps->GetParticleMomentumDirection());
   fRadio->setPrimaryPosition(gps->GetParticlePosition());
-
+  //  cout<<"in run action"<<endl;
   fRadio->writeRun((float)r->GetNumberOfEvent());
     //    fRadio->writeRun(1);
   }
