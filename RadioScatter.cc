@@ -696,14 +696,18 @@ double RadioScatter::makeRays(HepLorentzVector point, double e, double l, double
       //the full scattering amplitude pre-factor  
       double prefactor = -effectiveHeight*n*n_primaries*e_radius*omega/(pow(omega, 2)+pow(nu_col, 2));
 
-
+      //x position of charge w/r/t shower axis
+      Hep3Vector vec=point.vect()-event.position;
+      double x = sqrt(vec.x()*vec.x()+vec.y()*vec.y());
+      //cout<<x<<endl;
+      double x_0=(x>5000?0:(5000-x));
       double omega_p = e_radius*c_squared*n_e*4.*pi*4.*pi;
       //the screening term. as derived in paper
-      //double alpha = e_radius*.01*n_e*(omega*1.e9);
+      double alpha = e_radius*.01*n_e*(omega*1.e9);
       //the screening term, as derived in paper rev 4. need a measure of penetration into the plasma. TODO
-      double alpha= ((omega_p*omega_p)/(2*c_light))*(nu_col/(omega*omega + nu_col*nu_col))*10.;
+      //      double alpha= ((omega_p*omega_p)/(2*c_light))*(nu_col/(omega*omega + nu_col*nu_col));
 
-      
+      alpha=alpha>3.?3.:alpha;
        double attn_factor = exp(-alpha);
 
        prefactor=prefactor*attn_factor;
