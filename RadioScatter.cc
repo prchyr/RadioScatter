@@ -182,11 +182,13 @@ void RadioScatter::setRxPos(Hep3Vector in, int index){
   frequency = f*megahertz;
   omega = frequency*twopi;
   period = 1./omega;
-  lambda = c_light/frequency;
+  lambda = c_light/f;
   k = omega/c_light;
   //attnLength = attnLength - (180*m*(f/1000.));
+  effectiveHeight=lambda;
   attnLength = 1450000;//barwick et all south pole measurement
   cout<<"tx frequency: "<<f<<endl;
+  cout<<"lambda/eff height: "<<lambda<<endl;
   cout<<"attn length: "<<attnLength<<endl;
 }
  void RadioScatter::setTxVoltage(double v){
@@ -692,11 +694,14 @@ double RadioScatter::makeRays(HepLorentzVector point, double e, double l, double
       event.totNScatterers+=n;//track total number of scatterers
 
       //the full scattering amplitude pre-factor  
-      double prefactor = -n*n_primaries*e_radius*omega/(pow(omega, 2)+pow(nu_col, 2));
+      double prefactor = -effectiveHeight*n*n_primaries*e_radius*omega/(pow(omega, 2)+pow(nu_col, 2));
 
-      //the screening term. as derived in paper.
-      double alpha = e_radius*.01*n_e*(omega*1.e9);
 
+      double omega_p = e_radius*c_squared*n_e*4.*pi*4.*pi;
+      //the screening term. as derived in paper
+      //double alpha = e_radius*.01*n_e*(omega*1.e9);
+      //the screening term, as derived in paper rev 4. need a measure of penetration into the plasma. TODO
+      double alpha= ((omega_p*omega_p)/(2*c_light))*(nu_col/(omega*omega + nu_col*nu_col))*10.;
 
       
        double attn_factor = exp(-alpha);

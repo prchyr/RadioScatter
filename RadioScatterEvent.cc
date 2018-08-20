@@ -40,6 +40,38 @@ double RadioScatterEvent::integratedPower(int txindex, int rxindex, double tlow,
   return val;
 }
 
+double RadioScatterEvent::integratedPowerAroundPeak(int txindex, int rxindex, double window){
+  double val;
+  int halfwindow=(int)(window/2.*sampleRate);
+  TH1F *h1=eventHist[txindex][rxindex];
+  int binlow=h1->GetMaximumBin()-halfwindow;
+  int binhigh=h1->GetMaximumBin()+halfwindow;
+  for(int i=binlow;i<binhigh;i++){
+    val+=(h1->GetBinContent(i))*(h1->GetBinContent(i));
+  }
+  return val;
+}
+
+double RadioScatterEvent::integratedVoltage(int txindex, int rxindex){
+  double val;
+  int entries=eventHist[txindex][rxindex]->GetNbinsX();
+  for(int i=0;i<entries;i++){
+    val+=eventHist[txindex][rxindex]->GetBinContent(i);
+  }
+  return val;
+}
+
+double RadioScatterEvent::integratedVoltage(int txindex, int rxindex, double tlow, double thigh, double dcoffset){
+  double val;
+  //  int entries=eventHist[txindex][rxindex]->GetNbinsX();
+  int binlow=eventHist[txindex][rxindex]->FindBin(tlow);
+  int binhigh=eventHist[txindex][rxindex]->FindBin(thigh);
+  for(int i=binlow;i<binhigh;i++){
+    val+=(dcoffset+eventHist[txindex][rxindex]->GetBinContent(i));
+  }
+  return val;
+}
+
 double RadioScatterEvent::peakPowerMW(int txindex, int rxindex){
   double val=1000.*pow((peakV(txindex, rxindex)*.001), 2)/50.;
 
@@ -427,6 +459,11 @@ int RadioScatterEvent::plotEvent(int txindex, int rxindex, int noise_flag, int s
     if(noise_flag==1){
       noise = r1*thermal_noise;
       //ev->eventHist->Fill(i, noise);
+      eventHist[txindex][rxindex]->AddBinContent(i, noise);
+      //    val=ev->eventHist->GetBinContent(i);
+      }
+    if(noise_flag>1){
+      noise=r1*(double)noise_flag;
       eventHist[txindex][rxindex]->AddBinContent(i, noise);
       //    val=ev->eventHist->GetBinContent(i);
       }

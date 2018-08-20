@@ -1,9 +1,12 @@
 /*
 todo:
 antenna effective height
-antenna effective area
-(currently these are both set to 1 accross all frequencies)
-change the system of primary energy and scaling to be more intuitive
+
+currently we use a variant of the RICE formula
+h=sqrt(lam^2 (gain)/480pi^2) where we set the gain=480pi^2. essentially, 
+we say that this is a magic antenna where the effective height is 
+equal to the wavelength at all freqs. in fact, this is reasonable for 
+a nice broadband antenna.
  
  */
 #ifndef R_Scat
@@ -92,6 +95,8 @@ public:
   
   double frequency, period, lambda, k;
 
+  double effectiveHeight=1.;
+  
   double samplerate=10, samplingperiod=.1, start_time=0, end_time=1000;
   //plasma lifetime, set to the samplingperiod by default
   double lifetime=.1;

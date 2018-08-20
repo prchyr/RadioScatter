@@ -111,6 +111,9 @@ public:
   double duration(int txindex, int rxindex);
   double integratedPower(int txindex, int rxindex);
   double integratedPower(int txindex, int rxindex, double tlow, double thigh, double dcoffset=0.);
+  double integratedPowerAroundPeak(int txindex, int rxindex, double window=100);
+  double integratedVoltage(int txindex, int rxindex);
+  double integratedVoltage(int txindex, int rxindex, double tlow, double thigh, double dcoffset=0.);
   double peakPowerMW(int txindex, int rxindex);
   double peakPowerW(int txindex, int rxindex);
   double pathLengthM(int txindex, int rxindex);
