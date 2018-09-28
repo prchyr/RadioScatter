@@ -25,7 +25,7 @@
 
 /gps/position 0 0 -10 m
 /gps/direction 0 0 1
-/gps/energy 13.6 GeV
+/gps/energy 14.4 GeV
 /RS/setTxPos 10 0 3.5 m
 /RS/setRxPos -5 0 0 m
 /RS/setTxFreq 1400
@@ -33,14 +33,15 @@
 /RS/setTxVoltage 200
 /RS/setPolarization horizontal
 /RS/setIndexOfRefraction 1.51
-/RS/setNprimaries 1.e9
+/RS/setNPrimaries 1.e9
 /RS/setShowCWFlag 0
+/RS/setFillParticleInfo 1
 #/RS/setTxOnTime 0
 #/RS/setTxOffTime 40
 
 
 
-#/run/beamOn 10
+/run/beamOn 10
 #/RS/setTxPos 4. 0 2.5 m
 #/RS/setRxPos -6. 0 0.5 m
 #/run/beamOn 10

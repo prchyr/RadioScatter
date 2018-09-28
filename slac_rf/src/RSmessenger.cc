@@ -20,6 +20,10 @@ RSmessenger::RSmessenger(RadioScatter *rscat)
   sampleRateCommand->SetGuidance("set sampleRate!");
   sampleRateCommand->SetParameterName("choice", false);
 
+  antennaGainCommand = new G4UIcmdWithADouble("/RS/setAntennaGain", this);
+  antennaGainCommand->SetGuidance("set antennaGain!");
+  antennaGainCommand->SetParameterName("choice", false);
+
   windowLengthCommand = new G4UIcmdWithADouble("/RS/setRecordWindowLength", this);
   windowLengthCommand->SetGuidance("set the length of receiver record window");
   windowLengthCommand->SetParameterName("choice", false);
@@ -37,6 +41,10 @@ RSmessenger::RSmessenger(RadioScatter *rscat)
   voltageCommand->SetGuidance("set voltage!");
   voltageCommand->SetParameterName("choice", false);
 
+  powerCommand = new G4UIcmdWithADouble("/RS/setTxPower", this);
+  powerCommand->SetGuidance("set power!");
+  powerCommand->SetParameterName("choice", false);
+
   lifetimeCommand = new G4UIcmdWithADouble("/RS/setPlasmaLifetime", this);
   lifetimeCommand->SetGuidance("set lifetime!");
   lifetimeCommand->SetParameterName("choice", false);
@@ -49,6 +57,10 @@ RSmessenger::RSmessenger(RadioScatter *rscat)
   nPrimariesCommand->SetGuidance("set NPrimaries!");
   nPrimariesCommand->SetParameterName("choice", false);
 
+  makeSummaryCommand = new G4UIcmdWithADouble("/RS/setMakeSummary", this);
+  makeSummaryCommand->SetGuidance("set makeSummary!");
+  makeSummaryCommand->SetParameterName("choice", false);
+  
   showCWCommand = new G4UIcmdWithADouble("/RS/setShowCWFlag", this);
   showCWCommand->SetGuidance("set ShowCW!");
   showCWCommand->SetParameterName("choice", false);
@@ -57,6 +69,11 @@ RSmessenger::RSmessenger(RadioScatter *rscat)
   setFillByEventCommand->SetGuidance("calculate by event not by run!");
   setFillByEventCommand->SetParameterName("choice", false);
 
+  setScaleByEnergyCommand = new G4UIcmdWithADouble("/RS/setScaleByEnergy", this);
+  setScaleByEnergyCommand->SetGuidance("set scale by energy!");
+  setScaleByEnergyCommand->SetParameterName("choice", false);
+
+  
   setFillParticleInfoCommand = new G4UIcmdWithADouble("/RS/setFillParticleInfo", this);
   setFillParticleInfoCommand->SetGuidance("fill the particle info tuples");
   setFillParticleInfoCommand->SetParameterName("choice", false);
@@ -101,10 +118,14 @@ RSmessenger::~RSmessenger()
   delete setNTxCommand;
   delete setNRxCommand;
   delete lifetimeCommand;
+  delete antennaGainCommand;
   delete windowLengthCommand;
   delete setFillByEventCommand;
+  delete makeSummaryCommand;
+  delete setScaleByEnergyCommand;
   delete setFillParticleInfoCommand;
   delete voltageCommand;
+  delete powerCommand;
   delete nPrimariesCommand;
   delete polarizationCommand;
   delete indexOfRefractionCommand;
@@ -118,8 +139,12 @@ void RSmessenger::SetNewValue(G4UIcommand* command,G4String newValue)
   double val = (double)StoD(newValue);
   if(command==freqCommand)rs->setTxFreq(val);
   if(command==voltageCommand)rs->setTxVoltage(val);
+  if(command==powerCommand)rs->setTxPower(val);
   if(command==setNTxCommand)rs->setNTx(val);
   if(command==setNRxCommand)rs->setNRx(val);
+  if(command==antennaGainCommand)rs->setAntennaGain(val);
+  if(command==makeSummaryCommand)rs->setMakeSummary(val);
+  if(command==setScaleByEnergyCommand)rs->setScaleByEnergy(val);
   if(command==lifetimeCommand)rs->setPlasmaLifetime(val);
   if(command==setFillByEventCommand)rs->setFillByEvent(val);
   if(command==setFillParticleInfoCommand)rs->setFillParticleInfo(val);

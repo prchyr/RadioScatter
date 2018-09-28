@@ -202,6 +202,11 @@ void RadioScatter::setTxPower(double p){
   event.txPowerW=p*.001;
 }
 
+void RadioScatter::setAntennaGain(double gain){
+  rx_gain=gain;
+  tx_gain=gain;
+}
+
  void RadioScatter::setTxOnTime(double on){
   tx_on = on;
 }
@@ -676,39 +681,55 @@ double RadioScatter::makeRays(HepLorentzVector point, double e, double l, double
       double n_e =1.;
       
       if(step_length==0)return 0;
+      num++;
+      /*
+	electron number density is an issue here. need really to integrate over
+	a volume, but this will be slow. could pre-compute the density in a given region,
+	make a map, and use that. for now, a couple cheap approximations.
+       */
       //electron number density, using step length cube, it may over-estimate.
       n_e = n*n_primaries/pow(step_length, 3);
-      //this is the number density, but over 1cm^3. it may under-estimate. 
-      double n_e_test=n*n_primaries*.001;
+      //this is the number density. it may under-estimate. 
+      double n_e_test=n*n_primaries*100000.;
       n_e=n_e_test;
       if(n_e==0)return 0;
-
+      //      cout<<n_e_test<<endl;
+      avgval+=n_e;
+      //      cout<<e_i<<endl;
+      //      avgval=e_i;
+      if(n_e>maxval)maxval=n_e;
       //this is from Raizer, and is the simplest, just using a simple cross section
       //(boltz(mev/k)*T(k)/m_e(mev mm^2 ns^-2))^1/2*cross section(mm^2)*n_e(mm^-3)
       //3 is for 3 species (approx)
-      //it's tricky because the collision rates are not well defined. this may over or under estimate
-      nu_col = 3.*sqrt(k_Boltzmann*7.e5*kelvin/electron_mass_c2)*5.e-9*(n_e);
+
+      //      nu_col = 3.*sqrt(k_Boltzmann*7.e5*kelvin/electron_mass_c2)*5.e-9*(n_e);
+      //rad scat as published
+      nu_col = 3.*sqrt(k_Boltzmann*((e_i/eV)*1.16e4)*kelvin/electron_mass_c2)*5.e-14*(n_e);
+      // mean free path~5e-9, n_dens water=3.2e22/cm^3      
+      //nu_col = 3.*sqrt(k_Boltzmann*7.e5*kelvin/electron_mass_c2)*(1./(5.e-9*3.2e22))*(n_e);
 	//}
       //debug
-      //nu_col=0.;
+      // nu_col=0.;
       event.totNScatterers+=n;//track total number of scatterers
 
       //the full scattering amplitude pre-factor  
-      double prefactor = -effectiveHeight*n*n_primaries*e_radius*omega/(pow(omega, 2)+pow(nu_col, 2));
+      double prefactor = -rx_gain*effectiveHeight*n*n_primaries*e_radius*omega/(pow(omega, 2)+pow(nu_col, 2));
 
       //x position of charge w/r/t shower axis
-      Hep3Vector vec=point.vect()-event.position;
-      double x = sqrt(vec.x()*vec.x()+vec.y()*vec.y());
-      //cout<<x<<endl;
-      double x_0=(x>5000?0:(5000-x));
-      double omega_p = e_radius*c_squared*n_e*4.*pi*4.*pi;
+      Hep3Vector vec=(point.vect()-event.position);
+      double x = vec.mag()*abs(sin(vec.angle(event.direction)));
+      //      cout<<vec.mag()<<" "<<x<<endl;
+      //only consider charges within 1 m.
+      double x_0=(x>1000?0:(1000-x));
+      //plasma frequency
+      double omega_p = sqrt(e_radius*c_squared*n_e*4.*pi*4.*pi);
       //the screening term. as derived in paper
-      double alpha = e_radius*.01*n_e*(omega*1.e9);
-      //the screening term, as derived in paper rev 4. need a measure of penetration into the plasma. TODO
-      //      double alpha= ((omega_p*omega_p)/(2*c_light))*(nu_col/(omega*omega + nu_col*nu_col));
+      //double alpha = e_radius*.01*n_e*(omega*1.e9);
+      //the screening term, as derived in paper rev 4. 
+      double alpha= ((omega_p*omega_p)/(2*c_light))*(nu_col/(omega*omega + nu_col*nu_col))*x_0;
+      //      alpha=alpha>10.?10.:alpha;
 
-      alpha=alpha>3.?3.:alpha;
-       double attn_factor = exp(-alpha);
+      double attn_factor = exp(-alpha);
 
        prefactor=prefactor*attn_factor;
       
@@ -1212,10 +1233,11 @@ int RadioScatter::writeEvent(int debug){
   //  cout<<"after fill"<<endl;
   if(debug==1){
     cout<<"The RadioScatter root file: "<<endl<<f->GetName()<<endl<<" has been filled. This is run number "<<fRunCounter<<"."<<endl;
+    
   }
   //f->Write();
 
-  
+
   
   cout<<"Event total N scatterers:"<<event.totNScatterers<<endl; 
   //  event.totNScatterers=0;
@@ -1329,7 +1351,10 @@ int RadioScatter::makeSummary(TFile *f){
   void RadioScatter::close(){
     TFile *f=    ((TFile *)(gROOT->GetFile(output_file_name)));
     TString fname = f->GetName();
+    //    cout<<fname<<endl;
     f->Write();
+    cout<<maxval<<endl;
+    cout<<avgval/num<<endl;
     cout<<"The RadioScatter root file: "<<endl<<fname<<endl<<"has been written."<<endl;
     f->Close();
 

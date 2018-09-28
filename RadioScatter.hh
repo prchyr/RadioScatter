@@ -95,7 +95,7 @@ public:
   
   double frequency, period, lambda, k;
 
-  double effectiveHeight=1.;
+  double effectiveHeight=1.;//, antennaGain=1.;
   
   double samplerate=10, samplingperiod=.1, start_time=0, end_time=1000;
   //plasma lifetime, set to the samplingperiod by default
@@ -117,7 +117,7 @@ public:
   double n_rel=1.5;
 
   
-  double testvalue;
+  double testvalue, maxval=0, avgval=0, num=0;
 
   //public:
 
@@ -158,6 +158,7 @@ public:
   void setTxVoltage(double v);
   void setTxPower(double p);
   void setNPrimaries(double n);
+  void setAntennaGain(double gain);
   void setPrimaryEnergy(double e);
   void setPrimaryPosition(Hep3Vector p);
   void setPrimaryDirection(Hep3Vector p);
