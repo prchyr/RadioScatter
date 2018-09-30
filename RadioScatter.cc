@@ -689,7 +689,7 @@ double RadioScatter::makeRays(HepLorentzVector point, double e, double l, double
        */
       //electron number density, using step length cube, it may over-estimate.
       n_e = n*n_primaries/pow(step_length, 3);
-      //this is the number density. it may under-estimate. 
+      //this is the number density. it may under-estimate. tuned such that the peak n_e is ~ E_primary
       double n_e_test=n*n_primaries*100000.;
       n_e=n_e_test;
       if(n_e==0)return 0;
@@ -720,7 +720,7 @@ double RadioScatter::makeRays(HepLorentzVector point, double e, double l, double
       double x = vec.mag()*abs(sin(vec.angle(event.direction)));
       //      cout<<vec.mag()<<" "<<x<<endl;
       //only consider charges within 1 m.
-      double x_0=(x>1000?0:(1000-x));
+      double x_0=(x>2000?0:(2000-x));
       //plasma frequency
       double omega_p = sqrt(e_radius*c_squared*n_e*4.*pi*4.*pi);
       //the screening term. as derived in paper
