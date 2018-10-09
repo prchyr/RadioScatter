@@ -690,8 +690,8 @@ double RadioScatter::makeRays(HepLorentzVector point, double e, double l, double
       //electron number density, using step length cube, it may over-estimate.
       n_e = n*n_primaries/pow(step_length, 3);
       //this is the number density. it may under-estimate. tuned such that the peak n_e is ~ E_primary
-      double n_e_test=n*n_primaries*100000.;
-      n_e=n_e_test;
+      double n_e_test=n*n_primaries*1.;
+      //n_e=n_e_test;
       if(n_e==0)return 0;
       //      cout<<n_e_test<<endl;
       avgval+=n_e;
@@ -704,7 +704,9 @@ double RadioScatter::makeRays(HepLorentzVector point, double e, double l, double
 
       //      nu_col = 3.*sqrt(k_Boltzmann*7.e5*kelvin/electron_mass_c2)*5.e-9*(n_e);
       //rad scat as published
-      nu_col = 3.*sqrt(k_Boltzmann*((e_i/eV)*1.16e4)*kelvin/electron_mass_c2)*5.e-14*(n_e);
+      double N_ice=3.2e22;//per cm^3;
+      //      nu_col = 3.*sqrt(k_Boltzmann*((e_i/eV)*1.16e4)*kelvin/electron_mass_c2)*5.e-14*(n_e);
+      nu_col = 3.*sqrt(k_Boltzmann*(300)*kelvin/electron_mass_c2)*5.e-14*(N_ice);
       // mean free path~5e-9, n_dens water=3.2e22/cm^3      
       //nu_col = 3.*sqrt(k_Boltzmann*7.e5*kelvin/electron_mass_c2)*(1./(5.e-9*3.2e22))*(n_e);
 	//}
