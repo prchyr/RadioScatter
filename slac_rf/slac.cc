@@ -215,6 +215,30 @@ int main(int argc,char** argv)
 	}
       }
     }
+
+
+   if (macro=="t576.mac"){
+
+     Hep3Vector tx, rx;
+      double theta=0, phi=0;
+      rx.setRThetaPhi(4000,0,115*degree);
+      radio->setRxPos(rx, 0);
+      rx.setRThetaPhi(4000, 0,125*degree);
+      radio->setRxPos(rx, 1);
+      rx.setRThetaPhi(4000, 0,85*degree);
+      radio->setRxPos(rx, 2);
+      
+      double rr=3.;
+      while(rr<7.){
+	tx.setRThetaPhi(rr*1000., 0, 1.13446);
+
+	radio->setTxPos(tx,0);
+	runManager->BeamOn(12);
+
+	rr+=.25;
+      }
+
+   }
     // else{
    // if(macro=="anglemac.mac"){
 

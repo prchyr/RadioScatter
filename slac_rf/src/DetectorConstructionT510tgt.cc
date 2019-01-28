@@ -217,7 +217,7 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
   
   // Get materials
   auto defaultMaterial = G4Material::GetMaterial("Galactic");
-  auto absorberMaterial = G4Material::GetMaterial("G4_CONCRETE");
+  auto absorberMaterial = G4Material::GetMaterial("G4_AIR");
   auto airMaterial = G4Material::GetMaterial("G4_AIR");
   auto targetMaterial = G4Material::GetMaterial("G4_POLYETHYLENE");
   auto compressedAirMaterial = G4Material::GetMaterial("G4_POLYPROPYLENE");
@@ -227,7 +227,7 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
   //  auto compressedAirMaterial = G4Material::GetMaterial("wood");
   auto iceMaterial = G4Material::GetMaterial("Ice");
   auto tankMaterial = G4Material::GetMaterial("G4_AIR");
-  auto psMaterial = G4Material::GetMaterial("G4_Pb");
+  auto psMaterial = G4Material::GetMaterial("G4_AIR");
   auto bossMaterial = G4Material::GetMaterial("G4_Fe");
   if ( ! defaultMaterial || ! absorberMaterial || ! tankMaterial ) {
     G4ExceptionDescription msg;
