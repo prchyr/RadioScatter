@@ -92,7 +92,7 @@ set(SLAC_SCRIPTS
   run1.mac
   run2.mac
   run3.mac
-  t576run2.mac
+  t576.mac
   vis.mac
   )
 
