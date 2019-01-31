@@ -49,7 +49,8 @@ PrimaryGeneratorAction::PrimaryGeneratorAction()
 {
   G4int nofParticles = 1;
   fGeneralParticleSource = new G4GeneralParticleSource();
-
+  auto fRando=new TRandom3();
+  fRando->SetSeed();
   // default particle kinematic
   //
   auto particleDefinition 
@@ -99,7 +100,7 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
   } 
   
   // Set gun position
-   fGeneralParticleSource   ->SetParticlePosition(G4ThreeVector(-worldZHalfLength*2, 0., -worldZHalfLength));
+  fGeneralParticleSource   ->SetParticlePosition(G4ThreeVector(-worldZHalfLength*2+fRando->Rndm(), 0., -worldZHalfLength+fRando->Rndm()));
 
       fGeneralParticleSource->GeneratePrimaryVertex(anEvent);
 }

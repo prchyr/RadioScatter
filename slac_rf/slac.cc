@@ -233,7 +233,7 @@ int main(int argc,char** argv)
 	tx.setRThetaPhi(rr*1000., 0, 1.13446);
 
 	radio->setTxPos(tx,0);
-	runManager->BeamOn(1);
+	runManager->BeamOn(10);
 
 	rr+=.25;
       }
