@@ -66,7 +66,7 @@
 #/RS/setTxFreq 920
 #/RS/setTxFreq 1001.222
 #/RS/setTxFreq 1000.
-/RS/setRxSampleRate 10
+/RS/setRxSampleRate 20
 /RS/setTxVoltage 35000 #25W
 #/RS/setTxVoltage 31622 #20W
 #/RS/setTxVoltage 70711 #100W
@@ -78,7 +78,7 @@
 #/RS/setPolarization horizontal
 /RS/setPolarization vertical
 /RS/setIndexOfRefraction 1.51
-/RS/setAntennaGain 6
+/RS/setAntennaGain 12
 /RS/setPlasmaLifetime 1
 /RS/setNPrimaries 1.e9
 /RS/setFillByEvent 1

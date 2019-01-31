@@ -231,7 +231,7 @@ int main(int argc,char** argv)
       radio->setRxPos(rx, 2);
       
       double rr=3.;
-      while(rr<7.){
+      while(rr<27.){
 	tx.setRThetaPhi(rr*1000., 0, 1.13446);
 
 	radio->setTxPos(tx,0);
