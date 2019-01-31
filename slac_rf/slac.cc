@@ -80,6 +80,7 @@ int main(int argc,char** argv)
   G4String macro;
   G4String session;
   G4String filename;
+  long seed=0;
 #ifdef G4MULTITHREADED
   G4int nThreads = 0;
 #endif
@@ -87,6 +88,7 @@ int main(int argc,char** argv)
     if      ( G4String(argv[i]) == "-m" ) macro = argv[i+1];
     else if ( G4String(argv[i]) == "-u" ) session = argv[i+1];
     else if ( G4String(argv[i]) == "-f" ) filename = argv[i+1];
+    else if ( G4String(argv[i]) == "-s" ) seed = atoi(argv[i+1]);
 #ifdef G4MULTITHREADED
     else if ( G4String(argv[i]) == "-t" ) {
       nThreads = G4UIcommand::ConvertToInt(argv[i+1]);
@@ -109,7 +111,7 @@ int main(int argc,char** argv)
   // Choose the Random engine
   //
   G4Random::setTheEngine(new CLHEP::RanecuEngine);
-  
+  G4Random::setTheSeed(seed);  
   // Construct the default run manager
   //
 #ifdef G4MULTITHREADED

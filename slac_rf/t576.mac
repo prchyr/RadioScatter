@@ -12,7 +12,7 @@
 
 #/process/inactivate eBrem
 
-
+#/random/setSeed 
 
 /analysis/h1/create "pulse" "received RF signal" 32000 0 3200 "ns"
 
