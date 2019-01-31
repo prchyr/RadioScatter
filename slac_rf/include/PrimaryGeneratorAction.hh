@@ -57,6 +57,7 @@ public:
 
 private:
   G4GeneralParticleSource*  fGeneralParticleSource; // G4 particle gun
+  TRandom3* fRando;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

@@ -50,7 +50,7 @@ PrimaryGeneratorAction::PrimaryGeneratorAction()
 {
   G4int nofParticles = 1;
   fGeneralParticleSource = new G4GeneralParticleSource();
-  auto fRando=new TRandom3();
+  fRando=new TRandom3();
   fRando->SetSeed();
   // default particle kinematic
   //
