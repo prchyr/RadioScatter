@@ -230,7 +230,7 @@ int main(int argc,char** argv)
       rx.setRThetaPhi(4000, 0,85*degree);
       radio->setRxPos(rx, 2);
       
-      double rr=3.;
+      double rr=23.;
       while(rr<27.){
 	tx.setRThetaPhi(rr*1000., 0, 1.13446);
 
