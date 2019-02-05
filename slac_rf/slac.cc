@@ -223,16 +223,16 @@ int main(int argc,char** argv)
 
      Hep3Vector tx, rx;
       double theta=0, phi=0;
-      rx.setRThetaPhi(4000,0,115*degree);
+      rx.setRThetaPhi(4000,pi/2.,115*degree);
       radio->setRxPos(rx, 0);
-      rx.setRThetaPhi(4000, 0,125*degree);
+      rx.setRThetaPhi(4000, pi/2.,125*degree);
       radio->setRxPos(rx, 1);
-      rx.setRThetaPhi(4000, 0,85*degree);
+      rx.setRThetaPhi(4000, pi/2.,85*degree);
       radio->setRxPos(rx, 2);
       
       double rr=2.;
       while(rr<27.){
-	tx.setRThetaPhi(rr*1000., 0, 1.13446);
+	tx.setRThetaPhi(rr*1000., pi/2., 65.*degree);
 
 	radio->setTxPos(tx,0);
 	runManager->BeamOn(1);
