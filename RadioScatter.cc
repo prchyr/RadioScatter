@@ -341,7 +341,7 @@ use the calculated refraction vectors (from makeRays()) to sort out the correct 
  */
 
  double RadioScatter::getRxAmplitude(int index,HepLorentzVector point, Hep3Vector j1, Hep3Vector j2, Hep3Vector l1, Hep3Vector l2){
-   double dist = (j1.mag()+j2.mag())*(l1.mag()+l2.mag());
+   double dist = ((j1.mag()+j2.mag())/m)*((l1.mag()+l2.mag())/m);
   //refraction things:
 
 
@@ -387,7 +387,7 @@ use the calculated refraction vectors (from makeRays()) to sort out the correct 
   double amp2 = sqrt(pow(E2_para*cos(theta), 2)+pow(E2_perp*sin(theta), 2));
 
 
-  double amplitude = (tx_voltage*m*m/dist)*amp1*amp2*angle_dependence;
+  double amplitude = (tx_voltage/dist)*amp1*amp2*angle_dependence;
 
   if(useAttnLengthFlag==1){
     double attn_dist = (j1.mag()+j2.mag())+(l1.mag()+l2.mag());
@@ -705,7 +705,7 @@ double RadioScatter::makeRays(HepLorentzVector point, double e, double l, double
       //            nu_col = 3.*sqrt(k_Boltzmann*7.e5*kelvin/electron_mass_c2)*5.e-9*(n_e);
       //rad scat as published
       double N_ice=3.2e22;//per cm^3;
-      //      nu_col = 3.*sqrt(k_Boltzmann*((e_i/eV)*1.16e4)*kelvin/electron_mass_c2)*5.e-14*(n_e);
+      //nu_col = 3.*sqrt(k_Boltzmann*((e_i/eV)*1.16e4)*kelvin/electron_mass_c2)*5.e-14*(n_e);
       nu_col = 3.*sqrt(k_Boltzmann*(300)*kelvin/electron_mass_c2)*5.e-14*(N_ice);
       // mean free path~5e-9, n_dens water=3.2e22/cm^3      
       // nu_col = 3.*sqrt(k_Boltzmann*7.e5*kelvin/electron_mass_c2)*(1./(5.e-9*3.2e22))*(n_e);
