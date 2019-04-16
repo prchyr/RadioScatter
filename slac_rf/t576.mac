@@ -77,7 +77,7 @@
 #/RS/setTxVoltage 7071 #1W
 #/RS/setPolarization horizontal
 /RS/setPolarization vertical
-/RS/setIndexOfRefraction 1.51
+#/RS/setIndexOfRefraction 1.51
 /RS/setAntennaGain 12
 /RS/setPlasmaLifetime 1
 /RS/setNPrimaries 1.e9
