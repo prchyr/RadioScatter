@@ -702,7 +702,7 @@ double RadioScatter::makeRays(HepLorentzVector point, double e, double l, double
       //(boltz(mev/k)*T(k)/m_e(mev mm^2 ns^-2))^1/2*cross section(mm^2)*n_e(mm^-3)
       //3 is for 3 species (approx)
 
-      //            nu_col = 3.*sqrt(k_Boltzmann*7.e5*kelvin/electron_mass_c2)*5.e-9*(n_e);
+      //nu_col = 3.*sqrt(k_Boltzmann*7.e5*kelvin/electron_mass_c2)*5.e-9*(n_e);
       //rad scat as published
       double N_ice=3.2e22;//per cm^3;
       //nu_col = 3.*sqrt(k_Boltzmann*((e_i/eV)*1.16e4)*kelvin/electron_mass_c2)*5.e-14*(n_e);

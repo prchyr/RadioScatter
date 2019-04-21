@@ -245,8 +245,8 @@ int main(int argc,char** argv)
    if(macro=="anglet576.mac"){
      Hep3Vector tx, rx;
      double theta=0, phi=0;
-     for(int i=4;i<15;i++){
-       rx.setRThetaPhi(6000,pi/2.,(double)i*10*degree);
+     for(int i=0;i<11;i++){
+       rx.setRThetaPhi(6000,pi/2.,(double)(i+4)*10.*degree);
        radio->setRxPos(rx, i);
      }
 
