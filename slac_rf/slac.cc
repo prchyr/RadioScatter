@@ -242,11 +242,20 @@ int main(int argc,char** argv)
 
    }
     // else{
-   // if(macro=="anglemac.mac"){
+   if(macro=="anglet576.mac"){
+     Hep3Vector tx, rx;
+     double theta=0, phi=0;
+     for(int i=4;i<15;i++){
+       rx.setRThetaPhi(6000,pi/2.,(double)i*10*degree);
+       radio->setRxPos(rx, i);
+     }
 
-   // }
-    // }
+     tx.setRThetaPhi(6000., pi/2., 65.*degree);
+     radio->setTxPos(tx, 0);
+     runManager->BeamOn(1);
+   }
   }
+
   else{
     UImanager->ApplyCommand("/control/execute init_vis.mac");
     if (ui->IsGUI()) {
