@@ -82,7 +82,7 @@
 /RS/setPlasmaLifetime 1
 /RS/setNPrimaries 1.e9
 /RS/setFillByEvent 1
-/RS/setMakeSummary 1
+/RS/setMakeSummary 0
 /RS/setRecordWindowLength 100
 /RS/setFillParticleInfo 0
 /RS/setShowCWFlag 0
