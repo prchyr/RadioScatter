@@ -232,7 +232,7 @@ int main(int argc,char** argv)
       
       double rr=2.;
       while(rr<7.){
-	tx.setRThetaPhi(rr*1000.,  65.*degree, pi/2.);
+	tx.setRThetaPhi(rr*1000.,  65.*degree, 0.);
 
 	radio->setTxPos(tx,0);
 	runManager->BeamOn(1);
@@ -246,7 +246,7 @@ int main(int argc,char** argv)
      Hep3Vector tx, rx;
      double theta=0, phi=0;
      for(int i=0;i<11;i++){
-       rx.setRThetaPhi(6000,(double)(i+4)*10.*degree, pi/2.);
+       rx.setRThetaPhi(6000,(double)(i+4)*10.*degree, 0.);
        radio->setRxPos(rx, i);
      }
 
