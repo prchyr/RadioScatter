@@ -246,11 +246,11 @@ int main(int argc,char** argv)
      Hep3Vector tx, rx;
      double theta=0, phi=0;
      for(int i=0;i<11;i++){
-       rx.setRThetaPhi(6000,pi/2.,(double)(i+4)*10.*degree);
+       rx.setRThetaPhi(6000,(double)(i+4)*10.*degree, pi/2.);
        radio->setRxPos(rx, i);
      }
 
-     tx.setRThetaPhi(6000., pi/2., 65.*degree);
+     tx.setRThetaPhi(6000., 65.*degree, pi/2.);
      radio->setTxPos(tx, 0);
      runManager->BeamOn(1);
    }
