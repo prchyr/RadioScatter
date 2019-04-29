@@ -258,10 +258,10 @@ int main(int argc,char** argv)
    if(macro=="fanoutt576.mac"){
      Hep3Vector tx, rx;
      double theta=0, phi=0;
-     for(int i=0;i<11;i++){
-       rx.setRThetaPhi(4000,(double)(i+4)*10.*degree, 0.);
+     for(int i=0;i<9;i++){
+       rx.setRThetaPhi(4000,(double)(i+5)*10.*degree, 0.);
        radio->setRxPos(rx, 0);
-       tx.setRThetaPhi(4000., (double)(10-i+4)*10.*degree, 0.);
+       tx.setRThetaPhi(4000., (double)(10-i+5)*10.*degree, 0.);
        radio->setTxPos(tx, 0);
        runManager->BeamOn(1);
      }
