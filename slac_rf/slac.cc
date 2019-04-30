@@ -256,13 +256,14 @@ int main(int argc,char** argv)
    }
 
    if(macro=="fanoutt576.mac"){
+     Hep3Vector offset(.6,0,2.);//coordinate system is 0,0,0 at front of target. this offset is for the coordinate system used at ESA
      Hep3Vector tx, rx;
      double theta=0, phi=0;
      for(int i=0;i<9;i++){
        rx.setRThetaPhi(4000,(double)(i+5)*10.*degree, 0.);
-       radio->setRxPos(rx, 0);
+       radio->setRxPos(rx+offset, 0);
        tx.setRThetaPhi(4000., (double)(10-i+5)*10.*degree, 0.);
-       radio->setTxPos(tx, 0);
+       radio->setTxPos(tx+offset, 0);
        runManager->BeamOn(1);
      }
    }
