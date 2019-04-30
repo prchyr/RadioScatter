@@ -262,7 +262,7 @@ int main(int argc,char** argv)
      for(int i=0;i<9;i++){
        rx.setRThetaPhi(4000,(double)(i+5)*10.*degree, 0.);
        radio->setRxPos(rx+offset, 0);
-       tx.setRThetaPhi(4000., (double)(9-i+5)*10.*degree, 0.);
+       tx.setRThetaPhi(4000., (double)(8-i+5)*10.*degree, 0.);
        radio->setTxPos(tx+offset, 0);
        runManager->BeamOn(1);
      }
