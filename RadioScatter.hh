@@ -131,6 +131,7 @@ public:
 
   int FILL_BY_EVENT=1;
   int FILL_PARTICLE_INFO=0;
+  TString PARTICLE_INFO_FILENAME="";
   int MAKE_SUMMARY_FILE=0;
   
   int NPRIMARIES_SET=0;
@@ -180,6 +181,7 @@ public:
   void setTxOffTime(double off);
   void setFillByEvent(double i);
   void setFillParticleInfo(double i);
+  void setParticleInfoFilename(char * filename);
   Hep3Vector getTxPos(int index=0);
   Hep3Vector getRxPos(int index=0);
   double getFreq();

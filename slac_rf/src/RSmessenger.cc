@@ -53,6 +53,12 @@ RSmessenger::RSmessenger(RadioScatter *rscat)
   polarizationCommand->SetGuidance("set Polarization!");
   polarizationCommand->SetParameterName("choice", false);
 
+    setParticleInfoFilenameCommand = new G4UIcmdWithAString("/RS/setParticleInfoFilename", this);
+  setParticleInfoFilenameCommand->SetGuidance("set SetParticleInfoFilename!");
+  setParticleInfoFilenameCommand->SetParameterName("choice", false);
+
+
+  
   nPrimariesCommand = new G4UIcmdWithADouble("/RS/setNPrimaries", this);
   nPrimariesCommand->SetGuidance("set NPrimaries!");
   nPrimariesCommand->SetParameterName("choice", false);
@@ -124,6 +130,7 @@ RSmessenger::~RSmessenger()
   delete makeSummaryCommand;
   delete setScaleByEnergyCommand;
   delete setFillParticleInfoCommand;
+  delete setParticleInfoFilenameCommand;
   delete voltageCommand;
   delete powerCommand;
   delete nPrimariesCommand;
@@ -135,6 +142,7 @@ RSmessenger::~RSmessenger()
 void RSmessenger::SetNewValue(G4UIcommand* command,G4String newValue)
 {
   if(command==polarizationCommand)rs->setPolarization((char*)newValue.c_str());
+  if(command==setParticleInfoFilenameCommand)rs->setParticleInfoFilename((char*)newValue.c_str());
   
   double val = (double)StoD(newValue);
   if(command==freqCommand)rs->setTxFreq(val);

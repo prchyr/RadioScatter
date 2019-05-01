@@ -34,6 +34,7 @@ private:
   G4UIcmdWithAString*        polarizationCommand;
   G4UIcmdWithADouble*        setFillByEventCommand;
   G4UIcmdWithADouble*        setFillParticleInfoCommand;
+  G4UIcmdWithAString*        setParticleInfoFilenameCommand;
   G4UIcmdWithADouble*        nPrimariesCommand;
   G4UIcmdWithADouble*        sampleRateCommand;
   G4UIcmdWithADouble*        indexOfRefractionCommand;

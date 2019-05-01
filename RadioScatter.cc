@@ -310,6 +310,9 @@ void RadioScatter::setFillByEvent(double i){
 void RadioScatter::setFillParticleInfo(double i){
   FILL_PARTICLE_INFO=(int)i;
 }
+void RadioScatter::setParticleInfoFilename(char * filename){
+  PARTICLE_INFO_FILENAME=TString(filename);
+}
 Hep3Vector RadioScatter::getTxPos(int index){
   return tx[index].vect();
 }

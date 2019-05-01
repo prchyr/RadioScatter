@@ -196,12 +196,12 @@ void RunAction::BeginOfRunAction(const G4Run* r)
 
     // Open an output file
     G4String runno = G4UIcommand::ConvertToString(r->GetRunID());
-    G4String dir="$HOME/";
+    //G4String dir="$HOME/";
     //    G4String fileName = "slac_rf_"+runno+"_";
     //    G4String fileName = "slac_rf_photon";
-    G4String fileName = "shower_particleinfo";
+    G4String fileName = (G4String)fRadio->PARTICLE_INFO_FILENAME;
     //  std::cout<<r->GetRunID()<<std::endl;
-    analysisManager->OpenFile(dir+fileName);
+    analysisManager->OpenFile(fileName);
   }
   
 }
