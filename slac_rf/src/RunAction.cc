@@ -196,7 +196,7 @@ void RunAction::BeginOfRunAction(const G4Run* r)
 
     // Open an output file
     G4String runno = G4UIcommand::ConvertToString(r->GetRunID());
-    G4String dir="/home/natas/Documents/physics/geant/root/";
+    G4String dir="$HOME/";
     //    G4String fileName = "slac_rf_"+runno+"_";
     //    G4String fileName = "slac_rf_photon";
     G4String fileName = "shower_particleinfo";
