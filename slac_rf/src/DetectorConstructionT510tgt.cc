@@ -368,7 +368,7 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
   //auto trapezoid = new G4Trd("trapezoid", dx1, dx2, dy1, dy2, dz);
   auto box = new G4Box("Tgt", dx1, dy1, dz);
   //  auto tgtS = new G4SubtractionSolid("Tgt", trapezoid, box, G4Translate3D(0., -dy1-dy2, 0.));
-  auto tgtLV = new G4LogicalVolume(box, iceMaterial, "Tgt");
+  auto tgtLV = new G4LogicalVolume(box, targetMaterial, "Tgt");
    fTgtPV = new G4PVPlacement(0, G4ThreeVector(0., 0, 0.), tgtLV, "Tgt", layerLV, false, 0, fCheckOverlaps);
 
 
