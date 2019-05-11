@@ -256,7 +256,7 @@ int main(int argc,char** argv)
 
      for(int i=0;i>-7;i--){
        radio->setTxPower(i*10.);
-       runManager->BeamOn(1);
+       runManager->BeamOn(1); 
      }
 
    }
