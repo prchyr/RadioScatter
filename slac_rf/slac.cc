@@ -255,8 +255,8 @@ int main(int argc,char** argv)
      radio->setRxPos(rx, 2);
 
      for(int i=0;i>-7;i--){
-       radio->setTxPower(i*10.)
-	 runManager->BeamOn(1);
+       radio->setTxPower(i*10.);
+       runManager->BeamOn(1);
      }
 
    }
