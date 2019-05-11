@@ -243,7 +243,26 @@ int main(int argc,char** argv)
       }
 
    }
-    // else{
+
+   if(macro=="sweep.mac"){
+     Hep3Vector tx, rx;
+     double theta=0, phi=0;
+     rx.setRThetaPhi(4000,115*degree, 0.);
+     radio->setRxPos(rx, 0);
+     rx.setRThetaPhi(4000, 125*degree, 0.);
+     radio->setRxPos(rx, 1);
+     rx.setRThetaPhi(4000, 85*degree, 0.);
+     radio->setRxPos(rx, 2);
+
+     for(int i=0;i>-7;i--){
+       radio->setTxPower(i*10.)
+	 runManager->BeamOn(1);
+     }
+
+   }
+   
+
+   // else{
    if(macro=="anglet576.mac"){
      Hep3Vector tx, rx;
      double theta=0, phi=0;
