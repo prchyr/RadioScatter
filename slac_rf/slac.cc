@@ -276,16 +276,19 @@ int main(int argc,char** argv)
      runManager->BeamOn(1);
    }
    if(macro=="run6.mac"){
-     Hep3Vector offset(.6,0,2.);
+     Hep3Vector offset(600,0,2000.);
      Hep3Vector tx, rx;
+
      double theta=0, phi=0;
-     rx.setRThetaPhi(4000,55*degree, 0.);
+     rx.setRThetaPhi(4000,55*degree, pi);
      radio->setRxPos(rx+offset, 0);
-     rx.setRThetaPhi(6000, 75*degree, 0.);
+     rx.setRThetaPhi(6000, 75*degree, pi);
      radio->setRxPos(rx+offset, 1);
-     rx.setRThetaPhi(6000, 65*degree, 0.);
+     rx.setRThetaPhi(6000, 65*degree, pi);
      radio->setRxPos(rx+offset, 2);
 
+     tx.setRThetaPhi(4000, 125*degree, pi);
+     radio->setTxPos(tx+offset, 0);
      runManager->BeamOn(10);
    }
    
