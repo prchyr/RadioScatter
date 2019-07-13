@@ -267,7 +267,7 @@ int main(int argc,char** argv)
    if(macro=="surf.mac"){
      Hep3Vector tx, rx;
      double theta=0, phi=0;
-     offset=(-600, 0, 2000);
+     Hep3Vector offset(-600, 0, 2000);
      for(int i=0;i<11;i++){
        rx.setRThetaPhi(5000,(double)(i+4)*10.*degree, pi);
        radio->setRxPos(rx+offset, i);
