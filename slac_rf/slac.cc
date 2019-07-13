@@ -263,6 +263,19 @@ int main(int argc,char** argv)
    
 
    // else{
+
+   if(macro=="surf.mac"){
+     Hep3Vector tx, rx;
+     double theta=0, phi=0;
+     for(int i=0;i<11;i++){
+       rx.setRThetaPhi(5000,(double)(i+4)*10.*degree, 0.);
+       radio->setRxPos(rx, i);
+     }
+
+     tx.setRThetaPhi(6000., 65.*degree, 0.);
+     radio->setTxPos(tx, 0);
+     runManager->BeamOn(10);
+ }
    if(macro=="anglet576.mac"){
      Hep3Vector tx, rx;
      double theta=0, phi=0;
