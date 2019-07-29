@@ -310,7 +310,7 @@ int main(int argc,char** argv)
      Hep3Vector offset(-600,0,2000.);
      Hep3Vector tx, rx;
 
-     int N=20;
+     int N=30;
      double theta=0, phi=0;
      double minz=-6000.;
      double maxz=6000.;
@@ -319,7 +319,8 @@ int main(int argc,char** argv)
      double minx=-6000.;
      double maxx=0.;
      double dx=(maxx-minx)/((double)N);
-     
+
+     cout<<"dx: "<<dx;
      for(int i=0;i<N;i++){
        for(int j=0;j<N;j++){
 	 int num=(i*N)+j;
