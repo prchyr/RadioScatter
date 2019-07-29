@@ -320,7 +320,7 @@ int main(int argc,char** argv)
      double maxx=0.;
      double dx=abs(maxx-minx)/((double)N);
 
-     cout<<"dx: "<<dx;
+     cout<<"dx: "<<dx<<endl;
      for(int i=0;i<N;i++){
        for(int j=0;j<N;j++){
 	 int num=(i*N)+j;
