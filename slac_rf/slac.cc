@@ -314,11 +314,11 @@ int main(int argc,char** argv)
      double theta=0, phi=0;
      double minz=-6000.;
      double maxz=6000.;
-     double dz=(maxz-minz)/((double)N);
+     double dz=abs(maxz-minz)/((double)N);
 
      double minx=-6000.;
      double maxx=0.;
-     double dx=(maxx-minx)/((double)N);
+     double dx=abs(maxx-minx)/((double)N);
 
      cout<<"dx: "<<dx;
      for(int i=0;i<N;i++){
