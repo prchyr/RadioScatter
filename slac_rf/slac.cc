@@ -305,19 +305,46 @@ int main(int argc,char** argv)
      radio->setTxPos(tx+offset, 0);
      runManager->BeamOn(10);
    }
+
+   if(macro=="surfsensor.mac"){
+     Hep3Vector offset(-600,0,2000.);
+     Hep3Vector tx, rx;
+
+     int N=30;
+     double theta=0, phi=0;
+     double minz=-6000.;
+     double maxz=6000.;
+     double dz=(maxz-minz)/((double)N);
+
+     double minx=-6000.;
+     double maxx=0.;
+     double dx=(maxx-minx)/((double)N);
+     
+     for(int i=0;i<N;i++){
+       for(int j=0;j<N;j++){
+	 int num=(i*N)+j;
+	 rx.setXYZ(minx+((double)i*dx), 0, minz+((double)j*dz));
+	 radio->setRxPos(rx+offset, num);
+       }
+     }
+
+     tx.setRThetaPhi(4000, 125*degree, pi);
+     radio->setTxPos(tx+offset, 0);
+     //runManager->BeamOn(10);
+   }
    
    if(macro=="fanoutt576.mac"){
-     Hep3Vector offset(600,0,2000);//coordinate system is 0,0,0 at front of target. this offset is for the coordinate system used at ESA
+     Hep3Vector offset(-600,0,2000);//coordinate system is 0,0,0 at front of target. this offset is for the coordinate system used at ESA
      Hep3Vector tx, rx;
      double theta=0, phi=0;
-     rx.setRThetaPhi(6000,75.*degree, 0.);
+     rx.setRThetaPhi(6000,75.*degree, pi);
      radio->setRxPos(rx+offset, 1);
-     rx.setRThetaPhi(6000,145.*degree, 0.);
+     rx.setRThetaPhi(6000,145.*degree, pi);
      radio->setRxPos(rx+offset, 2);
      for(int i=0;i<9;i++){
-       rx.setRThetaPhi(4000,(double)(i+5)*10.*degree, 0.);
+       rx.setRThetaPhi(4000,(double)(i+5)*10.*degree, pi);
        radio->setRxPos(rx+offset, 0);
-       tx.setRThetaPhi(4000., (double)(8-i+5)*10.*degree, 0.);
+       tx.setRThetaPhi(4000., (double)(8-i+5)*10.*degree, pi);
        radio->setTxPos(tx+offset, 0);
        runManager->BeamOn(1);
      }
