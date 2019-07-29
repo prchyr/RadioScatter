@@ -310,7 +310,7 @@ int main(int argc,char** argv)
      Hep3Vector offset(-600,0,2000.);
      Hep3Vector tx, rx;
 
-     int N=30;
+     int N=20;
      double theta=0, phi=0;
      double minz=-6000.;
      double maxz=6000.;
