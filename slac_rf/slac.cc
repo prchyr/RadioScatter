@@ -307,7 +307,7 @@ int main(int argc,char** argv)
    }
 
    if(macro=="surfsensor.mac"){
-     Hep3Vector offset(-6.,0.,0.);
+     Hep3Vector offset(0.,0.,0.);
      Hep3Vector tx, rx;
 
      int N=30;
