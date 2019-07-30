@@ -330,7 +330,7 @@ int main(int argc,char** argv)
        }
      }
 
-     tx.setRThetaPhi(4000, 125*degree, pi);
+     tx.set(-4000, 0, -2000);
      radio->setTxPos(tx+offset, 0);
      runManager->BeamOn(1);
    }
