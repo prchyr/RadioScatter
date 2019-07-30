@@ -312,12 +312,12 @@ int main(int argc,char** argv)
 
      int N=60;
      double theta=0, phi=0;
-     double minz=-6000.;
-     double maxz=6000.;
+     double minz=-10000.;
+     double maxz=10000.;
      double dz=abs(maxz-minz)/((double)N);
 
-     double minx=-6000.;
-     double maxx=6000.;
+     double minx=-10000.;
+     double maxx=10000.;
      double dx=abs(maxx-minx)/((double)N);
 
      cout<<"dx: "<<dx<<endl;
