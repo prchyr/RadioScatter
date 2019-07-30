@@ -317,7 +317,7 @@ int main(int argc,char** argv)
      double dz=abs(maxz-minz)/((double)N);
 
      double minx=-6000.;
-     double maxx=-6000.;
+     double maxx=6000.;
      double dx=abs(maxx-minx)/((double)N);
 
      cout<<"dx: "<<dx<<endl;
