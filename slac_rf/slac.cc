@@ -312,11 +312,11 @@ int main(int argc,char** argv)
 
      int N=30;
      double theta=0, phi=0;
-     double minz=-6000.;
+     double minz=-8000.;
      double maxz=6000.;
      double dz=abs(maxz-minz)/((double)N);
 
-     double minx=-6000.;
+     double minx=-8000.;
      double maxx=6000.;
      double dx=abs(maxx-minx)/((double)N);
 
