@@ -330,8 +330,8 @@ int main(int argc,char** argv)
        }
      }
 
-     tx.set(-4000, 0, -2000);
-     radio->setTxPos(tx+offset, 0);
+     // tx.set(-4000, 0, -2000);
+     //radio->setTxPos(tx+offset, 0);
      runManager->BeamOn(1);
    }
    
