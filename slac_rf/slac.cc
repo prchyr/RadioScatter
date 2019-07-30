@@ -324,7 +324,7 @@ int main(int argc,char** argv)
      for(int i=0;i<N;i++){
        for(int j=0;j<N;j++){
 	 int num=(i*N)+j;
-	 cout<<num<<endl;
+	 //	 cout<<num<<endl;
 	 rx.set(minx+((double)i*dx), 0, minz+((double)j*dz));
 	 radio->setRxPos(rx+offset, num);
        }
