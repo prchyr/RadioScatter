@@ -368,7 +368,7 @@ use the calculated refraction vectors (from makeRays()) to sort out the correct 
   
   Hep3Vector nhat((point-rx[index]).vect().unit());
 
-  Hep3Vector vert(0,1.,0), horiz(0,0,1.);
+  //Hep3Vector vert(0,1.,0), horiz(0,0,1.);
   Hep3Vector vert(1.,1.,1.), horiz(1.,1.,1.); 
   //  l1plane.setTheta(0);
   //  l1plane.setPhi(0);
