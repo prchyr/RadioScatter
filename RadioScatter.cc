@@ -203,8 +203,9 @@ void RadioScatter::setTxPower(double p){
 }
 
 void RadioScatter::setAntennaGain(double gain){
-  rx_gain=gain;
-  tx_gain=gain;
+  double gg=pow(10., gain/10.);
+  rx_gain=gg;
+  tx_gain=gg;
 }
 
  void RadioScatter::setTxOnTime(double on){
@@ -279,7 +280,7 @@ void RadioScatter::setRxVals(double s=1., double gain=1.){
   includeCW_flag=(int)i;
 }
 
-  void RadioScatter::setSimulationParameters(double n=1., char* tx_rx_pol="horizontal", double relative_index_of_refraction=1.5, int flag=0){
+void RadioScatter::setSimulationParameters(double n=1., char* tx_rx_pol=(char*)"horizontal", double relative_index_of_refraction=1.5, int flag=0){
   n_primaries=n;
   pol=tx_rx_pol;
   n_rel = relative_index_of_refraction;

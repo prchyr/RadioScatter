@@ -50,7 +50,7 @@ public:
 
 
   TString output_file_name;
-  char* pol = "horizontal";//default, also set as default in set_simulation_paramaters
+  char* pol = (char*)"horizontal";//default, also set as default in set_simulation_paramaters
   TString polarization="horizontal";
   double x_offset=0*m, z_offset = 2.*m, y_offset = 5.*m;
   double omega, omega_c, omega_e = 7.79e20, omega_0=twopi*2000*megahertz;
