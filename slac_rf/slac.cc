@@ -306,7 +306,7 @@ int main(int argc,char** argv)
 
      tx.setRThetaPhi(4000, 125*degree, pi);
      radio->setTxPos(tx+offset, 0);
-     runManager->BeamOn(10);
+     runManager->BeamOn(100);
    }
 
    if(macro=="surfsensor.mac"){
