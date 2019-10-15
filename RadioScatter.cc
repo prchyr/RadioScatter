@@ -179,21 +179,32 @@ void RadioScatter::setRxPos(Hep3Vector in, int index){
     tx_voltage = power;
   }
  void RadioScatter::setTxFreq(double f){
-  frequency = f*megahertz;
+   TX_FREQ_SET=1;
+   frequency = f*megahertz;
   omega = frequency*twopi;
   period = 1./omega;
   lambda = c_light/f;
   k = omega/c_light;
   //attnLength = attnLength - (180*m*(f/1000.));
-  effectiveHeight=lambda;
+  
+  if(TX_GAIN_SET!=1){
+    //from RICE
+    txEffectiveHeight=sqrt(lambda*lambda*tx_gain/(480.*pi*pi));
+    //from wikipedia antenna factor
+    txEffectiveHeight=lambda*sqrt(tx_gain)/9.73;
+  
+
+  }
+
   attnLength = 1450000;//barwick et all south pole measurement
   cout<<"tx frequency: "<<f<<endl;
-  cout<<"lambda/eff height: "<<lambda<<endl;
+  cout<<"lambda: "<<lambda<<endl;
+
   cout<<"attn length: "<<attnLength<<endl;
 }
  void RadioScatter::setTxVoltage(double v){
   tx_voltage = v;
-  event.txVoltage=v;
+  event.txVoltage=v/1000.;
   event.txPowerW=pow(v*.001, 2)/50.;
 }
 void RadioScatter::setTxPower(double p){
@@ -202,10 +213,46 @@ void RadioScatter::setTxPower(double p){
   event.txPowerW=p*.001;
 }
 
-void RadioScatter::setAntennaGain(double gain){
+void RadioScatter::setReceiverGain(double gain){
+  //if(TX_FREQ_SET==0){
+  //cout<<"WARNING:antenna gain set before transmit frequency, effective height will be incorrect. please set tx freq before setting antenna gain"<<endl;
+  //}
   double gg=pow(10., gain/10.);
   rx_gain=gg;
+  //tx_gain=gg;
+  if(RX_GAIN_SET!=1){
+    RX_GAIN_SET==1;
+
+    cout<<" receiver gain: "<<gain<<" dB, ("<<gg<<" linear)"<<endl;
+    //    tx_voltage=tx_voltage*gg;
+    //from rice paper
+    rxEffectiveHeight=sqrt(lambda*lambda*rx_gain/(480.*pi*pi));
+    //from wikipedia antenna factor
+    rxEffectiveHeight=lambda*sqrt(rx_gain)/9.73;
+
+    cout<<"effective height: "<<rxEffectiveHeight<<endl;
+  }
+}
+
+void RadioScatter::setTransmitterGain(double gain){
+  if(TX_FREQ_SET==0){
+    cout<<"WARNING:antenna gain set before transmit frequency, effective height will be incorrect. please set tx freq before setting antenna gain"<<endl;
+  }
+  double gg=pow(10., gain/10.);
+  //rx_gain=gg;
   tx_gain=gg;
+  if(TX_GAIN_SET!=1){
+    TX_GAIN_SET==1;
+
+    cout<<"transmitter voltage: "<<tx_voltage/1000.<<" transmitter gain: "<<gain<<" dB, ("<<gg<<" linear)"<<endl;
+    //    tx_voltage=tx_voltage*gg;
+    //from rice paper
+    txEffectiveHeight=sqrt(lambda*lambda*tx_gain/(480.*pi*pi));
+    //from wikipedia antenna factor
+    txEffectiveHeight=lambda*sqrt(tx_gain)/9.73;
+
+    cout<<"effective height: "<<txEffectiveHeight<<endl;
+  }
 }
 
  void RadioScatter::setTxOnTime(double on){
@@ -335,7 +382,7 @@ Hep3Vector RadioScatter::getTxPos(int index){
   }
   double RadioScatter::getTxAmplitude(int index,HepLorentzVector point){
     double gain = getTxGain(point.vect().theta());
-    double power = tx_voltage*gain;
+    double power = tx_voltage*txEffectiveHeight;
     return power;
   }
 
@@ -483,7 +530,7 @@ double RadioScatter::getPhaseFromAt(HepLorentzVector from, HepLorentzVector at){
 
 double RadioScatter::getTxPhase(double t_0){
   //    HepLorentzVector tx_pr = tx-point;
-  double phase = omega*t_0;
+  double phase = omega*t_0 + phase0;
   return phase;
 }
 
@@ -687,15 +734,10 @@ double RadioScatter::makeRays(HepLorentzVector point, double e, double l, double
       
       if(step_length==0)return 0;
       num++;
-      /*
-	electron number density is an issue here. need really to integrate over
-	a volume, but this will be slow. could pre-compute the density in a given region,
-	make a map, and use that. for now, a couple cheap approximations.
-       */
+      
       //electron number density, using step length cube, it may over-estimate.
       n_e = n*n_primaries/pow(step_length, 3);
-      //this is the number density. it may under-estimate. tuned such that the peak n_e is ~ E_primary
-      double n_e_test=n*n_primaries*1.;
+
       //n_e=n_e_test;
       if(n_e==0)return 0;
       //      cout<<n_e_test<<endl;
@@ -703,24 +745,16 @@ double RadioScatter::makeRays(HepLorentzVector point, double e, double l, double
       //      cout<<e_i<<endl;
       //      avgval=e_i;
       if(n_e>maxval)maxval=n_e;
-      //this is from Raizer, and is the simplest, just using a simple cross section
-      //(boltz(mev/k)*T(k)/m_e(mev mm^2 ns^-2))^1/2*cross section(mm^2)*n_e(mm^-3)
-      //3 is for 3 species (approx)
-
-      //nu_col = 3.*sqrt(k_Boltzmann*7.e5*kelvin/electron_mass_c2)*5.e-9*(n_e);
       //rad scat as published
       double N_ice=3.2e22;//per cm^3;
-      //nu_col = 3.*sqrt(k_Boltzmann*((e_i/eV)*1.16e4)*kelvin/electron_mass_c2)*5.e-14*(n_e);
-      nu_col = 3.*sqrt(k_Boltzmann*(300)*kelvin/electron_mass_c2)*5.e-14*(N_ice);
-      // mean free path~5e-9, n_dens water=3.2e22/cm^3      
-      // nu_col = 3.*sqrt(k_Boltzmann*7.e5*kelvin/electron_mass_c2)*(1./(5.e-9*3.2e22))*(n_e);
-	//}
-      //debug
-      // nu_col=0.;
+      //the collisional cross section is 
+      nu_col = sqrt(k_Boltzmann*(300)*kelvin/electron_mass_c2)*1.e-16*(N_ice);
+      //debug, this uses a hard-coded collisional frequency for hdpe/ice, which is ~10^12 s^-1, or ~10^3 ns^-1 in our units 
+      //      nu_col=1.e3;
       event.totNScatterers+=n;//track total number of scatterers
 
       //the full scattering amplitude pre-factor  
-      double prefactor = -rx_gain*effectiveHeight*n*n_primaries*e_radius*omega/(pow(omega, 2)+pow(nu_col, 2));
+      double prefactor = -rxEffectiveHeight*n*n_primaries*e_radius*omega/(pow(omega, 2)+pow(nu_col, 2));
 
       //x position of charge w/r/t shower axis
       Hep3Vector vec=(point.vect()-event.position);
@@ -731,14 +765,14 @@ double RadioScatter::makeRays(HepLorentzVector point, double e, double l, double
       //plasma frequency
       double omega_p = sqrt(e_radius*c_squared*n_e*4.*pi*4.*pi);
       //the screening term. as derived in paper
-      //double alpha = e_radius*.01*n_e*(omega*1.e9);
+
       //the screening term, as derived in paper rev 4. 
       double alpha= ((omega_p*omega_p)/(2*c_light))*(nu_col/(omega*omega + nu_col*nu_col))*x_0;
-      //      alpha=alpha>10.?10.:alpha;
+
 
       double attn_factor = exp(-alpha);
 
-       prefactor=prefactor*attn_factor;
+      prefactor=prefactor*attn_factor;
       
       HepLorentzVector point_temp=point;      
       //are we calculating in a refraction region?
@@ -1130,6 +1164,8 @@ int RadioScatter::writeRun(float num_events, int debug){
   }
   // event.tx=tx;
   // event.rx=rx;
+  event.txGain=tx_gain;
+  event.rxGain=rx_gain;
   event.eventHist = scaleHist(num_events);
   event.reHist = re_hist;
   event.imHist = im_hist;
@@ -1191,6 +1227,8 @@ int RadioScatter::writeEvent(int debug){
 
   event.ntx=ntx;
   event.nrx=nrx;
+  event.txGain=tx_gain;
+  event.rxGain=rx_gain;
   for(int i=0;i<ntx;i++){
     event.tx.push_back(tx[i]);
   }

@@ -74,6 +74,8 @@ public:
   double txVoltage=0;
   double txPowerW=0;
   double freq=0;
+  double txGain=1.;
+  double rxGain=1.;
   //  double power=0;
   double totNScatterers=0;
   vector<vector<TH1F*>> eventHist;

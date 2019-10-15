@@ -20,9 +20,13 @@ RSmessenger::RSmessenger(RadioScatter *rscat)
   sampleRateCommand->SetGuidance("set sampleRate!");
   sampleRateCommand->SetParameterName("choice", false);
 
-  antennaGainCommand = new G4UIcmdWithADouble("/RS/setAntennaGain", this);
-  antennaGainCommand->SetGuidance("set antennaGain!");
-  antennaGainCommand->SetParameterName("choice", false);
+  receiverGainCommand = new G4UIcmdWithADouble("/RS/setReceiverGain", this);
+  receiverGainCommand->SetGuidance("set receiverGain!");
+  receiverGainCommand->SetParameterName("choice", false);
+
+  transmitterGainCommand = new G4UIcmdWithADouble("/RS/setTransmitterGain", this);
+  transmitterGainCommand->SetGuidance("set transmitterGain!");
+  transmitterGainCommand->SetParameterName("choice", false);
 
   windowLengthCommand = new G4UIcmdWithADouble("/RS/setRecordWindowLength", this);
   windowLengthCommand->SetGuidance("set the length of receiver record window");
@@ -124,7 +128,7 @@ RSmessenger::~RSmessenger()
   delete setNTxCommand;
   delete setNRxCommand;
   delete lifetimeCommand;
-  delete antennaGainCommand;
+  delete receiverGainCommand;
   delete windowLengthCommand;
   delete setFillByEventCommand;
   delete makeSummaryCommand;
@@ -150,7 +154,8 @@ void RSmessenger::SetNewValue(G4UIcommand* command,G4String newValue)
   if(command==powerCommand)rs->setTxPower(val);
   if(command==setNTxCommand)rs->setNTx(val);
   if(command==setNRxCommand)rs->setNRx(val);
-  if(command==antennaGainCommand)rs->setAntennaGain(val);
+  if(command==receiverGainCommand)rs->setReceiverGain(val);
+  if(command==transmitterGainCommand)rs->setTransmitterGain(val);
   if(command==makeSummaryCommand)rs->setMakeSummary(val);
   if(command==setScaleByEnergyCommand)rs->setScaleByEnergy(val);
   if(command==lifetimeCommand)rs->setPlasmaLifetime(val);

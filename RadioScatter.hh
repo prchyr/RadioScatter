@@ -61,8 +61,8 @@ public:
   double zscale=1.;//the longitudinal scale factor
   double tscale=1.;//the time scale factor
   double impedance = 50;
-  double tx_gain=1.;
-  double rx_gain=1.;
+  double tx_gain=3.;
+  double rx_gain=3.;
   double step_length=1;//default g4 steplength
   double E_i=.000038;//default electron ion pair energy
   double e_charge_cgs = 4.803e-10;//statcoloumbs
@@ -95,7 +95,9 @@ public:
   
   double frequency, period, lambda, k;
 
-  double effectiveHeight=1.;//, antennaGain=1.;
+  double phase0=0.;
+  
+  double rxEffectiveHeight=1., txEffectiveHeight=1.;//, antennaGain=1.;
   
   double samplerate=10, samplingperiod=.1, start_time=0, end_time=1000;
   //plasma lifetime, set to the samplingperiod by default
@@ -133,6 +135,10 @@ public:
   int FILL_PARTICLE_INFO=0;
   TString PARTICLE_INFO_FILENAME="";
   int MAKE_SUMMARY_FILE=0;
+  int TX_GAIN_SET=0;
+  int RX_GAIN_SET=0;
+  int TX_FREQ_SET=0;
+  int RX_FREQ_SET=0;
   
   int NPRIMARIES_SET=0;
   int PRIMARY_ENERGY_SET=0;
@@ -159,7 +165,8 @@ public:
   void setTxVoltage(double v);
   void setTxPower(double p);
   void setNPrimaries(double n);
-  void setAntennaGain(double gain);
+  void setReceiverGain(double gain);
+  void setTransmitterGain(double gain);
   void setPrimaryEnergy(double e);
   void setPrimaryPosition(Hep3Vector p);
   void setPrimaryDirection(Hep3Vector p);
@@ -229,6 +236,7 @@ private:
   int REFRACTION_FLAG=0;
   bool RSCAT_HIST_DECLARE=false;
   bool RSCAT_HIST_RESIZE=false;
+
   int fRunCounter=0;
 };
 

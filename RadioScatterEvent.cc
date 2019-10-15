@@ -87,10 +87,8 @@ double RadioScatterEvent::effectiveCrossSection(int txindex, int rxindex){
   double r_tx = (tx[txindex].vect()-position).mag()/1000.;//m
   double r_rx = (rx[rxindex].vect()-position).mag()/1000.;
   double lambda = 2.997e8/(freq*1.e9);
-  //  cout<<r_rx<<" "<<r_tx<<" "<<lambda<<" "<<peakPowerW(txindex, rxindex)<<endl;
-  double gain=3.;//dipole gain
-  //  return (pow(4.*pi, 2)*pow(pathLengthM(txindex, rxindex), 2)*peakPowerW(txindex, rxindex))/(txPowerW*pow(lambda, 2));
-  return (pow(4.*pi, 3)*pow(r_tx, 2)*pow(r_rx, 2)*peakPowerW(txindex, rxindex))/(txPowerW*gain*gain*pow(lambda, 2));
+  //  cout<<r_rx<<" "<<r_tx<<" "<<lambda<<" "<<peakPowerW(txindex, rxindex)<<" txGain: "<<txGain<<" txpower: "<<txPowerW<<endl;
+  return (pow(4.*pi, 3)*pow(r_tx, 2)*pow(r_rx, 2)*peakPowerW(txindex, rxindex))/(txPowerW*txGain*rxGain*pow(lambda, 2));
 }
 
 
@@ -416,10 +414,10 @@ int RadioScatterEvent::plotEvent(int txindex, int rxindex, int noise_flag, int s
     redraw_canvas = 1;
     ccc = new TCanvas("plotEvent","plotEvent", 800, 400);
   }
-  // else{
-  //   cout<<openc->GetName()<<endl;
-  //   ccc=openc;
-  // }
+  else{
+     cout<<openc->GetName()<<endl;
+     ccc=openc;
+   }
   ccc->SetName("plotEvent");
   ccc->SetTitle("plotEvent");
   ///  TCanvas *c = new TCanvas("plotEvent", "plotEvent", 800, 400);
@@ -502,7 +500,7 @@ int RadioScatterEvent::plotEvent(int txindex, int rxindex, int noise_flag, int s
     
     for(int i=0;i<nrx;i++){
       if(i==rxindex)continue;
-      rxhist->Fill(1.+rx[i].z()/1000., 1.+rx[i].x()/1000., 1.+rx[i].y()/1000., 1.);
+      rxhist->Fill(1.+rx[i].z()/1000., 1.+rx[i].x()/1000., 1.+rx[i].y()/1000., eventHist[txindex][rxindex]->GetMaximum());
     }
     rxhist->BufferEmpty();
     RXHIST_FILLED=1;
