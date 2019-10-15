@@ -24,7 +24,7 @@ double RadioScatterEvent::integratedPower(int txindex, int rxindex){
   double val;
   int entries=eventHist[txindex][rxindex]->GetNbinsX();
   for(int i=0;i<entries;i++){
-    val+=eventHist[txindex][rxindex]->GetBinContent(i)*eventHist[txindex][rxindex]->GetBinContent(i);
+    val+=eventHist[txindex][rxindex]->GetBinContent(i)*eventHist[txindex][rxindex]->GetBinContent(i)*.001*.001;
   }
   return val;
 }
@@ -35,7 +35,7 @@ double RadioScatterEvent::integratedPower(int txindex, int rxindex, double tlow,
   int binlow=eventHist[txindex][rxindex]->FindBin(tlow);
   int binhigh=eventHist[txindex][rxindex]->FindBin(thigh);
   for(int i=binlow;i<binhigh;i++){
-    val+=(dcoffset+eventHist[txindex][rxindex]->GetBinContent(i))*(dcoffset+eventHist[txindex][rxindex]->GetBinContent(i));
+    val+=(dcoffset+eventHist[txindex][rxindex]->GetBinContent(i))*(dcoffset+eventHist[txindex][rxindex]->GetBinContent(i))*.001*.001;
   }
   return val;
 }
@@ -47,7 +47,7 @@ double RadioScatterEvent::integratedPowerAroundPeak(int txindex, int rxindex, do
   int binlow=h1->GetMaximumBin()-halfwindow;
   int binhigh=h1->GetMaximumBin()+halfwindow;
   for(int i=binlow;i<binhigh;i++){
-    val+=(h1->GetBinContent(i))*(h1->GetBinContent(i));
+    val+=(h1->GetBinContent(i))*(h1->GetBinContent(i)*.001*.001);
   }
   return val;
 }
@@ -56,7 +56,7 @@ double RadioScatterEvent::integratedVoltage(int txindex, int rxindex){
   double val;
   int entries=eventHist[txindex][rxindex]->GetNbinsX();
   for(int i=0;i<entries;i++){
-    val+=eventHist[txindex][rxindex]->GetBinContent(i);
+    val+=eventHist[txindex][rxindex]->GetBinContent(i)*.001;
   }
   return val;
 }
@@ -73,12 +73,12 @@ double RadioScatterEvent::integratedVoltage(int txindex, int rxindex, double tlo
 }
 
 double RadioScatterEvent::peakPowerMW(int txindex, int rxindex){
-  double val=1000.*pow((peakV(txindex, rxindex)*.001), 2)/50.;
+  double val=1000.*pow((peakV(txindex, rxindex)*1000), 2)/50.;
 
   return val;
 }
 double RadioScatterEvent::peakPowerW(int txindex, int rxindex){
-  double val=pow((peakV(txindex, rxindex)*.001), 2)/50.;
+  double val=pow((peakV(txindex, rxindex)), 2)/50.;
 
   return val;
 }
@@ -99,7 +99,7 @@ double RadioScatterEvent::thermalNoiseRMS(){
 }
 
 double RadioScatterEvent::peakV(int txindex, int rxindex){
-  return reHist[txindex][rxindex]->GetMaximum();
+  return reHist[txindex][rxindex]->GetMaximum()*.001;
 }
 
 double RadioScatterEvent::primaryParticleEnergy(){
