@@ -26,7 +26,8 @@ private:
   G4UIcmdWithADouble*        setNRxCommand;
   G4UIcmdWithADouble*        voltageCommand;
   G4UIcmdWithADouble*        makeSummaryCommand;
-  G4UIcmdWithADouble*        antennaGainCommand;
+  G4UIcmdWithADouble*        receiverGainCommand;
+  G4UIcmdWithADouble*        transmitterGainCommand;
   G4UIcmdWithADouble*        powerCommand;
   G4UIcmdWithADouble*        setScaleByEnergyCommand;
   G4UIcmdWithADouble*        lifetimeCommand;
@@ -34,6 +35,7 @@ private:
   G4UIcmdWithAString*        polarizationCommand;
   G4UIcmdWithADouble*        setFillByEventCommand;
   G4UIcmdWithADouble*        setFillParticleInfoCommand;
+  G4UIcmdWithAString*        setParticleInfoFilenameCommand;
   G4UIcmdWithADouble*        nPrimariesCommand;
   G4UIcmdWithADouble*        sampleRateCommand;
   G4UIcmdWithADouble*        indexOfRefractionCommand;
