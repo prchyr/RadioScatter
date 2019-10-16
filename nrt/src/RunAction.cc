@@ -186,12 +186,16 @@ some example commands below, all of which can (and should) be set in the macro f
   //  fRadio->setTxInterfaceDistX(fDetConstruction->GetTgtPV()->GetLogicalVolume()->GetSolid()->DistanceToIn(fRadio->getTxPos()));
   //fRadio->setRxInterfaceDistX(fDetConstruction->GetTgtPV()->GetLogicalVolume()->GetSolid()->DistanceToIn(fRadio->getRxPos()));
 
+    auto gpsDat=G4GeneralParticleSourceData::Instance();
+    auto gps = gpsDat->GetCurrentSource();
+    fRadio->setPrimaryEnergy(gps->GetParticleEnergy());
+    fRadio->setPrimaryDirection(gps->GetParticleMomentumDirection());
+    fRadio->setPrimaryPosition(gps->GetParticlePosition());
   
   if(fRadio->FILL_PARTICLE_INFO==1){
     //redundant root files saved through geant root system
     // Get analysis manager
     auto analysisManager = G4AnalysisManager::Instance();
-
     // Open an output file
     G4String runno = G4UIcommand::ConvertToString(r->GetRunID());
     G4String dir="$HOME/doc/root/";
