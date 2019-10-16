@@ -67,7 +67,7 @@ public:
   vector<HepLorentzVector> tx;
   vector<HepLorentzVector> rx;
   //the energy of the primary as set in geant
-  double primaryEnergy=0;
+  double primaryEnergy=1000;//1000MeV (geant units) as a default
 
   double sampleRate;
   double nPrimaries=0;
