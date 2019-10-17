@@ -24,7 +24,7 @@ double RadioScatterEvent::integratedPower(int txindex, int rxindex){
   double val;
   int entries=eventHist[txindex][rxindex]->GetNbinsX();
   for(int i=0;i<entries;i++){
-    val+=eventHist[txindex][rxindex]->GetBinContent(i)*eventHist[txindex][rxindex]->GetBinContent(i)*.001*.001;
+    val+=eventHist[txindex][rxindex]->GetBinContent(i)*eventHist[txindex][rxindex]->GetBinContent(i);
   }
   return val;
 }
@@ -35,7 +35,7 @@ double RadioScatterEvent::integratedPower(int txindex, int rxindex, double tlow,
   int binlow=eventHist[txindex][rxindex]->FindBin(tlow);
   int binhigh=eventHist[txindex][rxindex]->FindBin(thigh);
   for(int i=binlow;i<binhigh;i++){
-    val+=(dcoffset+eventHist[txindex][rxindex]->GetBinContent(i))*(dcoffset+eventHist[txindex][rxindex]->GetBinContent(i))*.001*.001;
+    val+=(dcoffset+eventHist[txindex][rxindex]->GetBinContent(i))*(dcoffset+eventHist[txindex][rxindex]->GetBinContent(i));
   }
   return val;
 }
@@ -47,7 +47,7 @@ double RadioScatterEvent::integratedPowerAroundPeak(int txindex, int rxindex, do
   int binlow=h1->GetMaximumBin()-halfwindow;
   int binhigh=h1->GetMaximumBin()+halfwindow;
   for(int i=binlow;i<binhigh;i++){
-    val+=(h1->GetBinContent(i))*(h1->GetBinContent(i)*.001*.001);
+    val+=(h1->GetBinContent(i))*(h1->GetBinContent(i));
   }
   return val;
 }
@@ -56,7 +56,7 @@ double RadioScatterEvent::integratedVoltage(int txindex, int rxindex){
   double val;
   int entries=eventHist[txindex][rxindex]->GetNbinsX();
   for(int i=0;i<entries;i++){
-    val+=eventHist[txindex][rxindex]->GetBinContent(i)*.001;
+    val+=eventHist[txindex][rxindex]->GetBinContent(i);
   }
   return val;
 }
@@ -73,7 +73,7 @@ double RadioScatterEvent::integratedVoltage(int txindex, int rxindex, double tlo
 }
 
 double RadioScatterEvent::peakPowerMW(int txindex, int rxindex){
-  double val=1000.*pow((peakV(txindex, rxindex)*1000), 2)/50.;
+  double val=pow((peakV(txindex, rxindex)*1000), 2)/50.;
 
   return val;
 }
@@ -93,13 +93,13 @@ double RadioScatterEvent::effectiveCrossSection(int txindex, int rxindex){
 
 
 double RadioScatterEvent::thermalNoiseRMS(){
-  double bandwidth = 1e9*sampleRate;//bandwith in Hz
+  double bandwidth = 1e9*sampleRate/2;//bandwith in Hz
   double kB = 1.831e-23;
-  return  sqrt(kB*300.*50.*bandwidth)*1000.;//thermal noise RMS (mV)
+  return  sqrt(kB*300.*50.*bandwidth);//thermal noise RMS (mV)
 }
 
 double RadioScatterEvent::peakV(int txindex, int rxindex){
-  return reHist[txindex][rxindex]->GetMaximum()*.001;
+  return reHist[txindex][rxindex]->GetMaximum();
 }
 
 double RadioScatterEvent::primaryParticleEnergy(){
@@ -444,9 +444,9 @@ int RadioScatterEvent::plotEvent(int txindex, int rxindex, int noise_flag, int s
   }
 
   ccc->cd(1)->cd(1)->SetGrid();
-  Float_t bandwidth = 1e9*sampleRate;//bandwith in Hz
+  Float_t bandwidth = 1e9*sampleRate/20.;//bandwith in Hz/10
   Float_t kB = 1.831e-23;
-  Float_t thermal_noise = sqrt(kB*300.*50.*bandwidth)*1000.;//thermal noise (mV)
+  Float_t thermal_noise = sqrt(kB*300.*50.*bandwidth);//thermal noise (V)
   int nbins = eventHist[txindex][rxindex]->GetNbinsX();
   //  cout<<bandwidth<<thermal_noise<<endl<<setprecision(10)<<nbins;
   Float_t noise, r1, r2, val;
@@ -470,7 +470,7 @@ int RadioScatterEvent::plotEvent(int txindex, int rxindex, int noise_flag, int s
     }
   }
   eventHist[txindex][rxindex]->GetXaxis()->SetTitle("Time (ns)");
-  eventHist[txindex][rxindex]->GetYaxis()->SetTitle("mV");
+  eventHist[txindex][rxindex]->GetYaxis()->SetTitle("V");
   eventHist[txindex][rxindex]->Draw("histl");
   eventHist[txindex][rxindex]->SetStats(0);
   //timme->Draw();
@@ -583,6 +583,177 @@ int RadioScatterEvent::plotEvent(int txindex, int rxindex, int noise_flag, int s
     //    ccc->Update();
   }
   
+}
+
+int RadioScatterEvent::plotEventNotebook(int txindex, int rxindex, int noise_flag, int show_geom, int bins, int overlap){
+
+  TCanvas * ccc = new TCanvas();
+
+  ccc->SetName("plotEvent");
+  ccc->SetTitle("plotEvent");
+  ///  TCanvas *c = new TCanvas("plotEvent", "plotEvent", 800, 400);
+  if(show_geom==0){
+    ccc->Divide(1, 0);
+    ccc->GetPad(1)->Divide(2, 0);
+    ccc->SetWindowSize(800,400);
+    cout<<"single event view"<<endl;
+  }
+  else if (show_geom>0){
+    //vertical canvas
+    //    ccc->Divide(1, 2);
+    //    ccc->GetPad(1)->SetPad(.005, .6525, .995, .995);
+    //ccc->GetPad(1)->Divide(2, 0);
+    //ccc->GetPad(2)->SetPad(.005, .005, .995, .6475);
+    //ccc->SetWindowSize(500, 700);
+    //horizontal canvas
+    ccc->Divide(2, 0);
+    ccc->GetPad(1)->SetPad(.005, .005, .3475, .995);
+    ccc->GetPad(1)->Divide(0, 2);
+    ccc->GetPad(2)->SetPad(.3525, .005, .995, .995);
+    ccc->SetWindowSize(1200, 700);
+    
+  }
+
+  ccc->cd(1)->cd(1)->SetGrid();
+  Float_t bandwidth = 1e9*sampleRate/20.;//bandwith in Hz/10
+  Float_t kB = 1.831e-23;
+  Float_t thermal_noise = sqrt(kB*300.*50.*bandwidth);//thermal noise (V)
+  int nbins = eventHist[txindex][rxindex]->GetNbinsX();
+  //  cout<<bandwidth<<thermal_noise<<endl<<setprecision(10)<<nbins;
+  Float_t noise, r1, r2, val;
+  int j=0;
+  for(int i=0;i<nbins;i++){
+    j=i-(sampleRate*20);
+    ran->Rannor(r1, r2);
+    if(noise_flag==1){
+      noise = r1*thermal_noise;
+      //ev->eventHist->Fill(i, noise);
+      eventHist[txindex][rxindex]->AddBinContent(i, noise);
+      //    val=ev->eventHist->GetBinContent(i);
+      }
+    if(noise_flag>1){
+      noise=r1*(double)noise_flag;
+      eventHist[txindex][rxindex]->AddBinContent(i, noise);
+      //    val=ev->eventHist->GetBinContent(i);
+      }
+    if(SINE_SUBTRACT==1){
+      sineSubtract(txindex, rxindex);
+    }
+  }
+  eventHist[txindex][rxindex]->GetXaxis()->SetTitle("Time (ns)");
+  eventHist[txindex][rxindex]->GetYaxis()->SetTitle("V");
+  eventHist[txindex][rxindex]->Draw("histl");
+  eventHist[txindex][rxindex]->SetStats(0);
+  //timme->Draw();
+  ccc->cd(1)->cd(2);
+  // fft = dofft(eventHist);
+  // fft->GetXaxis()->SetRangeUser(0, fft->GetXaxis()->GetXmax()/2);
+  // fft->SetTitle("psd");
+  // fft->GetYaxis()->SetTitleOffset(1.3);
+  // fft->GetXaxis()->SetTitle("freq (GHz)");
+  // fft->GetYaxis()->SetTitle("power (dBm/Hz)");
+  // fft->Draw();
+  // ccc->cd(3);
+  //  g.plot(vals, "with lines");
+  spectrogram(txindex, rxindex, bins, overlap);
+  //  TImage *img =TImage::Create();
+  //  img->FromPad(c);
+  //img->WriteImage("54mhz_100TeV_proton.png");
+
+  if(show_geom>0){
+    rxhist->Reset();
+    txhist->Reset();
+    vertexhist->Reset();
+    triggeredhist->Reset();
+    pointingHist->Reset();
+    ccc->cd(2);
+    //TH3F *rxhist = new TH3F("rxhist", "rxhist", 101, 1, -1, 101, 1, -1, 101, 1, -1);
+    
+    for(int i=0;i<nrx;i++){
+      if(i==rxindex)continue;
+      rxhist->Fill(1.+rx[i].z()/1000., 1.+rx[i].x()/1000., 1.+rx[i].y()/1000., eventHist[txindex][rxindex]->GetMaximum());
+    }
+    rxhist->BufferEmpty();
+    RXHIST_FILLED=1;
+  
+
+    txhist->SetBins(101, rxhist->GetXaxis()->GetXmin(), rxhist->GetXaxis()->GetXmax(), 101,rxhist->GetYaxis()->GetXmin(), rxhist->GetYaxis()->GetXmax(),101, rxhist->GetZaxis()->GetXmin(), rxhist->GetZaxis()->GetXmax());
+    vertexhist->SetBins(101, rxhist->GetXaxis()->GetXmin(), rxhist->GetXaxis()->GetXmax(), 101,rxhist->GetYaxis()->GetXmin(), rxhist->GetYaxis()->GetXmax(),101, rxhist->GetZaxis()->GetXmin(), rxhist->GetZaxis()->GetXmax());
+    triggeredhist->SetBins(101, rxhist->GetXaxis()->GetXmin(), rxhist->GetXaxis()->GetXmax(), 101,rxhist->GetYaxis()->GetXmin(), rxhist->GetYaxis()->GetXmax(),101, rxhist->GetZaxis()->GetXmin(), rxhist->GetZaxis()->GetXmax());
+    pointingHist->SetBins(101, rxhist->GetXaxis()->GetXmin(), rxhist->GetXaxis()->GetXmax(), 101,rxhist->GetYaxis()->GetXmin(), rxhist->GetYaxis()->GetXmax(),101, rxhist->GetZaxis()->GetXmin(), rxhist->GetZaxis()->GetXmax());
+    
+    for(int i=0;i<ntx;i++){
+      txhist->Fill(1.+tx[i].z()/1000., 1.+tx[i].x()/1000., 1.+tx[i].y()/1000., 1.);
+      //      cout<<tx[i].z()<<" "<<tx[i].x()<<" "<<tx[i].y()<<endl;    
+    }
+    triggeredhist->Fill(1.+rx[rxindex].z()/1000., 1.+rx[rxindex].x()/1000., 1.+rx[rxindex].y()/1000., 1.);
+    vertexhist->Fill(1.+position.z()/1000., 1.+position.x()/1000., 1.+position.y()/1000., 1.);
+
+    //see if we can reconstruct the event
+    if(POINTING_MAP_BUILT==0){
+      buildMap();
+    }
+    HepLorentzVector vvv = pointUsingMap();
+
+    //pointingHist->Fill(1.+vvv.z()/1000., 1.+vvv.x()/1000., rxhist->GetZaxis()->GetXmax()+(vvv.y()/1000.), 1.);
+    //    HepLorentzVector vvv = pointingTest();
+    
+    //    pointingHist->Fill(1.+vvv.z(), 1.+vvv.x(), vvv.y(), 1.);
+    pointingHist->Fill(1.+vvv.z()/1000., 1.+vvv.x()/1000., (vvv.y()/1000.), 1.);
+
+    txhist->SetMarkerStyle(3);
+    txhist->SetMarkerColor(kRed);
+    rxhist->SetMarkerStyle(8);
+    rxhist->SetMarkerColor(kBlack);
+    rxhist->SetTitle("geometry");
+    rxhist->GetXaxis()->SetTitle("x (meters)");
+    rxhist->GetXaxis()->SetTitleOffset(1.5);
+    rxhist->GetYaxis()->SetTitle("y (meters)");
+    rxhist->GetYaxis()->SetTitleOffset(1.5);
+    rxhist->GetZaxis()->SetTitle("z (meters)");
+    rxhist->GetZaxis()->SetTitleOffset(1.5);
+    vertexhist->SetMarkerStyle(34);
+    vertexhist->SetMarkerColor(kViolet);
+    pointingHist->SetMarkerStyle(21);
+    pointingHist->SetMarkerColor(kBlue);
+    pointingHist->SetMarkerSize(1.5);
+    txhist->SetMarkerSize(3);
+    rxhist->SetMarkerSize(2);
+    vertexhist->SetMarkerSize(2);
+    triggeredhist->SetMarkerColor(kGreen);
+    triggeredhist->SetMarkerStyle(8);
+    triggeredhist->SetMarkerSize(2.5);
+
+    TPolyLine3D *shower_indicator_line = new TPolyLine3D(2);
+
+    double scale = rxhist->GetXaxis()->GetXmax()/4.;
+    //cout<<scale<<endl;
+    shower_indicator_line->SetPoint(0,1.+position.z()/1000., 1.+position.x()/1000., 1.+position.y()/1000.);
+
+    shower_indicator_line->SetPoint(1,(1.+position.z()/1000.)+((direction.z())*scale), (1.+position.x()/1000.)+((direction.x())*scale), (1.+position.y()/1000.)+((direction.y())*scale));
+    //cout<<"nere"<<endl;
+    shower_indicator_line->SetLineWidth(3);
+    shower_indicator_line->SetLineColor(kViolet);
+
+    //cout<<"nereee"<<endl;
+    rxhist->Draw("p");
+    txhist->Draw("p same");
+    vertexhist->Draw("p same");
+    triggeredhist->Draw("p same");
+    shower_indicator_line->Draw("same");
+    pointingHist->Draw("p same");
+    TLegend *leg = new TLegend(.7,.7,.9,.9);
+
+    leg->AddEntry(txhist, "transmitter", "p");
+    leg->AddEntry(vertexhist, "vertex", "p");
+    leg->AddEntry(shower_indicator_line, "shower", "l");
+    leg->AddEntry(rxhist, "receivers", "p");
+    leg->AddEntry(triggeredhist, "this receiver", "p");
+    leg->AddEntry(pointingHist, "source approx", "p");
+    leg->Draw();
+    //    ccc->Update();
+  }
+  ccc->Draw();
 }
 
 //this is not the best. requires 5 antennas. but pointing is pretty OK...

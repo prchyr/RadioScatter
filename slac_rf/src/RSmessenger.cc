@@ -61,6 +61,10 @@ RSmessenger::RSmessenger(RadioScatter *rscat)
   setParticleInfoFilenameCommand->SetGuidance("set SetParticleInfoFilename!");
   setParticleInfoFilenameCommand->SetParameterName("choice", false);
 
+  
+  setCrossSectionCommand = new G4UIcmdWithADouble("/RS/setCrossSection", this);
+  setCrossSectionCommand->SetGuidance("set cross section!");
+  setCrossSectionCommand->SetParameterName("choice", false);
 
   
   nPrimariesCommand = new G4UIcmdWithADouble("/RS/setNPrimaries", this);
@@ -133,6 +137,7 @@ RSmessenger::~RSmessenger()
   delete setFillByEventCommand;
   delete makeSummaryCommand;
   delete setScaleByEnergyCommand;
+  delete setCrossSectionCommand;
   delete setFillParticleInfoCommand;
   delete setParticleInfoFilenameCommand;
   delete voltageCommand;
@@ -154,6 +159,7 @@ void RSmessenger::SetNewValue(G4UIcommand* command,G4String newValue)
   if(command==powerCommand)rs->setTxPower(val);
   if(command==setNTxCommand)rs->setNTx(val);
   if(command==setNRxCommand)rs->setNRx(val);
+  if(command==setCrossSectionCommand)rs->setCrossSection(val);
   if(command==receiverGainCommand)rs->setReceiverGain(val);
   if(command==transmitterGainCommand)rs->setTransmitterGain(val);
   if(command==makeSummaryCommand)rs->setMakeSummary(val);

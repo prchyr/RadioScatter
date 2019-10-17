@@ -56,6 +56,7 @@ public:
   double omega, omega_c, omega_e = 7.79e20, omega_0=twopi*2000*megahertz;
   double nu_col = 0;
   double tcs = .655e-24;//thompson cross section
+  double collisionalCrossSection = 1.e-16;//cm^-3
   double n_primaries = 1;//set this based on number of events in run
   double tx_voltage = 1.;//mW
   double zscale=1.;//the longitudinal scale factor
@@ -171,6 +172,7 @@ public:
   void setPrimaryPosition(Hep3Vector p);
   void setPrimaryDirection(Hep3Vector p);
   void setTargetEnergy(double e);//not gonna work yet
+  void setCrossSection(double val);
   int setScaleByEnergy(double val);
   void setPlasmaLifetime(double l);
   void setPolarization(char * p);

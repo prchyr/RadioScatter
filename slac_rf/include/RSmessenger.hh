@@ -30,6 +30,7 @@ private:
   G4UIcmdWithADouble*        transmitterGainCommand;
   G4UIcmdWithADouble*        powerCommand;
   G4UIcmdWithADouble*        setScaleByEnergyCommand;
+  G4UIcmdWithADouble*        setCrossSectionCommand;
   G4UIcmdWithADouble*        lifetimeCommand;
   G4UIcmdWithADouble*        windowLengthCommand;
   G4UIcmdWithAString*        polarizationCommand;

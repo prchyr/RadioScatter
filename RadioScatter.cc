@@ -200,17 +200,17 @@ void RadioScatter::setRxPos(Hep3Vector in, int index){
   cout<<"tx frequency: "<<f<<endl;
   cout<<"lambda: "<<lambda<<endl;
 
-  cout<<"attn length: "<<attnLength<<endl;
+  cout<<"attn length (mm): "<<attnLength<<endl;
 }
  void RadioScatter::setTxVoltage(double v){
   tx_voltage = v;
-  event.txVoltage=v/1000.;
-  event.txPowerW=pow(v*.001, 2)/50.;
+  event.txVoltage=v;
+  event.txPowerW=pow(v, 2)/50.;
 }
 void RadioScatter::setTxPower(double p){
   tx_voltage = sqrt(p*50.);
   event.txVoltage=tx_voltage;
-  event.txPowerW=p*.001;
+  event.txPowerW=p;
 }
 
 void RadioScatter::setReceiverGain(double gain){
@@ -244,7 +244,7 @@ void RadioScatter::setTransmitterGain(double gain){
   if(TX_GAIN_SET!=1){
     TX_GAIN_SET==1;
 
-    cout<<"transmitter voltage: "<<tx_voltage/1000.<<" transmitter gain: "<<gain<<" dB, ("<<gg<<" linear)"<<endl;
+    cout<<"transmitter voltage: "<<tx_voltage<<" transmitter gain: "<<gain<<" dB, ("<<gg<<" linear)"<<endl;
     //    tx_voltage=tx_voltage*gg;
     //from rice paper
     txEffectiveHeight=sqrt(lambda*lambda*tx_gain/(480.*pi*pi));
@@ -269,6 +269,11 @@ void RadioScatter::setTransmitterGain(double gain){
   NPRIMARIES_SET=1;
   //  cout<<"cross-section"<<e_radius<<" "<<e_radius*m<<endl;
 }
+
+void RadioScatter::setCrossSection(double val){
+  collisionalCrossSection=val;
+}
+
 void RadioScatter::setTargetEnergy(double e){
   setNPrimaries(e-event.primaryEnergy);
   NPRIMARIES_SET=1;
@@ -473,7 +478,7 @@ double RadioScatter::getRxAmplitude(int txindex,int rxindex, HepLorentzVector po
 
   double amplitude = ((tx_voltage)/dist)*angle_dependence;
   if(useAttnLengthFlag==1){
-    double attn_dist = ((tx[txindex].vect()-point.vect()).mag()/m)+((rx[rxindex].vect()-point.vect()).mag()/m);//here the overall attenuation is just calculated over the full path length. 
+    double attn_dist = ((tx[txindex].vect()-point.vect()).mag())+((rx[rxindex].vect()-point.vect()).mag());//here the overall attenuation is just calculated over the full path length. 
     amplitude=amplitude*exp(-attn_dist/attnLength);
   }
 
@@ -481,7 +486,7 @@ double RadioScatter::getRxAmplitude(int txindex,int rxindex, HepLorentzVector po
 }
 
 double RadioScatter::getAmplitudeFromAt(double E_0,HepLorentzVector from, HepLorentzVector at){
-  double dist=(tx[0].vect()-from.vect()).mag()*(from.vect()-at.vect()).mag();
+  double dist=((tx[0].vect()-from.vect()).mag()/m)*((from.vect()-at.vect()).mag()/m);
 
   Hep3Vector one=tx[0].vect()-from.vect();
   Hep3Vector two=from.vect()-at.vect();
@@ -747,8 +752,10 @@ double RadioScatter::makeRays(HepLorentzVector point, double e, double l, double
       if(n_e>maxval)maxval=n_e;
       //rad scat as published
       double N_ice=3.2e22;//per cm^3;
-      //the collisional cross section is 
-      nu_col = sqrt(k_Boltzmann*(300)*kelvin/electron_mass_c2)*1.e-16*(N_ice);
+      //the collisional cross section is some number x10^-16cm^-3.
+      //NIST has a plot that depends upon the incident ionization energy
+      //a value of 1e-16 is for 15eV ionization electron energy.
+      nu_col = sqrt(k_Boltzmann*(300)*kelvin/electron_mass_c2)*collisionalCrossSection*(N_ice);
       //debug, this uses a hard-coded collisional frequency for hdpe/ice, which is ~10^12 s^-1, or ~10^3 ns^-1 in our units 
       //      nu_col=1.e3;
       event.totNScatterers+=n;//track total number of scatterers
