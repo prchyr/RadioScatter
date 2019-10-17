@@ -108,8 +108,9 @@ int main(int argc,char** argv)
 
   // Choose the Random engine
   //
+  long seed=rand();
   G4Random::setTheEngine(new CLHEP::RanecuEngine);
-  
+  G4Random::setTheSeed(seed);    
   // Construct the default run manager
   //
 #ifdef G4MULTITHREADED

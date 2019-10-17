@@ -1,7 +1,8 @@
 /*
-This is radioscatter. 
+this is radioscatter. copyright s. prohira 
 
-steven prohira
+released under GPL3.
+ 
  */
 #include "RadioScatter.hh"
  using namespace CLHEP;
@@ -176,7 +177,7 @@ void RadioScatter::setRxPos(Hep3Vector in, int index){
     lambda = c_light/frequency;
     k = omega/c_light;
     tx_gain = gain;
-    tx_voltage = power;
+    tx_voltage = sqrt(power*50.);
   }
  void RadioScatter::setTxFreq(double f){
    TX_FREQ_SET=1;
@@ -207,7 +208,7 @@ void RadioScatter::setRxPos(Hep3Vector in, int index){
   event.txVoltage=v;
   event.txPowerW=pow(v, 2)/50.;
 }
-void RadioScatter::setTxPower(double p){
+void RadioScatter::setTxPower(double p){//W
   tx_voltage = sqrt(p*50.);
   event.txVoltage=tx_voltage;
   event.txPowerW=p;
@@ -387,8 +388,8 @@ Hep3Vector RadioScatter::getTxPos(int index){
   }
   double RadioScatter::getTxAmplitude(int index,HepLorentzVector point){
     double gain = getTxGain(point.vect().theta());
-    double power = tx_voltage*txEffectiveHeight;
-    return power;
+    double amplitude = tx_voltage*txEffectiveHeight;
+    return amplitude;
   }
 
 

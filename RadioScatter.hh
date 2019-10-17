@@ -1,12 +1,7 @@
 /*
-todo:
-antenna effective height
+this is radioscatter. copyright s. prohira 
 
-currently we use a variant of the RICE formula
-h=sqrt(lam^2 (gain)/480pi^2) where we set the gain=480pi^2. essentially, 
-we say that this is a magic antenna where the effective height is 
-equal to the wavelength at all freqs. in fact, this is reasonable for 
-a nice broadband antenna.
+released under GPL3.
  
  */
 #ifndef R_Scat
@@ -48,6 +43,18 @@ public:
 
   RadioScatterEvent event;
 
+  /*
+    a word about units. 
+
+    GEANT uses mm and ns as the length and time, but for RF stuff things are best
+    defined in m. so for length calculations as they pertain to RF fields, the lengths are converted into meters. 
+
+    we use volts for the fields.
+    we use watts for power units.
+
+    for many calculations, these numbers end up being very small, but it is
+    simpler to just use these base units.
+   */
 
   TString output_file_name;
   char* pol = (char*)"horizontal";//default, also set as default in set_simulation_paramaters
