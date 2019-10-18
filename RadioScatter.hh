@@ -49,11 +49,12 @@ public:
     GEANT uses mm and ns as the length and time, but for RF stuff things are best
     defined in m. so for length calculations as they pertain to RF fields, the lengths are converted into meters. 
 
+    velocity in geant is mm/ns, so for things like phase calculations we
+    employ these native units. 
+
     we use volts for the fields.
     we use watts for power units.
 
-    for many calculations, these numbers end up being very small, but it is
-    simpler to just use these base units.
    */
 
   TString output_file_name;
