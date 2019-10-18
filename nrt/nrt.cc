@@ -302,7 +302,10 @@ int main(int argc,char** argv)
      //nothing here
      
    }
-   
+
+   if(macro.contains("effvol_surface"){
+
+     }
    if (macro.contains("threshmacro.mac")){
 
      Hep3Vector tx, rx;
