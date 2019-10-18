@@ -303,7 +303,7 @@ int main(int argc,char** argv)
      
    }
 
-   if(macro.contains("effvol_surface"){
+   if(macro.contains("effvol_surface")){
 
      }
    if (macro.contains("threshmacro.mac")){
