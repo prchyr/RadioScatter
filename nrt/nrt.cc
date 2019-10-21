@@ -49,6 +49,7 @@
 #include "NuBeam.hh"
 #include <errno.h> 
 #include "Randomize.hh"
+#include "TRandom3.h"
 #include "RadioScatter/RadioScatter.hh"
 #include "G4VisExecutive.hh"
 #include "G4UIExecutive.hh"
@@ -306,6 +307,42 @@ int main(int argc,char** argv)
    if(macro.contains("effvol_surface")){
 
      }
+
+   if(macro.contains("surface_array")){
+     TRandom3 *rann=new TRandom3();
+     int num=400;
+     radio->setNRx(num*num);
+     int xmax=200000;
+     int xmin=-xmax;
+     int xstep=(xmax-xmin)/num;
+
+     int ymax=200000;
+     int ymin=-xmax;
+     int ystep=(ymax-ymin)/num;
+
+     int z=0;
+     Hep3Vector tx=Hep3Vector(0,0,0);
+     Hep3Vector rx;
+     rx.setZ(0.);
+     for(int j=0;j<num;j++){
+       double xx=xmin+(j*xstep);
+       rx.setX(xx);
+       for(int i=0;i<num;i++){
+	 double yy=ymin+(i*ystep);
+	 rx.setY(yy);
+	 radio->setRxPos(rx);
+       }
+     }
+
+     int nThrow=10;
+     for(int i=0;i<nThrow;i++){
+       auto logE= rann->Uniform(5., 9.);
+       radio->setNPrimaries(pow(10, logE));
+       runManager->BeamOn(1);
+     }
+   }
+
+   
    if (macro.contains("threshmacro.mac")){
 
      Hep3Vector tx, rx;
