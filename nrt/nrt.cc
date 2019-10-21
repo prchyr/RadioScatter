@@ -178,6 +178,7 @@ int main(int argc,char** argv)
 
    if(macro.contains("anglemacro.mac")){
      TRandom *ran = new TRandom();
+     ran->SetSeed();
      Hep3Vector rx(1., 1., 1.), tx(1., 1., 1.);
     double mag=100000;
     rx.setMag(mag);
