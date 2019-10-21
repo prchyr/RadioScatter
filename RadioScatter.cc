@@ -189,10 +189,10 @@ void RadioScatter::setRxPos(Hep3Vector in, int index){
   //attnLength = attnLength - (180*m*(f/1000.));
   
   if(TX_GAIN_SET!=1){
-    //from RICE
-    txEffectiveHeight=sqrt(lambda*lambda*tx_gain/(480.*pi*pi));
-    //from wikipedia antenna factor
-    txEffectiveHeight=lambda*sqrt(tx_gain)/9.73;
+    //from RICE BUT WITH THE RIGHT PLACEMENT OF THE GAIN!
+    txEffectiveHeight=sqrt(lambda*lambda/(tx_gain*480.*pi*pi));
+    //from wikipedia antenna factor BUT WITH THE RIGHT PLACEMENT OF THE GAIN!
+    txEffectiveHeight=lambda/(9.73*sqrt(tx_gain));
   
 
   }
@@ -247,10 +247,11 @@ void RadioScatter::setTransmitterGain(double gain){
 
     cout<<"transmitter voltage: "<<tx_voltage<<" transmitter gain: "<<gain<<" dB, ("<<gg<<" linear)"<<endl;
     //    tx_voltage=tx_voltage*gg;
-    //from rice paper
-    txEffectiveHeight=sqrt(lambda*lambda*tx_gain/(480.*pi*pi));
-    //from wikipedia antenna factor
-    txEffectiveHeight=lambda*sqrt(tx_gain)/9.73;
+
+    //from RICE BUT WITH THE RIGHT PLACEMENT OF THE GAIN!
+    txEffectiveHeight=sqrt(lambda*lambda/(tx_gain*480.*pi*pi));
+    //from wikipedia antenna factor BUT WITH THE RIGHT PLACEMENT OF THE GAIN!
+    txEffectiveHeight=lambda/(9.73*sqrt(tx_gain));
 
     cout<<"effective height: "<<txEffectiveHeight<<endl;
   }
@@ -388,7 +389,7 @@ Hep3Vector RadioScatter::getTxPos(int index){
   }
   double RadioScatter::getTxAmplitude(int index,HepLorentzVector point){
     double gain = getTxGain(point.vect().theta());
-    double amplitude = tx_voltage*txEffectiveHeight;
+    double amplitude = tx_voltage/txEffectiveHeight;
     return amplitude;
   }
 
