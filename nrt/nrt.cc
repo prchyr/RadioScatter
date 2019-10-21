@@ -310,7 +310,7 @@ int main(int argc,char** argv)
 
    if(macro.contains("surface_array")){
      TRandom3 *rann=new TRandom3();
-     int num=400;
+     int num=50;
      radio->setNRx(num*num);
      int xmax=200000;
      int xmin=-xmax;
