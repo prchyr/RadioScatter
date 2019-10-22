@@ -306,6 +306,14 @@ int main(int argc,char** argv)
    }
 
    if(macro.contains("effvol_surface")){
+     TRandom3 *rann=new TRandom3();
+     rann->SetSeed();
+     int nThrow=10;
+     for(int i=0;i<nThrow;i++){
+       auto logE= rann->Uniform(5., 9.);
+       radio->setNPrimaries(pow(10, logE));
+       runManager->BeamOn(1);
+     }
 
      }
 
