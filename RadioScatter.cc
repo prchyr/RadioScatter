@@ -213,7 +213,9 @@ void RadioScatter::setTxPower(double p){//W
   event.txVoltage=tx_voltage;
   event.txPowerW=p;
 }
-
+void RadioScatter::setRxGain(double gain){
+  setReceiverGain(gain);
+}
 void RadioScatter::setReceiverGain(double gain){
   //if(TX_FREQ_SET==0){
   //cout<<"WARNING:antenna gain set before transmit frequency, effective height will be incorrect. please set tx freq before setting antenna gain"<<endl;
@@ -234,7 +236,9 @@ void RadioScatter::setReceiverGain(double gain){
     cout<<"effective height: "<<rxEffectiveHeight<<endl;
   }
 }
-
+void RadioScatter::setTxGain(double gain){
+  setTransmitterGain(gain);
+}
 void RadioScatter::setTransmitterGain(double gain){
   if(TX_FREQ_SET==0){
     cout<<"WARNING:antenna gain set before transmit frequency, effective height will be incorrect. please set tx freq before setting antenna gain"<<endl;
@@ -1155,8 +1159,8 @@ int RadioScatter::writeRun(float num_events, int debug){
     return 0;
   }
   fRunCounter++;
-  //  TFile *f = (TFile *)gROOT->Get("filename");
-  TFile *f = ((TFile *)(gROOT->GetListOfFiles()->At(0)));
+  TFile *f = (TFile *)gROOT->GetFile(output_file_name);
+  //  TFile *f = ((TFile *)(gROOT->GetListOfFiles()->At(0)));
   TTree *t = (TTree*)f->Get("tree");
   event.nPrimaries = n_primaries;
   //event.primaryEnergy = 

@@ -175,7 +175,9 @@ public:
   void setTxPower(double p);
   void setNPrimaries(double n);
   void setReceiverGain(double gain);
+  void setRxGain(double gain);
   void setTransmitterGain(double gain);
+  void setTxGain(double gain);
   void setPrimaryEnergy(double e);
   void setPrimaryPosition(Hep3Vector p);
   void setPrimaryDirection(Hep3Vector p);
