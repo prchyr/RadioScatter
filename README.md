@@ -3,6 +3,7 @@ this is the RadioScatter module. It has been made to run independently of, or wi
 ### Prerequisites
 
 ROOT 6.08 or higher (https://root.cern.ch/downloading-root)
+
 CLHEP (https://gitlab.cern.ch/CLHEP/CLHEP)
 
 the module slac_rf is g4 source code that will produce histograms of voltages received in a scattering experiment. to run inside of GEANT4, you'll need to have that installed
@@ -21,6 +22,7 @@ CLHEP is just a nice library for doing calculations with 3 and 4-vectors with a 
 **********************
 ### radio scatter default installation
 **********************
+first be sure to have ROOT and CLHEP (as above) installed. there's lots of documentation on building those available elsewhere. and if you want to use it with GEANT, you'll need to have that installed too. then:
 
 ```
 cd /your/favorite/source/dir  (like /usr/local or something)
