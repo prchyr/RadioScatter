@@ -701,8 +701,8 @@ double RadioScatter::makeRays(HepLorentzVector point, double e, double l, double
       if(step_length==0)return 0;
       
       
-      //electron number density, using step length cube, and an empirical factor, such that the mean number density is correct. 
-      n_e = n*n_primaries/pow(step_length, 3)*300.;
+      //electron number density, using step length cube, and an empirical factor, such that the peak number density is correct. 
+      n_e = n*n_primaries/pow(step_length, 3)*400.;
 
 
       if(n_e==0)return 0;
