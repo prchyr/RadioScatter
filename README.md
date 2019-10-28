@@ -1,6 +1,6 @@
 this is the RadioScatter module. It has been made to run independently of, or within, GEANT4. It simulates RF scattering from points in 4 space, which may be ionization deposits left by particle showers produced in geant4. it is highly customizable. more information is found in the header files where the functions are documented, and the examples.
 
-###Prerequisites
+### Prerequisites
 
 ROOT 6.08 or higher (https://root.cern.ch/downloading-root)
 CLHEP (https://gitlab.cern.ch/CLHEP/CLHEP)
@@ -15,11 +15,11 @@ CLHEP is just a nice library for doing calculations with 3 and 4-vectors with a 
 
 
 ************
-##INSTALL
+## INSTALL
 ************
 
 **********************
-###radio scatter default installation
+### radio scatter default installation
 **********************
 
 ```
@@ -32,7 +32,7 @@ cd RadioScatter
 this will install the header files and shared libraries (for root analysis) to the right places. it will put the libs inside of /usr/local/lib and the header files in /usr/local/include. It will make a build directory (inside the RadioScatter directory) called build, where the build products are placed before they are installed in the proper location.
 
 *********************************
-###slightly fancier installation (or if you can't write to /usr/local) 
+### slightly fancier installation (or if you can't write to /usr/local) 
 *********************************
 
 say you want your libraries and headers installed in some other place than /usr/local, you can set the RS_INSTAL_DIR variable in your bashrc. then libraries will install to RS_INSTALL_DIR/lib and headers to RS_INSTALL_DIR/include
@@ -56,7 +56,7 @@ Ubuntu 18.04/gcc 7.4
 
 
 *****************************************************************************************
-##using
+## using
 *****************************************************************************************
 
 
@@ -73,7 +73,7 @@ how it works, breifly:
 The RadioScatter module calculates rf scattering from an energy deposit in 4 space. It uses the position, energy deposited, region over which the energy was deposited, and the ionization energy of the material to get a number of free charges over which to perform the scatter, and a number density to get material effects (plasma screening, eave damping, etc.) it is most useful to have the deposits be from some monte-carlo generation, like GEANT4. you can probably fit it into any MC program with relative ease, or generate your own plasma cloud to scatter radio from. 
 
 **********************************************
-###some examples:
+### some examples:
 ********************************************
 
 the examples directory has some use cases that don't involve geant4. to compile, be sure to link to the radio scatter library, i e -lRadioScatter, and also the root libraries, like so:
@@ -83,7 +83,7 @@ the examples directory has some use cases that don't involve geant4. to compile,
 in the examples, there is a use case where a shower has been prepared using GEANT4 and then this is used in a standalone program to scatter radio, as an example of runnning radioscatter outside of a monte carlo program. various options are shown and explained in the example
 
 *************
-###GEANT4 usage
+### GEANT4 usage
 *************
 
 there is a GEANT4 module called slac_rf, so to install it, do
