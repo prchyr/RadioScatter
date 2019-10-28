@@ -9,18 +9,15 @@ then
     rm -R "build"
 fi
 
-# if [ -z "$1" ]
-# then
-#     mkdir -p slac_build &&
-#     cd slac_build 
-# else
-#     mkdir -p "$1" &&
-#     cd "$1" 
-# fi
 
 mkdir -p build &&
-    cd build
+    cd build &&
 
 cmake $top_dir &&
     make -B -j4 &&
-    make install
+    make install &&
+
+echo "compiling an example program..."
+cd ../example
+g++ -std=c++0x scatterFromCascade.cc -o scatterFromCascade `root-config --cflags --glibs --libs` -lRadioScatter
+echo "done."

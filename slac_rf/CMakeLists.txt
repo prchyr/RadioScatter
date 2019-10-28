@@ -88,11 +88,7 @@ set(SLAC_SCRIPTS
   slac.in
   gui.mac
   init_vis.mac
-  threshmacro.mac
   run1.mac
-  run2.mac
-  run3.mac
-  t576.mac
   vis.mac
   )
 

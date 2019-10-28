@@ -1,3 +1,9 @@
+/*
+this is radioscatter. copyright s. prohira 
+
+released under GPL3.
+ 
+ */
 #ifndef RS_EVENT_SUM_H
 #define RS_EVENT_SUM_H
 #include "TROOT.h"

@@ -54,7 +54,6 @@ private:
   TH3F* vertexhist = new TH3F("vertexhist", "vertexhist", 100, 1, -1, 100, 1, -1, 100, 1, -1);
   TH3F* pointingHist = new TH3F("pointingHist", "pointingHist", 100, 1, -1, 100, 1, -1, 100, 1, -1);
   TH3F* triggeredhist = new TH3F("triggeredhist", "triggeredhist", 100, 1, -1, 100, 1, -1, 100, 1, -1);
-  //  TPolyLine3D *shower_indicator_line = new TPolyLine3D(2);
   Int_t dummy;
   TRandom *ran = new TRandom();
 
@@ -66,8 +65,8 @@ public:
   RadioScatterEvent();
 
 
-  Hep3Vector direction;
-  Hep3Vector position;
+  Hep3Vector direction=Hep3Vector(0,0,1);
+  Hep3Vector position=Hep3Vector(1, 1, 1);
   //HepLorentzVector *tx;
   //HepLorentzVector *rx;
   vector<HepLorentzVector> tx;
@@ -87,6 +86,7 @@ public:
   vector<vector<TH1F*>> eventHist;
   vector<vector<TH1F*>> reHist;
   vector<vector<TH1F*>> imHist;
+  vector<TH1F*> testHist;
 
   vector<vector<TGraph*>> eventGraph;
 

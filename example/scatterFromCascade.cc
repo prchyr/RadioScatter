@@ -1,6 +1,6 @@
 #include <RadioScatter/RadioScatter.hh>
 /*
-This example shows the basic use of radioscatter. the input file is a cascade produced by GEANT4 in which we have saved the 4-vector (x, y, z, t) of each step in each particle's track, as well as the step length and the energy deposited in that step. This particular shower is a 1 GeV shower which we scale to 10PeV.
+This example shows the basic use of radioscatter. the input file is a cascade produced by GEANT4 in which we have saved the 4-vector (x, y, z, t) of each step in each particle's track, as well as the step length and the energy deposited in that step. This particular shower is a 10 GeV shower which we scale to 10PeV.
 
 we then set the simulation parameters. transmitter frequency, power, polarization, antenna gains, the number of primaries (which allows for the simulation of a 'bunch'), whether or not to scale the shower longitudinally by energy (so that a GeV shower can be simulated and scaled instead of a PeV shower which would take forever for GEANT4 to produce) etc. for more information, see the documentation. 
 
@@ -37,38 +37,41 @@ void doIt(double lifetimens, double frequency, double power){
   //set the transmitter position  
   radio->setTxPos(-10.*m, 10*m, 0);
   //set the number of receivers
-  radio->setNRx(2);
+  radio->setNRx(3);
   
   //can set the receiver positions like this by indexing them
   // radio->setRxPos(10*m,10*m,10*m, 0);//10m x 10m x 10m
   //radio->setRxPos(50*m,10*m,10*m, 1);//50m x 10m x 10m
 
   //or like this, and the index of receiver increments automatically up to nrx-1
-  auto r0=Hep3Vector(10*m, 10*m, 0.);
-  auto r1=Hep3Vector(20*m, 10*m, 0.);
+  auto r0=Hep3Vector(10*m, 0*m, 0.);
+  auto r1=Hep3Vector(20*m, 0*m, 0.);
+  auto r2=Hep3Vector(30*m, 0*m, 0.);
 
   radio->setRxPos(r0);//sets the 0th receiver as r0
   radio->setRxPos(r1);//sets the 1st receiver as r1
+  radio->setRxPos(r2);//sets the 1st receiver as r2
 
-  double nPrimaries=1e7;
+  double nPrimaries=1e9;
   radio->setNPrimaries(nPrimaries);//the number of 'primaries'. used to imitate the density of a charge bunch or the approximate density of a higher-energy primary
   radio->setTxFreq(frequency);//transmitter frequency (set by user)
-  radio->setTxGain(6);//transmitter gain in dB
+
   radio->setTxPower(power); //transmitter power in Watts (set by user) 
+  radio->setTxGain(9);//transmitter gain in dB
   radio->setRxSampleRate(4.);//receiver sample rate
-  radio->setRxGain(6);//receiver gain in dB
+  radio->setRxGain(9);//receiver gain in dB
   radio->setRecordWindowLength(100);//length of the received window
   radio->setCalculateUsingAttnLength(1);//use ice attenuation length in the calculation?
-  radio->setPolarization("vertical");//antenna polarization. currently vertical = (0,0,1) and horizontal = (0,1,0); 
-  radio->setPrimaryEnergy(1e10);//10PeV in MeV. need to set this for the scaling to be correct, if you simulate a higher energy shower than the input file (which was 10GeV)
-  radio->setScaleByEnergy(1);//scales the shower longitudinally by a factor to simulate a higher energy shower. not exact, but fast.
+  radio->setPolarization("horizontal");//antenna polarization. currently vertical = (0,0,1) and horizontal = (0,1,0); 
+  radio->setPrimaryEnergy(1e4);//10GeV in MeV. need to set this for the scaling to be correct, if you simulate a higher energy shower than the input file (which was 10GeV)
+  radio->setScaleByEnergy(0);//scales the shower longitudinally by a factor to simulate a higher energy shower. not exact, but fast.
   radio->setMakeSummary(1);//make a nice summary file for simple plotting of things like peak power, voltage, etc.
   radio->setPlasmaLifetime(lifetimens);//set the plasma lifetime
 
 
   int entries=tree->GetEntries();
   HepLorentzVector pt; //the point of the ionization from which we calculate the individual scatter.
-  double ionizationE=.000069;//MeV
+  double ionizationE=.000059;//MeV, the mean ionization energy.
   for(int i=0;i<entries;i++){
     tree->GetEntry(i);
     pt.setX(x);
@@ -76,7 +79,7 @@ void doIt(double lifetimens, double frequency, double power){
     pt.setZ(z);
     pt.setT(t);
     //calculate the scatter from this ionization deposit.
-    radio->makeRays(pt, edep, steplength, .000069);
+    radio->makeRays(pt, edep, steplength, ionizationE);
   }
 
   //don't forget to write the run!

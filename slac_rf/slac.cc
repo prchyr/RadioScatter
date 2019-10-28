@@ -179,47 +179,22 @@ int main(int argc,char** argv)
      //do nothing
    }
 
-   if (macro=="run1.mac"){
-
+   if(macro=="run1.mac"){
+     Hep3Vector offset(-600,0,2000.);
      Hep3Vector tx, rx;
-      double theta=0, phi=0;
-      int num=10;
-      int xmax=40000;
-      int xmin=-40000;
-      int xstep=(xmax-xmin)/num;
 
-      int ymax=40000;
-      int ymin=-40000;
-      int ystep=(ymax-ymin)/num;
+     double theta=0, phi=0;
+     rx.setRThetaPhi(4000,55*degree, pi);
+     radio->setRxPos(rx+offset, 0);
+     rx.setRThetaPhi(6000, 75*degree, pi);
+     radio->setRxPos(rx+offset, 1);
+     rx.setRThetaPhi(6000, 65*degree, pi);
+     radio->setRxPos(rx+offset, 2);
 
-      int zmax=40000;
-      int zmin=-40000;
-      int zstep=(zmax-zmin)/num;
-
-      for(int j=0;j<num;j++){
-	for(int i=0;i<num;i++){
-	  for(int k=0;k<num;k++){
-
-	  // tx=radio->getTxPos();
-	  // rx=radio->getRxPos();
-	  // cout<<endl<<endl<<"tx position"<<tx.x()<<" "<<tx.y()<<" "<<tx.z()<<endl;
-	  // cout<<"rx position"<<rx.x()<<" "<<rx.y()<<" "<<rx.z()<<endl<<endl<<endl;
-	  // //	tx.setRThetaPhi(j*m, angle, 0);
-	  rx.setX(xmin+(j*xstep));
-	  rx.setY(ymin+(i*ystep));
-	  rx.setZ(zmin+(k*zstep));
-	  // phi=pi;
-	  // rx.setRThetaPhi(j*m, theta, phi);
-	  // rx.setZ(rx.z()+3.5*m);
-	  //	radio->setTxPos(tx);
-	  radio->setRxPos(rx);
-	  runManager->BeamOn(10);
-	  //	theta+=2*pi/num;
-	  }
-	}
-      }
-    }
-
+     tx.setRThetaPhi(4000, 125*degree, pi);
+     radio->setTxPos(tx+offset, 0);
+     runManager->BeamOn(1);
+   }
 
    if (macro=="t576.mac"){
 
@@ -306,7 +281,7 @@ int main(int argc,char** argv)
 
      tx.setRThetaPhi(4000, 125*degree, pi);
      radio->setTxPos(tx+offset, 0);
-     runManager->BeamOn(1);
+     runManager->BeamOn(3);
    }
 
    if(macro=="surfsensor.mac"){

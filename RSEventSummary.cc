@@ -1,3 +1,9 @@
+/*
+this is radioscatter. copyright s. prohira 
+
+released under GPL3.
+ 
+ */
 #include "RSEventSummary.hh"
 
 
