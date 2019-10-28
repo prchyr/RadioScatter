@@ -267,7 +267,7 @@ int main(int argc,char** argv)
      radio->setTxPos(tx, 0);
      runManager->BeamOn(1);
    }
-   if(macro=="run6.mac"){
+   if(macro=="run6.mac"||macro=="run62100.mac"||macro=="run61750.mac"){
      Hep3Vector offset(-600,0,2000.);
      Hep3Vector tx, rx;
 
