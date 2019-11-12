@@ -295,6 +295,7 @@ use this flag to scale the shower by some amount. to use it, you first must call
   
   double makeRays(HepLorentzVector point, double e, double l, double e_i);
   double makeRays(HepLorentzVector point, double e, double l, double e_i, TH1F *hist);
+  double makeRaysRayTrace(HepLorentzVector point, double e, double l, double e_i);
   //print out some event statistics. not used much. 
   void printEventStats();
   //scale the histogram (when averaging over several events)
@@ -327,6 +328,8 @@ double getTxAmplitude(int index,HepLorentzVector point);
   double getRxPhase(int txindex, int rxindex, HepLorentzVector point);
   double getRxPhaseRel(int index,HepLorentzVector point, double v);
   double getAmplitudeFromAt(double E_0, HepLorentzVector from, HepLorentzVector at);
+
+  int getRxInfoRayTrace(int txindex,int rxindex, HepLorentzVector point, double rx_phase, double rx_amplitude, double rx_time);
   double getPhaseFromAt(HepLorentzVector from, HepLorentzVector at);
   double doScreening(TTree *tree, int entry);
   double plotCausalCharges(TTree *tree, int entry);

@@ -463,6 +463,42 @@ double RadioScatter::getRxAmplitude(int txindex,int rxindex, HepLorentzVector po
   return amplitude;
 }
 
+/*
+gets the RX amplitude, phase, and time using  ray tracing
+*/
+int RadioScatter::getRxInfoRayTrace(int txindex,int rxindex, HepLorentzVector point, double rx_phase, double rx_amplitude, double rx_time){
+
+
+  //this calculates the angle dependence of the amplitude (e.g. the n x n x \epsilon term). probably OK to ignore for now, or use your launch angles, leaving it here just for reference
+  Hep3Vector one=tx[txindex].vect()-point.vect();
+  Hep3Vector two=point.vect()-rx[rxindex].vect();
+
+  double angle_dependence=1.;
+  Hep3Vector nhat(two.unit());
+  Hep3Vector vert(0,1.,0), horiz(0,0,1.); 
+
+  if(polarization=="vertical"){
+    Hep3Vector pol=-one.unit().cross(one.unit().cross(vert));//for a dipole rad pattern
+
+    angle_dependence = nhat.cross(nhat.cross(pol)).mag();
+  }
+  else{
+    Hep3Vector pol=-one.unit().cross(one.unit().cross(horiz));
+
+    angle_dependence = nhat.cross(nhat.cross(pol)).mag();
+  }
+
+  
+  //replace this with your phase
+  rx_phase=0;
+  // replace this with your calculated amplitude. for this you need to calculate the tx->point ray and the point->rx ray
+  rx_amplitude = 0;
+  //replace this with your time. this is the global time, so you would add to point.t() the time it takes the ray to get from point to rx 
+  rx_time=0;
+
+  return 1;
+}
+
 double RadioScatter::getAmplitudeFromAt(double E_0,HepLorentzVector from, HepLorentzVector at){
   double dist=((tx[0].vect()-from.vect()).mag()/m)*((from.vect()-at.vect()).mag()/m);
 
@@ -531,6 +567,16 @@ double RadioScatter::getTxPhase(double t_0){
 
   return time;
   }
+
+// double RadioScatter::getRxTimeRayTrace(int index,HepLorentzVector point){
+//   //add here the stuff you need to do the ray tracing. index is the receiver number (incremented automatically)
+//   //so to get the rx position use rx[index] as below
+//   Hep3Vector sep(rx[index].vect()-point.vect());
+//   double dist = sep.mag();
+//   double time = point.t()+(dist/c_light);
+
+//   return time;
+//   }
 
   double RadioScatter::getTxTime(int index,HepLorentzVector point, int direct=0){
   Hep3Vector distvec = point.vect()-tx[index].vect();
@@ -805,6 +851,111 @@ double RadioScatter::makeRays(HepLorentzVector point, double e, double l, double
 	}
       }
     }
+    return 1;
+  }
+}
+
+/*
+this function utilizes U. Latif's ray tracing
+ */
+double RadioScatter::makeRaysRayTrace(HepLorentzVector point, double e, double l, double e_i){
+  if(RSCAT_HIST_RESIZE==false){
+    makeTimeHist();
+    RSCAT_HIST_RESIZE=true;
+    RSCAT_HIST_DECLARE=true;
+    
+  }
+
+  double rx_time, rx_amplitude, rx_phase, point_time, t_step=0.;
+  double zz=point.z()*zscale;
+  double tt=point.t()*tscale;
+
+  //cout<<point.z()<<" ";
+  point.setZ(zz);
+  //  cout<<zscale<<" "<<point.z()<<endl;
+  point.setT(tt);
+
+
+  for(int i=0;i<ntx;i++){
+    for(int j=0;j<nrx;j++){
+
+      //would RF from the transmitter reached this point?
+      if(checkTxOn(getTxTime(i,point))!=1)return 0;
+
+      //calculate plasma freq and collison freq
+      
+      step_length=l;//to make our density approximation
+      double n = e/e_i;//edeposited/ionization E
+      double n_e =1.;
+      
+      if(step_length==0)return 0;
+      
+      
+      //electron number density, using step length cube, and an empirical factor, such that the peak number density is correct. 
+      n_e = n*n_primaries/pow(step_length, 3)*400.;
+
+
+      if(n_e==0)return 0;
+
+
+
+      //rad scat as published
+      double N_ice=3.2e19;//per mm^3;
+      //the collisional cross section is some number x10^-16cm^-3.
+      //NIST has a plot that depends upon the incident ionization energy
+      //a value of 1e-16 is for 15eV ionization electron energy,
+      //we use 3 for good measure.
+      nu_col = sqrt(k_Boltzmann*(300)*kelvin/electron_mass_c2)*collisionalCrossSection*(N_ice);
+
+      event.totNScatterers+=n;//track total number of scatterers
+
+      //the full scattering amplitude pre-factor  
+      double prefactor = -rxEffectiveHeight*n*n_primaries*e_radius*omega/(pow(omega, 2)+pow(nu_col, 2));
+
+      //x position of charge w/r/t shower axis
+      Hep3Vector vec=(point.vect()-event.position);
+      double x = vec.mag()*abs(sin(vec.unit().angle(event.direction)));
+      
+      //only consider charges within 1 m (10 moliere radii, to accelerate sim). uses mm. so does c_light in alpha below, which is unitless
+      double x_0=(abs(x)>10000?0:(10000-abs(x)));
+      //plasma frequency
+      double omega_p=sqrt(plasma_const*n_e)*1e-9;//in ns^-1
+
+      //the screening term. as derived in paper
+      double alpha= ((omega_p*omega_p)/(2.*c_light))*(nu_col/(omega*omega + nu_col*nu_col))*x_0;
+
+
+      double attn_factor = exp(-alpha);
+
+      prefactor=prefactor*attn_factor;
+      
+      HepLorentzVector point_temp=point;      
+
+      //the ray tracing functions. 
+      
+      point_time=point_temp.t();
+      double point_time_end=point_time+lifetime;
+      while(point_time<point_time_end){
+	getRxInfoRayTrace(i,j,point_temp, rx_phase, rx_amplitude, rx_time);
+	if(rx_time==-99999){//set rx_time to -99999 if there is no ray solution.
+	  return 0;
+	}
+
+	  
+	double E_real= prefactor*rx_amplitude*(omega*cos(rx_phase)+nu_col*sin(rx_phase));
+	double E_imag = prefactor*rx_amplitude*(-nu_col*cos(rx_phase)+omega*sin(rx_phase));
+
+	if(abs(E_real)<tx_voltage){//simple sanity check
+	  time_hist[i][j]->Fill(rx_time, E_real);
+	  re_hist[i][j]->Fill(rx_time, E_real);
+	  im_hist[i][j]->Fill(rx_time, E_imag);
+	}
+	point_time+=samplingperiod;
+	point_temp.setT(point_time);
+
+      }
+    }
+    
     return 1;
   }
 }
