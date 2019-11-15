@@ -2,11 +2,14 @@
 This is IceRayTracing made for RadioScatter. Author: Uzair Latif 
 released under GPL3.
 */
+#ifndef IRT_HEAD
+#define IRT_HEAD
 
 #include "TGraph.h"
 #include "TMultiGraph.h"
 #include "TCanvas.h"
 #include "TString.h"
+#include "TAxis.h"
 
 #include <stdio.h>
 #include <math.h>
@@ -96,3 +99,4 @@ namespace IceRayTracing{
   double *IceRayTracing(double x0, double z0, double x1, double z1);
 
 }
+#endif

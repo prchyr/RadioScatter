@@ -20,6 +20,7 @@ released under GPL3.
 #include "TTree.h"
 #include "TGraph.h"
 #include "TGraph2D.h"
+#include "TAxis.h"
 
 #include <vector>
 
