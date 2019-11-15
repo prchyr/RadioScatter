@@ -28,6 +28,7 @@ released under GPL3.
 #include "CLHEP/Vector/ThreeVector.h"
 #include "RadioScatterEvent.hh"
 #include "RSEventSummary.hh"
+#include "IceRayTracing.hh"
 
  using namespace CLHEP;
  using namespace std;

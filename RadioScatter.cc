@@ -473,6 +473,81 @@ int RadioScatter::getRxInfoRayTrace(int txindex,int rxindex, HepLorentzVector po
   Hep3Vector one=tx[txindex].vect()-point.vect();
   Hep3Vector two=point.vect()-rx[rxindex].vect();
 
+  double Tx_x=one.x();
+  double Tx_y=one.y();
+  double Tx_z=one.z();
+
+  double Rx_x=two.x();
+  double Rx_y=two.y();
+  double Rx_z=two.z();
+
+  double ShwrPrtcleDepth=point.z();
+  
+  double startpoint=0;////always zero
+  double Tx2ShwrDist=sqrt(pow(Tx_x,2)+ pow(Tx_y,2));
+  double Rx2ShwrDist=sqrt(pow(Rx_x,2)+ pow(Rx_y,2));
+
+  /* These Two arrays will be filled up with the ray parameters */
+  /* for each of the 3 possible rays we have 4 elements*/
+  /* element 0 is LaunchAngle */
+  /* element 1 is RecieveAngle  */
+  /* element 2 is PropogationTime  */
+  /* element 3 is PropogationDistance  */
+  double TxRaySolPar[3][4];
+  double RxRaySolPar[3][4];
+  
+  double* GetTx2ShwrRays=IceRayTracing::IceRayTracing(startpoint,Tx_z,Tx2ShwrDist,ShwrPrtcleDepth);
+ 
+  if(GetTx2ShwrRays[6]!=0){
+    cout<<"we got a direct ray!"<<endl;
+    TxRaySolPar[0][0]=GetTx2ShwrRays[0];
+    TxRaySolPar[0][1]=GetTx2ShwrRays[6];
+    TxRaySolPar[0][2]=GetTx2ShwrRays[3]*s;
+    TxRaySolPar[0][3]=GetTx2ShwrRays[3]*IceRayTracing::c_light_ms*m;
+  }
+  if(GetTx2ShwrRays[7]!=0){
+    cout<<"we got a reflected ray!"<<endl;
+    TxRaySolPar[1][0]=GetTx2ShwrRays[1];
+    TxRaySolPar[1][1]=GetTx2ShwrRays[7];
+    TxRaySolPar[1][2]=GetTx2ShwrRays[4]*s;
+    TxRaySolPar[1][3]=GetTx2ShwrRays[4]*IceRayTracing::c_light_ms*m;
+  }
+  if(GetTx2ShwrRays[8]!=0){
+    cout<<"we got a refracted ray!"<<endl;
+    TxRaySolPar[2][0]=GetTx2ShwrRays[2];
+    TxRaySolPar[2][1]=GetTx2ShwrRays[8];
+    TxRaySolPar[2][2]=GetTx2ShwrRays[5]*s;
+    TxRaySolPar[2][3]=GetTx2ShwrRays[5]*IceRayTracing::c_light_ms*m;
+  }
+  delete []GetTx2ShwrRays;
+
+  if(TxRaySolPar[0][1]!=0 || TxRaySolPar[1][1]!=0 || TxRaySolPar[2][1]!=0){
+    double* GetRx2ShwrRays=IceRayTracing::IceRayTracing(startpoint,Rx_z,Rx2ShwrDist,ShwrPrtcleDepth);
+    
+    if(GetRx2ShwrRays[6]!=0){
+      cout<<"we got a direct ray!"<<endl;
+      RxRaySolPar[0][0]=GetRx2ShwrRays[0];
+      RxRaySolPar[0][1]=GetRx2ShwrRays[6];
+      RxRaySolPar[0][2]=GetRx2ShwrRays[3]*s;
+      RxRaySolPar[0][3]=GetRx2ShwrRays[3]*IceRayTracing::c_light_ms*m;
+    }
+    if(GetRx2ShwrRays[7]!=0){
+      cout<<"we got a reflected ray!"<<endl;
+      RxRaySolPar[1][0]=GetRx2ShwrRays[1];
+      RxRaySolPar[1][1]=GetRx2ShwrRays[7];
+      RxRaySolPar[1][2]=GetRx2ShwrRays[4]*s;
+      RxRaySolPar[1][3]=GetRx2ShwrRays[4]*IceRayTracing::c_light_ms*m;
+    }
+    if(GetRx2ShwrRays[8]!=0){
+      cout<<"we got a refracted ray!"<<endl;
+      RxRaySolPar[2][0]=GetRx2ShwrRays[2];
+      RxRaySolPar[2][1]=GetRx2ShwrRays[8];
+      RxRaySolPar[2][2]=GetRx2ShwrRays[5]*s;
+      RxRaySolPar[2][3]=GetRx2ShwrRays[5]*IceRayTracing::c_light_ms*m;
+    }
+    delete []GetRx2ShwrRays;
+  }
+  
   double angle_dependence=1.;
   Hep3Vector nhat(two.unit());
   Hep3Vector vert(0,1.,0), horiz(0,0,1.); 
