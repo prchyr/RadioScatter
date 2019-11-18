@@ -475,11 +475,11 @@ int RadioScatter::getRxInfoRayTrace(int txindex,int rxindex, HepLorentzVector po
 
   double Tx_x=one.x();
   double Tx_y=one.y();
-  double Tx_z=one.z();
+  double Tx_z=tx[txindex].z();
 
   double Rx_x=two.x();
   double Rx_y=two.y();
-  double Rx_z=two.z();
+  double Rx_z=rx[rxindex].z();
 
   double ShwrPrtcleDepth=point.z();
   
@@ -493,58 +493,70 @@ int RadioScatter::getRxInfoRayTrace(int txindex,int rxindex, HepLorentzVector po
   /* element 1 is RecieveAngle  */
   /* element 2 is PropogationTime  */
   /* element 3 is PropogationDistance  */
-  double TxRaySolPar[3][4];
-  double RxRaySolPar[3][4];
+  /* element 4 is the IncidentAngleInIce for Reflected ray. For the other two rays this number goes to zero.  */
+  double TxRaySolPar[3][5];
+  double RxRaySolPar[3][5];
   
   double* GetTx2ShwrRays=IceRayTracing::IceRayTracing(startpoint,Tx_z,Tx2ShwrDist,ShwrPrtcleDepth);
  
   if(GetTx2ShwrRays[6]!=0){
-    cout<<"we got a direct ray!"<<endl;
+    //cout<<"we got a direct ray!"<<endl;
     TxRaySolPar[0][0]=GetTx2ShwrRays[0];
     TxRaySolPar[0][1]=GetTx2ShwrRays[6];
     TxRaySolPar[0][2]=GetTx2ShwrRays[3]*s;
     TxRaySolPar[0][3]=GetTx2ShwrRays[3]*IceRayTracing::c_light_ms*m;
+    TxRaySolPar[0][4]=0;
   }
-  if(GetTx2ShwrRays[7]!=0){
-    cout<<"we got a reflected ray!"<<endl;
-    TxRaySolPar[1][0]=GetTx2ShwrRays[1];
-    TxRaySolPar[1][1]=GetTx2ShwrRays[7];
-    TxRaySolPar[1][2]=GetTx2ShwrRays[4]*s;
-    TxRaySolPar[1][3]=GetTx2ShwrRays[4]*IceRayTracing::c_light_ms*m;
-  }
-  if(GetTx2ShwrRays[8]!=0){
-    cout<<"we got a refracted ray!"<<endl;
-    TxRaySolPar[2][0]=GetTx2ShwrRays[2];
-    TxRaySolPar[2][1]=GetTx2ShwrRays[8];
-    TxRaySolPar[2][2]=GetTx2ShwrRays[5]*s;
-    TxRaySolPar[2][3]=GetTx2ShwrRays[5]*IceRayTracing::c_light_ms*m;
-  }
+
+  ////Only looking at Direct rays for now so commenting this part out
+  // if(GetTx2ShwrRays[7]!=0){
+  //   cout<<"we got a reflected ray!"<<endl;
+  //   TxRaySolPar[1][0]=GetTx2ShwrRays[1];
+  //   TxRaySolPar[1][1]=GetTx2ShwrRays[7];
+  //   TxRaySolPar[1][2]=GetTx2ShwrRays[4]*s;
+  //   TxRaySolPar[1][3]=GetTx2ShwrRays[4]*IceRayTracing::c_light_ms*m;
+  //   TxRaySolPar[1][4]=GetTx2ShwrRays[11];
+  // }
+  // if(GetTx2ShwrRays[8]!=0){
+  //   cout<<"we got a refracted ray!"<<endl;
+  //   TxRaySolPar[2][0]=GetTx2ShwrRays[2];
+  //   TxRaySolPar[2][1]=GetTx2ShwrRays[8];
+  //   TxRaySolPar[2][2]=GetTx2ShwrRays[5]*s;
+  //   TxRaySolPar[2][3]=GetTx2ShwrRays[5]*IceRayTracing::c_light_ms*m;
+  //   TxRaySolPar[2][4]=0;
+  //}
   delete []GetTx2ShwrRays;
 
-  if(TxRaySolPar[0][1]!=0 || TxRaySolPar[1][1]!=0 || TxRaySolPar[2][1]!=0){
+  if(TxRaySolPar[0][1]!=0){
+  //if(TxRaySolPar[0][1]!=0 || TxRaySolPar[1][1]!=0 || TxRaySolPar[2][1]!=0){
     double* GetRx2ShwrRays=IceRayTracing::IceRayTracing(startpoint,Rx_z,Rx2ShwrDist,ShwrPrtcleDepth);
-    
+
     if(GetRx2ShwrRays[6]!=0){
-      cout<<"we got a direct ray!"<<endl;
+      //cout<<"we got a direct ray!"<<endl;
       RxRaySolPar[0][0]=GetRx2ShwrRays[0];
       RxRaySolPar[0][1]=GetRx2ShwrRays[6];
       RxRaySolPar[0][2]=GetRx2ShwrRays[3]*s;
       RxRaySolPar[0][3]=GetRx2ShwrRays[3]*IceRayTracing::c_light_ms*m;
+      RxRaySolPar[0][4]=0;
     }
-    if(GetRx2ShwrRays[7]!=0){
-      cout<<"we got a reflected ray!"<<endl;
-      RxRaySolPar[1][0]=GetRx2ShwrRays[1];
-      RxRaySolPar[1][1]=GetRx2ShwrRays[7];
-      RxRaySolPar[1][2]=GetRx2ShwrRays[4]*s;
-      RxRaySolPar[1][3]=GetRx2ShwrRays[4]*IceRayTracing::c_light_ms*m;
-    }
-    if(GetRx2ShwrRays[8]!=0){
-      cout<<"we got a refracted ray!"<<endl;
-      RxRaySolPar[2][0]=GetRx2ShwrRays[2];
-      RxRaySolPar[2][1]=GetRx2ShwrRays[8];
-      RxRaySolPar[2][2]=GetRx2ShwrRays[5]*s;
-      RxRaySolPar[2][3]=GetRx2ShwrRays[5]*IceRayTracing::c_light_ms*m;
-    }
+
+    ////Only looking at Direct rays for now so commenting this part out
+    // if(GetRx2ShwrRays[7]!=0){
+    //   //cout<<"we got a reflected ray!"<<endl;
+    //   RxRaySolPar[1][0]=GetRx2ShwrRays[1];
+    //   RxRaySolPar[1][1]=GetRx2ShwrRays[7];
+    //   RxRaySolPar[1][2]=GetRx2ShwrRays[4]*s;
+    //   RxRaySolPar[1][3]=GetRx2ShwrRays[4]*IceRayTracing::c_light_ms*m;
+    //   RxRaySolPar[1][4]=GetRx2ShwrRays[11];
+    // }
+    // if(GetRx2ShwrRays[8]!=0){
+    //   //cout<<"we got a refracted ray!"<<endl;
+    //   RxRaySolPar[2][0]=GetRx2ShwrRays[2];
+    //   RxRaySolPar[2][1]=GetRx2ShwrRays[8];
+    //   RxRaySolPar[2][2]=GetRx2ShwrRays[5]*s;
+    //   RxRaySolPar[2][3]=GetRx2ShwrRays[5]*IceRayTracing::c_light_ms*m;
+    //   RxRaySolPar[2][4]=0;
+    // }
     delete []GetRx2ShwrRays;
   }
   
@@ -563,14 +575,33 @@ int RadioScatter::getRxInfoRayTrace(int txindex,int rxindex, HepLorentzVector po
     angle_dependence = nhat.cross(nhat.cross(pol)).mag();
   }
 
-  
-  //replace this with your phase
+  double TotalRayPath=0;
+  double TotalRayPropTime=0;
+  double RayPath1=0;
+  double RayPath2=0;
+  double RayTime1=0;
+  double RayTime2=0;
   rx_phase=0;
-  // replace this with your calculated amplitude. for this you need to calculate the tx->point ray and the point->rx ray
-  rx_amplitude = 0;
-  //replace this with your time. this is the global time, so you would add to point.t() the time it takes the ray to get from point to rx 
+  rx_amplitude=0;
   rx_time=0;
 
+  ////Now Fill in the values if you get ray solutions from Tx to Shower and from Rx to Shower
+  if(TxRaySolPar[0][1]!=0 && RxRaySolPar[0][1]!=0){
+    RayPath1=TxRaySolPar[0][3];
+    RayPath2=RxRaySolPar[0][3];
+    TotalRayPath=RayPath1+RayPath2;
+    RayTime1=TxRaySolPar[0][2];
+    RayTime2=RxRaySolPar[0][2];
+    TotalRayPropTime=RayTime1+RayTime2;
+  
+    //replace this with your phase
+    rx_phase=RadioScatter::getRxPhaseRayTrace(point, TotalRayPropTime, RayPath1, RayPath2);
+    // replace this with your calculated amplitude. for this you need to calculate the tx->point ray and the point->rx ray
+    rx_amplitude = 1.0/(RayPath1*RayPath2);
+    //replace this with your time. this is the global time, so you would add to point.t() the time it takes the ray to get from point to rx 
+    rx_time=point.t()+RayTime2;
+  }
+  
   return 1;
 }
 
@@ -722,6 +753,7 @@ double RadioScatter::getRxPhase(int txindex, int rxindex, HepLorentzVector point
   double rxtime = getRxTime(rxindex,point);//find advanced time
   double txtime = getTxTime(txindex,point);//find retarted time
   double txphase = getTxPhase(txtime);//find phase at retarded time
+
   //time of full flight
   //  double tof = abs(rxtime-txtime);//time of flight
   //time of flight for zero lifetime(phase is fixed at interaction point)
@@ -733,6 +765,35 @@ double RadioScatter::getRxPhase(int txindex, int rxindex, HepLorentzVector point
   Hep3Vector kvec2 = k*pr_rx.vect();
   Hep3Vector ktot = kvec1+kvec2;
   double kx = ktot.mag();
+  //calculate compton effects
+  //  double inv_omega_c = (1/omega)+(1/omega_e)*(1-cos(tx_pr.vect().unit().angle(pr_rx[index].vect().unit())));
+  //omega_c = 1/inv_omega_c;
+  //    cout<<txtime<<" "<<txphase<<" "<<rxtime<<endl;
+  return ((kx) - omega*tof + txphase);
+}
+
+//non-refraction phase finder added by Uzair Latif
+double RadioScatter::getRxPhaseRayTrace(HepLorentzVector point, double tof, double tx_pr, double pr_rx){
+  
+  double txtime = point.t()-tof;//find retarted time
+  double txphase = getTxPhase(txtime);//find phase at retarded time
+
+  //time of full flight
+  //  double tof = abs(rxtime-txtime);//time of flight
+  //time of flight for zero lifetime(phase is fixed at interaction point)
+  //  double tof = point.t()-(point.vect()-tx[index].vect()).mag()/c_light;
+
+  ////old tof and propagation distances which Uzair has commented out now
+  //double tof=point.t()-txtime;
+  //HepLorentzVector tx_pr=tx[txindex]-point, pr_rx = point-rx[rxindex];//make vectors
+  
+  //oldwave number addition
+  // Hep3Vector kvec1 = k*tx_pr.vect();
+  // Hep3Vector kvec2 = k*pr_rx.vect();
+  // Hep3Vector ktot = kvec1+kvec2;
+  // double kx = ktot.mag();
+
+  double kx = k*(tx_pr+pr_rx);
   //calculate compton effects
   //  double inv_omega_c = (1/omega)+(1/omega_e)*(1-cos(tx_pr.vect().unit().angle(pr_rx[index].vect().unit())));
   //omega_c = 1/inv_omega_c;

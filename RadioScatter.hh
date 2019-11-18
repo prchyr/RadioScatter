@@ -328,6 +328,7 @@ double getTxAmplitude(int index,HepLorentzVector point);
   double getRxPhase(HepLorentzVector point, Hep3Vector j1, Hep3Vector j2, Hep3Vector l1, Hep3Vector l2);
 
   double getRxPhase(int txindex, int rxindex, HepLorentzVector point);
+  double getRxPhaseRayTrace(HepLorentzVector point, double tof, double tx_pr, double pr_rx);
   double getRxPhaseRel(int index,HepLorentzVector point, double v);
   double getAmplitudeFromAt(double E_0, HepLorentzVector from, HepLorentzVector at);
 
