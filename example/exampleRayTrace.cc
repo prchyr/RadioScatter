@@ -56,7 +56,7 @@ void doIt(double lifetimens, double frequency, double power){
   for(int i=0;i<num;i++){
     pt.setX(0.);
     pt.setY(0.);
-    pt.setZ((double)i*dz);
+    pt.setZ(-(double)i*dz);
     pt.setT(pt.z()/c_light);
     //calculate the scatter from this ionization deposit.
     radio->makeRaysRayTrace(pt, 1, 1, ionizationE);
