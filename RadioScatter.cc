@@ -466,7 +466,7 @@ double RadioScatter::getRxAmplitude(int txindex,int rxindex, HepLorentzVector po
 /*
 gets the RX amplitude, phase, and time using  ray tracing
 */
-int RadioScatter::getRxInfoRayTrace(int txindex,int rxindex, HepLorentzVector point, double *rx_phase, double *rx_amplitude, double *rx_time){
+int RadioScatter::getRxInfoRayTrace(int txindex,int rxindex, HepLorentzVector point, double *rxPhaseDirect, double *rxAmplitudeDirect, double *rxTimeDirect, double *rxPhaseRefracted, double *rxAmplitudeRefracted, double *rxTimeRefracted, double *rxPhaseReflected, double *rxAmplitudeReflected, double *rxTimeReflected){
 
 
   //this calculates the angle dependence of the amplitude (e.g. the n x n x \epsilon term). probably OK to ignore for now, or use your launch angles, leaving it here just for reference
@@ -588,10 +588,17 @@ int RadioScatter::getRxInfoRayTrace(int txindex,int rxindex, HepLorentzVector po
   double RayPath2=0;
   double RayTime1=0;
   double RayTime2=0;
-  //rx_phase=0;
-  //rx_amplitude=0;
-  //rx_time=0;
 
+  
+  *rxPhaseDirect=0.;
+  *rxAmplitudeDirect=0.;
+  *rxTimeDirect=0.;
+  *rxPhaseRefracted=0.;
+  *rxAmplitudeRefracted=0.;
+  *rxTimeRefracted=0.;
+  *rxPhaseReflected=0.;
+  *rxAmplitudeReflected=0.;
+  *rxTimeReflected=0.;
   ////Now Fill in the values if you get ray solutions from Tx to Shower and from Rx to Shower
     if(TxRaySolPar[0][1]!=0 && RxRaySolPar[0][1]!=0){
       // cout<<startpoint<<" "<<Tx_z<<" "<<Tx2ShwrDist<<" "<<Rx_z<<" "<<Rx2ShwrDist<<" "<<ShwrPrtcleDepth<<endl;
@@ -606,11 +613,11 @@ int RadioScatter::getRxInfoRayTrace(int txindex,int rxindex, HepLorentzVector po
     TotalRayPropTime=RayTime1+RayTime2;
   
     //replace this with your phase
-    *rx_phase=RadioScatter::getRxPhaseRayTrace(point, TotalRayPropTime, RayPath1, RayPath2);
+    *rxPhaseDirect=RadioScatter::getRxPhaseRayTrace(point, TotalRayPropTime, RayPath1, RayPath2);
     // replace this with your calculated amplitude. for this you need to calculate the tx->point ray and the point->rx ray
-    *rx_amplitude = 1.0/(RayPath1*RayPath2);
+    *rxAmplitudeDirect = 1.0/(RayPath1*RayPath2);
     //replace this with your time. this is the global time, so you would add to point.t() the time it takes the ray to get from point to rx 
-    *rx_time=point.t()+RayTime2;
+    *rxTimeDirect=point.t()+RayTime2;
      }
   
   return 1;
@@ -1013,7 +1020,7 @@ double RadioScatter::makeRaysRayTrace(HepLorentzVector point, double e, double l
     
   }
 
-  double rx_time=0., rx_amplitude=0., rx_phase=0., point_time, t_step=0.;
+  double  point_time, t_step=0.;
   double zz=point.z()*zscale;
   double tt=point.t()*tscale;
 
@@ -1079,23 +1086,39 @@ double RadioScatter::makeRaysRayTrace(HepLorentzVector point, double e, double l
       HepLorentzVector point_temp=point;      
 
       //the ray tracing functions. 
-      
+      double rxPhaseDirect=0.;
+      double rxAmplitudeDirect=0.;
+      double rxTimeDirect=0.;
+      double rxPhaseRefracted=0.;
+      double rxAmplitudeRefracted=0.;
+      double rxTimeRefracted=0.;
+      double rxPhaseReflected=0.;
+      double rxAmplitudeReflected=0.;
+      double rxTimeReflected=0.;
       point_time=point_temp.t();
       double point_time_end=point_time+lifetime;
       while(point_time<point_time_end){
-	getRxInfoRayTrace(i,j,point_temp, &rx_phase, &rx_amplitude, &rx_time);
-	if(rx_time==-99999){//set rx_time to -99999 if there is no ray solution.
-	  return 0;
-	}
+	getRxInfoRayTrace(i,j,point_temp, &rxPhaseDirect, &rxAmplitudeDirect, &rxTimeDirect,&rxPhaseRefracted, &rxAmplitudeRefracted, &rxTimeRefracted,&rxPhaseReflected, &rxAmplitudeReflected, &rxTimeReflected);
+	
 	//	cout<<rx_phase<<" "<<rx_amplitude<<" "<<rx_time<<endl;
 	  
-	double E_real= prefactor*rx_amplitude*(omega*cos(rx_phase)+nu_col*sin(rx_phase));
-	double E_imag = prefactor*rx_amplitude*(-nu_col*cos(rx_phase)+omega*sin(rx_phase));
+	double ERealDirect= prefactor*rxAmplitudeDirect*(omega*cos(rxPhaseDirect)+nu_col*sin(rxPhaseDirect));
+	double EImagDirect = prefactor*rxAmplitudeDirect*(-nu_col*cos(rxPhaseDirect)+omega*sin(rxPhaseDirect));
+	double ERealRefracted= prefactor*rxAmplitudeRefracted*(omega*cos(rxPhaseRefracted)+nu_col*sin(rxPhaseRefracted));
+	double EImagRefracted = prefactor*rxAmplitudeRefracted*(-nu_col*cos(rxPhaseRefracted)+omega*sin(rxPhaseRefracted));
+	double ERealReflected= prefactor*rxAmplitudeReflected*(omega*cos(rxPhaseReflected)+nu_col*sin(rxPhaseReflected));
+	double EImagReflected = prefactor*rxAmplitudeReflected*(-nu_col*cos(rxPhaseReflected)+omega*sin(rxPhaseReflected));
 
-	if(abs(E_real)<tx_voltage){//simple sanity check
-	  time_hist[i][j]->Fill(rx_time, E_real);
-	  re_hist[i][j]->Fill(rx_time, E_real);
-	  im_hist[i][j]->Fill(rx_time, E_imag);
+	if(abs(ERealDirect)<tx_voltage){//simple sanity check
+	  time_hist[i][j]->Fill(rxTimeDirect, ERealDirect);
+	  re_hist[i][j]->Fill(rxTimeDirect, ERealDirect);
+	  im_hist[i][j]->Fill(rxTimeDirect, EImagDirect);
+	  time_hist[i][j]->Fill(rxTimeRefracted, ERealRefracted);
+	  re_hist[i][j]->Fill(rxTimeRefracted, ERealRefracted);
+	  im_hist[i][j]->Fill(rxTimeRefracted, EImagRefracted);
+	  time_hist[i][j]->Fill(rxTimeReflected, ERealReflected);
+	  re_hist[i][j]->Fill(rxTimeReflected, ERealReflected);
+	  im_hist[i][j]->Fill(rxTimeReflected, EImagReflected);
 	}
 	point_time+=samplingperiod;
 	point_temp.setT(point_time);
