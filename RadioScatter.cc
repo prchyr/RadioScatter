@@ -466,7 +466,7 @@ double RadioScatter::getRxAmplitude(int txindex,int rxindex, HepLorentzVector po
 /*
 gets the RX amplitude, phase, and time using  ray tracing
 */
-int RadioScatter::getRxInfoRayTrace(int txindex,int rxindex, HepLorentzVector point, double rx_phase, double rx_amplitude, double rx_time){
+int RadioScatter::getRxInfoRayTrace(int txindex,int rxindex, HepLorentzVector point, double *rx_phase, double *rx_amplitude, double *rx_time){
 
 
   //this calculates the angle dependence of the amplitude (e.g. the n x n x \epsilon term). probably OK to ignore for now, or use your launch angles, leaving it here just for reference
@@ -588,14 +588,14 @@ int RadioScatter::getRxInfoRayTrace(int txindex,int rxindex, HepLorentzVector po
   double RayPath2=0;
   double RayTime1=0;
   double RayTime2=0;
-  rx_phase=0;
-  rx_amplitude=0;
-  rx_time=0;
+  //rx_phase=0;
+  //rx_amplitude=0;
+  //rx_time=0;
 
   ////Now Fill in the values if you get ray solutions from Tx to Shower and from Rx to Shower
-  if(TxRaySolPar[0][1]!=0 && RxRaySolPar[0][1]!=0){
-    // cout<<startpoint<<" "<<Tx_z<<" "<<Tx2ShwrDist<<" "<<Rx_z<<" "<<Rx2ShwrDist<<" "<<ShwrPrtcleDepth<<endl;
-    // cout<<TxRaySolPar[0][0]<<" "<<TxRaySolPar[0][1]<<" "<<TxRaySolPar[0][2]<<" "<<TxRaySolPar[0][3]<<" "<<TxRaySolPar[0][4]<<endl;
+    if(TxRaySolPar[0][1]!=0 && RxRaySolPar[0][1]!=0){
+      // cout<<startpoint<<" "<<Tx_z<<" "<<Tx2ShwrDist<<" "<<Rx_z<<" "<<Rx2ShwrDist<<" "<<ShwrPrtcleDepth<<endl;
+      //cout<<TxRaySolPar[0][0]<<" "<<TxRaySolPar[0][1]<<" "<<TxRaySolPar[0][2]<<" "<<TxRaySolPar[0][3]<<" "<<TxRaySolPar[0][4]<<endl;
     // cout<<RxRaySolPar[0][0]<<" "<<RxRaySolPar[0][1]<<" "<<RxRaySolPar[0][2]<<" "<<RxRaySolPar[0][3]<<" "<<RxRaySolPar[0][4]<<endl;
     
     RayPath1=TxRaySolPar[0][3];
@@ -606,12 +606,12 @@ int RadioScatter::getRxInfoRayTrace(int txindex,int rxindex, HepLorentzVector po
     TotalRayPropTime=RayTime1+RayTime2;
   
     //replace this with your phase
-    rx_phase=RadioScatter::getRxPhaseRayTrace(point, TotalRayPropTime, RayPath1, RayPath2);
+    *rx_phase=RadioScatter::getRxPhaseRayTrace(point, TotalRayPropTime, RayPath1, RayPath2);
     // replace this with your calculated amplitude. for this you need to calculate the tx->point ray and the point->rx ray
-    rx_amplitude = 1.0/(RayPath1*RayPath2);
+    *rx_amplitude = 1.0/(RayPath1*RayPath2);
     //replace this with your time. this is the global time, so you would add to point.t() the time it takes the ray to get from point to rx 
-    rx_time=point.t()+RayTime2;
-  }
+    *rx_time=point.t()+RayTime2;
+     }
   
   return 1;
 }
@@ -1013,7 +1013,7 @@ double RadioScatter::makeRaysRayTrace(HepLorentzVector point, double e, double l
     
   }
 
-  double rx_time, rx_amplitude, rx_phase, point_time, t_step=0.;
+  double rx_time=0., rx_amplitude=0., rx_phase=0., point_time, t_step=0.;
   double zz=point.z()*zscale;
   double tt=point.t()*tscale;
 
@@ -1083,11 +1083,11 @@ double RadioScatter::makeRaysRayTrace(HepLorentzVector point, double e, double l
       point_time=point_temp.t();
       double point_time_end=point_time+lifetime;
       while(point_time<point_time_end){
-	getRxInfoRayTrace(i,j,point_temp, rx_phase, rx_amplitude, rx_time);
+	getRxInfoRayTrace(i,j,point_temp, &rx_phase, &rx_amplitude, &rx_time);
 	if(rx_time==-99999){//set rx_time to -99999 if there is no ray solution.
 	  return 0;
 	}
-
+	//	cout<<rx_phase<<" "<<rx_amplitude<<" "<<rx_time<<endl;
 	  
 	double E_real= prefactor*rx_amplitude*(omega*cos(rx_phase)+nu_col*sin(rx_phase));
 	double E_imag = prefactor*rx_amplitude*(-nu_col*cos(rx_phase)+omega*sin(rx_phase));
