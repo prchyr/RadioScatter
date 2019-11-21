@@ -256,7 +256,7 @@ double* IceRayTracing::GetDirectRayPar(double z0, double x1, double z1){
 /* This functions works for the Reflected ray and gives you back the launch angle, receive angle and propagation times (of the whole ray and the two direct rays that make it up) together with values of the L parameter and checkzero variable. checkzero variable checks how close the minimiser came to 0. 0 is perfect and less than 0.5 is pretty good. more than that should not be acceptable. */
 double *IceRayTracing::GetReflectedRayPar(double z0, double x1 ,double z1){
 
-  double *output=new double[7];
+  double *output=new double[8];
 
   /* My raytracer can only work the Tx is below the Rx. If the Tx is higher than the Rx than we need to flip the depths to allow for raytracing and then we will flip them back later at the end */
   bool Flip=false;
@@ -323,6 +323,13 @@ double *IceRayTracing::GetReflectedRayPar(double z0, double x1 ,double z1){
     RangR=90;
   }
 
+  /* Calculate the angle of incidence of the reflected ray at the surface ice. This will be used to calculate the Fresnel Coefficients. The angle is calculated by calculating the derivative of the ray path fucnction at the surface*/
+  struct IceRayTracing::fDnfR_params paramsIAngB = {A_ice, GetB(0.0000001), GetC(0.0000001), lvalueR};
+  F5.function = &fDnfR; 
+  F5.params = &paramsIAngB;
+  gsl_deriv_central (&F5, -0.0000001, 1e-8, &result, &abserr);
+  double IncidenceAngleInIce=atan(result)*(180.0/pi);
+
   dsw=0;
   /* If the Tx and Rx depth were switched then put them back to their original position */
   if(Flip==true){
@@ -338,7 +345,8 @@ double *IceRayTracing::GetReflectedRayPar(double z0, double x1 ,double z1){
   output[4]=checkzeroR;
   output[5]=timeR1;
   output[6]=timeR2;
-
+  output[7]=IncidenceAngleInIce;
+  
   /* If the flip case is true where we flipped Rx and Tx depths to trace rays then make sure everything is switched back before we give the output to the user. */
   if(Flip==true){
     output[0]=180-LangR;
@@ -821,7 +829,7 @@ void IceRayTracing::PlotAndStoreRays(double x0,double z0, double z1, double x1, 
 double *IceRayTracing::IceRayTracing(double x0, double z0, double x1, double z1){
 
   /* define a pointer to give back the output of raytracing */ 
-  double *output=new double[11];
+  double *output=new double[12];
 
   /* Store the ray paths in text files */
   bool PlotRayPaths=false;
@@ -849,6 +857,7 @@ double *IceRayTracing::IceRayTracing(double x0, double z0, double x1, double z1)
   double checkzeroR=GetReflectedRay[4];
   double timeR1=GetReflectedRay[5];
   double timeR2=GetReflectedRay[6];
+  double AngleOfIncidenceInIce=GetReflectedRay[7];
   delete []GetReflectedRay;
 
   /* ********This part of the code will try to get the Refracted ray between Rx and Tx.********** */
@@ -914,6 +923,8 @@ double *IceRayTracing::IceRayTracing(double x0, double z0, double x1, double z1)
     output[9]=timeRa1;
     output[10]=timeRa2;
   }
+
+  output[11]=AngleOfIncidenceInIce;
 
   /* Set the recieve angle to be zero for a ray which did not give us a possible path between Tx and Rx. I use this as a flag to determine which two rays gave me possible ray paths. */
   if(fabs(checkzeroD)>0.5){

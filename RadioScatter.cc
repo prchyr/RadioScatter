@@ -473,15 +473,15 @@ int RadioScatter::getRxInfoRayTrace(int txindex,int rxindex, HepLorentzVector po
   Hep3Vector one=tx[txindex].vect()-point.vect();
   Hep3Vector two=point.vect()-rx[rxindex].vect();
 
-  double Tx_x=one.x();
-  double Tx_y=one.y();
-  double Tx_z=tx[txindex].z();
+  double Tx_x=one.x()/1000;
+  double Tx_y=one.y()/1000;
+  double Tx_z=tx[txindex].z()/1000;
 
-  double Rx_x=two.x();
-  double Rx_y=two.y();
-  double Rx_z=rx[rxindex].z();
+  double Rx_x=two.x()/1000;
+  double Rx_y=two.y()/1000;
+  double Rx_z=rx[rxindex].z()/1000;
 
-  double ShwrPrtcleDepth=point.z();
+  double ShwrPrtcleDepth=point.z()/1000;
   
   double startpoint=0;////always zero
   double Tx2ShwrDist=sqrt(pow(Tx_x,2)+ pow(Tx_y,2));
@@ -496,6 +496,13 @@ int RadioScatter::getRxInfoRayTrace(int txindex,int rxindex, HepLorentzVector po
   /* element 4 is the IncidentAngleInIce for Reflected ray. For the other two rays this number goes to zero.  */
   double TxRaySolPar[3][5];
   double RxRaySolPar[3][5];
+
+  for(int i=0;i<3;i++){
+    for(int j=0;j<5;j++){
+      TxRaySolPar[i][j]=0;
+      RxRaySolPar[i][j]=0;
+    }
+  }
   
   double* GetTx2ShwrRays=IceRayTracing::IceRayTracing(startpoint,Tx_z,Tx2ShwrDist,ShwrPrtcleDepth);
  
@@ -587,6 +594,10 @@ int RadioScatter::getRxInfoRayTrace(int txindex,int rxindex, HepLorentzVector po
 
   ////Now Fill in the values if you get ray solutions from Tx to Shower and from Rx to Shower
   if(TxRaySolPar[0][1]!=0 && RxRaySolPar[0][1]!=0){
+    // cout<<startpoint<<" "<<Tx_z<<" "<<Tx2ShwrDist<<" "<<Rx_z<<" "<<Rx2ShwrDist<<" "<<ShwrPrtcleDepth<<endl;
+    // cout<<TxRaySolPar[0][0]<<" "<<TxRaySolPar[0][1]<<" "<<TxRaySolPar[0][2]<<" "<<TxRaySolPar[0][3]<<" "<<TxRaySolPar[0][4]<<endl;
+    // cout<<RxRaySolPar[0][0]<<" "<<RxRaySolPar[0][1]<<" "<<RxRaySolPar[0][2]<<" "<<RxRaySolPar[0][3]<<" "<<RxRaySolPar[0][4]<<endl;
+    
     RayPath1=TxRaySolPar[0][3];
     RayPath2=RxRaySolPar[0][3];
     TotalRayPath=RayPath1+RayPath2;
