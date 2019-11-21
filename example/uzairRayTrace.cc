@@ -1,7 +1,7 @@
 #include <RadioScatter/IceRayTracing.hh>
 
 /*To compile this code just do:*/
-/* g++ -std=c++0x exampleRayTrace.cc -o exampleRayTrace `root-config --cflags --glibs --libs`  -lRadioScatter */
+/* g++ -std=c++0x uzairRayTrace.cc -o uzairRayTrace `root-config --cflags --glibs --libs`  -lRadioScatter */
 
 /* This is an example script to call and play with Uzair's Ray Tracer */
 
