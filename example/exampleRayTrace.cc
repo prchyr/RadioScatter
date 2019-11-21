@@ -14,7 +14,7 @@ void doIt(double lifetimens, double frequency, double power){
   //here we set the radioscatter simulation parameters.  
 
   //set the transmitter position  
-  radio->setTxPos(-10.*m, 10*m, -10*m);
+  radio->setTxPos(-10.*m, 10.*m, -10*m);
   //set the number of receivers
   radio->setNRx(3);
   
@@ -41,7 +41,7 @@ void doIt(double lifetimens, double frequency, double power){
   radio->setRxGain(9);//receiver gain in dB
   radio->setRecordWindowLength(1000);//length of the received window
   radio->setCalculateUsingAttnLength(1);//use ice attenuation length in the calculation?
-  radio->setPolarization("horizontal");//antenna polarization. currently vertical = (0,0,1) and horizontal = (0,1,0); 
+  radio->setPolarization("vertical");//antenna polarization. currently vertical = (0,0,1) and horizontal = (0,1,0); 
   radio->setPrimaryEnergy(1e4);//10GeV in MeV. need to set this for the scaling to be correct, if you simulate a higher energy shower than the input file (which was 10GeV)
   radio->setScaleByEnergy(0);//scales the shower longitudinally by a factor to simulate a higher energy shower. not exact, but fast.
   radio->setMakeSummary(1);//make a nice summary file for simple plotting of things like peak power, voltage, etc.
@@ -52,16 +52,17 @@ void doIt(double lifetimens, double frequency, double power){
   HepLorentzVector pt; //the point of the ionization from which we calculate the individual scatter.
   double ionizationE=.00001;//MeV, the mean ionization energy.
   int num=10;
-  double dz=10*m/num;
+  double dz=10.*m/num;
   for(int i=0;i<num;i++){
-    pt.setX(0.);
-    pt.setY(0.);
+    pt.setX(0.01);
+    pt.setY(0.01);
     pt.setZ(-(double)i*dz);
-    pt.setT(pt.z()/c_light);
+    pt.setT(abs(pt.z())/c_light);
     //    cout<<i<<endl<<endl<<endl<<endl;
-    cout<<i<<endl;
+    cout<<pt.z()<<" "<<pt.t() <<endl;
     //calculate the scatter from this ionization deposit.
-    radio->makeRaysRayTrace(pt, 1, 1, ionizationE);
+    radio->makeRaysRayTrace(pt, 1, 1, 1);
+    // radio->makeRays(pt, 1, 1, 1);
   }
 
   //don't forget to write the run!
