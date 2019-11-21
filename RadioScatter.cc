@@ -500,11 +500,11 @@ int RadioScatter::getRxInfoRayTrace(int txindex,int rxindex, HepLorentzVector po
   double* GetTx2ShwrRays=IceRayTracing::IceRayTracing(startpoint,Tx_z,Tx2ShwrDist,ShwrPrtcleDepth);
  
   if(GetTx2ShwrRays[6]!=0){
-    //cout<<"we got a direct ray!"<<endl;
+    /*cout<<"we got a direct ray!"<<endl;*/
     TxRaySolPar[0][0]=GetTx2ShwrRays[0];
     TxRaySolPar[0][1]=GetTx2ShwrRays[6];
     TxRaySolPar[0][2]=GetTx2ShwrRays[3]*s;
-    TxRaySolPar[0][3]=GetTx2ShwrRays[3]*IceRayTracing::c_light_ms*m;
+    TxRaySolPar[0][3]=GetTx2ShwrRays[3]*IceRayTracing::c_light_ms;
     TxRaySolPar[0][4]=0;
   }
 
@@ -514,7 +514,7 @@ int RadioScatter::getRxInfoRayTrace(int txindex,int rxindex, HepLorentzVector po
   //   TxRaySolPar[1][0]=GetTx2ShwrRays[1];
   //   TxRaySolPar[1][1]=GetTx2ShwrRays[7];
   //   TxRaySolPar[1][2]=GetTx2ShwrRays[4]*s;
-  //   TxRaySolPar[1][3]=GetTx2ShwrRays[4]*IceRayTracing::c_light_ms*m;
+  //   TxRaySolPar[1][3]=GetTx2ShwrRays[4]*IceRayTracing::c_light_ms;
   //   TxRaySolPar[1][4]=GetTx2ShwrRays[11];
   // }
   // if(GetTx2ShwrRays[8]!=0){
@@ -522,7 +522,7 @@ int RadioScatter::getRxInfoRayTrace(int txindex,int rxindex, HepLorentzVector po
   //   TxRaySolPar[2][0]=GetTx2ShwrRays[2];
   //   TxRaySolPar[2][1]=GetTx2ShwrRays[8];
   //   TxRaySolPar[2][2]=GetTx2ShwrRays[5]*s;
-  //   TxRaySolPar[2][3]=GetTx2ShwrRays[5]*IceRayTracing::c_light_ms*m;
+  //   TxRaySolPar[2][3]=GetTx2ShwrRays[5]*IceRayTracing::c_light_ms;
   //   TxRaySolPar[2][4]=0;
   //}
   delete []GetTx2ShwrRays;
@@ -532,11 +532,11 @@ int RadioScatter::getRxInfoRayTrace(int txindex,int rxindex, HepLorentzVector po
     double* GetRx2ShwrRays=IceRayTracing::IceRayTracing(startpoint,Rx_z,Rx2ShwrDist,ShwrPrtcleDepth);
 
     if(GetRx2ShwrRays[6]!=0){
-      //cout<<"we got a direct ray!"<<endl;
+      /*cout<<"we got a direct ray!"<<endl;*/
       RxRaySolPar[0][0]=GetRx2ShwrRays[0];
       RxRaySolPar[0][1]=GetRx2ShwrRays[6];
       RxRaySolPar[0][2]=GetRx2ShwrRays[3]*s;
-      RxRaySolPar[0][3]=GetRx2ShwrRays[3]*IceRayTracing::c_light_ms*m;
+      RxRaySolPar[0][3]=GetRx2ShwrRays[3]*IceRayTracing::c_light_ms;
       RxRaySolPar[0][4]=0;
     }
 
@@ -546,7 +546,7 @@ int RadioScatter::getRxInfoRayTrace(int txindex,int rxindex, HepLorentzVector po
     //   RxRaySolPar[1][0]=GetRx2ShwrRays[1];
     //   RxRaySolPar[1][1]=GetRx2ShwrRays[7];
     //   RxRaySolPar[1][2]=GetRx2ShwrRays[4]*s;
-    //   RxRaySolPar[1][3]=GetRx2ShwrRays[4]*IceRayTracing::c_light_ms*m;
+    //   RxRaySolPar[1][3]=GetRx2ShwrRays[4]*IceRayTracing::c_light_ms;
     //   RxRaySolPar[1][4]=GetRx2ShwrRays[11];
     // }
     // if(GetRx2ShwrRays[8]!=0){
@@ -554,7 +554,7 @@ int RadioScatter::getRxInfoRayTrace(int txindex,int rxindex, HepLorentzVector po
     //   RxRaySolPar[2][0]=GetRx2ShwrRays[2];
     //   RxRaySolPar[2][1]=GetRx2ShwrRays[8];
     //   RxRaySolPar[2][2]=GetRx2ShwrRays[5]*s;
-    //   RxRaySolPar[2][3]=GetRx2ShwrRays[5]*IceRayTracing::c_light_ms*m;
+    //   RxRaySolPar[2][3]=GetRx2ShwrRays[5]*IceRayTracing::c_light_ms;
     //   RxRaySolPar[2][4]=0;
     // }
     delete []GetRx2ShwrRays;
