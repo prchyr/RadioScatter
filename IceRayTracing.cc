@@ -736,85 +736,85 @@ TGraph* IceRayTracing::GetFullRefractedRayPath(double z0, double x1, double z1, 
 /* function for plotting and storing all the rays */
 void IceRayTracing::PlotAndStoreRays(double x0,double z0, double z1, double x1, double zmax, double lvalues[3], double checkzeroes[3]){
   
-  // double lvalueD=lvalues[0];
-  // double lvalueR=lvalues[1];
-  // double lvalueRa=lvalues[2];
+  double lvalueD=lvalues[0];
+  double lvalueR=lvalues[1];
+  double lvalueRa=lvalues[2];
 
-  // double checkzeroD=checkzeroes[0];
-  // double checkzeroR=checkzeroes[1];
-  // double checkzeroRa=checkzeroes[2]; 
+  double checkzeroD=checkzeroes[0];
+  double checkzeroR=checkzeroes[1];
+  double checkzeroRa=checkzeroes[2]; 
 
-  // TMultiGraph *mg=new TMultiGraph();
+  TMultiGraph *mg=new TMultiGraph();
   
-  // TGraph *gr1=GetFullDirectRayPath(z0,x1,z1,lvalueD);
-  // TGraph *gr2=GetFullReflectedRayPath(z0,x1,z1,lvalueR);
-  // TGraph *gr3=new TGraph();
-  // if((fabs(checkzeroR)>0.5 || fabs(checkzeroD)>0.5) && fabs(checkzeroRa)<0.5){
-  //   gr3=GetFullRefractedRayPath(z0,x1,z1,zmax,lvalueRa);
-  // }
+  TGraph *gr1=GetFullDirectRayPath(z0,x1,z1,lvalueD);
+  TGraph *gr2=GetFullReflectedRayPath(z0,x1,z1,lvalueR);
+  TGraph *gr3=new TGraph();
+  if((fabs(checkzeroR)>0.5 || fabs(checkzeroD)>0.5) && fabs(checkzeroRa)<0.5){
+    gr3=GetFullRefractedRayPath(z0,x1,z1,zmax,lvalueRa);
+  }
 
-  // gr1->SetMarkerColor(kBlue);
-  // gr2->SetMarkerColor(kBlue);
-  // gr3->SetMarkerColor(kBlue);
+  gr1->SetMarkerColor(kBlue);
+  gr2->SetMarkerColor(kBlue);
+  gr3->SetMarkerColor(kBlue);
   
-  // /* Plot the all the possible ray paths on the canvas */
-  // TGraph *gr4=new TGraph();
-  // gr4->SetPoint(0,x1,z1);
-  // gr4->SetMarkerStyle(20);
-  // gr4->SetMarkerColor(kRed);
+  /* Plot the all the possible ray paths on the canvas */
+  TGraph *gr4=new TGraph();
+  gr4->SetPoint(0,x1,z1);
+  gr4->SetMarkerStyle(20);
+  gr4->SetMarkerColor(kRed);
 
-  // TGraph *gr4b=new TGraph();
-  // gr4b->SetPoint(0,0,z0);
-  // gr4b->SetMarkerStyle(20);
-  // gr4b->SetMarkerColor(kGreen);
+  TGraph *gr4b=new TGraph();
+  gr4b->SetPoint(0,0,z0);
+  gr4b->SetMarkerStyle(20);
+  gr4b->SetMarkerColor(kGreen);
     
-  // gr1->SetMarkerStyle(20);
-  // gr1->SetMarkerColor(2);
+  gr1->SetMarkerStyle(20);
+  gr1->SetMarkerColor(2);
 
-  // gr2->SetMarkerStyle(20);
-  // gr2->SetMarkerColor(2);
+  gr2->SetMarkerStyle(20);
+  gr2->SetMarkerColor(2);
 
-  // double zlower=z0;
-  // if(fabs(z0)<fabs(z1)){
-  //   zlower=z1;
-  // }
-  // if(fabs(z0)>fabs(z1)){
-  //   zlower=z0;
-  // }
-  // TGraph *gr5=new TGraph();
-  // gr5->SetPoint(0,0,zlower-50);
-  // gr5->SetPoint(1,x1+50,0);
+  double zlower=z0;
+  if(fabs(z0)<fabs(z1)){
+    zlower=z1;
+  }
+  if(fabs(z0)>fabs(z1)){
+    zlower=z0;
+  }
+  TGraph *gr5=new TGraph();
+  gr5->SetPoint(0,0,zlower-50);
+  gr5->SetPoint(1,x1+50,0);
 
-  // if(fabs(checkzeroD)<0.5){
-  //   mg->Add(gr1);
-  // }
-  // if(fabs(checkzeroR)<0.5){
-  //   mg->Add(gr2);
-  // }
-  // if(fabs(checkzeroRa)<0.5){
-  //   mg->Add(gr3);
-  // }
-  // mg->Add(gr4);
-  // mg->Add(gr4b);
-  // //mg->Add(gr5);
+  if(fabs(checkzeroD)<0.5){
+    mg->Add(gr1);
+  }
+  if(fabs(checkzeroR)<0.5){
+    mg->Add(gr2);
+  }
+  if(fabs(checkzeroRa)<0.5){
+    mg->Add(gr3);
+  }
+  mg->Add(gr4);
+  mg->Add(gr4b);
+  //mg->Add(gr5);
 
-  // TString title="Depth vs Distance, Tx at x=";
-  // title+=x0;
-  // title+=" m,z=";
-  // title+=(int)z0;
-  // title+=" m, Rx at x=";
-  // title+=x1;
-  // title+=" m,z=";
-  // title+=(int)z1;
-  // title+=" m; Distance (m);Depth (m)";
-  // mg->SetTitle(title);
+  TString title="Depth vs Distance, Tx at x=";
+  title+=x0;
+  title+=" m,z=";
+  title+=(int)z0;
+  title+=" m, Rx at x=";
+  title+=x1;
+  title+=" m,z=";
+  title+=(int)z1;
+  title+=" m; Distance (m);Depth (m)";
+  mg->SetTitle(title);
   
-  // TCanvas *cRay=new TCanvas("cRay","cRay");
-  // cRay->cd();
-  // mg->Draw("AP");
-  // mg->GetXaxis()->SetNdivisions(20);
-  // cRay->SetGridx();
-  // cRay->SetGridy();
+  TCanvas *cRay=new TCanvas("cRay","cRay");
+  cRay->cd();
+  mg->Draw("AP");
+  mg->GetXaxis()->SetNdivisions(20);
+  cRay->SetGridx();
+  cRay->SetGridy();
 }
 
 /* This is the main raytracing function. x0 always has to be zero. z0 is the Tx depth in m and z1 is the depth of the Rx in m. Both depths are negative. x1 is the distance between them */
@@ -887,7 +887,7 @@ double *IceRayTracing::IceRayTracing(double x0, double z0, double x1, double z1)
   output[8]=RangRa;
 
   /* This part of the code can be used if the user wants to plot the individual ray paths. This part of the code prints out the individual ray paths in text files and also plots them on a canvas */
-  if(PlotRayPaths=true){
+  if(PlotRayPaths==true){
     double lvalues[3];
     lvalues[0]=lvalueD;
     lvalues[1]=lvalueR;
