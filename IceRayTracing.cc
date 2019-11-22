@@ -29,6 +29,35 @@ double IceRayTracing::Getnz(double z){
   return IceRayTracing::A_ice+GetB(z)*exp(-GetC(z)*z);
 }
 
+/* E-feild Power Fresnel coefficient for S-polarised wave which is perpendicular to the plane of propogation/incidence. This function gives you back the reflectance. The transmittance is T=1-R */
+double IceRayTracing::Refl_S(double thetai){
+  double Nair=1;
+  double Nice=IceRayTracing::Getnz(0); 
+  double n1=Nice;
+  double n2=Nair;
+  
+  double sqterm=sqrt(1-pow(1-(n1/n2)*(sin(thetai)),2));
+  double num=n1*cos(thetai)-n2*sqterm;
+  double den=n1*cos(thetai)+n2*sqterm;
+  double RS=(num*num)/(den*den);
+  return (RS);
+}
+
+/* E-feild Power Fresnel coefficient for P-polarised wave which is parallel to the plane of propogation/incidence. This function gives you back the reflectance. The transmittance is T=1-R */
+double IceRayTracing::Refl_P(double thetai){
+  double Nair=1;
+  double Nice=IceRayTracing::Getnz(0); 
+  double n1=Nice;
+  double n2=Nair;
+  
+  double sqterm=sqrt(1-pow(1-(n1/n2)*(sin(thetai)),2));
+  double num=n1*sqterm-n2*cos(thetai);
+  double den=n1*sqterm+n2*cos(thetai);
+  double RP=(num*num)/(den*den);
+  return (RP);
+}
+
+
 /* Use GSL minimiser which uses Brent's Method to find root for a given function. This will be used to find roots wherever it is needed in my code.  */
 double IceRayTracing::FindFunctionRoot(gsl_function F,double x_lo, double x_hi)
 {

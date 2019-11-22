@@ -42,6 +42,12 @@ namespace IceRayTracing{
   /* Get the value of refractive index model for a given depth  */
   double Getnz(double z);
 
+  /* E-feild Power Fresnel coefficient for S-polarised wave which is perpendicular to the plane of propogation/incidence. This function gives you back the reflectance. The transmittance is T=1-R */
+  double_t Refl_S(double thetai);
+
+  /* E-feild Power Fresnel coefficient for P-polarised wave which is parallel to the plane of propogation/incidence. This function gives you back the reflectance. The transmittance is T=1-R */
+  double Refl_P(double thetai);
+   
   /* The temperature and attenuation model have been taken from AraSim which also took it from here http://icecube.wisc.edu/~araproject/radio/ . This is basically Matt Newcomb's icecube directory which has alot of information, plots and codes about South Pole Ice activities. Please read it if you find it interesting. */
   
   /* Temperature model:The model takes in value of depth z in m and returns the value of temperature in Celsius.*/
