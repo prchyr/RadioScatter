@@ -84,7 +84,7 @@ double IceRayTracing::FindFunctionRoot(gsl_function F,double x_lo, double x_hi)
       r = gsl_root_fsolver_root (s);
       x_lo = gsl_root_fsolver_x_lower (s);
       x_hi = gsl_root_fsolver_x_upper (s);
-      status = gsl_root_test_interval (x_lo, x_hi,0, 0.00001);
+      status = gsl_root_test_interval (x_lo, x_hi,0, 0.000001);
 	
       if (status == GSL_SUCCESS){
 	// printf ("Converged:");
