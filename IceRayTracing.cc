@@ -221,13 +221,11 @@ double* IceRayTracing::GetDirectRayPar(double z0, double x1, double z1){
   F1.params = &params1;
 
   /* In my raytracing solution given in the function fDnfR the launch angle (or the L parameter) has limit placed on it by this part in the solution sqrt( n(z)^2 - L^2) . This sqrt cannot be negative for both z0 and z1 and this sets the upper limit in our minimisation to get the launch angle (or the L parameter). Here I am basically setting the upper limit as GSL requires that my function is well behaved on the upper and lower bounds I give it for minimisation. */ 
-  double UpperLimitL=Getnz(z0)*sin(90*(IceRayTracing::pi/180.0));
-  if(pow(Getnz(z1),2)-pow(UpperLimitL,2)<0){
-    UpperLimitL=Getnz(z1);
-  }
+  double UpLimnz[]={Getnz(z1),Getnz(z0)};
+  double *UpperLimitL=min_element(UpLimnz,UpLimnz+2);
 
   /* Do the minimisation and get the value of the L parameter and the launch angle and then verify to see that the value of L that we got was actually a root of fDa function. */
-  double lvalueD=FindFunctionRoot(F1,0.0000001,UpperLimitL);
+  double lvalueD=FindFunctionRoot(F1,0.0000001,UpperLimitL[0]);
   double LangD=asin(lvalueD/Getnz(z0))*(180.0/IceRayTracing::pi);
   double checkzeroD=fDa(lvalueD,&params1);
 
@@ -302,11 +300,12 @@ double *IceRayTracing::GetReflectedRayPar(double z0, double x1 ,double z1){
   F3.function = &fRa;
   F3.params = &params3;
 
-  /* Set the upper limit for the minimisation to get the value of the launch angle (or the L parameter).  In the reflected case we set the upper limit at depth=0 m . I do not go exactly to 0 m depth since my solution blows up at the peak point of the ray. So just to be cautious I stay close to it but do not go exactly to that point. */
-  double UpperLimitL=Getnz(0.0000001);
-
+  /* In my raytracing solution given in the function fDnfR the launch angle (or the L parameter) has limit placed on it by this part in the solution sqrt( n(z)^2 - L^2) . This sqrt cannot be negative for both z0, z1 and also 0.0000001 m and this sets the upper limit in our minimisation to get the launch angle (or the L parameter). Here I am basically setting the upper limit as GSL requires that my function is well behaved on the upper and lower bounds I give it for minimisation. */
+  double UpLimnz[]={Getnz(z1),Getnz(z0),Getnz(0.0000001)};
+  double *UpperLimitL=min_element(UpLimnz,UpLimnz+3);
+  
   /* Do the minimisation and get the value of the L parameter and the launch angle and then verify to see that the value of L that we got was actually a root of fRa function. */
-  double lvalueR=FindFunctionRoot(F3,0.0000001,UpperLimitL);
+  double lvalueR=FindFunctionRoot(F3,0.0000001,UpperLimitL[0]);
   double LangR=asin(lvalueR/Getnz(z0))*(180.0/IceRayTracing::pi);
   double checkzeroR=fRa(lvalueR,&params3); 
 
@@ -386,7 +385,7 @@ double *IceRayTracing::GetReflectedRayPar(double z0, double x1 ,double z1){
 }
 
 /* This functions works for the Refracted ray and gives you back the launch angle, receive angle and propagation times (of the whole ray and the two direct rays that make it up) together with values of the L parameter and checkzero variable. checkzero variable checks how close the minimiser came to 0. 0 is perfect and less than 0.5 is pretty good. more than that should not be acceptable. It requires the launch angle of the reflected ray as an input. */
-double *IceRayTracing::GetRefractedRayPar(double z0, double x1 ,double z1, double LangR){
+double *IceRayTracing::GetRefractedRayPar(double z0, double x1 ,double z1, double LangR, double RangR){
 
   double *output=new double[8];
 
@@ -398,9 +397,16 @@ double *IceRayTracing::GetRefractedRayPar(double z0, double x1 ,double z1, doubl
     z1=dsw;
     Flip=true;
   }
+
+  dsw=0;
+  if(Flip==true){
+    dsw=180-LangR;
+    LangR=180-RangR;
+    RangR=dsw;
+  }
   
   /* Set up all the variables that will be used to get the parameters for the refracted ray */
-  double lvalueR=sin(LangR*(180/IceRayTracing::pi))*Getnz(z0);
+  double lvalueR=sin(LangR*(IceRayTracing::pi/180))*Getnz(z0);
   double lvalueRa=0;
   double LangRa=0;
   double checkzeroRa=1000;
@@ -411,9 +417,10 @@ double *IceRayTracing::GetRefractedRayPar(double z0, double x1 ,double z1, doubl
   double raytime=0;
   double RangRa=0;
   double zmax=10;
-  
-  /* Set the upper limit for the minimisation to get the value of the launch angle (or the L parameter).  In the refracted case we set the upper limit at depth of z1 which is what we also do for the direct ray case. */
-  double UpperLimitL=Getnz(z1);
+
+  /* In my raytracing solution given in the function fDnfR the launch angle (or the L parameter) has limit placed on it by this part in the solution sqrt( n(z)^2 - L^2) . This sqrt cannot be negative for both z0, z1 and also 0.0000001 m and this sets the upper limit in our minimisation to get the launch angle (or the L parameter). Here I am basically setting the upper limit as GSL requires that my function is well behaved on the upper and lower bounds I give it for minimisation. */
+  double UpLimnz[]={Getnz(z1),Getnz(z0)};
+  double *UpperLimitL=min_element(UpLimnz,UpLimnz+2);
   
   /* First we setup the fRa function that will be minimised to get the launch angle (or the L parameter) for the refracted ray. */
   gsl_function F4;
@@ -422,15 +429,15 @@ double *IceRayTracing::GetRefractedRayPar(double z0, double x1 ,double z1, doubl
   F4.params = &params4;
 
   /* Do the minimisation and get the value of the L parameter and the launch angle and then verify to see that the value of L that we got was actually a root of fRaa function. The thing to note here is the lower limit of the minimisation function is set to the L value corresponding to the reflected ray launch angle. Since we know the refracted ray always has bigger launch angle the reflected ray this reduces our range and makes the function more efficient at finding the refracted ray launch angle. */
-  lvalueRa=FindFunctionRoot(F4,Getnz(z0)*sin((LangR*(IceRayTracing::pi/180.0))),UpperLimitL);
+  lvalueRa=FindFunctionRoot(F4,Getnz(z0)*sin((LangR*(IceRayTracing::pi/180.0))),UpperLimitL[0]);
   LangRa=asin(lvalueRa/Getnz(z0))*(180.0/IceRayTracing::pi);
   checkzeroRa=fRaa(lvalueRa,&params4);
 
   /* If the above strategy did not work then we start decreasing the reflected ray launch angle in steps of 5 degree and increase our range for minimisation to find the launch angle (or the L parameter). Sometimes the refracted and reflected rays come out to be the same in that case also I forced my solution to try harder by changing the minimisation range. */
   double iangstep=5;
-  while( (isnan(checkzeroRa)==true || fabs(checkzeroRa)>0.5 || fabs(lvalueRa-lvalueR)<pow(10,-9)) && LangR>iangstep && iangstep<90){
+  while( (isnan(checkzeroRa)==true || fabs(checkzeroRa)>0.5 || fabs(lvalueRa-lvalueR)<pow(10,-5) || fabs(LangRa-LangR)<pow(10,-1)) && LangR>iangstep && iangstep<90){
     //cout<<"2nd try to get Refracted ray "<<isnan(checkzeroRa)<<" "<<fabs(checkzeroRa)<<endl;
-    lvalueRa=FindFunctionRoot(F4,Getnz(z0)*sin(((LangR-iangstep)*(IceRayTracing::pi/180.0))),UpperLimitL);
+    lvalueRa=FindFunctionRoot(F4,Getnz(z0)*sin(((LangR-iangstep)*(IceRayTracing::pi/180.0))),UpperLimitL[0]);
     LangRa=asin(lvalueRa/Getnz(z0))*(180.0/IceRayTracing::pi);
     checkzeroRa=fRaa(lvalueRa,&params4);
     iangstep=iangstep+5;
@@ -901,7 +908,7 @@ double *IceRayTracing::IceRayTracing(double x0, double z0, double x1, double z1)
   
   /* This if condition makes sure that we only try to find a refracted ray if we don't get two possible ray paths from the direct and reflected case. This saves us alot of time since we know that between each Tx and Rx position we only expect 2 rays. */
   if(fabs(checkzeroR)>0.5 || fabs(checkzeroD)>0.5){
-    double* GetRefractedRay=GetRefractedRayPar(z0,x1,z1,LangR);
+    double* GetRefractedRay=GetRefractedRayPar(z0,x1,z1,LangR,RangR);
     RangRa=GetRefractedRay[0];
     LangRa=GetRefractedRay[1];
     timeRa=GetRefractedRay[2];
