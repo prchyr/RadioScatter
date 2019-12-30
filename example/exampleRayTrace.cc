@@ -39,7 +39,7 @@ void doIt(double lifetimens, double frequency, double power){
   radio->setTxGain(9);//transmitter gain in dB
   radio->setRxSampleRate(4.);//receiver sample rate
   radio->setRxGain(9);//receiver gain in dB
-  radio->setRecordWindowLength(1000);//length of the received window
+  radio->setRecordWindowLength(200);//length of the received window
   radio->setCalculateUsingAttnLength(1);//use ice attenuation length in the calculation?
   radio->setPolarization("vertical");//antenna polarization. currently vertical = (0,0,1) and horizontal = (0,1,0); 
   radio->setPrimaryEnergy(1e4);//10GeV in MeV. need to set this for the scaling to be correct, if you simulate a higher energy shower than the input file (which was 10GeV)
@@ -51,7 +51,7 @@ void doIt(double lifetimens, double frequency, double power){
 
   HepLorentzVector pt; //the point of the ionization from which we calculate the individual scatter.
   double ionizationE=.00001;//MeV, the mean ionization energy.
-  int num=10;
+  int num=1000;
   double dz=10.*m/num;
   for(int i=0;i<num;i++){
     pt.setX(0.01);
@@ -62,7 +62,7 @@ void doIt(double lifetimens, double frequency, double power){
     cout<<pt.z()<<" "<<pt.t() <<endl;
     //calculate the scatter from this ionization deposit.
     radio->makeRaysRayTrace(pt, 1, 1, 1);
-    // radio->makeRays(pt, 1, 1, 1);
+    //radio->makeRays(pt, 1, 1, 1);
   }
 
   //don't forget to write the run!

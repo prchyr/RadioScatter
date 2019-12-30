@@ -411,7 +411,7 @@ TH1F* RadioScatterEvent::makeBackgroundSubtractHist(int txindex, int rxindex, TS
 }
 
 
-int RadioScatterEvent::plotEvent(int txindex, int rxindex, int noise_flag, int show_geom, int bins, int overlap){
+int RadioScatterEvent::plotEvent(int txindex, int rxindex, double noise_flag, int show_geom, int bins, int overlap){
   // TCanvas *c=0;
   TSeqCollection *canlist = gROOT->GetListOfCanvases();
   TCanvas *openc = (TCanvas*)canlist->At(canlist->GetEntries()-1);
@@ -460,14 +460,14 @@ int RadioScatterEvent::plotEvent(int txindex, int rxindex, int noise_flag, int s
   for(int i=0;i<nbins;i++){
     j=i-(sampleRate*20);
     ran->Rannor(r1, r2);
-    if(noise_flag==1){
-      noise = r1*thermal_noise;
+    if(noise_flag>0.&&noise_flag<1.){
+      noise = r1*noise_flag;
       //ev->eventHist->Fill(i, noise);
       eventHist[txindex][rxindex]->AddBinContent(i, noise);
       //    val=ev->eventHist->GetBinContent(i);
       }
     if(noise_flag>1){
-      noise=r1*(double)noise_flag;
+      noise=r1*thermal_noise;
       eventHist[txindex][rxindex]->AddBinContent(i, noise);
       //    val=ev->eventHist->GetBinContent(i);
       }

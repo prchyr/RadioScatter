@@ -101,7 +101,7 @@ public:
   double phase0=0.;
 
   //these are changed based on the gain, so the defaults here are meaningless.
-  double rxEffectiveHeight=1., txEffectiveHeight=1.;
+  double rxEffectiveHeight=1., txEffectiveHeight=1., txFactor=1., rxFactor=1.;
 
   //receiver stuff
   double samplerate=10, samplingperiod=.1, start_time=0, end_time=1000;

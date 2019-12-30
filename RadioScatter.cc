@@ -208,7 +208,8 @@ void RadioScatter::setReceiverGain(double gain){
     rxEffectiveHeight=sqrt(lambda*lambda*rx_gain/(480.*pi*pi));
     //from wikipedia antenna factor
     rxEffectiveHeight=lambda*sqrt(rx_gain)/9.73;
-
+    //first principles losses due to spherical spreading (Friis)
+    rxFactor=rx_gain*lambda/(4.*pi);
     cout<<"effective height: "<<rxEffectiveHeight<<endl;
   }
 }
@@ -230,7 +231,8 @@ void RadioScatter::setTransmitterGain(double gain){
     txEffectiveHeight=sqrt(lambda*lambda/(tx_gain*480.*pi*pi));
     //from wikipedia antenna factor but with the right placement of gain
     txEffectiveHeight=lambda/(9.73*sqrt(tx_gain));
-
+    //first principles losses due to spherical spreading (Friis)
+    txFactor=lambda*tx_gain/(4.*pi);
     cout<<"effective height: "<<txEffectiveHeight<<endl;
   }
 }
@@ -366,7 +368,8 @@ Hep3Vector RadioScatter::getTxPos(int index){
   }
   double RadioScatter::getTxAmplitude(int index,HepLorentzVector point){
     double gain = getTxGain(point.vect().theta());
-    double amplitude = tx_voltage/txEffectiveHeight;
+    //   double amplitude = tx_voltage/txEffectiveHeight;
+    double amplitude = tx_voltage*txFactor;
     return amplitude;
   }
 
@@ -423,7 +426,8 @@ use the calculated refraction vectors (from makeRays()) to sort out the correct 
   double amp2 = sqrt(pow(E2_para*cos(theta), 2)+pow(E2_perp*sin(theta), 2));
 
 
-  double amplitude = ((tx_voltage/txEffectiveHeight)/dist)*amp1*amp2*angle_dependence;
+  // double amplitude = ((tx_voltage/txEffectiveHeight)/dist)*amp1*amp2*angle_dependence;
+  double amplitude = ((tx_voltage*txFactor)/dist)*amp1*amp2*angle_dependence;
 
   if(useAttnLengthFlag==1){
     double attn_dist = (j1.mag()+j2.mag())+(l1.mag()+l2.mag());
@@ -454,7 +458,8 @@ double RadioScatter::getRxAmplitude(int txindex,int rxindex, HepLorentzVector po
     angle_dependence = nhat.cross(nhat.cross(pol)).mag();
   }
 
-  double amplitude = ((tx_voltage/txEffectiveHeight)/dist)*angle_dependence;
+  //  double amplitude = ((tx_voltage/txEffectiveHeight)/dist)*angle_dependence;
+  double amplitude = ((tx_voltage*txFactor)/dist)*angle_dependence;
   if(useAttnLengthFlag==1){
     double attn_dist = ((tx[txindex].vect()-point.vect()).mag())+((rx[rxindex].vect()-point.vect()).mag());//here the overall attenuation is just calculated over the full path length. 
     amplitude=amplitude*exp(-attn_dist/attnLength);
@@ -950,7 +955,8 @@ double RadioScatter::makeRays(HepLorentzVector point, double e, double l, double
       event.totNScatterers+=n;//track total number of scatterers
 
       //the full scattering amplitude pre-factor  
-      double prefactor = -rxEffectiveHeight*n*n_primaries*e_radius*omega/(pow(omega, 2)+pow(nu_col, 2));
+      //double prefactor = -rxEffectiveHeight*n*n_primaries*e_radius*omega/(pow(omega, 2)+pow(nu_col, 2));
+      double prefactor = -rxFactor*n*n_primaries*e_radius*omega/(pow(omega, 2)+pow(nu_col, 2));
 
       //x position of charge w/r/t shower axis
       Hep3Vector vec=(point.vect()-event.position);
@@ -1094,7 +1100,8 @@ double RadioScatter::makeRaysRayTrace(HepLorentzVector point, double e, double l
       event.totNScatterers+=n;//track total number of scatterers
 
       //the full scattering amplitude pre-factor  
-      double prefactor = -rxEffectiveHeight*n*n_primaries*e_radius*omega/(pow(omega, 2)+pow(nu_col, 2));
+      //      double prefactor = -rxEffectiveHeight*n*n_primaries*e_radius*omega/(pow(omega, 2)+pow(nu_col, 2));
+      double prefactor = -rxFactor*n*n_primaries*e_radius*omega/(pow(omega, 2)+pow(nu_col, 2));
 
       //x position of charge w/r/t shower axis
       Hep3Vector vec=(point.vect()-event.position);
