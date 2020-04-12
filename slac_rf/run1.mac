@@ -1,0 +1,43 @@
+
+# Initialize kernel
+/run/initialize
+#
+#verbose output
+/tracking/verbose 0
+
+
+#/random/setSeed 
+
+
+/gps/particle e-
+
+/gps/position 0 0 -1.6 m #the beam pipe exit for t576, relative to the front of the target
+/gps/direction 0 0 1
+/gps/energy 13.6 GeV
+
+/RS/setNTx 1
+/RS/setNRx 3
+
+
+/RS/setTxFreq 2100.
+
+/RS/setRxSampleRate 20
+/RS/setTxPower 10 #10W
+
+/RS/setPolarization horizontal
+/RS/setIndexOfRefraction 1.51
+/RS/setReceiverGain 9
+/RS/setTransmitterGain 9
+/RS/setPlasmaLifetime 3.1
+/RS/setNPrimaries 1.e9
+/RS/setFillByEvent 0
+/RS/setMakeSummary 0
+/RS/setRecordWindowLength 100
+/RS/setFillParticleInfo 0
+/RS/setShowCWFlag 0
+#/RS/setTxOnTime 0
+#/RS/setTxOffTime 40
+
+
+
+ 
