@@ -325,6 +325,48 @@ int main(int argc,char** argv)
      
    }
 
+
+   if(macro.contains("effectivevol_buildarray_massive")){
+     Hep3Vector rx;
+
+     for(int i=0;i<9;i++){
+       auto phi=i*(2.*pi/9.);
+       rx.setRThetaPhi(50*m, pi/2., phi);
+       for(int j=-20;j<=20;j+=20){
+	 rx.setZ((double)j*m);
+	 radio->setRxPos(rx);
+       }
+     }
+     for(int i=0;i<9;i++){
+       auto phi=i*(2.*pi/9.);
+       rx.setRThetaPhi(250*m, pi/2., phi);
+       for(int j=-20;j<=20;j+=20){
+	 rx.setZ((double)j*m);
+	 radio->setRxPos(rx);
+       }
+     }
+     for(int i=0;i<9;i++){
+       auto phi=i*(2.*pi/9.);
+       rx.setRThetaPhi(1000*m, pi/2., phi);
+       for(int j=-20;j<=20;j+=20){
+	 rx.setZ((double)j*m);
+	 radio->setRxPos(rx);
+       }
+     }
+     //throw 10 events
+     TRandom3 *rann=new TRandom3();
+     rann->SetSeed();
+     int nThrow=50;
+     for(int i=0;i<nThrow;i++){
+       auto logE= rann->Uniform(5.5, 10.5);
+       radio->setNPrimaries(pow(10, logE));
+       runManager->BeamOn(1);
+     }
+     
+     
+   }
+
+   
    if(macro.contains("effectivevol_infile")){
      Hep3Vector rx;
 
