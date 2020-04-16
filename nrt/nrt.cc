@@ -301,7 +301,7 @@ int main(int argc,char** argv)
       }
    }
 
-   if(macro.contains("effectivevol_buildarray")){
+   if(macro.contains("effectivevol_buildarray.mac")){
      Hep3Vector rx;
 
      for(int i=0;i<9;i++){
@@ -326,7 +326,7 @@ int main(int argc,char** argv)
    }
 
 
-   if(macro.contains("effectivevol_buildarray_massive")){
+   if(macro.contains("effectivevol_buildarray_massive.mac")){
      Hep3Vector rx;
 
      for(int i=0;i<9;i++){
