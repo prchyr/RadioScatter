@@ -92,7 +92,7 @@ there is a GEANT4 module called slac_rf, so to install it, do
 cd /your/GEANT/app/dir
 mkdir slac_rf_build
 cd slac_rf_build
-cmake /path/to/RadioScatter/slac_rf
+cmake /path/to/RadioScatter/example/GEANT4/slac_rf
 make -b -j4
 ~~~
 
