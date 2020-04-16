@@ -94,7 +94,7 @@ there is a GEANT4 module called slac_rf, so to install it, do
 cd /your/GEANT/app/dir
 mkdir slac_rf_build
 cd slac_rf_build
-cmake /path/to/RadioScatter/slac_rf
+cmake /path/to/RadioScatter/example/GEANT4/slac_rf
 make -b -j4
 ```
 
@@ -110,8 +110,9 @@ there are also several commands available through the RSmessenger.hh/cc files wh
 
 and
 
-/RS/setTxVoltage 200
-/RS/setShowCWFlag 1
+/RS/setTxPower 100
+
+/RS/setPlasmaLifetime 1
 
 which can be used without the need to re-compile the GEANT4 source, making running simulations much more simple.
 
@@ -126,5 +127,14 @@ to set the root file name, (-f) which is optional. each run is stored in an entr
 run1.mac:
 	-this will set the tx position and the energies and such, and then will simulate the received signal in 3 antennas
 
+## Documentation
+
+a user manual in pdf form can be found at doc/userManual.pdf, and it will attempt to be current.  you can generate one yourself via doxygen (if you have it installed) by running 
+
+```
+doxygen doc/Doxyfile
+```
+
+from the RadioScatter directory. 
 
 enjoy. questions can be sent to prohira dot 1 at osu dot edu
