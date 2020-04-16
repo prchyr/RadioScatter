@@ -88,9 +88,7 @@ set(NRT_SCRIPTS
   #sla.in
   gui.mac
   init_vis.mac
-  threshmacro.mac
-  single.mac
-  anglemacro.mac
+  effectivevol.mac
   run1.mac
   run2.mac
   run3.mac
