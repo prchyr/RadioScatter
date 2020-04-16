@@ -232,8 +232,7 @@ this is a mandatory call that needs to come before the others. it sets the outpu
   void setTxVoltage(double v);  ///<set the transmitter voltage. can be superceded by setting power or vice versa (V)
 
   void setTxPower(double p);  ///<set the tx power (W) 
-  /**\brief
-set the number of primaries. 
+  /**\brief set the number of primaries. 
 
 this is essentially a scaling factor used to achieve higher-energy showers than GEANT can provide in a reasonable time. for a 10PeV shower, for example, you could simulate a 10GeV primary and then set nPrimaries to 1e7, to get the equivalent density of ta 10PeV shower. to get the longitudinal profile correct, you'd need to setScaleByEnergy = 1 below. 
 
