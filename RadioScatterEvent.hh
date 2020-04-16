@@ -39,7 +39,7 @@ released under GPL3.
 // class TObject;
 
 using namespace CLHEP;
-using namespace std;
+//using namespace std;
 
 class RadioScatterEvent:public TObject
 {
@@ -69,8 +69,8 @@ public:
   Hep3Vector position=Hep3Vector(1, 1, 1);
   //HepLorentzVector *tx;
   //HepLorentzVector *rx;
-  vector<HepLorentzVector> tx;
-  vector<HepLorentzVector> rx;
+  std::vector<HepLorentzVector> tx;
+  std::vector<HepLorentzVector> rx;
   //the energy of the primary as set in geant
   double primaryEnergy=1000;//1000MeV (geant units) as a default
   double weight=1.; //used for some calculations. 
@@ -83,12 +83,12 @@ public:
   double rxGain=1.;
   //  double power=0;
   double totNScatterers=0;
-  vector<vector<TH1F*>> eventHist;
-  vector<vector<TH1F*>> reHist;
-  vector<vector<TH1F*>> imHist;
-  vector<TH1F*> testHist;
+  std::vector<std::vector<TH1F*>> eventHist;
+  std::vector<std::vector<TH1F*>> reHist;
+  std::vector<std::vector<TH1F*>> imHist;
+  std::vector<TH1F*> testHist;
 
-  vector<vector<TGraph*>> eventGraph;
+  std::vector<std::vector<TGraph*>> eventGraph;
 
   int SINE_SUBTRACT=0;
   int ntx=1;

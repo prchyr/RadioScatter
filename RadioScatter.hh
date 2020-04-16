@@ -22,6 +22,8 @@ released under GPL3.
 #include "TGraph2D.h"
 
 #include <vector>
+#include <iostream>
+#include <iomanip>
 
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "CLHEP/Vector/LorentzVector.h"
@@ -29,8 +31,8 @@ released under GPL3.
 #include "RadioScatterEvent.hh"
 #include "RSEventSummary.hh"
 
- using namespace CLHEP;
- using namespace std;
+using namespace CLHEP;
+//using namespace std;
 
 
 
@@ -110,13 +112,13 @@ public:
 
   int includeCW_flag=0;//whether to simulate the direct signal as well.
   //misc constants
-  vector<double> amplitudes, timeofarrival, phases, field, plasma; 
+  std::vector<double> amplitudes, timeofarrival, phases, field, plasma; 
 
   //variables for refraction manipulation
   double k_r, c_light_r, mag1, mag2;//, tof, txphase, kx;
   //distance from the antennas to the interface, must be set by user
-  vector<double> tx_interface_dist{1};
-  vector<double> rx_interface_dist{1};
+  std::vector<double> tx_interface_dist{1};
+  std::vector<double> rx_interface_dist{1};
   //relative index of refraction, calculated to always be >1.
   double n_rel=1.5;
 
@@ -129,10 +131,10 @@ public:
   TH1F *im_h = new TH1F("imHist", "imHist", 100, 0, 10);
   TGraph *event_gr = new TGraph();
   
-  vector<vector<TH1F*>> time_hist;
-  vector<vector<TH1F*>> re_hist;
-  vector<vector<TH1F*>> im_hist;
-  vector<vector<TGraph*>> event_graph;
+  std::vector<std::vector<TH1F*>> time_hist;
+  std::vector<std::vector<TH1F*>> re_hist;
+  std::vector<std::vector<TH1F*>> im_hist;
+  std::vector<std::vector<TGraph*>> event_graph;
   TH1F* testHist0;
   TH1F* testHist1;
   
@@ -140,8 +142,8 @@ public:
 
   int ntx=1;
   int nrx=1;
-  vector<HepLorentzVector> tx{1};//transmitters, allow for multiple
-  vector<HepLorentzVector> rx{1};//recievers, allow for multiple
+  std::vector<HepLorentzVector> tx{1};//transmitters, allow for multiple
+  std::vector<HepLorentzVector> rx{1};//recievers, allow for multiple
 
   //flags
   int TX_ITERATOR=0;
@@ -300,7 +302,7 @@ use this flag to scale the shower by some amount. to use it, you first must call
   //print out some event statistics. not used much. 
   void printEventStats();
   //scale the histogram (when averaging over several events)
-  vector<vector<TH1F*>> scaleHist(float num_events);
+  std::vector<std::vector<TH1F*>> scaleHist(float num_events);
   //write a full run.
   int writeRun(float num_events=1., int debug=0);
   //write a single event.

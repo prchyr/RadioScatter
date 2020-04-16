@@ -7,7 +7,7 @@ released under GPL3.
 
 #include "RadioScatter.hh"
  using namespace CLHEP;
- using namespace std;
+// using namespace std;
 
 
 RadioScatter::RadioScatter(){
@@ -46,10 +46,10 @@ RadioScatter::RadioScatter(){
      }
      
      for(int i=0;i<ntx;i++){
-       time_hist.push_back(vector<TH1F*>());
-       re_hist.push_back(vector<TH1F*>());
-       im_hist.push_back(vector<TH1F*>());
-       event_graph.push_back(vector<TGraph*>());
+       time_hist.push_back(std::vector<TH1F*>());
+       re_hist.push_back(std::vector<TH1F*>());
+       im_hist.push_back(std::vector<TH1F*>());
+       event_graph.push_back(std::vector<TGraph*>());
        for(int j=0;j<nrx;j++){
 	 TString ii=TString::Itoa(i, 10);
 	 TString jj=TString::Itoa(j, 10);
@@ -63,7 +63,7 @@ RadioScatter::RadioScatter(){
 	 event_graph[i].push_back(tgr);
        }
      }
-     cout<<"histograms and graphs initialized"<<endl;
+     std::cout<<"histograms and graphs initialized"<<std::endl;
 
    }
 
@@ -95,7 +95,7 @@ void RadioScatter::setRecordWindowLength(double nanoseconds){
 void RadioScatter::setCalculateUsingAttnLength(double val){
   useAttnLengthFlag=(int)val;
   if((int)val==1){
-    cout<<"calculating using attenuation length. (Barwick et al)"<<endl;
+    std::cout<<"calculating using attenuation length. (Barwick et al)"<<std::endl;
   }
 }
 
@@ -180,11 +180,11 @@ void RadioScatter::setRxPos(Hep3Vector in, int index){
   }
 
   attnLength = 1450000;//barwick et all south pole measurement
-  cout<<"tx frequency: "<<f<<endl;
-  cout<<"omega: "<<omega<<endl;
-  cout<<"lambda: "<<lambda<<endl;
+  std::cout<<"tx frequency: "<<f<<std::endl;
+  std::cout<<"omega: "<<omega<<std::endl;
+  std::cout<<"lambda: "<<lambda<<std::endl;
 
-  cout<<"attn length (mm): "<<attnLength<<endl;
+  std::cout<<"attn length (mm): "<<attnLength<<std::endl;
 }
  void RadioScatter::setTxVoltage(double v){
   tx_voltage = v;
@@ -205,7 +205,7 @@ void RadioScatter::setReceiverGain(double gain){
   if(RX_GAIN_SET!=1){
     RX_GAIN_SET==1;
 
-    cout<<" receiver gain: "<<gain<<" dB, ("<<gg<<" linear)"<<endl;
+    std::cout<<" receiver gain: "<<gain<<" dB, ("<<gg<<" linear)"<<std::endl;
     //from rice paper
     rxEffectiveHeight=sqrt(lambda*lambda*rx_gain/(480.*pi*pi));
     //from wikipedia antenna factor
@@ -213,7 +213,7 @@ void RadioScatter::setReceiverGain(double gain){
     //first principles losses due to spherical spreading (Friis)         
     rxFactor=sqrt(rx_gain*lambda/(4.*pi));
     
-    cout<<"effective height: "<<rxEffectiveHeight<<endl;
+    std::cout<<"effective height: "<<rxEffectiveHeight<<std::endl;
   }
 }
 void RadioScatter::setTxGain(double gain){
@@ -221,14 +221,14 @@ void RadioScatter::setTxGain(double gain){
 }
 void RadioScatter::setTransmitterGain(double gain){
   if(TX_FREQ_SET==0){
-    cout<<"WARNING:antenna gain set before transmit frequency, effective height will be incorrect. please set tx freq before setting antenna gain"<<endl;
+    std::cout<<"WARNING:antenna gain set before transmit frequency, effective height will be incorrect. please set tx freq before setting antenna gain"<<std::endl;
   }
   double gg=pow(10., gain/10.);
   tx_gain=gg;
   if(TX_GAIN_SET!=1){
     TX_GAIN_SET==1;
 
-    cout<<"transmitter voltage: "<<tx_voltage<<" transmitter gain: "<<gain<<" dB, ("<<gg<<" linear)"<<endl;
+    std::cout<<"transmitter voltage: "<<tx_voltage<<" transmitter gain: "<<gain<<" dB, ("<<gg<<" linear)"<<std::endl;
 
     //from RICE but with the right placement of the gain
     txEffectiveHeight=sqrt(lambda*lambda/(tx_gain*480.*pi*pi));
@@ -236,7 +236,7 @@ void RadioScatter::setTransmitterGain(double gain){
     txEffectiveHeight=lambda/(9.73*sqrt(tx_gain));
     //first principles losses due to spherical spreading (Friis)         
     txFactor=sqrt(tx_gain*lambda/(4.*pi));
-    cout<<"effective height: "<<txEffectiveHeight<<endl;
+    std::cout<<"effective height: "<<txEffectiveHeight<<std::endl;
   }
 }
 
@@ -250,7 +250,7 @@ void RadioScatter::setTransmitterGain(double gain){
   n_primaries=n;
   event.nPrimaries=n_primaries;
 
-  cout<<"n primaries: "<<n_primaries<<endl;
+  std::cout<<"n primaries: "<<n_primaries<<std::endl;
   NPRIMARIES_SET=1;
 
 }
@@ -268,11 +268,11 @@ void RadioScatter::setTargetEnergy(double e){
 int RadioScatter::setScaleByEnergy(double val){
   if((int)val==1){
     if(PRIMARY_ENERGY_SET==0){
-      cout<<"primary energy has not been set in RadioScatter, scaling will not work. please call setPrimaryEnergy to tell RadioScatter what energy your primary is!"<<endl;
+      std::cout<<"primary energy has not been set in RadioScatter, scaling will not work. please call setPrimaryEnergy to tell RadioScatter what energy your primary is!"<<std::endl;
       return 0;
     }
     if(NPRIMARIES_SET==0){
-      cout<<"number of primaries/target energy has not been set in RadioScatter, scaling will not work. please call setNPrimaries or setTargetEnergy to tell RadioScatter how to scale!"<<endl;
+      std::cout<<"number of primaries/target energy has not been set in RadioScatter, scaling will not work. please call setNPrimaries or setTargetEnergy to tell RadioScatter how to scale!"<<std::endl;
       return 0;
     }
     double current_energy = event.primaryEnergy/1000.;//gev
@@ -281,7 +281,7 @@ int RadioScatter::setScaleByEnergy(double val){
     zscale = (3000.*log10(event.nPrimaries)+6000.)/((log10(event.primaryEnergy/1000.)*3000.)+6000);
 
     tscale = (10.*log10(event.nPrimaries)+22.)/((log10(event.primaryEnergy/1000.)*10.)+22);
-    cout<<"scaling activated. zscale="<<zscale<<" , tscale="<<tscale<<endl;
+    std::cout<<"scaling activated. zscale="<<zscale<<" , tscale="<<tscale<<std::endl;
 
     SCALE_BY_ENERGY=1;
     return 1;
@@ -301,7 +301,7 @@ void RadioScatter::setPrimaryPosition(Hep3Vector p){
 }
 void RadioScatter::setPolarization(const char * p){
   pol=p;
-  cout<<"polarization: "<<pol<<endl;
+  std::cout<<"polarization: "<<pol<<std::endl;
   polarization=TString(pol);
 }
 
@@ -515,7 +515,7 @@ double RadioScatter::getPhaseFromAt(HepLorentzVector from, HepLorentzVector at){
   //calculate compton effects
   //  double inv_omega_c = (1/omega)+(1/omega_e)*(1-cos(tx_pr.vect().unit().angle(pr_rx[index].vect().unit())));
   //omega_c = 1/inv_omega_c;
-  //    cout<<txtime<<" "<<txphase<<" "<<rxtime<<endl;
+  //    std::cout<<txtime<<" "<<txphase<<" "<<rxtime<<std::endl;
   return ((kx) - omega*tof + txphase);
 }
 
@@ -582,8 +582,8 @@ the modified wavenumber and speed of light (for the medium) respectively
 double RadioScatter::getRxPhase(HepLorentzVector point, Hep3Vector j1, Hep3Vector j2, Hep3Vector l1, Hep3Vector l2){
   
   //debug:check that snell's law is satisfied for the found paths.
-  // cout<<(j1.z()/j1.mag())/(l1.z()/l1.mag())<<endl;
-  // cout<<(j2.z()/j2.mag())/(l2.z()/l2.mag())<<endl<<endl;
+  // std::cout<<(j1.z()/j1.mag())/(l1.z()/l1.mag())<<std::endl;
+  // std::cout<<(j2.z()/j2.mag())/(l2.z()/l2.mag())<<std::endl<<std::endl;
   
   //calculate the time of flight using correct values for velocity
   //double  tof = j1.mag()/c_light + l1.mag()/c_light_r + j2.mag()/c_light + l2.mag()/c_light_r;
@@ -624,7 +624,7 @@ double RadioScatter::getRxPhase(int txindex, int rxindex, HepLorentzVector point
   //calculate compton effects
   //  double inv_omega_c = (1/omega)+(1/omega_e)*(1-cos(tx_pr.vect().unit().angle(pr_rx[index].vect().unit())));
   //omega_c = 1/inv_omega_c;
-  //    cout<<txtime<<" "<<txphase<<" "<<rxtime<<endl;
+  //    std::cout<<txtime<<" "<<txphase<<" "<<rxtime<<std::endl;
   return ((kx) - omega*tof + txphase);
 }
 
@@ -641,7 +641,7 @@ TH1F * RadioScatter::getDirectSignal(int txindex, int rxindex, const TH1F *in){
   Hep3Vector dist_vec = tx[txindex].vect()-rx[rxindex].vect();
   double dist = dist_vec.mag()/m;//in meters
   rx_amp = tx_voltage*txFactor/dist;
-  //  cout<<"rx amp: "<<tx_voltage<<" "<<tx_voltage*m*m<<" "<<(tx[index].vect()-rx[index].vect()).mag()<<" "<<rx_amp;
+  //  std::cout<<"rx amp: "<<tx_voltage<<" "<<tx_voltage*m*m<<" "<<(tx[index].vect()-rx[index].vect()).mag()<<" "<<rx_amp;
   int size = in->GetNbinsX();
   int start = in->GetXaxis()->GetXmin();
   int end = in->GetXaxis()->GetXmax();
@@ -689,9 +689,9 @@ double RadioScatter::makeRays(HepLorentzVector point, double e, double l, double
   double zz=point.z()*zscale;
   double tt=point.t()*tscale;
 
-  //cout<<point.z()<<" ";
+  //std::cout<<point.z()<<" ";
   point.setZ(zz);
-  //  cout<<zscale<<" "<<point.z()<<endl;
+  //  std::cout<<zscale<<" "<<point.z()<<std::endl;
   point.setT(tt);
 
 
@@ -837,7 +837,7 @@ double RadioScatter::doScreening(TTree * tree, int entry){
     if(i>entries)break;
     if(i<0)continue;
     tree->GetEntry(i);
-    //    cout<<i<<endl;
+    //    std::cout<<i<<std::endl;
     double tof=(test->vect()-point.vect()).mag()/c_light;
     double t_a0=test->t()+tof;
     double t_a1=t_a0+lifetime;
@@ -863,13 +863,13 @@ double RadioScatter::doScreening(TTree * tree, int entry){
 //   tree->SetBranchAddress("n_e", &n_e);
 //   tree->GetEntry(entry);
 //   //TH3F *hist = new TH3F("asdf", "asdf", 40, 1, -1, 40, 1, -1, 40, 1, -1);
-//   vector<double> xx, yy, zz;
+//   std::vector<double> xx, yy, zz;
 //   point=*test;//assign "point" to this electron
 //   int entries = tree->GetEntries();
 //   double E_eff=0;
 //     for(int i=0;i<entries;i++){
 //     tree->GetEntry(i);
-//     //    cout<<i<<endl;
+//     //    std::cout<<i<<std::endl;
 //     double tof=(test->vect()-point.vect()).mag()/c_light;
 //     double t_a0=test->t()+tof;
 //     double t_a1=t_a0+lifetime;
@@ -884,13 +884,13 @@ double RadioScatter::doScreening(TTree * tree, int entry){
 //     double ee = -(e_radius*amp*cos(phase)*n_e*n_primaries);//negative from polarity flip
 //     //	if(ee!=0&&!isnan(ee)&&!isinf(ee))E_eff+=ee;
 //     E_eff+=ee;
-//     //	cout<<i-entry<<endl;
-//     cout<<"amp: "<<amp<<" phase: "<<phase<<" E: "<<E_eff<<" "<<ee<<endl;
-//     //cout<<point.x()<<" "<<test->x()<<" "<<endl;
+//     //	std::cout<<i-entry<<std::endl;
+//     std::cout<<"amp: "<<amp<<" phase: "<<phase<<" E: "<<E_eff<<" "<<ee<<std::endl;
+//     //std::cout<<point.x()<<" "<<test->x()<<" "<<std::endl;
 
-// 	//    cout<<E_eff<<endl;
+// 	//    std::cout<<E_eff<<std::endl;
 //   }
-//     cout<<"ssdf"<<xx.size()<<endl;
+//     std::cout<<"ssdf"<<xx.size()<<std::endl;
 //     TGraph2D *gr=new TGraph2D(xx.size(), &xx[0], &yy[0], &zz[0]);
 //     gr->Draw("ap");
 //     return E_eff;
@@ -928,10 +928,10 @@ might be completely wrong. but resultant vectors satisfy snell's law.
 
   k.setY(abs(p2.y()-p1.y()));
   k.setZ(abs(p2.z()-p1.z()));
-  // cout<<endl<<k.x()<<" "<<k.y()<<" "<<k.z()<<endl;
-  // cout<<p1.x()<<" "<<p1.y()<<" "<<p1.z()<<endl;
-  // cout<<tx[index].x()<<" "<<tx[index].y()<<" "<<tx[index].z()<<endl;
-  // cout<<p2.x()<<" "<<p2.y()<<" "<<p2.z()<<endl<<endl;
+  // std::cout<<std::endl<<k.x()<<" "<<k.y()<<" "<<k.z()<<std::endl;
+  // std::cout<<p1.x()<<" "<<p1.y()<<" "<<p1.z()<<std::endl;
+  // std::cout<<tx[index].x()<<" "<<tx[index].y()<<" "<<tx[index].z()<<std::endl;
+  // std::cout<<p2.x()<<" "<<p2.y()<<" "<<p2.z()<<std::endl<<std::endl;
   double theta = atan(k.y()/k.z());
   k.rotateX(theta);
   return k;
@@ -945,13 +945,13 @@ find the path length including refraction
   Hep3Vector j(interface_dist_x, 0., jz);//from source point to refraction point
   Hep3Vector l(k.x()-interface_dist_x, 0., k.z()-jz);//from refraction point to interaction point
   double mag = j.mag()+l.mag();
-  //  cout<<mag-k.mag()<<endl;
+  //  std::cout<<mag-k.mag()<<std::endl;
   return mag;
   
 }
 
-vector<vector<TH1F*>> RadioScatter::scaleHist(float num_events=1.){
-  vector<vector<TH1F*>> outhist(ntx, vector<TH1F*>(nrx));
+std::vector<std::vector<TH1F*>> RadioScatter::scaleHist(float num_events=1.){
+  std::vector<std::vector<TH1F*>> outhist(ntx, std::vector<TH1F*>(nrx));
   for(int i=0;i<ntx;i++){
     for(int j=0;j<nrx;j++){
       time_hist[i][j]->Scale(1./num_events);
@@ -978,8 +978,8 @@ vector<vector<TH1F*>> RadioScatter::scaleHist(float num_events=1.){
 
  void RadioScatter::printEventStats(){
   //  event.totNScatterers = event.totNScatterers*n_primaries;
-  cout<<setprecision(10);
-  cout<<"total number of scatterers: "<<  event.totNScatterers<<endl;
+  std::cout<<std::setprecision(10);
+  std::cout<<"total number of scatterers: "<<  event.totNScatterers<<std::endl;
 }
 
 
@@ -1014,17 +1014,17 @@ int RadioScatter::writeRun(float num_events, int debug){
   event.freq=frequency;
   //total number of electrons per shower * total primaries in the bunch * the number of events in the run. 
   event.totNScatterers = event.totNScatterers*n_primaries/num_events;
-  vector<double> xvals, yvals;
+  std::vector<double> xvals, yvals;
   
   f->cd();
   
   
   t->Fill();
   if(debug==1){
-    cout<<"The RadioScatter root file: "<<endl<<f->GetName()<<endl<<" has been filled. This is run number "<<fRunCounter<<"."<<endl;
+    std::cout<<"The RadioScatter root file: "<<std::endl<<f->GetName()<<std::endl<<" has been filled. This is run number "<<fRunCounter<<"."<<std::endl;
   }
   
-  cout<<"Run total N scatterers:"<<event.totNScatterers<<endl; 
+  std::cout<<"Run total N scatterers:"<<event.totNScatterers<<std::endl; 
   
   event.reset();
   
@@ -1069,11 +1069,11 @@ int RadioScatter::writeEvent(int debug){
   t->Fill();
 
   if(debug==1){
-    cout<<"The RadioScatter root file: "<<endl<<f->GetName()<<endl<<" has been filled. This is run number "<<fRunCounter<<"."<<endl;
+    std::cout<<"The RadioScatter root file: "<<std::endl<<f->GetName()<<std::endl<<" has been filled. This is run number "<<fRunCounter<<"."<<std::endl;
     
   }
   
-  cout<<"Event total N scatterers:"<<event.totNScatterers<<endl; 
+  std::cout<<"Event total N scatterers:"<<event.totNScatterers<<std::endl; 
 
   event.reset();
 
@@ -1127,7 +1127,7 @@ int RadioScatter::makeSummary(TFile *f){
     outtree->Fill();
   }
   outfile->Write();
-  cout<<"the summary file:"<<endl<<outfile->GetName()<<endl<<"has been written."<<endl;
+  std::cout<<"the summary file:"<<std::endl<<outfile->GetName()<<std::endl<<"has been written."<<std::endl;
   outfile->Close();
   return 0;
 }
@@ -1139,7 +1139,7 @@ int RadioScatter::makeSummary(TFile *f){
 
     f->Write();
 
-    cout<<"The RadioScatter root file: "<<endl<<fname<<endl<<"has been written."<<endl;
+    std::cout<<"The RadioScatter root file: "<<std::endl<<fname<<std::endl<<"has been written."<<std::endl;
     f->Close();
 
     f=TFile::Open(fname);

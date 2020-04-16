@@ -93,7 +93,7 @@ double RadioScatterEvent::effectiveCrossSection(int txindex, int rxindex){
   double r_tx = (tx[txindex].vect()-position).mag()/1000.;//m
   double r_rx = (rx[rxindex].vect()-position).mag()/1000.;
   double lambda = 2.997e8/(freq*1.e9);
-  //cout<<r_rx<<" "<<r_tx<<" "<<lambda<<" "<<peakPowerW(txindex, rxindex)<<" txGain: "<<txGain<<" txpower: "<<txPowerW<<endl;
+  //std::cout<<r_rx<<" "<<r_tx<<" "<<lambda<<" "<<peakPowerW(txindex, rxindex)<<" txGain: "<<txGain<<" txpower: "<<txPowerW<<std::endl;
   return (pow(4.*pi, 3)*pow(r_tx, 2)*pow(r_rx, 2)*peakPowerW(txindex, rxindex))/(txPowerW*txGain*rxGain*pow(lambda, 2));
 }
 
@@ -191,7 +191,7 @@ double RadioScatterEvent::duration(int txindex, int rxindex){
     // for(int j=0;j<10;j++){
     //   avg+=avg_vec[j]/10.;
     // }
-    // //    cout<<avg<<endl;
+    // //    std::cout<<avg<<std::endl;
     // if(avg>thresh&&last_avg<thresh){
     //   time1=xx[i];
     // }
@@ -208,13 +208,13 @@ double RadioScatterEvent::duration(int txindex, int rxindex){
     }
     lastval=yy[i];
   }
-  //  cout<<time2<<" "<<time1<<endl;
+  //  std::cout<<time2<<" "<<time1<<std::endl;
   return time2-time1;
 
 }
 
 TH1F * RadioScatterEvent::getComplexEnvelope(int txindex, int rxindex,double cutoff){
-  vector<double> xx, yy;
+  std::vector<double> xx, yy;
   int entries=reHist[txindex][rxindex]->GetNbinsX();
   ceHist->SetBins(entries, reHist[txindex][rxindex]->GetXaxis()->GetXmin(), reHist[txindex][rxindex]->GetXaxis()->GetXmax());
   
@@ -226,7 +226,7 @@ TH1F * RadioScatterEvent::getComplexEnvelope(int txindex, int rxindex,double cut
   }
   
   if(cutoff>0){
-    vector<double> out;  
+    std::vector<double> out;  
     double w = cutoff*2.*pi*1e6;
     //    double T = 1/(sampleRate*1e9);
     double T = 1/(1e10);
@@ -235,8 +235,8 @@ TH1F * RadioScatterEvent::getComplexEnvelope(int txindex, int rxindex,double cut
     a = w*T;
     b = exp(-w*T);
 	
-    //cout<<setprecision(12);
-    //cout<<"filter coefficients"<<endl<<a<<endl<<b<<endl<<c<<endl;
+    //std::cout<<std::setprecision(12);
+    //std::cout<<"filter coefficients"<<std::endl<<a<<std::endl<<b<<std::endl<<c<<std::endl;
     int size = yy.size();
     
     for(int i=0;i<size;i++){
@@ -320,7 +320,7 @@ void RadioScatterEvent::spectrogram(int txindex, int rxindex,Int_t binsize, Int_
   TH1F *in = new TH1F("inhi", "inhi", binsize, 0, binsize);  
   TH1*outt=0;
   //TH2F *outhist=new TH2F("outhist", "spectrogram", nbins, xmin, xmax, (binsize), 0, samplerate);
-  //  cout<<binsize<<" "<<samplerate<<endl;
+  //  std::cout<<binsize<<" "<<samplerate<<std::endl;
   spectrogramHist->SetBins(nbins, xmin, xmax, (binsize), 0, samplerate);
   Int_t start = 0;
   
@@ -343,7 +343,7 @@ void RadioScatterEvent::spectrogram(int txindex, int rxindex,Int_t binsize, Int_
     }
     start+=overlap-1;
   }
-  //cout<<"here"<<endl;
+  //std::cout<<"here"<<std::endl;
   //  gPad->SetRightMargin(.15);
   spectrogramHist->GetYaxis()->SetRangeUser(0, spectrogramHist->GetYaxis()->GetXmax()/2);
   spectrogramHist->GetXaxis()->SetTitle("Time (ns)");
@@ -421,7 +421,7 @@ int RadioScatterEvent::plotEvent(int txindex, int rxindex, int noise_flag, int s
     ccc = new TCanvas("plotEvent","plotEvent", 800, 400);
   }
   else{
-     cout<<openc->GetName()<<endl;
+     std::cout<<openc->GetName()<<std::endl;
      ccc=openc;
    }
   ccc->SetName("plotEvent");
@@ -431,7 +431,7 @@ int RadioScatterEvent::plotEvent(int txindex, int rxindex, int noise_flag, int s
     ccc->Divide(1, 0);
     ccc->GetPad(1)->Divide(2, 0);
     ccc->SetWindowSize(800,400);
-    cout<<"single event view"<<endl;
+    std::cout<<"single event view"<<std::endl;
   }
   else if (show_geom>0&&redraw_canvas==1){
     //vertical canvas
@@ -454,7 +454,7 @@ int RadioScatterEvent::plotEvent(int txindex, int rxindex, int noise_flag, int s
   Float_t kB = 1.831e-23;
   Float_t thermal_noise = sqrt(kB*300.*50.*bandwidth);//thermal noise (V)
   int nbins = eventHist[txindex][rxindex]->GetNbinsX();
-  //  cout<<bandwidth<<thermal_noise<<endl<<setprecision(10)<<nbins;
+  //  std::cout<<bandwidth<<thermal_noise<<std::endl<<std::setprecision(10)<<nbins;
   Float_t noise, r1, r2, val;
   int j=0;
   for(int i=0;i<nbins;i++){
@@ -519,7 +519,7 @@ int RadioScatterEvent::plotEvent(int txindex, int rxindex, int noise_flag, int s
     
     for(int i=0;i<ntx;i++){
       txhist->Fill(1.+tx[i].z()/1000., 1.+tx[i].x()/1000., 1.+tx[i].y()/1000., 1.);
-      //      cout<<tx[i].z()<<" "<<tx[i].x()<<" "<<tx[i].y()<<endl;    
+      //      std::cout<<tx[i].z()<<" "<<tx[i].x()<<" "<<tx[i].y()<<std::endl;    
     }
     triggeredhist->Fill(1.+rx[rxindex].z()/1000., 1.+rx[rxindex].x()/1000., 1.+rx[rxindex].y()/1000., 1.);
     vertexhist->Fill(1.+position.z()/1000., 1.+position.x()/1000., 1.+position.y()/1000., 1.);
@@ -562,15 +562,15 @@ int RadioScatterEvent::plotEvent(int txindex, int rxindex, int noise_flag, int s
     TPolyLine3D *shower_indicator_line = new TPolyLine3D(2);
 
     double scale = rxhist->GetXaxis()->GetXmax()/4.;
-    //cout<<scale<<endl;
+    //std::cout<<scale<<std::endl;
     shower_indicator_line->SetPoint(0,1.+position.z()/1000., 1.+position.x()/1000., 1.+position.y()/1000.);
 
     shower_indicator_line->SetPoint(1,(1.+position.z()/1000.)+((direction.z())*scale), (1.+position.x()/1000.)+((direction.x())*scale), (1.+position.y()/1000.)+((direction.y())*scale));
-    //cout<<"nere"<<endl;
+    //std::cout<<"nere"<<std::endl;
     shower_indicator_line->SetLineWidth(3);
     shower_indicator_line->SetLineColor(kViolet);
 
-    //cout<<"nereee"<<endl;
+    //std::cout<<"nereee"<<std::endl;
     rxhist->Draw("p");
     txhist->Draw("p same");
     vertexhist->Draw("p same");
@@ -602,7 +602,7 @@ int RadioScatterEvent::plotEventNotebook(int txindex, int rxindex, int noise_fla
     ccc->Divide(1, 0);
     ccc->GetPad(1)->Divide(2, 0);
     ccc->SetWindowSize(800,400);
-    cout<<"single event view"<<endl;
+    std::cout<<"single event view"<<std::endl;
   }
   else if (show_geom>0){
     //vertical canvas
@@ -625,7 +625,7 @@ int RadioScatterEvent::plotEventNotebook(int txindex, int rxindex, int noise_fla
   Float_t kB = 1.831e-23;
   Float_t thermal_noise = sqrt(kB*300.*50.*bandwidth);//thermal noise (V)
   int nbins = eventHist[txindex][rxindex]->GetNbinsX();
-  //  cout<<bandwidth<<thermal_noise<<endl<<setprecision(10)<<nbins;
+  //  std::cout<<bandwidth<<thermal_noise<<std::endl<<std::setprecision(10)<<nbins;
   Float_t noise, r1, r2, val;
   int j=0;
   for(int i=0;i<nbins;i++){
@@ -690,7 +690,7 @@ int RadioScatterEvent::plotEventNotebook(int txindex, int rxindex, int noise_fla
     
     for(int i=0;i<ntx;i++){
       txhist->Fill(1.+tx[i].z()/1000., 1.+tx[i].x()/1000., 1.+tx[i].y()/1000., 1.);
-      //      cout<<tx[i].z()<<" "<<tx[i].x()<<" "<<tx[i].y()<<endl;    
+      //      std::cout<<tx[i].z()<<" "<<tx[i].x()<<" "<<tx[i].y()<<std::endl;    
     }
     triggeredhist->Fill(1.+rx[rxindex].z()/1000., 1.+rx[rxindex].x()/1000., 1.+rx[rxindex].y()/1000., 1.);
     vertexhist->Fill(1.+position.z()/1000., 1.+position.x()/1000., 1.+position.y()/1000., 1.);
@@ -733,15 +733,15 @@ int RadioScatterEvent::plotEventNotebook(int txindex, int rxindex, int noise_fla
     TPolyLine3D *shower_indicator_line = new TPolyLine3D(2);
 
     double scale = rxhist->GetXaxis()->GetXmax()/4.;
-    //cout<<scale<<endl;
+    //std::cout<<scale<<std::endl;
     shower_indicator_line->SetPoint(0,1.+position.z()/1000., 1.+position.x()/1000., 1.+position.y()/1000.);
 
     shower_indicator_line->SetPoint(1,(1.+position.z()/1000.)+((direction.z())*scale), (1.+position.x()/1000.)+((direction.x())*scale), (1.+position.y()/1000.)+((direction.y())*scale));
-    //cout<<"nere"<<endl;
+    //std::cout<<"nere"<<std::endl;
     shower_indicator_line->SetLineWidth(3);
     shower_indicator_line->SetLineColor(kViolet);
 
-    //cout<<"nereee"<<endl;
+    //std::cout<<"nereee"<<std::endl;
     rxhist->Draw("p");
     txhist->Draw("p same");
     vertexhist->Draw("p same");
@@ -779,7 +779,7 @@ int RadioScatterEvent::plotEventNotebook(int txindex, int rxindex, int noise_fla
 //     HepLorentzVector dr[nrx];
 //     double aa[nrx], bb[nrx], cc[nrx], dd[nrx];
 //     int num_ants=0;
-//     vector<double>gsl_a_dat, gsl_b_dat;
+//     std::vector<double>gsl_a_dat, gsl_b_dat;
 //     double tmin=9999999.;
 //     for(int i=0;i<nrx;i++){
 //       getComplexEnvelope(0, i, 200);//puts results in ceHist
@@ -793,7 +793,7 @@ int RadioScatterEvent::plotEventNotebook(int txindex, int rxindex, int noise_fla
 //       dr[i].setX((rx[i].x())-(rx[0].x()));
 //       dr[i].setY((rx[i].y())-(rx[0].y()));
 //       dr[i].setZ((rx[i].z())-(rx[0].z()));
-//       //      if(debug==1)cout<<dr[i].t()<<" "<<dr[i].x()<<endl;
+//       //      if(debug==1)std::cout<<dr[i].t()<<" "<<dr[i].x()<<std::endl;
 //       if(i>1){
 //     	aa[i]=(2.*dr[i].x()/dr[i].t())-(2.*dr[1].x()/dr[1].t());
 //     	bb[i]=(2.*dr[i].y()/dr[i].t())-(2.*dr[1].y()/dr[1].t());
@@ -841,12 +841,12 @@ int RadioScatterEvent::plotEventNotebook(int txindex, int rxindex, int noise_fla
 //     // gsl_vector_free(resid);
 //     if(debug==1){
 //       //      gsl_vector_fprintf (stdout, xvec, "%g");
-//       //cout<<endl<<aa[4]<<" "<<bb[4]<<" "<<cc[4]<<endl;
-//       //cout<<"matrix: "<<endl;
+//       //std::cout<<std::endl<<aa[4]<<" "<<bb[4]<<" "<<cc[4]<<std::endl;
+//       //std::cout<<"matrix: "<<std::endl;
 
 //       //gsl_matrix_fprintf(stdout, &amat.matrix, "%g");
-//       cout<<"pointed: "<<source.x()/1000.<<" "<<source.y()/1000.<<" "<<source.z()/1000.<<endl;
-//       cout<<"true: "<<position.x()/1000.<<" "<<position.y()/1000.<<" "<<position.z()/1000.<<endl;
+//       std::cout<<"pointed: "<<source.x()/1000.<<" "<<source.y()/1000.<<" "<<source.z()/1000.<<std::endl;
+//       std::cout<<"true: "<<position.x()/1000.<<" "<<position.y()/1000.<<" "<<position.z()/1000.<<std::endl;
 //     }
 //     return source;
 //   }
@@ -899,7 +899,7 @@ int RadioScatterEvent::buildMap(){
       }
     }
   }
-  cout<<"pointing map built"<<endl;
+  std::cout<<"pointing map built"<<std::endl;
   POINTING_MAP_BUILT=1;
   return 1;
 }
@@ -925,7 +925,7 @@ HepLorentzVector RadioScatterEvent::pointUsingMap(){
   //make sure we have 4 antennas (requisite number to point 3 pairs)
   if(triggered(thermalNoiseRMS()*2, 4)==0){
     HepLorentzVector dummy(99999999,99999999,99999999,99999999);
-    cout<<"can't point, not enough antennas"<<endl;
+    std::cout<<"can't point, not enough antennas"<<std::endl;
     return dummy;
   }
   
