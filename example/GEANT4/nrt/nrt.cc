@@ -326,6 +326,7 @@ int main(int argc,char** argv)
    }
 
 
+
    if(macro.contains("effectivevol_buildarray_massive.mac")){
      Hep3Vector rx;
 
@@ -385,13 +386,13 @@ int main(int argc,char** argv)
      //     gps->ListSource();
 
      
-     auto iff=ifstream("nEvents.txt");
+     auto iff=ifstream("simulatedEventsFlatSpectrum.txt");
      TRandom3 *rann=new TRandom3();
      rann->SetSeed();
 
-     int nThrow=100;
+     int nThrow=50;
      for(int j=0;j<nThrow;j++){
-       auto val= rann->Integer(21000);
+       auto val= rann->Integer(500000);
        
        auto num=0.,x=0., y=0., z=0., theta=0., phi=0., en=0., enC=0., weight=0.;
        iff.seekg(iff.beg);
@@ -399,7 +400,7 @@ int main(int argc,char** argv)
 	 iff.ignore(100000, '\n');
        }
 
-       iff>>num>>x>>y>>z>>theta>>phi>>en>>enC>>weight;
+       iff>>num>>x>>y>>z>>theta>>phi>>en>>enC;//>>weight;
        cout<<en<<endl;
        auto pos=Hep3Vector(x*m, y*m, z*m);
        auto dir=Hep3Vector(1., 1.,1.);
@@ -412,7 +413,8 @@ int main(int argc,char** argv)
        //  gun->SetParticlePosition(pos);
        //gun->SetParticleMomentumDirection(dir);
        radio->setPrimaryEnergy(1e9);
-       radio->setNPrimaries(en);
+       radio->setNPrimaries(enC);
+       radio->setInelasticity(enC/en);
        radio->setWeight(weight);
        runManager->BeamOn(1);
      }

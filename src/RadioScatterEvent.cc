@@ -109,7 +109,7 @@ double RadioScatterEvent::peakV(int txindex, int rxindex){
 }
 
 double RadioScatterEvent::primaryParticleEnergy(){
-  return primaryEnergy*nPrimaries*1000000.;//g4 primaries in MeV units
+  return primaryEnergy*nPrimaries*1000000./inelasticity;//g4 primaries in MeV units
 }
 //simple thing-did any receiver trigger?
 int RadioScatterEvent::triggered(double thresh, int n_antennas){

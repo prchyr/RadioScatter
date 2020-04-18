@@ -240,6 +240,8 @@ default is 1.
    */
   void setNPrimaries(double n);
 
+  void setInelasticity(double y=1.){event.inelasticity=y;}///<set the inelasticity (y) of this event.
+  
   void setReceiverGain(double gain);  ///<set the receiver gain in dB
 
   void setRxGain(double gain);  ///<set the receiver gain in dB

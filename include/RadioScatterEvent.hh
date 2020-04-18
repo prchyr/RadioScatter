@@ -78,6 +78,7 @@ public:
   std::vector<HepLorentzVector> rx;
   //the energy of the primary as set in geant
   double primaryEnergy=1000;//1000MeV (geant units) as a default
+  double inelasticity=1.;
   double weight=1.; //used for some calculations. 
   double sampleRate;
   double nPrimaries=0;
