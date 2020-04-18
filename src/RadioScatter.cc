@@ -1102,6 +1102,7 @@ int RadioScatter::makeSummary(TFile *f){
     rss->position=rs->position;
     rss->direction=rs->direction;
     rss->primaryParticleEnergy=rs->primaryParticleEnergy();
+    rss->inelasticity=rs->inelasticity;
     rss->primaryEnergyG4=rs->primaryEnergy;
     rss->sampleRate=rs->sampleRate;
     rss->txVoltageV=rs->txVoltage;

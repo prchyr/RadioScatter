@@ -70,7 +70,7 @@ public:
   //  double power=0;
   double totNScatterers=0;
   double primaryParticleEnergy=0;
-
+  double inelasticity=1;
   int ntx=1;
   int nrx=1;
   //plotting things
