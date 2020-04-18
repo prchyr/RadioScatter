@@ -374,7 +374,7 @@ int main(int argc,char** argv)
      for(int i=0;i<9;i++){
        auto phi=i*(2.*pi/9.);
        rx.setRThetaPhi(250*m, pi/2., phi);
-       for(int j=-20;j<=20;j+=20){
+       for(int j=-20;j<20;j+=20){
    	 rx.setZ((double)j*m);
    	 radio->setRxPos(rx);
        }
@@ -390,7 +390,7 @@ int main(int argc,char** argv)
      TRandom3 *rann=new TRandom3();
      rann->SetSeed();
 
-     int nThrow=50;
+     int nThrow=1000;
      for(int j=0;j<nThrow;j++){
        auto val= rann->Integer(500000);
        
