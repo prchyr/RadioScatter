@@ -373,7 +373,7 @@ int main(int argc,char** argv)
 
      for(int i=0;i<9;i++){
        auto phi=i*(2.*pi/9.);
-       rx.setRThetaPhi(650*m, pi/2., phi);
+       rx.setRThetaPhi(250*m, pi/2., phi);
        for(int j=-20;j<=20;j+=20){
    	 rx.setZ((double)j*m);
    	 radio->setRxPos(rx);
@@ -425,15 +425,38 @@ int main(int argc,char** argv)
 
       if(macro.contains("effectivevol_infile2.mac")){
      Hep3Vector rx;
-
+for(int i=0;i<9;i++){
+       auto phi=i*(2.*pi/9.);
+       rx.setRThetaPhi(50*m, pi/2., phi);
+       for(int j=-20;j<=20;j+=20){
+	 rx.setZ((double)j*m);
+	 radio->setRxPos(rx);
+       }
+     }
      for(int i=0;i<9;i++){
        auto phi=i*(2.*pi/9.);
        rx.setRThetaPhi(250*m, pi/2., phi);
        for(int j=-20;j<=20;j+=20){
-   	 rx.setZ((double)j*m);
-   	 radio->setRxPos(rx);
+	 rx.setZ((double)j*m);
+	 radio->setRxPos(rx);
        }
      }
+     for(int i=0;i<9;i++){
+       auto phi=i*(2.*pi/9.);
+       rx.setRThetaPhi(800*m, pi/2., phi);
+       for(int j=-20;j<=20;j+=20){
+	 rx.setZ((double)j*m);
+	 radio->setRxPos(rx);
+       }
+     }
+     // for(int i=0;i<9;i++){
+     //   auto phi=i*(2.*pi/9.);
+     //   rx.setRThetaPhi(250*m, pi/2., phi);
+     //   for(int j=-20;j<=20;j+=20){
+     // 	 rx.setZ((double)j*m);
+     // 	 radio->setRxPos(rx);
+     //   }
+     // }
 
      //     auto gun=new G4ParticleGun();
      auto gpsDat=G4GeneralParticleSourceData::Instance();
