@@ -373,7 +373,7 @@ int main(int argc,char** argv)
 
      for(int i=0;i<9;i++){
        auto phi=i*(2.*pi/9.);
-       rx.setRThetaPhi(450*m, pi/2., phi);
+       rx.setRThetaPhi(850*m, pi/2., phi);
        for(int j=-20;j<=20;j+=20){
    	 rx.setZ((double)j*m);
    	 radio->setRxPos(rx);
