@@ -368,12 +368,67 @@ int main(int argc,char** argv)
    }
 
    
-   if(macro.contains("effectivevol_infile")){
+   if(macro.contains("effectivevol_infile.mac")){
      Hep3Vector rx;
 
      for(int i=0;i<9;i++){
        auto phi=i*(2.*pi/9.);
        rx.setRThetaPhi(450*m, pi/2., phi);
+       for(int j=-20;j<=20;j+=20){
+   	 rx.setZ((double)j*m);
+   	 radio->setRxPos(rx);
+       }
+     }
+
+     //     auto gun=new G4ParticleGun();
+     auto gpsDat=G4GeneralParticleSourceData::Instance();
+     auto gps=gpsDat->GetCurrentSource();
+     //     gps->ListSource();
+
+     
+     auto iff=ifstream("simulatedEventsFlatSpectrum.txt");
+     TRandom3 *rann=new TRandom3();
+     rann->SetSeed();
+
+     int nThrow=1000;
+     for(int j=0;j<nThrow;j++){
+       auto val= rann->Integer(500000);
+       
+       auto num=0.,x=0., y=0., z=0., theta=0., phi=0., en=0., enC=0., weight=0.;
+       iff.seekg(iff.beg);
+       for(int i=0;i<val;i++){
+	 iff.ignore(100000, '\n');
+       }
+
+       iff>>num>>x>>y>>z>>theta>>phi>>en>>enC;//>>weight;
+       cout<<en<<endl;
+       auto pos=Hep3Vector(x*m, y*m, z*m);
+       auto dir=Hep3Vector(1., 1.,1.);
+       dir.setRThetaPhi(1., theta, phi);
+       UImanager->ApplyCommand("/gps/energy 1 GeV");
+       auto posStr=Form("/gps/position %f %f %f m", x, y, z);
+       auto dirStr=Form("/gps/direction %f %f %f m", dir.unit().x(), dir.unit().y(), dir.unit().z());
+       UImanager->ApplyCommand(posStr);
+       UImanager->ApplyCommand(dirStr);
+       //  gun->SetParticlePosition(pos);
+       //gun->SetParticleMomentumDirection(dir);
+       radio->setPrimaryEnergy(1e9);
+       radio->setNPrimaries(enC);
+       radio->setInelasticity(enC/en);
+       radio->setWeight(weight);
+       runManager->BeamOn(1);
+     }
+
+     
+     
+   }
+
+      if(macro.contains("effectivevol_infile2.mac")){
+     Hep3Vector rx;
+
+     for(int i=0;i<9;i++){
+       auto phi=i*(2.*pi/9.);
+       rx.setRThetaPhi(250*m, pi/2., phi);
        for(int j=-20;j<=20;j+=20){
    	 rx.setZ((double)j*m);
    	 radio->setRxPos(rx);
