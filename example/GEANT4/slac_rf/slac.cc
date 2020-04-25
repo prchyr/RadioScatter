@@ -350,7 +350,7 @@ int main(int argc,char** argv)
   }
 
   else{
-    UImanager->ApplyCommand("/control/execute init_vis.mac");
+    UImanager->ApplyCommand("/control/execute "+macro);
     if (ui->IsGUI()) {
       UImanager->ApplyCommand("/control/execute gui.mac");
     }

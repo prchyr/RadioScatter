@@ -73,8 +73,8 @@ RadioScatter::RadioScatter(){
    for(int i=0;i<ntx;i++){
      for(int j=0;j<nrx;j++){
        Hep3Vector dv = rx[j].vect()-event.position;
-       double dist = dv.mag();
-       double time =(dist/c_light)-half_window; 
+       double dist = abs(dv.mag());
+       double time =(dist/c_light_r)-half_window; 
        
        time<0?start_time=0:start_time=time;
        end_time = start_time+(2*half_window);
@@ -87,6 +87,7 @@ RadioScatter::RadioScatter(){
      }
    }
  }
+
 
 void RadioScatter::setMakeSummary(double val){
   MAKE_SUMMARY_FILE=(int)val;
@@ -334,6 +335,12 @@ void RadioScatter::setSimulationParameters(double n=1., char* tx_rx_pol=(char*)"
   k_r = omega/(c_light/n_rel);
   c_light_r = c_light/n_rel;
 }
+void RadioScatter::setIndexOfRefraction(double iof){
+  n_rel=iof;
+  k=omega/(c_light/iof);
+  c_light_r=c_light/iof;
+
+}
  void RadioScatter::setRxSampleRate(double rate){
   samplerate=rate*nanosecond;
   samplingperiod = 1./samplerate;
@@ -341,7 +348,7 @@ void RadioScatter::setSimulationParameters(double n=1., char* tx_rx_pol=(char*)"
 }
 void RadioScatter::setTxInterfaceDistX(double dist, int index){
     tx_interface_dist[index] = abs(dist);
-    REFRACTION_FLAG=1;
+    BOUNDARY_FLAG=1;
 }
 void RadioScatter::setRxInterfaceDistX(double dist, int index){
   rx_interface_dist[index] = abs(dist);
@@ -531,7 +538,7 @@ double RadioScatter::getTxPhase(double t_0){
 
   double RadioScatter::getRxTime(HepLorentzVector point, Hep3Vector l, Hep3Vector j){
   double dist = j.mag()+l.mag();
-  double time = point.t()+(dist/c_light);
+  double time = point.t()+abs(dist/c_light_r);
     return time;
   }
 
@@ -539,7 +546,7 @@ double RadioScatter::getTxPhase(double t_0){
 
     Hep3Vector sep(rx[index].vect()-point.vect());
   double dist = sep.mag();
-  double time = point.t()+(dist/c_light);
+  double time = point.t()+abs(dist/c_light_r);
 
   return time;
   }
@@ -548,7 +555,7 @@ double RadioScatter::getTxPhase(double t_0){
   Hep3Vector distvec = point.vect()-tx[index].vect();
   double dist=0;
   if(direct==0){
-    if(REFRACTION_FLAG==1){
+    if(BOUNDARY_FLAG==1){
       dist = findPathLengthWithRefraction(tx[index],point, tx_interface_dist[index]);
     }
     else{
@@ -558,7 +565,7 @@ double RadioScatter::getTxPhase(double t_0){
   else{
     dist = distvec.mag();
   }
-    double time = point.t()-(dist/c_light);
+    double time = point.t()-abs(dist/c_light_r);
 
     return time;
   }
@@ -595,7 +602,7 @@ double RadioScatter::getRxPhase(HepLorentzVector point, Hep3Vector j1, Hep3Vecto
   //and propagate the phase at the point of scattering. so the signal is a delta function with a fixed
   //phase (polarity).
   double  tof = j1.mag()/c_light + l1.mag()/c_light_r;
-  
+
   double txphase = getTxPhase(point.t()-tof);//find phase at retarded time
   //wave vector calculation, with correct phase velocity
   Hep3Vector  kvec1 = k*j1;
@@ -745,7 +752,7 @@ double RadioScatter::makeRays(HepLorentzVector point, double e, double l, double
       double omega_p=sqrt(plasma_const*n_e)*1e-9;//in ns^-1
 
       //the screening term. as derived in paper
-      double alpha= ((omega_p*omega_p)/(2.*c_light))*(nu_col/(omega*omega + nu_col*nu_col))*x_0;
+      double alpha= ((omega_p*omega_p)/(2.*c_light_r))*(nu_col/(omega*omega + nu_col*nu_col))*x_0;
 
 
       double attn_factor = exp(-alpha);
@@ -753,8 +760,8 @@ double RadioScatter::makeRays(HepLorentzVector point, double e, double l, double
       prefactor=prefactor*attn_factor;
       
       HepLorentzVector point_temp=point;      
-      //are we calculating in a refraction region?
-      if(REFRACTION_FLAG==1){
+      //are we calculating in a region where there is a boundary? (like in a test-beam setup
+      if(BOUNDARY_FLAG==1){
 	Hep3Vector  q1 = findRefractionPlane(tx[i], point);//make a plane where the refraction will happen
 	Hep3Vector j1;
 	j1.setZ(findRefractionPointZ(q1.x(), q1.z(), tx_interface_dist[i]));//find the refraction point in this plane on interface 

@@ -127,7 +127,8 @@ public:
   std::vector<double> amplitudes, timeofarrival, phases, field, plasma; 
 
   ///<variables for refraction manipulation
-  double k_r, c_light_r, mag1, mag2;///<, tof, txphase, kx;
+  double k_r,  mag1, mag2;///<, tof, txphase, kx;
+  double c_light_r=c_light;
   ///<distance from the antennas to the interface, must be set by user
   std::vector<double> tx_interface_dist{1};
   std::vector<double> rx_interface_dist{1};
@@ -282,7 +283,9 @@ use this flag to scale the shower by some amount. to use it, you first must call
 
   void setSimulationParameters(double n, char* tx_rx_pol, double relative_index_of_refraction, int flag);
 
-  void setRelativeIndexOfRefraction(double iof);  ///<this is n1/n2 for n1>n2. used for refraction calculations when the tx and rx are in different media.
+  void setIndexOfRefraction(double iof);///<This sets the index of refraction for the medium. assumes TX and RX are in this same medium.
+  
+  void setRelativeIndexOfRefraction(double iof);  ///<this is n1/n2 for n1>n2. used for refraction calculations when the tx and rx are in different media. DO NOT USE FOR TX AND RX IN SAME MEDIA, FOR THAT USE setIndexOfRefraction
 
   void setCalculateUsingAttnLength(double val=0.);  ///<set to calculate the RF propagation with attenuation losses
 
@@ -346,6 +349,8 @@ use this flag to scale the shower by some amount. to use it, you first must call
 
 private:
   void makeTimeHist();
+  
+
   /*
     These functions are all called from and within makeRays, and so are delicate and shouldn't be messed with/called. hence the private. 
    */
@@ -372,7 +377,7 @@ double getTxAmplitude(int index,HepLorentzVector point);
   double getDirectSignalPhase(int txindex, int rxindex,HepLorentzVector point);
 
 
-  int REFRACTION_FLAG=0;
+  int BOUNDARY_FLAG=0;
   bool RSCAT_HIST_DECLARE=false;
   bool RSCAT_HIST_RESIZE=false;
 

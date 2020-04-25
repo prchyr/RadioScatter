@@ -212,8 +212,8 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
   //    auto layerThickness = iceThickness;
   //    auto layerThickness = absoThickness + gapThickness;
   auto targetThickness = (nofLayers * layerThickness);
-  auto worldSizeXY = 10. * targetThickness;
-  auto worldSizeZ  = 10. * targetThickness; 
+  auto worldSizeXY = 100. * targetThickness;
+  auto worldSizeZ  = 100. * targetThickness; 
   
   // Get materials
   auto defaultMaterial = G4Material::GetMaterial("Galactic");

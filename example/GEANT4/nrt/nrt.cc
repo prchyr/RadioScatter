@@ -82,6 +82,8 @@ int main(int argc,char** argv)
   G4String macro;
   G4String session;
   G4String filename;
+  long seed=rand();
+  cout<<"seed: "<<seed<<endl;
 #ifdef G4MULTITHREADED
   G4int nThreads = 0;
 #endif
@@ -110,9 +112,9 @@ int main(int argc,char** argv)
 
   // Choose the Random engine
   //
-  long seed=rand();
+
   G4Random::setTheEngine(new CLHEP::RanecuEngine);
-    G4Random::setTheSeed(seed);    
+  G4Random::setTheSeed(fmod(seed, 215));    
   // Construct the default run manager
   //
 #ifdef G4MULTITHREADED
@@ -615,7 +617,7 @@ for(int i=0;i<9;i++){
     
     // }
   
-
+   
   
      if(macro.contains("collisionmacro.mac")){
     auto gpsDat=G4GeneralParticleSourceData::Instance();
@@ -641,7 +643,7 @@ for(int i=0;i<9;i++){
   }
   }
   else{
-    UImanager->ApplyCommand("/control/execute init_vis.mac");
+    //    UImanager->ApplyCommand("/control/execute "+macro);
     if (ui->IsGUI()) {
       UImanager->ApplyCommand("/control/execute gui.mac");
     }
