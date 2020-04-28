@@ -9,9 +9,9 @@
 //#pragma link C++ class RadioScatter+;
 
 
-#pragma link C++ namespace CLHEP;
-#pragma link C++ class Hep3Vector+;
-#pragma link C++ class HepLorentzVector+;
+//#pragma link C++ namespace CLHEP;
+//#pragma link C++ class Hep3Vector+;
+//#pragma link C++ class HepLorentzVector+;
 
 //#pragma link C++ class 
 
@@ -19,6 +19,7 @@
 //#pragma link C++ defined_in "/usr/local/include/CLHEP/Vector/ThreeVector.h";
 #pragma link C++ class RadioScatterEvent+;
 #pragma link C++ class RSEventSummary+;
+#pragma link C++ class TUtilRadioScatter+;
 //#pragma link C++ global gROOT;
 //#pragma link C++ class CLHEP::HepLorentzVector+;
 

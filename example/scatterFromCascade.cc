@@ -44,9 +44,9 @@ void doIt(double lifetimens, double frequency, double power){
   //radio->setRxPos(50*m,10*m,10*m, 1);//50m x 10m x 10m
 
   //or like this, and the index of receiver increments automatically up to nrx-1
-  auto r0=Hep3Vector(10*m, 0*m, 0.);
-  auto r1=Hep3Vector(20*m, 0*m, 0.);
-  auto r2=Hep3Vector(30*m, 0*m, 0.);
+  auto r0=TVector3(10*m, 0*m, 0.);
+  auto r1=TVector3(20*m, 0*m, 0.);
+  auto r2=TVector3(30*m, 0*m, 0.);
 
   radio->setRxPos(r0);//sets the 0th receiver as r0
   radio->setRxPos(r1);//sets the 1st receiver as r1
@@ -70,14 +70,14 @@ void doIt(double lifetimens, double frequency, double power){
 
 
   int entries=tree->GetEntries();
-  HepLorentzVector pt; //the point of the ionization from which we calculate the individual scatter.
+  TLorentzVector pt; //the point of the ionization from which we calculate the individual scatter.
   double ionizationE=.000059;//MeV, the mean ionization energy.
   for(int i=0;i<entries;i++){
     tree->GetEntry(i);
-    pt.setX(x);
-    pt.setY(y);
-    pt.setZ(z);
-    pt.setT(t);
+    pt.SetX(x);
+    pt.SetY(y);
+    pt.SetZ(z);
+    pt.SetT(t);
     //calculate the scatter from this ionization deposit.
     radio->makeRays(pt, edep, steplength, ionizationE);
   }
