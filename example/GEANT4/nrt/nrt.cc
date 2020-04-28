@@ -182,11 +182,11 @@ int main(int argc,char** argv)
    if(macro.contains("anglemacro.mac")){
      TRandom *ran = new TRandom();
      ran->SetSeed();
-     Hep3Vector rx(1., 1., 1.), tx(1., 1., 1.);
+     TVector3 rx(1., 1., 1.), tx(1., 1., 1.);
     double mag=100000;
-    rx.setMag(mag);
-    rx.setTheta(pi/2);
-    rx.setPhi(pi);
+    rx.SetMag(mag);
+    rx.SetTheta(pi/2);
+    rx.SetPhi(pi);
     radio->setNTx(1);
 
     //    double div=25.;
@@ -195,26 +195,26 @@ int main(int argc,char** argv)
     
     
     //    double halfstep=step/2
-    //    for(double i=0;i<twopi;i+=radianstep){
+    //    for(double i=0;i<twoPi;i+=radianstep){
     double i=0.0001;
-    tx.setPhi(pi);
-    tx.setTheta(pi/2.);
+    tx.SetPhi(pi);
+    tx.SetTheta(pi/2.);
     int n=0;
 
     //make a sphere
     double div=40;
-    double radianstep=twopi/div;
+    double radianstep=twoPi/div;
     radio->setNRx(div*(div/2));
-    while(i<twopi){
+    while(i<twoPi){
 
       double j=0.0001;
       while(j<pi){
     	//for(double j=radianstep;j<pi;j+=radianstep){
 
-    	rx.setTheta(j);
-    	rx.setPhi(i);
+    	rx.SetTheta(j);
+    	rx.SetPhi(i);
 
-    	rx.setMag(mag);
+    	rx.SetMag(mag);
     	radio->setRxPos(rx, n);
     	n++;
     	cout<<rx.x()<<" "<<rx.y()<<" "<<rx.z()<<endl;
@@ -231,9 +231,9 @@ int main(int argc,char** argv)
     // for(int i=0;i<div;i++){
     //   for(int j=0;j<div;j++){
     // 	for(int k=0;k<div;k++){
-    // 	  rx.setX(i*step);
-    // 	  rx.setY(j*step);
-    // 	  rx.setZ(k*step);
+    // 	  rx.SetX(i*step);
+    // 	  rx.SetY(j*step);
+    // 	  rx.SetZ(k*step);
     // 	  radio->setRxPos(rx, n);
     // 	  n++;
     // 	}
@@ -245,13 +245,13 @@ int main(int argc,char** argv)
     // auto gpsDat=G4GeneralParticleSourceData::Instance();
     // auto gps = gpsDat->GetCurrentSource();
     // for(int i=1;i<100;i++){
-    //   //  tx.setPhi(ran->Rndm()*twopi);
-    //   //tx.setTheta(ran->Rndm()*(pi/2));
-    //   //      tx.setMag(10000.*i);
-    //   //tx.setMag(ran->Rndm()*1000000.);
-    //   tx.setPhi(0);
-    //   tx.setTheta((i*stepp)-(pi/2.));
-    //   tx.setMag(mag);
+    //   //  tx.SetPhi(ran->Rndm()*twoPi);
+    //   //tx.SetTheta(ran->Rndm()*(pi/2));
+    //   //      tx.SetMag(10000.*i);
+    //   //tx.SetMag(ran->Rndm()*1000000.);
+    //   tx.SetPhi(0);
+    //   tx.SetTheta((i*stepp)-(pi/2.));
+    //   tx.SetMag(mag);
     //   //radio->setTxPos(tx, 0);
     //   gps->GetAngDist()->SetParticleMomentumDirection(tx);  
     //   runManager->BeamOn(1);
@@ -264,7 +264,7 @@ int main(int argc,char** argv)
 
    if (macro.contains("run1.mac")){
 
-     Hep3Vector tx, rx;
+     TVector3 tx, rx;
       double theta=0, phi=0;
       int num=10;
       int xmax=40000;
@@ -287,13 +287,13 @@ int main(int argc,char** argv)
 	  // rx=radio->getRxPos();
 	  // cout<<endl<<endl<<"tx position"<<tx.x()<<" "<<tx.y()<<" "<<tx.z()<<endl;
 	  // cout<<"rx position"<<rx.x()<<" "<<rx.y()<<" "<<rx.z()<<endl<<endl<<endl;
-	  // //	tx.setRThetaPhi(j*m, angle, 0);
-	  rx.setX(xmin+(j*xstep));
-	  rx.setY(ymin+(i*ystep));
-	  rx.setZ(zmin+(k*zstep));
+	  // //	tx.SetMagThetaPhi(j*m, angle, 0);
+	  rx.SetX(xmin+(j*xstep));
+	  rx.SetY(ymin+(i*ystep));
+	  rx.SetZ(zmin+(k*zstep));
 	  // phi=pi;
-	  // rx.setRThetaPhi(j*m, theta, phi);
-	  // rx.setZ(rx.z()+3.5*m);
+	  // rx.SetMagThetaPhi(j*m, theta, phi);
+	  // rx.SetZ(rx.z()+3.5*m);
 	  //	radio->setTxPos(tx);
 	  radio->setRxPos(rx);
 	  runManager->BeamOn(10);
@@ -304,13 +304,13 @@ int main(int argc,char** argv)
    }
 
    if(macro.contains("effectivevol_buildarray.mac")){
-     Hep3Vector rx;
+     TVector3 rx;
 
      for(int i=0;i<9;i++){
        auto phi=i*(2.*pi/9.);
-       rx.setRThetaPhi(250*m, pi/2., phi);
+       rx.SetMagThetaPhi(250*m, pi/2., phi);
        for(int j=-20;j<=20;j+=20){
-	 rx.setZ((double)j*m);
+	 rx.SetZ((double)j*m);
 	 radio->setRxPos(rx);
        }
      }
@@ -330,29 +330,29 @@ int main(int argc,char** argv)
 
 
    if(macro.contains("effectivevol_buildarray_massive.mac")){
-     Hep3Vector rx;
+     TVector3 rx;
 
      for(int i=0;i<9;i++){
        auto phi=i*(2.*pi/9.);
-       rx.setRThetaPhi(50*m, pi/2., phi);
+       rx.SetMagThetaPhi(50*m, pi/2., phi);
        for(int j=-20;j<=20;j+=20){
-	 rx.setZ((double)j*m);
+	 rx.SetZ((double)j*m);
 	 radio->setRxPos(rx);
        }
      }
      for(int i=0;i<9;i++){
        auto phi=i*(2.*pi/9.);
-       rx.setRThetaPhi(250*m, pi/2., phi);
+       rx.SetMagThetaPhi(250*m, pi/2., phi);
        for(int j=-20;j<=20;j+=20){
-	 rx.setZ((double)j*m);
+	 rx.SetZ((double)j*m);
 	 radio->setRxPos(rx);
        }
      }
      for(int i=0;i<9;i++){
        auto phi=i*(2.*pi/9.);
-       rx.setRThetaPhi(1000*m, pi/2., phi);
+       rx.SetMagThetaPhi(1000*m, pi/2., phi);
        for(int j=-20;j<=20;j+=20){
-	 rx.setZ((double)j*m);
+	 rx.SetZ((double)j*m);
 	 radio->setRxPos(rx);
        }
      }
@@ -371,13 +371,13 @@ int main(int argc,char** argv)
 
    
    if(macro.contains("effectivevol_infile.mac")){
-     Hep3Vector rx;
+     TVector3 rx;
 
      for(int i=0;i<9;i++){
        auto phi=i*(2.*pi/9.);
-       rx.setRThetaPhi(250*m, pi/2., phi);
+       rx.SetMagThetaPhi(250*m, pi/2., phi);
        for(int j=-20;j<=20;j+=20){
-   	 rx.setZ((double)j*m);
+   	 rx.SetZ((double)j*m);
    	 radio->setRxPos(rx);
        }
      }
@@ -404,12 +404,12 @@ int main(int argc,char** argv)
 
        iff>>num>>x>>y>>z>>theta>>phi>>en>>enC;//>>weight;
        cout<<en<<endl;
-       auto pos=Hep3Vector(x*m, y*m, z*m);
-       auto dir=Hep3Vector(1., 1.,1.);
-       dir.setRThetaPhi(1., theta, phi);
+       auto pos=TVector3(x*m, y*m, z*m);
+       auto dir=TVector3(1., 1.,1.);
+       dir.SetMagThetaPhi(1., theta, phi);
        UImanager->ApplyCommand("/gps/energy 1 GeV");
        auto posStr=Form("/gps/position %f %f %f m", x, y, z);
-       auto dirStr=Form("/gps/direction %f %f %f m", dir.unit().x(), dir.unit().y(), dir.unit().z());
+       auto dirStr=Form("/gps/direction %f %f %f m", dir.Unit().x(), dir.Unit().y(), dir.Unit().z());
        UImanager->ApplyCommand(posStr);
        UImanager->ApplyCommand(dirStr);
        //  gun->SetParticlePosition(pos);
@@ -426,36 +426,36 @@ int main(int argc,char** argv)
    }
 
       if(macro.contains("effectivevol_infile2.mac")){
-     Hep3Vector rx;
+     TVector3 rx;
 for(int i=0;i<9;i++){
        auto phi=i*(2.*pi/9.);
-       rx.setRThetaPhi(50*m, pi/2., phi);
+       rx.SetMagThetaPhi(50*m, pi/2., phi);
        for(int j=-20;j<=20;j+=20){
-	 rx.setZ((double)j*m);
+	 rx.SetZ((double)j*m);
 	 radio->setRxPos(rx);
        }
      }
      for(int i=0;i<9;i++){
        auto phi=i*(2.*pi/9.);
-       rx.setRThetaPhi(250*m, pi/2., phi);
+       rx.SetMagThetaPhi(250*m, pi/2., phi);
        for(int j=-20;j<=20;j+=20){
-	 rx.setZ((double)j*m);
+	 rx.SetZ((double)j*m);
 	 radio->setRxPos(rx);
        }
      }
      for(int i=0;i<9;i++){
        auto phi=i*(2.*pi/9.);
-       rx.setRThetaPhi(800*m, pi/2., phi);
+       rx.SetMagThetaPhi(800*m, pi/2., phi);
        for(int j=-20;j<=20;j+=20){
-	 rx.setZ((double)j*m);
+	 rx.SetZ((double)j*m);
 	 radio->setRxPos(rx);
        }
      }
      // for(int i=0;i<9;i++){
      //   auto phi=i*(2.*pi/9.);
-     //   rx.setRThetaPhi(250*m, pi/2., phi);
+     //   rx.SetMagThetaPhi(250*m, pi/2., phi);
      //   for(int j=-20;j<=20;j+=20){
-     // 	 rx.setZ((double)j*m);
+     // 	 rx.SetZ((double)j*m);
      // 	 radio->setRxPos(rx);
      //   }
      // }
@@ -482,12 +482,12 @@ for(int i=0;i<9;i++){
 
        iff>>num>>x>>y>>z>>theta>>phi>>en>>enC;//>>weight;
        cout<<en<<endl;
-       auto pos=Hep3Vector(x*m, y*m, z*m);
-       auto dir=Hep3Vector(1., 1.,1.);
-       dir.setRThetaPhi(1., theta, phi);
+       auto pos=TVector3(x*m, y*m, z*m);
+       auto dir=TVector3(1., 1.,1.);
+       dir.SetMagThetaPhi(1., theta, phi);
        UImanager->ApplyCommand("/gps/energy 1 GeV");
        auto posStr=Form("/gps/position %f %f %f m", x, y, z);
-       auto dirStr=Form("/gps/direction %f %f %f m", dir.unit().x(), dir.unit().y(), dir.unit().z());
+       auto dirStr=Form("/gps/direction %f %f %f m", dir.Unit().x(), dir.Unit().y(), dir.Unit().z());
        UImanager->ApplyCommand(posStr);
        UImanager->ApplyCommand(dirStr);
        //  gun->SetParticlePosition(pos);
@@ -531,15 +531,15 @@ for(int i=0;i<9;i++){
      int ystep=(ymax-ymin)/num;
 
      int z=0;
-     Hep3Vector tx=Hep3Vector(0,0,0);
-     Hep3Vector rx;
-     rx.setZ(0.);
+     TVector3 tx=TVector3(0,0,0);
+     TVector3 rx;
+     rx.SetZ(0.);
      for(int j=0;j<num;j++){
        double xx=xmin+(j*xstep);
-       rx.setX(xx);
+       rx.SetX(xx);
        for(int i=0;i<num;i++){
 	 double yy=ymin+(i*ystep);
-	 rx.setY(yy);
+	 rx.SetY(yy);
 	 radio->setRxPos(rx);
        }
      }
@@ -555,7 +555,7 @@ for(int i=0;i<9;i++){
    
    if (macro.contains("threshmacro.mac")){
 
-     Hep3Vector tx, rx;
+     TVector3 tx, rx;
      double theta=0, phi=0;
      int num=5;
      int xmax=10000000;
@@ -578,16 +578,16 @@ for(int i=0;i<9;i++){
 	     // rx=radio->getRxPos();
 	     // cout<<endl<<endl<<"tx position"<<tx.x()<<" "<<tx.y()<<" "<<tx.z()<<endl;
 	     // cout<<"rx position"<<rx.x()<<" "<<rx.y()<<" "<<rx.z()<<endl<<endl<<endl;
-	     // //	tx.setRThetaPhi(j*m, angle, 0);
-	     rx.setX(1000*pow(10, j));
-	     rx.setY(1000*pow(10, i));
-	     rx.setZ(1000*pow(10, k));
-	     // rx.setX(xmin+(j*xstep));
-	     // rx.setY(ymin+(i*ystep));
-	     // rx.setZ(zmin+(k*zstep));
+	     // //	tx.SetMagThetaPhi(j*m, angle, 0);
+	     rx.SetX(1000*pow(10, j));
+	     rx.SetY(1000*pow(10, i));
+	     rx.SetZ(1000*pow(10, k));
+	     // rx.SetX(xmin+(j*xstep));
+	     // rx.SetY(ymin+(i*ystep));
+	     // rx.SetZ(zmin+(k*zstep));
 	     // phi=pi;
-	     // rx.setRThetaPhi(j*m, theta, phi);
-	     // rx.setZ(rx.z()+3.5*m);
+	     // rx.SetMagThetaPhi(j*m, theta, phi);
+	     // rx.SetZ(rx.z()+3.5*m);
 	     //	radio->setTxPos(tx);
 	     double n=100*pow(10, l);
 	     radio->setRxPos(rx);

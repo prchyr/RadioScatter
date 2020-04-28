@@ -23,18 +23,22 @@ released under GPL3.
 #include "TTree.h"
 #include "TGraph.h"
 #include "TGraph2D.h"
+#include "TLorentzVector.h"
+#include "TVector3.h"
+#include "TUtilRadioScatter.hh"
 
 #include <vector>
 #include <iostream>
 #include <iomanip>
 
-#include "CLHEP/Units/PhysicalConstants.h"
-#include "CLHEP/Vector/LorentzVector.h"
-#include "CLHEP/Vector/ThreeVector.h"
+//#include "CLHEP/Units/PhysicalConstants.h"
+//#include "CLHEP/Vector/LorentzVector.h"
+//#include "CLHEP/Vector/ThreeVector.h"
 #include "RadioScatterEvent.hh"
 #include "RSEventSummary.hh"
 
-using namespace CLHEP;
+using namespace TUtilRadioScatter;
+//using namespace CLHEP;
 //using namespace std;
 
 
@@ -155,8 +159,8 @@ public:
 
   int ntx=1;
   int nrx=1;
-  std::vector<HepLorentzVector> tx{1};///<transmitters, allow for multiple
-  std::vector<HepLorentzVector> rx{1};///<recievers, allow for multiple
+  std::vector<TLorentzVector> tx{1};///<transmitters, allow for multiple
+  std::vector<TLorentzVector> rx{1};///<recievers, allow for multiple
 
   ///<flags
   int TX_ITERATOR=0;
@@ -220,13 +224,13 @@ this is a mandatory call that needs to come before the others. it sets the outpu
    */
   void setRxPos(double xin, double yin, double zin, int index=0);
   
-  void setTxPos(Hep3Vector in, int index);///<set the tx position using an Hep3Vector object for a specific index
+  void setTxPos(TVector3 in, int index);///<set the tx position using an TVector3 object for a specific index
 
-  void setTxPos(Hep3Vector in);  ///<set the tx position using an Hep3Vector object, but with built-in indexing (e.g. each time this is called the next tx will be set up to ntx-1);
+  void setTxPos(TVector3 in);  ///<set the tx position using an TVector3 object, but with built-in indexing (e.g. each time this is called the next tx will be set up to ntx-1);
 
-  void setRxPos(Hep3Vector in, int index);    ///<set the rx position using an Hep3Vector object
+  void setRxPos(TVector3 in, int index);    ///<set the rx position using an TVector3 object
 
-  void setRxPos(Hep3Vector in);  ///<set the rx position using an Hep3Vector object, but with built-in indexing (e.g. each time this is called the next tx will be set up to nrx-1);
+  void setRxPos(TVector3 in);  ///<set the rx position using an TVector3 object, but with built-in indexing (e.g. each time this is called the next tx will be set up to nrx-1);
 
   void setTxFreq(double f);  ///<set the transmitter frequency
 
@@ -257,9 +261,9 @@ this is important when running over some arbitrary shower input file, as there i
    */
   void setPrimaryEnergy(double e);
 
-  void setPrimaryPosition(Hep3Vector p);  ///<set the position of the primary. useful for several calculations
+  void setPrimaryPosition(TVector3 p);  ///<set the position of the primary. useful for several calculations
 
-  void setPrimaryDirection(Hep3Vector p);  ///<set the direction of the primary. 
+  void setPrimaryDirection(TVector3 p);  ///<set the direction of the primary. 
 
   void setTargetEnergy(double e);  ///<not used
   ///<not used
@@ -309,9 +313,9 @@ use this flag to scale the shower by some amount. to use it, you first must call
 
   void setParticleInfoFilename(char * filename);  ///<set the filename for the above information. 
 
-  Hep3Vector getTxPos(int index=0);  ///<get the transmitter position
+  TVector3 getTxPos(int index=0);  ///<get the transmitter position
 
-  Hep3Vector getRxPos(int index=0);  ///<get the receiver position
+  TVector3 getRxPos(int index=0);  ///<get the receiver position
 
   double getFreq();  ///<get the transmitter frequency
 
@@ -330,8 +334,8 @@ use this flag to scale the shower by some amount. to use it, you first must call
 
    */
   
-  double makeRays(HepLorentzVector point, double e, double l, double e_i);
-  double makeRays(HepLorentzVector point, double e, double l, double e_i, TH1F *hist);///<optional to include a histogram to fill.
+  double makeRays(TLorentzVector point, double e, double l, double e_i);
+  double makeRays(TLorentzVector point, double e, double l, double e_i, TH1F *hist);///<optional to include a histogram to fill.
 
   void printEventStats();  ///<print out some event statistics. not used much. 
 
@@ -354,27 +358,27 @@ private:
   /*
     These functions are all called from and within makeRays, and so are delicate and shouldn't be messed with/called. hence the private. 
    */
-double getTxAmplitude(int index,HepLorentzVector point);
-  double getRxAmplitude(int index, HepLorentzVector point, Hep3Vector j1,  Hep3Vector j2, Hep3Vector l1, Hep3Vector l2);
-  double getRxAmplitude(int txindex, int rxindex, HepLorentzVector point);
+double getTxAmplitude(int index,TLorentzVector point);
+  double getRxAmplitude(int index, TLorentzVector point, TVector3 j1,  TVector3 j2, TVector3 l1, TVector3 l2);
+  double getRxAmplitude(int txindex, int rxindex, TLorentzVector point);
   double getTxPhase(double t_0);
-  double getRxTime(HepLorentzVector point, Hep3Vector j, Hep3Vector l);
-  double getRxTime(int index,HepLorentzVector point);
-  double getTxTime(int index,HepLorentzVector point, int direct);
-  double getRxPhase(HepLorentzVector point, Hep3Vector j1, Hep3Vector j2, Hep3Vector l1, Hep3Vector l2);
+  double getRxTime(TLorentzVector point, TVector3 j, TVector3 l);
+  double getRxTime(int index,TLorentzVector point);
+  double getTxTime(int index,TLorentzVector point, int direct);
+  double getRxPhase(TLorentzVector point, TVector3 j1, TVector3 j2, TVector3 l1, TVector3 l2);
 
-  double getRxPhase(int txindex, int rxindex, HepLorentzVector point);
-  double getRxPhaseRel(int index,HepLorentzVector point, double v);
-  double getAmplitudeFromAt(double E_0, HepLorentzVector from, HepLorentzVector at);
-  double getPhaseFromAt(HepLorentzVector from, HepLorentzVector at);
+  double getRxPhase(int txindex, int rxindex, TLorentzVector point);
+  double getRxPhaseRel(int index,TLorentzVector point, double v);
+  double getAmplitudeFromAt(double E_0, TLorentzVector from, TLorentzVector at);
+  double getPhaseFromAt(TLorentzVector from, TLorentzVector at);
   double doScreening(TTree *tree, int entry);
   double plotCausalCharges(TTree *tree, int entry);
   int checkTxOn(double time);
-  Hep3Vector findRefractionPlane(HepLorentzVector p1, HepLorentzVector p2);
+  TVector3 findRefractionPlane(TLorentzVector p1, TLorentzVector p2);
   double findRefractionPointZ(double kx, double kz, double jx);
-  double findPathLengthWithRefraction(HepLorentzVector p1, HepLorentzVector p2, double interface_dist_x); 
+  double findPathLengthWithRefraction(TLorentzVector p1, TLorentzVector p2, double interface_dist_x); 
   TH1F* getDirectSignal(int txindex, int rxindex, const TH1F*);
-  double getDirectSignalPhase(int txindex, int rxindex,HepLorentzVector point);
+  double getDirectSignalPhase(int txindex, int rxindex,TLorentzVector point);
 
 
   int BOUNDARY_FLAG=0;

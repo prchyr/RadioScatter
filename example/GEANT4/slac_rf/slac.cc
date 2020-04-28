@@ -180,36 +180,36 @@ int main(int argc,char** argv)
    }
 
    if(macro=="run1.mac"){
-     Hep3Vector offset(-600,0,2000.);
-     Hep3Vector tx, rx;
+     TVector3 offset(-600,0,2000.);
+     TVector3 tx, rx;
 
      double theta=0, phi=0;
-     rx.setRThetaPhi(4000,55*degree, pi);
+     rx.SetMagThetaPhi(4000,55*degree, pi);
      radio->setRxPos(rx+offset, 0);
-     rx.setRThetaPhi(6000, 75*degree, pi);
+     rx.SetMagThetaPhi(6000, 75*degree, pi);
      radio->setRxPos(rx+offset, 1);
-     rx.setRThetaPhi(6000, 65*degree, pi);
+     rx.SetMagThetaPhi(6000, 65*degree, pi);
      radio->setRxPos(rx+offset, 2);
 
-     tx.setRThetaPhi(4000, 125*degree, pi);
+     tx.SetMagThetaPhi(4000, 125*degree, pi);
      radio->setTxPos(tx+offset, 0);
      runManager->BeamOn(1);
    }
 
    if (macro=="t576.mac"){
 
-     Hep3Vector tx, rx;
+     TVector3 tx, rx;
       double theta=0, phi=0;
-      rx.setRThetaPhi(4000,115*degree, 0.);
+      rx.SetMagThetaPhi(4000,115*degree, 0.);
       radio->setRxPos(rx, 0);
-      rx.setRThetaPhi(4000, 125*degree, 0.);
+      rx.SetMagThetaPhi(4000, 125*degree, 0.);
       radio->setRxPos(rx, 1);
-      rx.setRThetaPhi(4000, 85*degree, 0.);
+      rx.SetMagThetaPhi(4000, 85*degree, 0.);
       radio->setRxPos(rx, 2);
       
       double rr=2.;
       while(rr<7.){
-	tx.setRThetaPhi(rr*1000.,  65.*degree, 0.);
+	tx.SetMagThetaPhi(rr*1000.,  65.*degree, 0.);
 
 	radio->setTxPos(tx,0);
 	runManager->BeamOn(1);
@@ -220,13 +220,13 @@ int main(int argc,char** argv)
    }
 
    if(macro=="sweep.mac"){
-     Hep3Vector tx, rx;
+     TVector3 tx, rx;
      double theta=0, phi=0;
-     rx.setRThetaPhi(4000,115*degree, 0.);
+     rx.SetMagThetaPhi(4000,115*degree, 0.);
      radio->setRxPos(rx, 0);
-     rx.setRThetaPhi(4000, 125*degree, 0.);
+     rx.SetMagThetaPhi(4000, 125*degree, 0.);
      radio->setRxPos(rx, 1);
-     rx.setRThetaPhi(4000, 85*degree, 0.);
+     rx.SetMagThetaPhi(4000, 85*degree, 0.);
      radio->setRxPos(rx, 2);
 
      for(int i=0;i>-7;i--){
@@ -243,41 +243,41 @@ int main(int argc,char** argv)
    // else{
 
    if(macro=="surf.mac"){
-     Hep3Vector tx, rx;
+     TVector3 tx, rx;
      double theta=0, phi=0;
-     Hep3Vector offset(-600, 0, 2000);
+     TVector3 offset(-600, 0, 2000);
      for(int i=0;i<11;i++){
-       rx.setRThetaPhi(5000,(double)(i+4)*10.*degree, pi);
+       rx.SetMagThetaPhi(5000,(double)(i+4)*10.*degree, pi);
        radio->setRxPos(rx+offset, i);
      }
 
-     tx.setRThetaPhi(6000., 65.*degree, pi);
+     tx.SetMagThetaPhi(6000., 65.*degree, pi);
      radio->setTxPos(tx+offset, 0);
      runManager->BeamOn(10);
  }
    if(macro=="anglet576.mac"){
-     Hep3Vector tx, rx;
+     TVector3 tx, rx;
      double theta=0, phi=0;
      for(int i=0;i<11;i++){
-       rx.setRThetaPhi(6000,(double)(i+4)*10.*degree, 0.);
+       rx.SetMagThetaPhi(6000,(double)(i+4)*10.*degree, 0.);
        radio->setRxPos(rx, i);
      }
 
-     tx.setRThetaPhi(6000., 65.*degree, 0.);
+     tx.SetMagThetaPhi(6000., 65.*degree, 0.);
      radio->setTxPos(tx, 0);
      runManager->BeamOn(1);
    }
    if(macro.contains("surfacesensor")){
 
-     Hep3Vector rx(1, 1, 1);
+     TVector3 rx(1, 1, 1);
      for(int i=0;i<100;i++){
        auto x=(-5.+((double)i*.1))*m;
        auto y=0;
-       rx.setX(x);
-       rx.setY(y);
+       rx.SetX(x);
+       rx.SetY(y);
        for(int j=0;j<100;j++){
          auto z=(-5.+((double)j*.1))*m;
-         rx.setZ(z);
+         rx.SetZ(z);
          radio->setRxPos(rx);
        }
      }
@@ -285,25 +285,25 @@ int main(int argc,char** argv)
    }
 
    if(macro=="run6.mac"||macro=="run62100.mac"||macro=="run61750.mac"){
-     Hep3Vector offset(-600,0,2000.);
-     Hep3Vector tx, rx;
+     TVector3 offset(-600,0,2000.);
+     TVector3 tx, rx;
 
      double theta=0, phi=0;
-     rx.setRThetaPhi(4000,55*degree, pi);
+     rx.SetMagThetaPhi(4000,55*degree, pi);
      radio->setRxPos(rx+offset, 0);
-     rx.setRThetaPhi(6000, 75*degree, pi);
+     rx.SetMagThetaPhi(6000, 75*degree, pi);
      radio->setRxPos(rx+offset, 1);
-     rx.setRThetaPhi(6000, 65*degree, pi);
+     rx.SetMagThetaPhi(6000, 65*degree, pi);
      radio->setRxPos(rx+offset, 2);
 
-     tx.setRThetaPhi(4000, 125*degree, pi);
+     tx.SetMagThetaPhi(4000, 125*degree, pi);
      radio->setTxPos(tx+offset, 0);
      runManager->BeamOn(10);
    }
 
    if(macro=="surfsensor.mac"){
-     Hep3Vector offset(0.,0.,0.);
-     Hep3Vector tx, rx;
+     TVector3 offset(0.,0.,0.);
+     TVector3 tx, rx;
 
      int N=60;
      double theta=0, phi=0;
@@ -320,28 +320,28 @@ int main(int argc,char** argv)
        for(int j=0;j<N;j++){
 	 int num=(i*N)+j;
 	 //	 cout<<num<<endl;
-	 rx.set(minx+((double)i*dx), 0, minz+((double)j*dz));
+	 rx.SetXYZ(minx+((double)i*dx), 0, minz+((double)j*dz));
 	 radio->setRxPos(rx+offset, num);
        }
      }
 
-     // tx.set(-4000, 0, -2000);
+     // tx.SetXYZ(-4000, 0, -2000);
      //radio->setTxPos(tx+offset, 0);
      runManager->BeamOn(1);
    }
    
    if(macro=="fanoutt576.mac"){
-     Hep3Vector offset(-600,0,2000);//coordinate system is 0,0,0 at front of target. this offset is for the coordinate system used at ESA
-     Hep3Vector tx, rx;
+     TVector3 offset(-600,0,2000);//coordinate system is 0,0,0 at front of target. this offset is for the coordinate system used at ESA
+     TVector3 tx, rx;
      double theta=0, phi=0;
-     rx.setRThetaPhi(6000,75.*degree, pi);
+     rx.SetMagThetaPhi(6000,75.*degree, pi);
      radio->setRxPos(rx+offset, 1);
-     rx.setRThetaPhi(6000,145.*degree, pi);
+     rx.SetMagThetaPhi(6000,145.*degree, pi);
      radio->setRxPos(rx+offset, 2);
      for(int i=0;i<9;i++){
-       rx.setRThetaPhi(4000,(double)(i+5)*10.*degree, pi);
+       rx.SetMagThetaPhi(4000,(double)(i+5)*10.*degree, pi);
        radio->setRxPos(rx+offset, 0);
-       tx.setRThetaPhi(4000., (double)(8-i+5)*10.*degree, pi);
+       tx.SetMagThetaPhi(4000., (double)(8-i+5)*10.*degree, pi);
        radio->setTxPos(tx+offset, 0);
        runManager->BeamOn(1);
      }

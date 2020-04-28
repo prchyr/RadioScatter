@@ -6,6 +6,7 @@
 #include "G4UIcmdWith3VectorAndUnit.hh"
 #include "globals.hh"
 
+
 RSmessenger::RSmessenger(RadioScatter *rscat)
   :rs(rscat)
 {
@@ -181,9 +182,16 @@ void RSmessenger::SetNewValue(G4UIcommand* command,G4String newValue)
   if(command==showCWCommand)rs->setShowCWFlag(val);
   if(command==setTxOnCommand)rs->setTxOnTime(val);
   if(command==setTxOffCommand)rs->setTxOffTime(val);
-  if(command==txpositionCmd)rs->setTxPos(txpositionCmd->GetNew3VectorValue(newValue));
-  if(command==rxpositionCmd)rs->setRxPos(rxpositionCmd->GetNew3VectorValue(newValue));
-  
+  if(command==txpositionCmd){
+    G4ThreeVector g4vec=txpositionCmd->GetNew3VectorValue(newValue);
+    TVector3 vec(g4vec.x(), g4vec.y(), g4vec.z());
+    rs->setTxPos(vec);
+  }
+  if(command==rxpositionCmd){
+    G4ThreeVector g4vec=txpositionCmd->GetNew3VectorValue(newValue);
+    TVector3 vec(g4vec.x(), g4vec.y(), g4vec.z());
+    rs->setRxPos(vec);
+  }
 
 }
   

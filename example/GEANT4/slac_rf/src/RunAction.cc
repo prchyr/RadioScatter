@@ -235,8 +235,13 @@ if(fRadio->FILL_BY_EVENT==0){
  auto gpsDat=G4GeneralParticleSourceData::Instance();
   auto gps = gpsDat->GetCurrentSource();
   fRadio->setPrimaryEnergy(gps->GetParticleEnergy());
-  fRadio->setPrimaryDirection(gps->GetParticleMomentumDirection());
-  fRadio->setPrimaryPosition(gps->GetParticlePosition());
+    TVector3 dir(gps->GetParticleMomentumDirection().x(), gps->GetParticleMomentumDirection().y(),gps->GetParticleMomentumDirection().z());
+    fRadio->setPrimaryDirection(dir);
+    TVector3 pos(gps->GetParticlePosition().x(), gps->GetParticlePosition().y(),gps->GetParticlePosition().z());
+    
+    fRadio->setPrimaryPosition(pos);
+    //  fRadio->setPrimaryDirection(gps->GetParticleMomentumDirection());
+    //fRadio->setPrimaryPosition(gps->GetParticlePosition());
   //  cout<<"in run action"<<endl;
   fRadio->writeRun((float)r->GetNumberOfEvent());
     //    fRadio->writeRun(1);

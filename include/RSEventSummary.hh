@@ -22,12 +22,14 @@ released under GPL3.
 #include "TLegend.h"
 #include "TVirtualFFT.h"
 #include <deque>
-
+#include "TLorentzVector.h"
+#include "TVector3.h"
+#include "TUtilRadioScatter.hh"
 //#include <vector>
 
-#include "CLHEP/Units/PhysicalConstants.h"
-#include "CLHEP/Vector/ThreeVector.h"
-#include "CLHEP/Vector/LorentzVector.h"
+//#include "CLHEP/Units/PhysicalConstants.h"
+//#include "CLHEP/Vector/ThreeVector.h"
+//#include "CLHEP/Vector/LorentzVector.h"
 
 //#include <gsl/gsl_linalg.h>
 
@@ -37,7 +39,7 @@ released under GPL3.
 // class TGraph;
 // class TObject;
 
-using namespace CLHEP;
+//using namespace CLHEP;
 using namespace std;
 /**\brief This is a storage class of summary variables of a RadioScatterEvent, that are useful for plotting and calculations. 
 
@@ -53,11 +55,11 @@ public:
   RSEventSummary(int ntransmitters=1, int nreceivers=1);
   virtual~RSEventSummary();
 
-  Hep3Vector direction;
-  Hep3Vector position;
+  TVector3 direction;
+  TVector3 position;
 
-  vector<HepLorentzVector> tx{1};
-  vector<HepLorentzVector> rx{1};
+  vector<TLorentzVector> tx{1};
+  vector<TLorentzVector> rx{1};
   //the energy of the primary as set in geant
   double primaryEnergyG4=0;
 

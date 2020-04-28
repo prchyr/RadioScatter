@@ -24,11 +24,14 @@ released under GPL3.
 #include "TF1.h"
 #include <deque>
 #include <vector>
+#include "TLorentzVector.h"
+#include "TVector3.h"
+#include "TUtilRadioScatter.hh"
 //#include <vector>
 
-#include "CLHEP/Units/PhysicalConstants.h"
-#include "CLHEP/Vector/ThreeVector.h"
-#include "CLHEP/Vector/LorentzVector.h"
+//#include "CLHEP/Units/PhysicalConstants.h"
+//#include "CLHEP/Vector/ThreeVector.h"
+//#include "CLHEP/Vector/LorentzVector.h"
 
 //#include <gsl/gsl_linalg.h>
 
@@ -37,8 +40,8 @@ released under GPL3.
 // class TTree;
 // class TGraph;
 // class TObject;
-
-using namespace CLHEP;
+using namespace TUtilRadioScatter;
+//using namespace CLHEP;
 //using namespace std;
 /**\brief This is the storage class for a RadioScatter object, called an event. an event is a single scatter from a cascade, as detected in all of the receivers. 
 
@@ -63,19 +66,19 @@ private:
   TRandom *ran = new TRandom();
 
   double dt[64000][3];
-  HepLorentzVector source[64000];
+  TLorentzVector source[64000];
   int POINTING_MAP_BUILT=0;
   int RXHIST_FILLED=0;  
 public:
   RadioScatterEvent();
 
 
-  Hep3Vector direction=Hep3Vector(0,0,1);
-  Hep3Vector position=Hep3Vector(1, 1, 1);
-  //HepLorentzVector *tx;
-  //HepLorentzVector *rx;
-  std::vector<HepLorentzVector> tx;
-  std::vector<HepLorentzVector> rx;
+  TVector3 direction=TVector3(0,0,1);
+  TVector3 position=TVector3(1, 1, 1);
+  //TLorentzVector *tx;
+  //TLorentzVector *rx;
+  std::vector<TLorentzVector> tx;
+  std::vector<TLorentzVector> rx;
   //the energy of the primary as set in geant
   double primaryEnergy=1000;//1000MeV (geant units) as a default
   double inelasticity=1.;
@@ -140,10 +143,10 @@ public:
 
   //pointing things
 
-  //HepLorentzVector findSource(int debug=0);
-  // HepLorentzVector pointingTest();
+  //TLorentzVector findSource(int debug=0);
+  // TLorentzVector pointingTest();
   int buildMap();
-  HepLorentzVector pointUsingMap();
+  TLorentzVector pointUsingMap();
 
 
 

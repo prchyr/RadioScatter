@@ -50,7 +50,7 @@
 G4double x, y, z, t, v, e, gt,tote, tracklength, trackid, inite, edep, advanced_t, step_length, E_i;
 double rx_amplitude;
 G4String pname, ptype, lv;
-HepLorentzVector p;
+TLorentzVector p;
 G4int charge;
 G4Track * track;
 //TH1F * hist;
@@ -98,10 +98,10 @@ void SteppingAction::UserSteppingAction(const G4Step* step)
   edep = step->GetTotalEnergyDeposit();
   v = track->GetVelocity();
   //position, time
-  p.setX(track->GetPosition().x());
-  p.setY(track->GetPosition().y());
-  p.setZ(track->GetPosition().z());
-  p.setT(track->GetGlobalTime());
+  p.SetX(track->GetPosition().x());
+  p.SetY(track->GetPosition().y());
+  p.SetZ(track->GetPosition().z());
+  p.SetT(track->GetGlobalTime());
   t = track->GetGlobalTime();
   step_length = step->GetStepLength();
   E_i = track->GetVolume()->GetLogicalVolume()->GetMaterial()->GetIonisation()->GetMeanExcitationEnergy();
