@@ -35,7 +35,7 @@ void doIt(double lifetimens, double frequency, double power){
   //here we set the radioscatter simulation parameters.  
 
   //set the transmitter position  
-  radio->setTxPos(-10.*m, 10*m, 0);
+  radio->setTxPos(-6.*m, 0*m, -3*m);
   //set the number of receivers
   radio->setNRx(3);
   
@@ -44,9 +44,9 @@ void doIt(double lifetimens, double frequency, double power){
   //radio->setRxPos(50*m,10*m,10*m, 1);//50m x 10m x 10m
 
   //or like this, and the index of receiver increments automatically up to nrx-1
-  auto r0=TVector3(10*m, 0*m, 0.);
-  auto r1=TVector3(20*m, 0*m, 0.);
-  auto r2=TVector3(30*m, 0*m, 0.);
+  auto r0=TVector3(-6*m, 0*m, 4.*m);
+  auto r1=TVector3(-12*m, 0*m, 4.*m);
+  auto r2=TVector3(-18*m, 0*m, 4.*m);
 
   radio->setRxPos(r0);//sets the 0th receiver as r0
   radio->setRxPos(r1);//sets the 1st receiver as r1
@@ -58,11 +58,11 @@ void doIt(double lifetimens, double frequency, double power){
 
   radio->setTxPower(power); //transmitter power in Watts (set by user) 
   radio->setTxGain(9);//transmitter gain in dB
-  radio->setRxSampleRate(4.);//receiver sample rate
+  radio->setRxSampleRate(10.);//receiver sample rate
   radio->setRxGain(9);//receiver gain in dB
   radio->setRecordWindowLength(100);//length of the received window
   radio->setCalculateUsingAttnLength(1);//use ice attenuation length in the calculation?
-  radio->setPolarization("horizontal");//antenna polarization. currently vertical = (0,0,1) and horizontal = (0,1,0); 
+  radio->setPolarization("vertical");//antenna polarization. currently vertical = (0,0,1) and horizontal = (0,1,0); 
   radio->setPrimaryEnergy(1e4);//10GeV in MeV. need to set this for the scaling to be correct, if you simulate a higher energy shower than the input file (which was 10GeV)
   radio->setScaleByEnergy(0);//scales the shower longitudinally by a factor to simulate a higher energy shower. not exact, but fast.
   radio->setMakeSummary(1);//make a nice summary file for simple plotting of things like peak power, voltage, etc.
