@@ -23,6 +23,7 @@ released under GPL3.
 #include "TAxis.h"
 
 #include <vector>
+#include <iomanip>
 
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "CLHEP/Vector/LorentzVector.h"
