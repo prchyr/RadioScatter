@@ -332,7 +332,7 @@ double getTxAmplitude(int index,HepLorentzVector point);
   double getRxPhaseRel(int index,HepLorentzVector point, double v);
   double getAmplitudeFromAt(double E_0, HepLorentzVector from, HepLorentzVector at);
 
-  int getRxInfoRayTrace(int txindex,int rxindex, HepLorentzVector point, double *rxPhaseDirect, double *rxAmplitudeDirect, double *rxTimeDirect, double *rxPhaseRefracted, double *rxAmplitudeRefracted, double *rxTimeRefracted, double *rxPhaseReflected, double *rxAmplitudeReflected, double *rxTimeReflected);
+  int getRxInfoRayTrace(int txindex,int rxindex, HepLorentzVector point, double *rxPhase, double *rxAmplitude, double *rxTime);
   double getPhaseFromAt(HepLorentzVector from, HepLorentzVector at);
   double doScreening(TTree *tree, int entry);
   double plotCausalCharges(TTree *tree, int entry);
