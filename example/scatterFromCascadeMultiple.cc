@@ -92,15 +92,17 @@ void doIt(double lifetimens, double frequency, double power){
     auto rotY=sin(theta)*sin(phi);
     auto rotZ=cos(theta);
 
+    //This is a direction vector that we give to radioscatter so that it knows the direction of the cascade, for later calculations.
     TVector3 direction(0,0,1);//the file has the +z direction as the overall direction.
     direction.RotateX(rotX);
     direction.RotateY(rotY);
     direction.RotateZ(rotZ);
 
-    //need to set these when you move a vertex between events. They trigger a re-calculation of the event output histograms so that the event is centered within the record window. 
+    //need to set these to tell radioscatter when you move a vertex between events. They trigger a re-calculation of the event output histograms so that the event is centered within the record window. 
     radio->setPrimaryDirection(direction);
     radio->setPrimaryPosition(offsetVec);
-    
+
+    //now we loop through every ionization deposit in the cascade
     for(int i=0;i<entries;i++){
       tree->GetEntry(i);
       TLorentzVector pt; //the point of the ionization from which we calculate the individual scatter.
@@ -123,6 +125,7 @@ void doIt(double lifetimens, double frequency, double power){
       radio->makeRays(pt, edep, steplength, ionizationE);
 
     }
+    //write this event
     radio->writeEvent();
   }
   //don't forget to write the run!
