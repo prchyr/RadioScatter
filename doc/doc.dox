@@ -127,5 +127,13 @@ run1.mac:
 	-this will set the tx position and the energies and such, and then will simulate the received signal in 3 antennas
 
 
+
+
+\subsection Some Use Cases
+
+One use of RadioScatter is to generate a lot of events over some volume using a monte-carlo approach, and calculate information about each event. If you run within GEANT4 using one of the examples included, you simply do /RS/setFillByEvent 1 within your macro. This calls a function, radio->writeEvent() after each event. Coupled with setMakeSummary(1), this is a good way to get information that you can use to develop sensitivity curves, etc.
+
+Another use of RadioScatter is to generate a statistically varied sample of events at the same vertex position, to achieve a high-resolution signal. Because RadioScatter calculates the scattering from each individual charge, we can't run over an actual 10^18 eV cascade, as it would take too long. running over a 100GeV cascade even begins to take a long time. but, you can run over a 1-10GeV cascade, which is fast, and then run multiple of them to get some statistical variation in the 4-positions of the ionization deposits. If you were to do this for N events, that is, generate N events at the same vertex position and direction, you wouldn't call writeEvent() at the end of each event, and it would just continue to fill the same event histogram. after all N, you'd run writeRun(N) and the output histogram would be scaled by 1/N to get the correct amplitude for the energy you specified. For more information, see the documentation for setNPrimaries() inside of RadioScatter.cc.
+
 enjoy. questions can be sent to prohira dot 1 at osu dot edu
 */
