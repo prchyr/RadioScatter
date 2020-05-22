@@ -36,7 +36,7 @@
 /RS/setTxFreq 450
 /RS/setRxSampleRate 2.4
 /RS/setRecordWindowLength 100
-/RS/setTxVoltage 223606 //1kw
+/RS/setTxPower 100
 /RS/setCalculateUsingAttnLength 1
 /RS/setPolarization horizontal
 /RS/setIndexOfRefraction 1.51
