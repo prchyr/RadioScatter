@@ -524,7 +524,7 @@ int RadioScatterEvent::plotEvent(int txindex, int rxindex, int noise_flag, int s
     
     for(int i=0;i<nrx;i++){
       if(i==rxindex)continue;
-      rxhist->Fill(1.+rx[i].Z()/1000., 1.+rx[i].X()/1000., 1.+rx[i].Y()/1000., eventHist[txindex][rxindex]->GetMaximum());
+      rxhist->Fill(rx[i].Z()/1000., rx[i].X()/1000., rx[i].Y()/1000., eventHist[txindex][rxindex]->GetMaximum());
     }
     rxhist->BufferEmpty();
     RXHIST_FILLED=1;
@@ -536,11 +536,11 @@ int RadioScatterEvent::plotEvent(int txindex, int rxindex, int noise_flag, int s
     pointingHist->SetBins(101, rxhist->GetXaxis()->GetXmin(), rxhist->GetXaxis()->GetXmax(), 101,rxhist->GetYaxis()->GetXmin(), rxhist->GetYaxis()->GetXmax(),101, rxhist->GetZaxis()->GetXmin(), rxhist->GetZaxis()->GetXmax());
     
     for(int i=0;i<ntx;i++){
-      txhist->Fill(1.+tx[i].Z()/1000., 1.+tx[i].X()/1000., 1.+tx[i].Y()/1000., 1.);
+      txhist->Fill(tx[i].Z()/1000., tx[i].X()/1000., tx[i].Y()/1000., 1.);
       //      std::cout<<tx[i].Z()<<" "<<tx[i].X()<<" "<<tx[i].Y()<<std::endl;    
     }
-    triggeredhist->Fill(1.+rx[rxindex].Z()/1000., 1.+rx[rxindex].X()/1000., 1.+rx[rxindex].Y()/1000., 1.);
-    vertexhist->Fill(1.+position.Z()/1000., 1.+position.X()/1000., 1.+position.Y()/1000., 1.);
+    triggeredhist->Fill(rx[rxindex].Z()/1000., rx[rxindex].X()/1000., rx[rxindex].Y()/1000., 1.);
+    vertexhist->Fill(position.Z()/1000., position.X()/1000., position.Y()/1000., 1.);
 
     //see if we can reconstruct the event
     if(POINTING_MAP_BUILT==0){
@@ -548,11 +548,11 @@ int RadioScatterEvent::plotEvent(int txindex, int rxindex, int noise_flag, int s
     }
     TLorentzVector vvv = pointUsingMap();
 
-    //pointingHist->Fill(1.+vvv.Z()/1000., 1.+vvv.X()/1000., rxhist->GetZaxis()->GetXmax()+(vvv.Y()/1000.), 1.);
+    //pointingHist->Fill(vvv.Z()/1000., vvv.X()/1000., rxhist->GetZaxis()->GetXmax()+(vvv.Y()/1000.), 1.);
     //    TLorentzVector vvv = pointingTest();
     
-    //    pointingHist->Fill(1.+vvv.Z(), 1.+vvv.X(), vvv.Y(), 1.);
-    pointingHist->Fill(1.+vvv.Z()/1000., 1.+vvv.X()/1000., (vvv.Y()/1000.), 1.);
+    //    pointingHist->Fill(vvv.Z(), vvv.X(), vvv.Y(), 1.);
+    pointingHist->Fill(vvv.Z()/1000., vvv.X()/1000., (vvv.Y()/1000.), 1.);
 
     txhist->SetMarkerStyle(3);
     txhist->SetMarkerColor(kRed);
@@ -581,9 +581,9 @@ int RadioScatterEvent::plotEvent(int txindex, int rxindex, int noise_flag, int s
 
     double scale = rxhist->GetXaxis()->GetXmax()/4.;
     //std::cout<<scale<<std::endl;
-    shower_indicator_line->SetPoint(0,1.+position.Z()/1000., 1.+position.X()/1000., 1.+position.Y()/1000.);
+    shower_indicator_line->SetPoint(0,position.Z()/1000., position.X()/1000., position.Y()/1000.);
 
-    shower_indicator_line->SetPoint(1,(1.+position.Z()/1000.)+((direction.Z())*scale), (1.+position.X()/1000.)+((direction.X())*scale), (1.+position.Y()/1000.)+((direction.Y())*scale));
+    shower_indicator_line->SetPoint(1,(position.Z()/1000.)+((direction.Z())*scale), (position.X()/1000.)+((direction.X())*scale), (position.Y()/1000.)+((direction.Y())*scale));
     //std::cout<<"nere"<<std::endl;
     shower_indicator_line->SetLineWidth(3);
     shower_indicator_line->SetLineColor(kViolet);
@@ -695,7 +695,7 @@ int RadioScatterEvent::plotEventNotebook(int txindex, int rxindex, int noise_fla
     
     for(int i=0;i<nrx;i++){
       if(i==rxindex)continue;
-      rxhist->Fill(1.+rx[i].Z()/1000., 1.+rx[i].X()/1000., 1.+rx[i].Y()/1000., eventHist[txindex][rxindex]->GetMaximum());
+      rxhist->Fill(rx[i].Z()/1000., rx[i].X()/1000., rx[i].Y()/1000., eventHist[txindex][rxindex]->GetMaximum());
     }
     rxhist->BufferEmpty();
     RXHIST_FILLED=1;
@@ -707,11 +707,11 @@ int RadioScatterEvent::plotEventNotebook(int txindex, int rxindex, int noise_fla
     pointingHist->SetBins(101, rxhist->GetXaxis()->GetXmin(), rxhist->GetXaxis()->GetXmax(), 101,rxhist->GetYaxis()->GetXmin(), rxhist->GetYaxis()->GetXmax(),101, rxhist->GetZaxis()->GetXmin(), rxhist->GetZaxis()->GetXmax());
     
     for(int i=0;i<ntx;i++){
-      txhist->Fill(1.+tx[i].Z()/1000., 1.+tx[i].X()/1000., 1.+tx[i].Y()/1000., 1.);
+      txhist->Fill(tx[i].Z()/1000., tx[i].X()/1000., tx[i].Y()/1000., 1.);
       //      std::cout<<tx[i].Z()<<" "<<tx[i].X()<<" "<<tx[i].Y()<<std::endl;    
     }
-    triggeredhist->Fill(1.+rx[rxindex].Z()/1000., 1.+rx[rxindex].X()/1000., 1.+rx[rxindex].Y()/1000., 1.);
-    vertexhist->Fill(1.+position.Z()/1000., 1.+position.X()/1000., 1.+position.Y()/1000., 1.);
+    triggeredhist->Fill(rx[rxindex].Z()/1000., rx[rxindex].X()/1000., rx[rxindex].Y()/1000., 1.);
+    vertexhist->Fill(position.Z()/1000., position.X()/1000., position.Y()/1000., 1.);
 
     //see if we can reconstruct the event
     if(POINTING_MAP_BUILT==0){
@@ -719,11 +719,11 @@ int RadioScatterEvent::plotEventNotebook(int txindex, int rxindex, int noise_fla
     }
     TLorentzVector vvv = pointUsingMap();
 
-    //pointingHist->Fill(1.+vvv.Z()/1000., 1.+vvv.X()/1000., rxhist->GetZaxis()->GetXmax()+(vvv.Y()/1000.), 1.);
+    //pointingHist->Fill(vvv.Z()/1000., vvv.X()/1000., rxhist->GetZaxis()->GetXmax()+(vvv.Y()/1000.), 1.);
     //    TLorentzVector vvv = pointingTest();
     
-    //    pointingHist->Fill(1.+vvv.Z(), 1.+vvv.X(), vvv.Y(), 1.);
-    pointingHist->Fill(1.+vvv.Z()/1000., 1.+vvv.X()/1000., (vvv.Y()/1000.), 1.);
+    //    pointingHist->Fill(vvv.Z(), vvv.X(), vvv.Y(), 1.);
+    pointingHist->Fill(vvv.Z()/1000., vvv.X()/1000., (vvv.Y()/1000.), 1.);
 
     txhist->SetMarkerStyle(3);
     txhist->SetMarkerColor(kRed);
@@ -752,9 +752,9 @@ int RadioScatterEvent::plotEventNotebook(int txindex, int rxindex, int noise_fla
 
     double scale = rxhist->GetXaxis()->GetXmax()/4.;
     //std::cout<<scale<<std::endl;
-    shower_indicator_line->SetPoint(0,1.+position.Z()/1000., 1.+position.X()/1000., 1.+position.Y()/1000.);
+    shower_indicator_line->SetPoint(0,position.Z()/1000., position.X()/1000., position.Y()/1000.);
 
-    shower_indicator_line->SetPoint(1,(1.+position.Z()/1000.)+((direction.Z())*scale), (1.+position.X()/1000.)+((direction.X())*scale), (1.+position.Y()/1000.)+((direction.Y())*scale));
+    shower_indicator_line->SetPoint(1,(position.Z()/1000.)+((direction.Z())*scale), (position.X()/1000.)+((direction.X())*scale), (position.Y()/1000.)+((direction.Y())*scale));
     //std::cout<<"nere"<<std::endl;
     shower_indicator_line->SetLineWidth(3);
     shower_indicator_line->SetLineColor(kViolet);
@@ -878,7 +878,7 @@ int RadioScatterEvent::buildMap(){
   //redundant but that's OK
   if(RXHIST_FILLED==0){
     for(int i=0;i<nrx;i++){
-      rxhist->Fill(1.+rx[i].Z()/1000., 1.+rx[i].X()/1000., 1.+rx[i].Y()/1000., 1.);
+      rxhist->Fill(rx[i].Z()/1000., rx[i].X()/1000., rx[i].Y()/1000., 1.);
     }
     rxhist->BufferEmpty();
     RXHIST_FILLED=1;
@@ -941,7 +941,7 @@ TLorentzVector RadioScatterEvent::pointUsingMap(){
   double dt2=rx[4].T()-rx[0].T();
 
   //make sure we have 4 antennas (requisite number to point 3 pairs)
-  if(triggered(thermalNoiseRMS()*2, 4)==0){
+  if(triggered(thermalNoiseRMS(), 4)==0){
     TLorentzVector dummy(99999999,99999999,99999999,99999999);
     std::cout<<"can't point, not enough antennas"<<std::endl;
     return dummy;

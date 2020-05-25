@@ -85,6 +85,9 @@ public:
   vector<vector<double>> integratedPower;
   vector<vector<double>> peakPowerW;
   vector<vector<double>> pathLengthM;
+  std::vector<std::vector<double>> beta;
+  std::vector<std::vector<double>> delta;
+  std::vector<std::vector<double>> doppler;
   
 
   int triggered(double thresh, int n_antennas=1);

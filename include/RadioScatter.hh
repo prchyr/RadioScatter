@@ -263,7 +263,7 @@ this is important when running over some arbitrary shower input file, as there i
 
   void setPrimaryPosition(TVector3 p);  ///<set the position of the primary. useful for several calculations
 
-  void setPrimaryDirection(TVector3 p);  ///<set the direction of the primary. 
+  void setPrimaryDirection(TVector3 d);  ///<set the direction of the primary. 
 
   void setTargetEnergy(double e);  ///<not used
   ///<not used
@@ -384,7 +384,7 @@ double getTxAmplitude(int index,TLorentzVector point);
   int BOUNDARY_FLAG=0;
   bool RSCAT_HIST_DECLARE=false;
   bool RSCAT_HIST_RESIZE=false;
-
+  bool RSCAT_POSITION_SET=false;
   int fRunCounter=0;
 };
 

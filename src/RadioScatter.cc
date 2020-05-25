@@ -295,13 +295,52 @@ void RadioScatter::setPrimaryEnergy(double e){
   event.primaryEnergy=e;
   PRIMARY_ENERGY_SET=1;
 }
-void RadioScatter::setPrimaryDirection(TVector3 p){
-  event.direction=p;
+void RadioScatter::setPrimaryDirection(TVector3 d){
+  if(RSCAT_POSITION_SET==0){
+    cout<<"position not set yet! please define vertex position before setting the direction."<<endl;
+    exit(0);
+  }
+  event.delta.resize(ntx, vector<double>(nrx, 0.));
+  event.direction=d;
+  auto p=event.position;
+  for(int i=0;i<ntx;i++){
+    auto p_tx=tx[i].Vect()-p;
+    for(int j=0;j<nrx;j++){
+      auto p_rx=rx[j].Vect()-p;
+      auto tx_rx=rx[j].Vect()-tx[i].Vect();
+      auto beta=p_tx.Angle(p_rx);
+      auto alpha=tx_rx.Angle(p_tx);
+      auto gamma=pi-alpha-(beta/2.);
+      auto c=p_tx.Mag();
+      auto a=(c*sin(alpha))/sin(gamma);
+      auto b = (c*sin(beta/2.))/sin(gamma);
+      auto bVec=tx_rx;
+      bVec.SetMag(b);
+      auto B1=tx[i].Vect()+bVec;
+      auto B2=B1-p;
+      auto delta=d.Angle(B2);
+      event.delta[i][j]=delta;
+    }
+  }
+
   RSCAT_HIST_RESIZE=false;
 }
+
 void RadioScatter::setPrimaryPosition(TVector3 p){
+
   event.position=p;
+  event.beta.resize(ntx, vector<double>(nrx, 0.));
+  for(int i=0;i<ntx;i++){
+    auto p_tx=tx[i].Vect()-p;
+    for(int j=0;j<nrx;j++){
+      auto p_rx=rx[j].Vect()-p;
+      auto tx_rx=rx[j].Vect()-tx[i].Vect();
+      auto beta=p_tx.Angle(p_rx);
+      event.beta[i][j]=beta;
+    }
+  }
   RSCAT_HIST_RESIZE=false;
+  RSCAT_POSITION_SET=true;
 }
 void RadioScatter::setPolarization(const char * p){
   pol=p;
@@ -1132,6 +1171,9 @@ int RadioScatter::makeSummary(TFile *f){
 	rss->pathLengthM[j][k]=rs->pathLengthM(j,k);
 	rss->rms[j][k]=rs->rms(j,k);
 	rss->effectiveCrossSection[j][k]=rs->effectiveCrossSection(j,k);
+	rss->delta[j][k]=rs->delta[j][k];
+	rss->beta[j][j]=rs->beta[j][j];
+	rss->doppler[j][k]=2*rs->freq*cos(rs->delta[j][k])*cos(rs->beta[j][k]/2);
       }
     }
     outfile->cd();
