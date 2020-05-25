@@ -524,7 +524,7 @@ int RadioScatterEvent::plotEvent(int txindex, int rxindex, int noise_flag, int s
     
     for(int i=0;i<nrx;i++){
       if(i==rxindex)continue;
-      rxhist->Fill(rx[i].Z()/1000., rx[i].X()/1000., rx[i].Y()/1000., eventHist[txindex][rxindex]->GetMaximum());
+      rxhist->Fill(10.+rx[i].Z()/1000., 10.+rx[i].X()/1000., 10.+rx[i].Y()/1000.+1, eventHist[txindex][rxindex]->GetMaximum());
     }
     rxhist->BufferEmpty();
     RXHIST_FILLED=1;
