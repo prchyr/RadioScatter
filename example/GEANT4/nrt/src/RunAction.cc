@@ -189,11 +189,12 @@ some example commands below, all of which can (and should) be set in the macro f
     auto gpsDat=G4GeneralParticleSourceData::Instance();
     auto gps = gpsDat->GetCurrentSource();
     fRadio->setPrimaryEnergy(gps->GetParticleEnergy());
-    TVector3 dirV(gps->GetParticleMomentumDirection().x(), gps->GetParticleMomentumDirection().y(),gps->GetParticleMomentumDirection().z());
-    fRadio->setPrimaryDirection(dirV);
     TVector3 pos(gps->GetParticlePosition().x(), gps->GetParticlePosition().y(),gps->GetParticlePosition().z());
     
     fRadio->setPrimaryPosition(pos);
+
+    TVector3 dirV(gps->GetParticleMomentumDirection().x(), gps->GetParticleMomentumDirection().y(),gps->GetParticleMomentumDirection().z());
+    fRadio->setPrimaryDirection(dirV);
     //fRadio->setPrimaryDirection(gps->GetParticleMomentumDirection());
     //fRadio->setPrimaryPosition(gps->GetParticlePosition());
   
@@ -235,11 +236,12 @@ void RunAction::EndOfRunAction(const G4Run* r)
     auto gpsDat=G4GeneralParticleSourceData::Instance();
     auto gps = gpsDat->GetCurrentSource();
     fRadio->setPrimaryEnergy(gps->GetParticleEnergy());
-    TVector3 dirV(gps->GetParticleMomentumDirection().x(), gps->GetParticleMomentumDirection().y(),gps->GetParticleMomentumDirection().z());
-    fRadio->setPrimaryDirection(dirV);
     TVector3 pos(gps->GetParticlePosition().x(), gps->GetParticlePosition().y(),gps->GetParticlePosition().z());
     
     fRadio->setPrimaryPosition(pos);
+
+    TVector3 dirV(gps->GetParticleMomentumDirection().x(), gps->GetParticleMomentumDirection().y(),gps->GetParticleMomentumDirection().z());
+    fRadio->setPrimaryDirection(dirV);
 
     //    fRadio->setPrimaryDirection(gps->GetParticleMomentumDirection());
     //fRadio->setPrimaryPosition(gps->GetParticlePosition());

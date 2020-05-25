@@ -88,10 +88,11 @@ void EventAction::BeginOfEventAction(const G4Event* /*event*/)
     auto gpsDat=G4GeneralParticleSourceData::Instance();
     auto gps = gpsDat->GetCurrentSource();
     fRadio->setPrimaryEnergy(gps->GetParticleEnergy());
-        TVector3 dir(gps->GetParticleMomentumDirection().x(), gps->GetParticleMomentumDirection().y(),gps->GetParticleMomentumDirection().z());
-    fRadio->setPrimaryDirection(dir);
     TVector3 pos(gps->GetParticlePosition().x(), gps->GetParticlePosition().y(),gps->GetParticlePosition().z());
     fRadio->setPrimaryPosition(pos);
+
+    TVector3 dir(gps->GetParticleMomentumDirection().x(), gps->GetParticleMomentumDirection().y(),gps->GetParticleMomentumDirection().z());
+    fRadio->setPrimaryDirection(dir);
 
     //fRadio->setPrimaryDirection(gps->GetParticleMomentumDirection());
     //fRadio->setPrimaryPosition(gps->GetParticlePosition());

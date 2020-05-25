@@ -187,7 +187,7 @@ int main(int argc,char** argv)
     rx.SetMag(mag);
     rx.SetTheta(pi/2);
     rx.SetPhi(pi);
-    radio->setNTx(1);
+    //    radio->setNTx(1);
 
     //    double div=25.;
 
@@ -197,8 +197,8 @@ int main(int argc,char** argv)
     //    double halfstep=step/2
     //    for(double i=0;i<twoPi;i+=radianstep){
     double i=0.0001;
-    tx.SetPhi(pi);
-    tx.SetTheta(pi/2.);
+    //tx.SetPhi(pi);
+    //tx.SetTheta(pi/2.);
     int n=0;
 
     //make a sphere
@@ -258,7 +258,7 @@ int main(int argc,char** argv)
     //   //      cout<<tx.x()<<" "<<tx.y()<<" "<<tx.z()<<endl;
     // }
     //    runManager->BeamOn(1);
-    runManager->BeamOn(100);
+    runManager->BeamOn(10);
   }
 
 
