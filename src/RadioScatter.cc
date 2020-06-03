@@ -204,7 +204,7 @@ void RadioScatter::setRxPos(TVector3 in, int index){
   }
  void RadioScatter::setTxFreq(double f){
    TX_FREQ_SET=1;
-   frequency = f*MHz;
+   frequency = f;//*MHz;
   omega = frequency*twoPi;
   period = 1./omega;
   lambda = c_light/f;
