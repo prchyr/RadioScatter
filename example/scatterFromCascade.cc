@@ -6,7 +6,7 @@ we then set the simulation parameters. transmitter frequency, power, polarizatio
 
 finally, we simply loop through the file and calculate the scatter. for this, compile against the root libraries (`root-config --cflags --glibs --libs`) and the radioscatter library (-lRadioScatter) once you've installed. it should run in about 1 second. try:
 
-./scatterFromCascade 3 500 100
+./scatterFromCascade 3 .5 100
 
 for a 500MHz transmitter at 100W with a 3ns plasma lifetime.
 
@@ -61,8 +61,8 @@ void doIt(double lifetimens, double frequency, double power){
   radio->setRxSampleRate(10.);//receiver sample rate
   radio->setRxGain(9);//receiver gain in dB
   radio->setRecordWindowLength(100);//length of the received window
-  radio->setCalculateUsingAttnLength(1);//use ice attenuation length in the calculation?
-  radio->setPolarization("vertical");//antenna polarization. currently vertical = (0,0,1) and horizontal = (0,1,0); 
+  radio->setCalculateUsingAttnLength(0);//use ice attenuation length in the calculation?
+  radio->setPolarization("horizontal");//antenna polarization. currently vertical = (0,1,0) and horizontal = (0,0,1); 
   radio->setPrimaryEnergy(1e4);//10GeV in MeV. need to set this for the scaling to be correct, if you simulate a higher energy shower than the input file (which was 10GeV)
   radio->setScaleByEnergy(0);//scales the shower longitudinally by a factor to simulate a higher energy shower. not exact, but fast.
   radio->setMakeSummary(1);//make a nice summary file for simple plotting of things like peak power, voltage, etc.
@@ -92,7 +92,7 @@ void doIt(double lifetimens, double frequency, double power){
 
 int main(int argc, char**argv){
   if(argc!=4){
-    cout<<"usage ./scatterFromCascade <plasma lifetime [ns]> <frequency [MHz]> <tx power [W]>"<<endl;
+    cout<<"usage ./scatterFromCascade <plasma lifetime [ns]> <frequency [GHz]> <tx power [W]>"<<endl;
     exit (0);
   }
   doIt(stod(argv[1]), stod(argv[2]), stod(argv[3]));

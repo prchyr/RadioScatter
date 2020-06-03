@@ -8,7 +8,7 @@ we then set the simulation parameters. transmitter frequency, power, polarizatio
 
 finally, we simply loop through the file and calculate the scatter. for this, compile against the root libraries (`root-config --cflags --glibs --libs`) and the radioscatter library (-lRadioScatter) once you've installed. it should run in about 1 second. try:
 
-./scatterFromCascade 3 500 100
+./scatterFromCascade 3 .5 100
 
 for a 500MHz transmitter at 100W with a 3ns plasma lifetime.
 
@@ -138,7 +138,7 @@ void doIt(double lifetimens, double frequency, double power){
 
 int main(int argc, char**argv){
   if(argc!=4){
-    cout<<"usage ./scatterFromCascade <plasma lifetime [ns]> <frequency [MHz]> <tx power [W]>"<<endl;
+    cout<<"usage ./scatterFromCascade <plasma lifetime [ns]> <frequency [GHz]> <tx power [W]>"<<endl;
     exit (0);
   }
   doIt(stod(argv[1]), stod(argv[2]), stod(argv[3]));
