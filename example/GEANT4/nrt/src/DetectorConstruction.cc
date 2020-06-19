@@ -145,9 +145,9 @@ void DetectorConstruction::DefineMaterials()
 
   //compressed air
   //  density = .4397*g/cm3;//for 340atm
-    density=.396*g/cm3;//for 306.2atm
-    G4Material *compressedAir = new G4Material("compressedAir", density, ncomponents=2, kStateGas, 273.*kelvin, 306.2*atmosphere);
-    //G4Material *compressedAir = new G4Material("compressedAir", density, ncomponents=2, kStateGas, 273.*kelvin, 340.*atmosphere);
+  density=.396*g/cm3;//for 306.2atm
+  G4Material *compressedAir = new G4Material("compressedAir", density, ncomponents=2, kStateGas, 273.*kelvin, 306.2*atmosphere);
+  //G4Material *compressedAir = new G4Material("compressedAir", density, ncomponents=2, kStateGas, 273.*kelvin, 340.*atmosphere);
   compressedAir->AddElement(elN, fractionmass=0.7);
   compressedAir->AddElement(elO, fractionmass=0.3);
   //dense helium
@@ -172,64 +172,26 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
 {
   // Geometry parameters
   G4int nofLayers = 1;
-  G4double psThickness = .0000001*mm;
-  G4double absoThickness = 1.*m;
-
-  // //for the T510 poly target
-  // G4double dx1= .5*61*cm;
-  // G4double dx2= .5*61*cm;
-  // G4double dy2= .5*97*cm;//Because of getting the Half of the trapezoid
-  // G4double dy1= .5*25.4*cm;
-  // G4double dz=  .5*396*cm;
-
-  //for the T510 poly target in t576 configuration
-  // G4double dx1= .5*61*cm;
-  // G4double dx2= .5*61*cm;
-  // G4double dy2= .5*51.44*cm;
-  // G4double dy1= .5*51.44*cm;
-  // G4double dz=  .5*396*cm;
-
-
   
-  //for the poly cylinder
-  G4double tgtRadius = 1.5*2.54*cm;//1.5 inches
-  G4double tgtLength = 12*12*2.54*cm;//12 feet
-
   //for a full world volume (no refraction)
   G4double dz=10*km;
   G4double dy=10*km;
   G4double dx=10*km;
-  G4double dx1=dx;
-
-
-  //  G4double gapThickness = 3.*tankRadius;
-  G4double bossLength = 8.*cm;
-  G4double bossRadius = 3.*cm;
-
-  G4double targetSizeXY = 2.*dx1;
+  
+  G4double targetSizeXY = 2.*dx;
   auto layerThickness = 2.*dz;
-  //  auto layerThickness = tgtLength;
-  //    auto layerThickness = iceThickness;
-  //    auto layerThickness = absoThickness + gapThickness;
+
   auto targetThickness = (nofLayers * layerThickness);
-  auto worldSizeXY = 10. * targetThickness;
-  auto worldSizeZ  = 10. * targetThickness; 
+  auto worldSizeXY = 2. * targetThickness;
+  auto worldSizeZ  = 2. * targetThickness; 
   
   // Get materials
   auto defaultMaterial = G4Material::GetMaterial("Galactic");
-  auto absorberMaterial = G4Material::GetMaterial("G4_AIR");
   auto airMaterial = G4Material::GetMaterial("G4_AIR");
-  auto targetMaterial = G4Material::GetMaterial("G4_POLYETHYLENE");
-  auto compressedAirMaterial = G4Material::GetMaterial("G4_POLYPROPYLENE");
-  //  auto compressedAirMaterial = G4Material::GetMaterial("G4_CONCRETE");
-  
-  // auto compressedAirMaterial = G4Material::GetMaterial("G4_POLYETHYLENE");
-  //  auto compressedAirMaterial = G4Material::GetMaterial("wood");
   auto iceMaterial = G4Material::GetMaterial("Ice");
-  auto tankMaterial = G4Material::GetMaterial("G4_AIR");
-  auto psMaterial = G4Material::GetMaterial("G4_AIR");
-  auto bossMaterial = G4Material::GetMaterial("G4_Fe");
-  if ( ! defaultMaterial || ! absorberMaterial || ! tankMaterial ) {
+  auto plasticMaterial = G4Material::GetMaterial("G4_POLYETHYLENE");
+
+  if ( ! defaultMaterial || ! iceMaterial || ! airMaterial) {
     G4ExceptionDescription msg;
     msg << "Cannot retrieve materials already defined."; 
     G4Exception("DetectorConstruction::DefineVolumes()",
@@ -260,88 +222,51 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
                  0,                // copy number
                  fCheckOverlaps);  // checking overlaps 
 
-  G4RotationMatrix *rot = new G4RotationMatrix();
-  rot->set(G4ThreeVector(1, 0, 0), pi/2);
-  G4RotationMatrix *rot2 = new G4RotationMatrix();
-  rot2->set(G4ThreeVector(-1, 0, 0), pi/2);
-  
-  auto txS = new G4Tubs("tx", 0., 10*cm, 30*cm, 0, twopi);
-  auto txLV = new G4LogicalVolume(txS, absorberMaterial, "tx");
-  new G4PVPlacement(rot, G4ThreeVector(-5*m,0, 2*m), txLV, "tx", worldLV, false, 0, fCheckOverlaps);
-  
-  auto rxS = new G4Tubs("rx", 0., 10*cm, 30*cm, 0, twopi);
-  auto rxLV = new G4LogicalVolume(rxS, absorberMaterial, "rx");
-  new G4PVPlacement(rot, G4ThreeVector(5*m,0, 2*m), rxLV, "rx", worldLV, false, 0, fCheckOverlaps);
 
-  auto daqS = new G4Box("daq", 15*cm, 10*cm, 20*cm);
-  auto daqLV = new G4LogicalVolume(daqS, psMaterial, "daq");
-  new G4PVPlacement(0, G4ThreeVector(5*m,0, 2.5*m), daqLV, "daq", worldLV, false, 0, fCheckOverlaps);
                                 
-  // Target
-  //  
-  auto targetS
-    = new G4Box("Target",     // its name
-                 targetSizeXY/2, targetSizeXY/2, targetThickness/2); // its size
+  // // Target
+  // //  
+  // auto targetS
+  //   = new G4Box("Target",     // its name
+  //                targetSizeXY/2, targetSizeXY/2, targetThickness/2); // its size
                          
-  auto targetLV
-    = new G4LogicalVolume(
-                 targetS,     // its solid
-                 defaultMaterial,  // its material
-                 "Target");   // its name
-                                   
-  new G4PVPlacement(
-                 0,                // no rotation
-                 G4ThreeVector(0,0,targetThickness/2),  // at (0,0,0)
-                 targetLV,          // its logical volume                         
-                 "Target",    // its name
-                 worldLV,          // its mother  volume
-                 false,            // no boolean operation
-                 0,                // copy number
-                 fCheckOverlaps);  // checking overlaps 
-
-    //pre-shower plate
-  auto psS 
-    = new G4Box("Ps",             // its name
-                 targetSizeXY/2, targetSizeXY/2, psThickness/2); // its size
-                         
-  auto psLV
-    = new G4LogicalVolume(
-                 psS,             // its solid
-                 psMaterial,      // its material
-                 "Ps");           // its name
-                                   
-  fPsPV
-    = new G4PVPlacement(
-                 0,                // no rotation
-                 G4ThreeVector(0., 0.,-psThickness), // its position
-                 psLV,            // its logical volume
-                 "Ps",            // its name
-                 worldLV,          // its mother  volume
-                 false,            // no boolean operation
-                 0,                // copy number
-                 fCheckOverlaps);  // checking overlaps 
+  // auto targetLV
+  //   = new G4LogicalVolume(
+  //                targetS,     // its solid
+  //                defaultMaterial,  // its material
+  //                "Target");   // its name
+  // auto targetPV                                   
+  //   = new G4PVPlacement(
+  //                0,                // no rotation
+  //                G4ThreeVector(0,0,0),  // at (0,0,0)
+  //                targetLV,          // its logical volume                         
+  //                "Target",    // its name
+  //                worldLV,          // its mother  volume
+  //                false,            // no boolean operation
+  //                0,                // copy number
+  //                fCheckOverlaps);  // checking overlaps 
 
   //                                 
   // Layer
   //
-  auto layerS
+  // auto layerS
     
-    = new G4Box("Layer",           // its name
-                 targetSizeXY/2, targetSizeXY/2, layerThickness/2); // its size
+  //   = new G4Box("Layer",           // its name
+  //                targetSizeXY/2, targetSizeXY/2, layerThickness/2); // its size
                          
-  auto layerLV
-    = new G4LogicalVolume(
-                 layerS,           // its solid
-                 airMaterial,  // its material
-                 "Layer");         // its name
+  // auto layerLV
+  //   = new G4LogicalVolume(
+  //                layerS,           // its solid
+  //                airMaterial,  // its material
+  //                "Layer");         // its name
 
-  new G4PVReplica(
-                 "Layer",          // its name
-                 layerLV,          // its logical volume
-                 targetLV,          // its mother
-                 kZAxis,           // axis of replication
-                 nofLayers,        // number of replica
-                 layerThickness);  // witdth of replica
+  // new G4PVReplica(
+  //                "Layer",          // its name
+  //                layerLV,          // its logical volume
+  //                worldLV,          // its mother
+  //                kZAxis,           // axis of replication
+  //                nofLayers,        // number of replica
+  //                layerThickness);  // witdth of replica
 
 
   //------------------------------ 
@@ -350,93 +275,25 @@ G4VPhysicalVolume* DetectorConstruction::DefineVolumes()
 
   // Define Target Volume
 
-  //uncomment for the full world volume
-   auto box = new G4Box("box", dx, dy, dz);
+
+  auto box = new G4Box("box", dx, dy, dz);
   auto tgtLV = new G4LogicalVolume(box, iceMaterial, "Tgt");
-  fTgtPV = new G4PVPlacement(0, G4ThreeVector(0., -.5*dy, 0.), tgtLV, "Tgt", layerLV, false, 0, fCheckOverlaps);
+  //fTgtPV = new G4PVPlacement(0, G4ThreeVector(0., -.5*dy, 0.), tgtLV, "Tgt", layerLV, false, 0, fCheckOverlaps);
+  fTgtPV = new G4PVPlacement(0, G4ThreeVector(0., 0., 0.), tgtLV, "Tgt", worldLV, false, 0, fCheckOverlaps);
 
 
-  //this is the T510 target
-  // auto trapezoid = new G4Trd("trapezoid", dx1, dx2, dy1, dy2, dz);
-  // auto box = new G4Box("box", 2.*dx1, dy2, 2.*dz);
-  // auto tgtS = new G4SubtractionSolid("Tgt", trapezoid, box, G4Translate3D(0., -dy1-dy2, 0.));
-  // auto tgtLV = new G4LogicalVolume(tgtS, targetMaterial, "Tgt");
-  //  fTgtPV = new G4PVPlacement(0, G4ThreeVector(0., -.5*dy2, 0.), tgtLV, "Tgt", layerLV, false, 0, fCheckOverlaps);
-
-
-     //this is the T510 target in the t576 configuration
-  //auto trapezoid = new G4Trd("trapezoid", dx1, dx2, dy1, dy2, dz);
-
-  //auto box = new G4Box("Tgt", dx1, dy1, dz);
-  //  auto tgtS = new G4SubtractionSolid("Tgt", trapezoid, box, G4Translate3D(0., -dy1-dy2, 0.));
-  //auto tgtLV = new G4LogicalVolume(box, targetMaterial, "Tgt");
-  //fTgtPV = new G4PVPlacement(0, G4ThreeVector(0., 0, 0.), tgtLV, "Tgt", layerLV, false, 0, fCheckOverlaps);
-
-
-  //for a cylinder instead of the T510 target (comment the above stuff)
-  // auto tgtS = new G4Tubs("Tgt", 0., tgtRadius, tgtLength/2, 0., twopi);
-  // auto tgtLV = new G4LogicalVolume(tgtS, targetMaterial, "Tgt");
-  // fTgtPV = new G4PVPlacement(0, G4ThreeVector(0,0,0), tgtLV, "Tgt", layerLV, false, 0, fCheckOverlaps);
-  //                               
-  // Absorber
-  //
-  auto absorberS 
-    = new G4Box("Abso",            // its name
-                 targetSizeXY/2, targetSizeXY/2, absoThickness/2); // its size
-                         
-  auto absorberLV
-    = new G4LogicalVolume(
-                 absorberS,        // its solid
-                 absorberMaterial, // its material
-                 "Abso");          // its name
-                                   
-  fAbsorberPV
-    = new G4PVPlacement(
-                 0,                // no rotation
-                 G4ThreeVector(0., 0., targetThickness+absoThickness/2), // its position
-                 absorberLV,       // its logical volume                         
-                 "Abso",           // its name
-                 worldLV,          // its mother  volume
-                 false,            // no boolean operation
-                 0,                // copy number
-                 fCheckOverlaps);  // checking overlaps 
-
-    //                                        
+  //                                        
   // Visualization attributes
   //
   //      worldLV->SetVisAttributes (G4VisAttributes::GetInvisible());
 
   
-  auto airVisAtt= new G4VisAttributes(G4Colour(0.1,0.1,1.0));
-  airVisAtt->SetVisibility(true);
-  airVisAtt->SetForceSolid(true);
-  //  airLV->SetVisAttributes(airVisAtt);
-
-  auto psVisAtt= new G4VisAttributes(G4Colour(0.9,0.8,1.0));
-  psVisAtt->SetVisibility(true);
-  psVisAtt->SetForceSolid(true);
-  psLV->SetVisAttributes(psVisAtt);
-  // airLV->SetVisAttributes(psVisAtt);
-  //  daqLV->SetVisAttributes(psVisAtt);
-  // tankLV->SetVisAttributes(psVisAtt);
-  // tank_cap_front_LV->SetVisAttributes(psVisAtt);
-  // tank_cap_back_LV->SetVisAttributes(psVisAtt);
+  
   auto tgtVisAtt = new G4VisAttributes(G4Colour(.9, .7, .4));
   tgtVisAtt->SetVisibility(true);
   tgtVisAtt->SetForceSolid(true);
   tgtLV->SetVisAttributes(tgtVisAtt);
-  
-  auto absoVisAtt= new G4VisAttributes(G4Colour(1.0,1.0,1.0));
-  absoVisAtt->SetVisibility(true);
-  absoVisAtt->SetForceSolid(true);
-  absoVisAtt->SetForceAuxEdgeVisible(true);
-  absorberLV->SetVisAttributes(absoVisAtt);
-
-  auto bossVisAtt = new G4VisAttributes(G4Colour(.5, .5, 0));
-  //  bossLV->SetVisAttributes(bossVisAtt);
-  //  airLV->SetVisAttributes(bossVisAtt);
-
-  
+    
   // Always return the physical World
   //
   return worldPV;
