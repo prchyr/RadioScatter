@@ -183,7 +183,7 @@ int main(int argc,char** argv)
      TRandom *ran = new TRandom();
      ran->SetSeed();
      TVector3 rx(1., 1., 1.), tx(1., 1., 1.);
-    double mag=100000;
+    double mag=1000000;
     rx.SetMag(mag);
     rx.SetTheta(pi/2);
     rx.SetPhi(pi);
@@ -202,7 +202,7 @@ int main(int argc,char** argv)
     int n=0;
 
     //make a sphere
-    double div=40;
+    double div=20;
     double radianstep=twoPi/div;
     radio->setNRx(div*(div/2));
     while(i<twoPi){
@@ -258,7 +258,7 @@ int main(int argc,char** argv)
     //   //      cout<<tx.x()<<" "<<tx.y()<<" "<<tx.z()<<endl;
     // }
     //    runManager->BeamOn(1);
-    runManager->BeamOn(10);
+    runManager->BeamOn(1);
   }
 
 
@@ -643,7 +643,7 @@ for(int i=0;i<9;i++){
   }
   }
   else{
-    //    UImanager->ApplyCommand("/control/execute "+macro);
+    UImanager->ApplyCommand("/control/execute "+macro);
     if (ui->IsGUI()) {
       UImanager->ApplyCommand("/control/execute gui.mac");
     }

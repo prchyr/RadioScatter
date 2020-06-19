@@ -113,7 +113,7 @@ public:
   double attnLength=1400.;///<average length for upper 1.5km at pole. is changeable
 
   ///<misc rf constants
-  double frequency=1000, period, lambda, k, omega;
+  double frequency=1, period, lambda, k, omega;
   double phase0=0.;
 
   ///<these are changed based on the gain, so the defaults here are meaningless.
@@ -385,6 +385,7 @@ double getTxAmplitude(int index,TLorentzVector point);
   bool RSCAT_HIST_DECLARE=false;
   bool RSCAT_HIST_RESIZE=false;
   bool RSCAT_POSITION_SET=false;
+  bool RSCAT_DIRECTION_SET=false;
   int fRunCounter=0;
 };
 

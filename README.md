@@ -1,6 +1,6 @@
-![RadioScatter](doc/RSLogo.png)
+ <img src="doc/RSLogo.png" alt="RadioScatter"> 
 
-this is the RadioScatter module. It has been made to run independently of, or within, GEANT4. It simulates RF scattering from points in 4 space, which may be ionization deposits left by particle showers produced in geant4. it is highly customizable. more information is found in the header files where the functions are documented, and the examples.
+This is the RadioScatter module. It has been made to run independently of, or within, GEANT4. It simulates RF scattering from points in 4 space, which may be ionization deposits left by particle showers produced in geant4. it is highly customizable. more information is found in the header files where the functions are documented, and the examples.
 
 ### Prerequisites
 
