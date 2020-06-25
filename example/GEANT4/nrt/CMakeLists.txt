@@ -89,9 +89,7 @@ set(NRT_SCRIPTS
   gui.mac
   init_vis.mac
   effectivevol.mac
-  run1.mac
-  run2.mac
-  run3.mac
+  single.mac
   vis.mac
   )
 
