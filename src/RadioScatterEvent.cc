@@ -184,7 +184,8 @@ double RadioScatterEvent::duration(int txindex, int rxindex){
   double lastval=0, val, time1=0, time2=0, avg=0, last_avg=0;
   //  std::deque<double> avg_vec(10, 0);
   double thresh=.01;
-  double highthresh=.01, lowthresh=.0001;
+  double highthresh=.3*TUtilRadioScatter::max(&og);
+  double lowthresh=.1*TUtilRadioScatter::max(&og);
   for(int i=10;i<n-10;i++){
     // avg_vec.pop_front();
     // avg_vec.push_back(yy[i]);
