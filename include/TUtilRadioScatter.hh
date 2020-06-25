@@ -478,6 +478,7 @@ utilities.
 
   //get the time of the first threshold crossing after after
   double getFirstThresholdCrossing(TGraph *inGr, double thresh, double after=0.);
+  double getLastThresholdCrossing(TGraph *inGr, double thresh, double after=0.);
 
 
   //drawing things

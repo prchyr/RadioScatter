@@ -1897,6 +1897,23 @@ double TUtilRadioScatter::getFirstThresholdCrossing(TGraph *inGr, double thresh,
     return crossTime;
 }
 
+double TUtilRadioScatter::getLastThresholdCrossing(TGraph *inGr, double thresh, double after){
+  double thisVal;
+  double lastVal;
+  double crossTime=0.;
+  for(int i=0;i<inGr->GetN();i++){
+    if(inGr->GetX()[i]<after)continue;
+    thisVal=inGr->GetY()[i];
+    if(thisVal<thresh&&lastVal>=thresh){
+      crossTime=inGr->GetX()[i];
+      // break;
+    }
+    lastVal=thisVal;
+  }
+    return crossTime;
+}
+
+
 double TUtilRadioScatter::sinc(double x){
   if(x==0.){
     return 1.;
