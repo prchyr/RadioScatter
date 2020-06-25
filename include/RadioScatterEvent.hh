@@ -128,7 +128,8 @@ public:
   double peakV(int txindex, int rxindex);
   double effectiveCrossSection(int txindex, int rxindex);
   double rms(int txindex, int rxindex);
-  double duration(int txindex, int rxindex);
+
+  double duration(int txindex, int rxindex, double highThreshRatio=.3, doublt lowThreshRatio=.1);///the duration of a pulse. expressed in terms of a threshold as a ratio of the peak voltage. so here the high threshold is .3*peakV, and the low threshold is .1*peakV.
   double integratedPower(int txindex, int rxindex);
   double integratedPower(int txindex, int rxindex, double tlow, double thigh, double dcoffset=0.);
   double integratedPowerAroundPeak(int txindex, int rxindex, double window=100);

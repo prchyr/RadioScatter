@@ -176,40 +176,12 @@ double RadioScatterEvent::pathLengthMM(int txindex, int rxindex){
 double RadioScatterEvent::pathLengthM(int txindex, int rxindex){
   return((tx[txindex].Vect()-position).Mag()+(rx[rxindex].Vect()-position).Mag())/1000.;
 }
-double RadioScatterEvent::duration(int txindex, int rxindex){
-  TGraph og= getComplexEnvelope(txindex,rxindex,100);
-  double * xx=og.GetX();
-  double * yy=og.GetY();
-  int n=og.GetN();
-  double lastval=0, val, time1=0, time2=0, avg=0, last_avg=0;
-  //  std::deque<double> avg_vec(10, 0);
-  double thresh=.01;
-  double highthresh=.3*TUtilRadioScatter::max(&og);
-  double lowthresh=.1*TUtilRadioScatter::max(&og);
-  for(int i=10;i<n-10;i++){
-    // avg_vec.pop_front();
-    // avg_vec.push_back(yy[i]);
-    // for(int j=0;j<10;j++){
-    //   avg+=avg_vec[j]/10.;
-    // }
-    // //    std::cout<<avg<<std::endl;
-    // if(avg>thresh&&last_avg<thresh){
-    //   time1=xx[i];
-    // }
-    // if(avg<thresh&&last_avg>thresh){
-    //   time2=xx[i];
-    // }
-    // last_avg=avg;
-    // avg=0;
-    if(yy[i]>highthresh&&lastval<=highthresh){
-      time1=xx[i];
-    }
-    if(yy[i]<lowthresh&&lastval>=lowthresh){
-      time2=xx[i];
-    }
-    lastval=yy[i];
-  }
-  //  std::cout<<time2<<" "<<time1<<std::endl;
+double RadioScatterEvent::duration(int txindex, int rxindex, double highThreshRatio, double lowThreshRatio){
+  TGraph og= getComplexEnvelope(txindex,rxindex,200);
+  double highthresh=highThreshRatio*TUtilRadioScatter::max(&og);
+  double lowthresh=lowThreshRatio*TUtilRadioScatter::max(&og);
+  double time1=TUtilRadioScatter::getFirstThresholdCrossing(&og, highthresh);
+  double time2=TUtilRadioScatter::getLastThresholdCrossing(&og, lowthresh);
   return time2-time1;
 
 }
