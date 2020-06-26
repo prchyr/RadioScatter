@@ -194,21 +194,21 @@ void RadioScatter::setRxPos(TVector3 in, int index){
   RSCAT_HIST_RESIZE=false;
   }
   void RadioScatter::setTxVals(double f, double power=1., double gain=1.){
-    frequency = f*MHz;
+    frequency = f*GHz;
     omega = frequency*twoPi;
     period = 1./omega;
-    lambda = c_light/frequency;
-    k = omega/c_light;
+    lambda = (c_light/frequency)/m;
+    k = (omega/c_light)/m;
     tx_gain = gain;
     tx_voltage = sqrt(power*50.);
   }
  void RadioScatter::setTxFreq(double f){
    TX_FREQ_SET=1;
-   frequency = f;//*MHz;
+   frequency = f*GHz;
   omega = frequency*twoPi;
   period = 1./omega;
-  lambda = c_light/f;
-  k = omega/c_light;
+  lambda = (c_light/f)/m;
+  k = (omega/c_light)/m;
   
   if(TX_GAIN_SET!=1){
     //from RICE but with right placement of gain

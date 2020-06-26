@@ -414,7 +414,7 @@ int main(int argc,char** argv)
        UImanager->ApplyCommand(dirStr);
        //  gun->SetParticlePosition(pos);
        //gun->SetParticleMomentumDirection(dir);
-       radio->setPrimaryEnergy(1e9);
+       radio->setPrimaryEnergy(1e9*TUtilRadioScatter::eV);
        radio->setNPrimaries(enC);
        radio->setInelasticity(enC/en);
        radio->setWeight(weight);

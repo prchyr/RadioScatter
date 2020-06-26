@@ -90,9 +90,9 @@ double RadioScatterEvent::peakPowerW(int txindex, int rxindex){
 }
 
 double RadioScatterEvent::effectiveCrossSection(int txindex, int rxindex){
-  double r_tx = (tx[txindex].Vect()-position).Mag()/1000.;//m
-  double r_rx = (rx[rxindex].Vect()-position).Mag()/1000.;
-  double lambda = 2.997e8/(freq*1.e9);
+  double r_tx = (tx[txindex].Vect()-position).Mag()/TUtilRadioScatter::m;//m
+  double r_rx = (rx[rxindex].Vect()-position).Mag()/TUtilRadioScatter::m;
+  double lambda = TUtilRadioScatter::c_light/(freq*GHz*m);//m
   //std::cout<<r_rx<<" "<<r_tx<<" "<<lambda<<" "<<peakPowerW(txindex, rxindex)<<" txGain: "<<txGain<<" txpower: "<<txPowerW<<std::endl;
   return (pow(4.*pi, 3)*pow(r_tx, 2)*pow(r_rx, 2)*peakPowerW(txindex, rxindex))/(txPowerW*txGain*rxGain*pow(lambda, 2));
 }
@@ -109,7 +109,7 @@ double RadioScatterEvent::peakV(int txindex, int rxindex){
 }
 
 double RadioScatterEvent::primaryParticleEnergy(){
-  return primaryEnergy*nPrimaries*1000000./inelasticity;//g4 primaries in MeV units
+  return primaryEnergy*nPrimaries/(inelasticity*eV);//primary energy in eV
 }
 //simple thing-did any receiver trigger?
 int RadioScatterEvent::triggered(double thresh, int n_antennas){

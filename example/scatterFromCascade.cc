@@ -68,6 +68,10 @@ void doIt(double lifetimens, double frequency, double power){
   radio->setMakeSummary(1);//make a nice summary file for simple plotting of things like peak power, voltage, etc.
   radio->setPlasmaLifetime(lifetimens);//set the plasma lifetime
 
+  TVector3 position(0,0,0);//The position of the primary vertex.
+  radio->setPrimaryPosition(position);
+  TVector3 direction(0,0,1);
+  radio->setPrimaryDirection(direction);
 
   int entries=tree->GetEntries();
   TLorentzVector pt; //the point of the ionization from which we calculate the individual scatter.

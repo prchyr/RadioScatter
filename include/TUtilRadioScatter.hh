@@ -120,6 +120,13 @@ static constexpr double mm = 1;
   static constexpr double ms = ns*1e6;
   static constexpr double s = ns*1e9;
 
+  //energy
+
+  static constexpr double MeV = 1.;
+  static constexpr double GeV = 1000.*MeV;
+  static constexpr double KeV = .001*MeV;
+  static constexpr double eV = 1e-6*MeV;
+  
   //frequency
   static constexpr double GHz = 1.;
   static constexpr double MHz = .001*GHz;
