@@ -375,7 +375,7 @@ int main(int argc,char** argv)
 
      for(int i=0;i<9;i++){
        auto phi=i*(2.*pi/9.);
-       rx.SetMagThetaPhi(250*m, pi/2., phi);
+       rx.SetMagThetaPhi(200*m, pi/2., phi);
        for(int j=-20;j<=20;j+=20){
    	 rx.SetZ((double)j*m);
    	 radio->setRxPos(rx);
