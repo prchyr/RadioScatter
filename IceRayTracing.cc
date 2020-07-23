@@ -464,11 +464,11 @@ double *IceRayTracing::GetRefractedRayPar(double z0, double x1 ,double z1, doubl
   /* This if condition checks if the function has not gone crazy and given us a turning point of the ray which is lower than both Tx and Rx and is shallower in depth than both */
   if((z0<-zmax || zmax<-z1)){
     /* we do the subtraction because we are measuring the time taken between the Tx and Rx positions. In the refracted case we basically have two direct rays 1) from Tx to turning point 2) from turning point to Rx. */
-    raytime=2*ftimeD(zmax,&params4c) - ftimeD(z0,&params4a) - ftimeD(z1,&params4b);
+    raytime=2*ftimeD(-zmax,&params4c) - ftimeD(z0,&params4a) - ftimeD(z1,&params4b);
 
     /* Also get the time for the two individual direct rays separately */
-    timeRa1=ftimeD(zmax,&params4c) - ftimeD(z0,&params4a);
-    timeRa2=ftimeD(zmax,&params4c) - ftimeD(z1,&params4b);
+    timeRa1=ftimeD(-zmax,&params4c) - ftimeD(z0,&params4a);
+    timeRa2=ftimeD(-zmax,&params4c) - ftimeD(z1,&params4b);
     if(Flip==true){
       double dumRa=timeRa2;
       timeRa2=timeRa1;
