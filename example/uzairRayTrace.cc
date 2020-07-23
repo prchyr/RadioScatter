@@ -79,6 +79,7 @@ int main(int argc, char**argv){
     cout<<"Launch Angle: "<<getresults[1]<<" deg"<<endl;
     cout<<"Recieve Angle: "<<getresults[7]<<" deg"<<endl;
     cout<<"Propogation Time: "<<getresults[4]*pow(10,9)<<" ns"<<endl;
+    cout<<"Incident Angle in Ice on the Surface: "<<getresults[11]<<" deg"<<endl;
     cout<<"*******For the Refracted Ray********"<<endl;
     cout<<"Launch Angle: "<<getresults[2]<<" deg"<<endl;
     cout<<"Recieve Angle: "<<getresults[8]<<" deg"<<endl;
