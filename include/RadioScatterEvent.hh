@@ -113,7 +113,7 @@ public:
   //  TGraph getSpectrum(bool dbflag=false);
   TH1F * getSpectrum(int txindex, int rxindex,bool dbflag=false);  
   void spectrogram(int txindex, int rxindex,Int_t binsize = 128, Int_t overlap=32);
-  int plotEvent(int txindex, int rxindex, int noise_flag=0, int show_geom=0, int bins=256, int overlap=128);
+  int plotEvent(int txindex, int rxindex, double noise_flag=0, int show_geom=0, int bins=256, int overlap=128);
   int plotEventNotebook(int txindex, int rxindex, int noise_flag=0, int show_geom=0, int bins=64, int overlap=8);
   int reset();
   double thermalNoiseRMS();

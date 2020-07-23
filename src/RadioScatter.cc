@@ -198,7 +198,7 @@ void RadioScatter::setRxPos(TVector3 in, int index){
     omega = frequency*twoPi;
     period = 1./omega;
     lambda = (c_light/frequency)/m;
-    k = (omega/c_light)/m;
+    k = (omega/c_light);
     tx_gain = gain;
     tx_voltage = sqrt(power*50.);
   }
@@ -208,7 +208,7 @@ void RadioScatter::setRxPos(TVector3 in, int index){
   omega = frequency*twoPi;
   period = 1./omega;
   lambda = (c_light/f)/m;
-  k = (omega/c_light)/m;
+  k = (omega/c_light);
   
   if(TX_GAIN_SET!=1){
     //from RICE but with right placement of gain

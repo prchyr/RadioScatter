@@ -174,7 +174,7 @@ double RadioScatterEvent::pathLengthMM(int txindex, int rxindex){
   return((tx[txindex].Vect()-position).Mag()+(rx[rxindex].Vect()-position).Mag());
 }
 double RadioScatterEvent::pathLengthM(int txindex, int rxindex){
-  return((tx[txindex].Vect()-position).Mag()+(rx[rxindex].Vect()-position).Mag())/1000.;
+  return((tx[txindex].Vect()-position).Mag()+(rx[rxindex].Vect()-position).Mag())/m;
 }
 double RadioScatterEvent::duration(int txindex, int rxindex, double highThreshRatio, double lowThreshRatio){
   TGraph og= getComplexEnvelope(txindex,rxindex,200);
@@ -384,7 +384,7 @@ TH1F* RadioScatterEvent::makeBackgroundSubtractHist(int txindex, int rxindex, TS
 }
 
 
-int RadioScatterEvent::plotEvent(int txindex, int rxindex, int noise_flag, int show_geom, int bins, int overlap){
+int RadioScatterEvent::plotEvent(int txindex, int rxindex, double noise_flag, int show_geom, int bins, int overlap){
   // TCanvas *c=0;
   TSeqCollection *canlist = gROOT->GetListOfCanvases();
   TCanvas *openc = (TCanvas*)canlist->At(canlist->GetEntries()-1);
@@ -427,8 +427,8 @@ int RadioScatterEvent::plotEvent(int txindex, int rxindex, int noise_flag, int s
   Float_t bandwidth = 1e9*sampleRate;
   Float_t thermal_noise = sqrt(kBJoulesKelvin*300.*50.*bandwidth);//thermal noise (V)
   auto evG=getGraph(txindex, rxindex);
-  if(noise_flag==1){
-    evG=TUtilRadioScatter::addNoise(evG, thermal_noise);
+  if(noise_flag>0){
+    evG=TUtilRadioScatter::addNoise(evG, noise_flag);
   }
   TUtilRadioScatter::titles(evG, "", "Time [ns]", "V");
   TUtilRadioScatter::style(evG, kBlack, 1, 1);
@@ -476,7 +476,7 @@ int RadioScatterEvent::plotEvent(int txindex, int rxindex, int noise_flag, int s
   // ccc->cd(3);
   //  g.plot(vals, "with lines");
 
-  auto spec=TUtilRadioScatter::FFT::spectrogram(evG, bins, overlap, bins*2, 2, 2);
+  auto spec=TUtilRadioScatter::FFT::spectrogram(evG, bins, overlap, bins*2, 2, 2,0,(sampleRate/2.)-(sampleRate/bins));
   gPad->SetBottomMargin(.12);
   gPad->SetRightMargin(.19);
   gPad->SetLeftMargin(.15);
