@@ -471,8 +471,7 @@ double RadioScatter::getRxAmplitude(int txindex,int rxindex, HepLorentzVector po
 /*
 gets the RX amplitude, phase, and time using  ray tracing
 */
-int RadioScatter::getRxInfoRayTrace(int txindex,int rxindex, HepLorentzVector point, double *rxPhaseDirect, double *rxAmplitudeDirect, double *rxTimeDirect, double *rxPhaseRefracted, double *rxAmplitudeRefracted, double *rxTimeRefracted, double *rxPhaseReflected, double *rxAmplitudeReflected, double *rxTimeReflected){
-
+int RadioScatter::getRxInfoRayTrace(int txindex,int rxindex, HepLorentzVector point, double *rxPhase, double *rxAmplitude, double *rxTime){
 
   //this calculates the angle dependence of the amplitude (e.g. the n x n x \epsilon term). probably OK to ignore for now, or use your launch angles, leaving it here just for reference
   Hep3Vector one=tx[txindex].vect()-point.vect();
@@ -591,32 +590,18 @@ int RadioScatter::getRxInfoRayTrace(int txindex,int rxindex, HepLorentzVector po
   double RayTime1=0;
   double RayTime2=0;
   
-  *rxPhaseDirect=0.;
-  *rxAmplitudeDirect=0.;
-  *rxTimeDirect=0.;
-  *rxPhaseRefracted=0.;
-  *rxAmplitudeRefracted=0.;
-  *rxTimeRefracted=0.;
-  *rxPhaseReflected=0.;
-  *rxAmplitudeReflected=0.;
-  *rxTimeReflected=0.;
+  *rxPhase=0.;
+  *rxAmplitude=0.;
+  *rxTime=0.;
 
+  /************************PURE TERMS**********************/
   if(TxRaySolPar[0][1]!=0 && RxRaySolPar[0][1]!=0){
     ////****************For Direct Ray btw Tx and Shower and Rx and Shower***********************
     ////Now Fill in the values if you get ray solutions from Tx to Shower and from Rx to Shower   
     RayPath1=TxRaySolPar[0][3];
     RayPath2=RxRaySolPar[0][3];
-    TotalRayPath=RayPath1+RayPath2;
     RayTime1=TxRaySolPar[0][2];
     RayTime2=RxRaySolPar[0][2];
-    TotalRayPropTime=RayTime1+RayTime2;
-    
-    //replace this with your phase
-    *rxPhaseDirect=RadioScatter::getRxPhaseRayTrace(point, TotalRayPropTime, RayPath1, RayPath2);
-    // replace this with your calculated amplitude. for this you need to calculate the tx->point ray and the point->rx ray
-    *rxAmplitudeDirect = 1.0/(RayPath1*RayPath2);
-    //replace this with your time. this is the global time, so you would add to point.t() the time it takes the ray to get from point to rx 
-    *rxTimeDirect=point.t()+RayTime2;
   }
 
   if(TxRaySolPar[1][1]!=0 && RxRaySolPar[1][1]!=0){
@@ -624,17 +609,8 @@ int RadioScatter::getRxInfoRayTrace(int txindex,int rxindex, HepLorentzVector po
     ////Now Fill in the values if you get ray solutions from Tx to Shower and from Rx to Shower   
     RayPath1=TxRaySolPar[1][3];
     RayPath2=RxRaySolPar[1][3];
-    TotalRayPath=RayPath1+RayPath2;
     RayTime1=TxRaySolPar[1][2];
     RayTime2=RxRaySolPar[1][2];
-    TotalRayPropTime=RayTime1+RayTime2;
-    
-    //replace this with your phase
-    *rxPhaseReflected=RadioScatter::getRxPhaseRayTrace(point, TotalRayPropTime, RayPath1, RayPath2);
-    // replace this with your calculated amplitude. for this you need to calculate the tx->point ray and the point->rx ray
-    *rxAmplitudeReflected= 1.0/(RayPath1*RayPath2);
-    //replace this with your time. this is the global time, so you would add to point.t() the time it takes the ray to get from point to rx 
-    *rxTimeReflected=point.t()+RayTime2;
   }
 
   if(TxRaySolPar[2][1]!=0 && RxRaySolPar[2][1]!=0){
@@ -642,18 +618,75 @@ int RadioScatter::getRxInfoRayTrace(int txindex,int rxindex, HepLorentzVector po
     ////Now Fill in the values if you get ray solutions from Tx to Shower and from Rx to Shower   
     RayPath1=TxRaySolPar[2][3];
     RayPath2=RxRaySolPar[2][3];
-    TotalRayPath=RayPath1+RayPath2;
     RayTime1=TxRaySolPar[2][2];
     RayTime2=RxRaySolPar[2][2];
-    TotalRayPropTime=RayTime1+RayTime2;
-    
-    //replace this with your phase
-    *rxPhaseRefracted=RadioScatter::getRxPhaseRayTrace(point, TotalRayPropTime, RayPath1, RayPath2);
-    // replace this with your calculated amplitude. for this you need to calculate the tx->point ray and the point->rx ray
-    *rxAmplitudeRefracted= 1.0/(RayPath1*RayPath2);
-    //replace this with your time. this is the global time, so you would add to point.t() the time it takes the ray to get from point to rx 
-    *rxTimeRefracted=point.t()+RayTime2;
   }
+
+  /************************CROSS TERMS**********************/
+  
+  if(TxRaySolPar[0][1]!=0 && RxRaySolPar[1][1]!=0){
+    ////****************For Direct Ray btw Tx and Shower and Reflected btw Rx and Shower***********************
+    ////Now Fill in the values if you get ray solutions from Tx to Shower and from Rx to Shower   
+    RayPath1=TxRaySolPar[0][3];
+    RayPath2=RxRaySolPar[1][3];
+    RayTime1=TxRaySolPar[0][2];
+    RayTime2=RxRaySolPar[1][2];
+  }
+
+  if(TxRaySolPar[0][1]!=0 && RxRaySolPar[2][1]!=0){
+    ////****************For Direct Ray btw Tx and Shower and Refracted btw Rx and Shower***********************
+    ////Now Fill in the values if you get ray solutions from Tx to Shower and from Rx to Shower   
+    RayPath1=TxRaySolPar[0][3];
+    RayPath2=RxRaySolPar[2][3];
+    RayTime1=TxRaySolPar[0][2];
+    RayTime2=RxRaySolPar[2][2];
+  }
+
+  if(TxRaySolPar[1][1]!=0 && RxRaySolPar[0][1]!=0){
+    ////****************For Reflected Ray btw Tx and Shower and Direct btw Rx and Shower***********************
+    ////Now Fill in the values if you get ray solutions from Tx to Shower and from Rx to Shower   
+    RayPath1=TxRaySolPar[1][3];
+    RayPath2=RxRaySolPar[0][3];
+    RayTime1=TxRaySolPar[1][2];
+    RayTime2=RxRaySolPar[0][2];
+  }
+
+  if(TxRaySolPar[1][1]!=0 && RxRaySolPar[2][1]!=0){
+    ////****************For Reflected Ray btw Tx and Shower and Refracted btw Rx and Shower***********************
+    ////Now Fill in the values if you get ray solutions from Tx to Shower and from Rx to Shower   
+    RayPath1=TxRaySolPar[1][3];
+    RayPath2=RxRaySolPar[2][3];
+    RayTime1=TxRaySolPar[1][2];
+    RayTime2=RxRaySolPar[2][2];
+  }
+
+  if(TxRaySolPar[2][1]!=0 && RxRaySolPar[0][1]!=0){
+    ////****************For Refracted Ray btw Tx and Shower and Direct btw Rx and Shower***********************
+    ////Now Fill in the values if you get ray solutions from Tx to Shower and from Rx to Shower   
+    RayPath1=TxRaySolPar[2][3];
+    RayPath2=RxRaySolPar[0][3];
+    RayTime1=TxRaySolPar[2][2];
+    RayTime2=RxRaySolPar[0][2];
+  }
+
+  if(TxRaySolPar[2][1]!=0 && RxRaySolPar[1][1]!=0){
+    ////****************For Refracted Ray btw Tx and Shower and Reflected btw Rx and Shower***********************
+    ////Now Fill in the values if you get ray solutions from Tx to Shower and from Rx to Shower   
+    RayPath1=TxRaySolPar[2][3];
+    RayPath2=RxRaySolPar[1][3];
+    RayTime1=TxRaySolPar[2][2];
+    RayTime2=RxRaySolPar[1][2];
+  }
+  
+  TotalRayPath=RayPath1+RayPath2;
+  TotalRayPropTime=RayTime1+RayTime2;
+  
+  //replace this with your phase
+  *rxPhase=RadioScatter::getRxPhaseRayTrace(point, TotalRayPropTime, RayPath1, RayPath2);
+  // replace this with your calculated amplitude. for this you need to calculate the tx->point ray and the point->rx ray
+  *rxAmplitude = 1.0/(RayPath1*RayPath2);
+  //replace this with your time. this is the global time, so you would add to point.t() the time it takes the ray to get from point to rx 
+  *rxTime=point.t()+RayTime2;
   
   return 1;
 }
@@ -1123,39 +1156,22 @@ double RadioScatter::makeRaysRayTrace(HepLorentzVector point, double e, double l
       HepLorentzVector point_temp=point;      
 
       //the ray tracing functions. 
-      double rxPhaseDirect=0.;
-      double rxAmplitudeDirect=0.;
-      double rxTimeDirect=0.;
-      double rxPhaseRefracted=0.;
-      double rxAmplitudeRefracted=0.;
-      double rxTimeRefracted=0.;
-      double rxPhaseReflected=0.;
-      double rxAmplitudeReflected=0.;
-      double rxTimeReflected=0.;
+      double rxPhase=0.;
+      double rxAmplitude=0.;
+      double rxTime=0.;
+     
       point_time=point_temp.t();
       double point_time_end=point_time+lifetime;
       while(point_time<point_time_end){
-	getRxInfoRayTrace(i,j,point_temp, &rxPhaseDirect, &rxAmplitudeDirect, &rxTimeDirect,&rxPhaseRefracted, &rxAmplitudeRefracted, &rxTimeRefracted,&rxPhaseReflected, &rxAmplitudeReflected, &rxTimeReflected);
+	getRxInfoRayTrace(i,j,point_temp, &rxPhase, &rxAmplitude, &rxTime);
+		  
+	double EReal= prefactor*rxAmplitude*(omega*cos(rxPhase)+nu_col*sin(rxPhase));
+	double EImag = prefactor*rxAmplitude*(-nu_col*cos(rxPhase)+omega*sin(rxPhase));
 	
-	//	cout<<rx_phase<<" "<<rx_amplitude<<" "<<rx_time<<endl;
-	  
-	double ERealDirect= prefactor*rxAmplitudeDirect*(omega*cos(rxPhaseDirect)+nu_col*sin(rxPhaseDirect));
-	double EImagDirect = prefactor*rxAmplitudeDirect*(-nu_col*cos(rxPhaseDirect)+omega*sin(rxPhaseDirect));
-	double ERealRefracted= prefactor*rxAmplitudeRefracted*(omega*cos(rxPhaseRefracted)+nu_col*sin(rxPhaseRefracted));
-	double EImagRefracted = prefactor*rxAmplitudeRefracted*(-nu_col*cos(rxPhaseRefracted)+omega*sin(rxPhaseRefracted));
-	double ERealReflected= prefactor*rxAmplitudeReflected*(omega*cos(rxPhaseReflected)+nu_col*sin(rxPhaseReflected));
-	double EImagReflected = prefactor*rxAmplitudeReflected*(-nu_col*cos(rxPhaseReflected)+omega*sin(rxPhaseReflected));
-
-	if(abs(ERealDirect)<tx_voltage){//simple sanity check
-	  time_hist[i][j]->Fill(rxTimeDirect, ERealDirect);
-	  re_hist[i][j]->Fill(rxTimeDirect, ERealDirect);
-	  im_hist[i][j]->Fill(rxTimeDirect, EImagDirect);
-	  time_hist[i][j]->Fill(rxTimeRefracted, ERealRefracted);
-	  re_hist[i][j]->Fill(rxTimeRefracted, ERealRefracted);
-	  im_hist[i][j]->Fill(rxTimeRefracted, EImagRefracted);
-	  time_hist[i][j]->Fill(rxTimeReflected, ERealReflected);
-	  re_hist[i][j]->Fill(rxTimeReflected, ERealReflected);
-	  im_hist[i][j]->Fill(rxTimeReflected, EImagReflected);
+	if(abs(EReal)<tx_voltage){//simple sanity check
+	  time_hist[i][j]->Fill(rxTime, EReal);
+	  re_hist[i][j]->Fill(rxTime, EReal);
+	  im_hist[i][j]->Fill(rxTime, EImag);
 	}
 	point_time+=samplingperiod;
 	point_temp.setT(point_time);
