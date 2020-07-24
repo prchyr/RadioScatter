@@ -15,7 +15,7 @@ for a 500MHz transmitter at 100W with a 3ns plasma lifetime.
 void doIt(double lifetimens, double frequency, double power){
   TFile *ff = TFile::Open("../doc/shower_particleinfo_10gev_single.root");
   TTree * tree =(TTree*)ff->Get("tracks");
-  TString frequencyStr=TString::Itoa(frequency, 10);
+  TString frequencyStr=TString::Itoa(frequency*1000, 10);
   TString powerStr=TString::Itoa(power, 10);
   TString lifetimeStr=TString::Itoa(lifetimens, 10);
   double edep=0, steplength=0, x=0, y=0, z=0, t=0;
@@ -35,7 +35,7 @@ void doIt(double lifetimens, double frequency, double power){
   //here we set the radioscatter simulation parameters.  
 
   //set the transmitter position  
-  radio->setTxPos(-6.*m, 0*m, -3*m);
+  radio->setTxPos(-6.*m, 0*m, 0*m);
   //set the number of receivers
   radio->setNRx(3);
   
