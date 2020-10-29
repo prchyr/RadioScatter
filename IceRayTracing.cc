@@ -66,6 +66,36 @@ double IceRayTracing::Refl_P(double thetai){
   return (RP);
 }
 
+/* The temperature and attenuation model has been taken from AraSim which also took it from here http://icecube.wisc.edu/~araproject/radio/ . This is basically Matt Newcomb's icecube directory which has alot of information, plots and codes about South Pole Ice activities. Please read it if you find it interesting. */
+
+/* Temperature model:The model takes in value of depth z in m and returns the value of temperature in Celsius.*/
+double IceRayTracing::GetIceTemperature(double z){
+  double depth=fabs(z);
+  double t = 1.83415e-09*pow(depth,3) + (-1.59061e-08*pow(depth,2)) + 0.00267687*depth + (-51.0696 );
+  return t;
+}
+
+/* Ice Attenuation Length model: Takes in value of frequency in Ghz and depth z and returns you the value of attenuation length in m */
+double IceRayTracing::GetIceAttenuationLength(double z, double frequency){
+
+  double t =GetIceTemperature(z);
+  const double f0=0.0001, f2=3.16;
+  const double w0=log(f0), w1=0.0, w2=log(f2), w=log(frequency);
+  const double b0=-6.74890+t*(0.026709-t*0.000884);
+  const double b1=-6.22121-t*(0.070927+t*0.001773);
+  const double b2=-4.09468-t*(0.002213+t*0.000332);
+  double a,bb;
+  if(frequency<1.){
+    a=(b1*w0-b0*w1)/(w0-w1);
+    bb=(b1-b0)/(w1-w0);
+  }
+  else{
+    a=(b2*w1-b1*w2)/(w1-w2);
+    bb=(b2-b1)/(w2-w1);
+  }
+  double Lval=1./exp(a+bb*w);
+  return Lval;
+}
 
 /* Use GSL minimiser which uses Brent's Method to find root for a given function. This will be used to find roots wherever it is needed in my code.  */
 double IceRayTracing::FindFunctionRoot(gsl_function F,double x_lo, double x_hi)
