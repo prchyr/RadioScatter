@@ -97,6 +97,7 @@ double IceRayTracing::GetIceAttenuationLength(double z, double frequency){
   return Lval;
 }
 
+/* Setup the integrand to calculate the attenuation */
 double IceRayTracing::AttenuationIntegrand (double x, void * params) {
 
   double *p=(double*)params;
@@ -109,7 +110,8 @@ double IceRayTracing::AttenuationIntegrand (double x, void * params) {
   return Integrand;
 }
 
-double IceRayTracing::IntegrateOveLAttn (double A0, double Frequency, double z0, double z1, double Lvalue) {
+/* Integrate over the integrand to calculate the attenuation */
+double IceRayTracing::IntegrateOverLAttn (double A0, double Frequency, double z0, double z1, double Lvalue) {
   gsl_integration_workspace * w= gsl_integration_workspace_alloc (1000);
 
   double result, error;
@@ -132,22 +134,23 @@ double IceRayTracing::IntegrateOveLAttn (double A0, double Frequency, double z0,
   return fabs(result);
 }
 
+/* Calculate the total attenuation for each type of ray */
 double IceRayTracing::GetTotalAttenuationDirect (double A0, double frequency, double z0, double z1, double Lvalue) {
   z0=fabs(z0);
   z1=fabs(z1);
-  return IceRayTracing::IntegrateOveLAttn(A0,frequency,z0,z1,Lvalue);
+  return IceRayTracing::IntegrateOverLAttn(A0,frequency,z0,z1,Lvalue);
 }
 
 double IceRayTracing::GetTotalAttenuationReflected (double A0, double frequency, double z0, double z1, double Lvalue) {
   z0=fabs(z0);
   z1=fabs(z1);
-  return IceRayTracing::IntegrateOveLAttn(A0,frequency,z0,0.000001,Lvalue) + IceRayTracing::IntegrateOveLAttn(A0,frequency,z1,0.000001,Lvalue);
+  return IceRayTracing::IntegrateOverLAttn(A0,frequency,z0,0.000001,Lvalue) + IceRayTracing::IntegrateOverLAttn(A0,frequency,z1,0.000001,Lvalue);
 }
 
 double IceRayTracing::GetTotalAttenuationRefracted (double A0, double frequency, double z0, double z1, double zmax, double Lvalue) {
   z0=fabs(z0);
   z1=fabs(z1);
-  return IceRayTracing::IntegrateOveLAttn(A0,frequency,z0,zmax,Lvalue) + IceRayTracing::IntegrateOveLAttn(A0,frequency,z1,zmax,Lvalue);
+  return IceRayTracing::IntegrateOverLAttn(A0,frequency,z0,zmax,Lvalue) + IceRayTracing::IntegrateOverLAttn(A0,frequency,z1,zmax,Lvalue);
 }
 
 /* Use GSL minimiser which uses Brent's Method to find root for a given function. This will be used to find roots wherever it is needed in my code.  */

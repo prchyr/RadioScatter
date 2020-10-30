@@ -59,14 +59,15 @@ namespace IceRayTracing{
   /* Ice Attenuation Length model: Takes in value of frequency in Ghz and depth z and returns you the value of attenuation length in m */
   double GetIceAttenuationLength(double z, double frequency);
 
+  /* Setup the integrand to calculate the attenuation */
   double AttenuationIntegrand (double x, void * params);
 
-  double IntegrateOveLAttn (double A0, double frequency, double z0, double z1, double Lvalue);
-  
+  /* Integrate over the integrand to calculate the attenuation */
+  double IntegrateOverLAttn (double A0, double frequency, double z0, double z1, double Lvalue);
+
+  /* Calculate the total attenuation for each type of ray */
   double GetTotalAttenuationDirect (double A0, double frequency, double z0, double z1, double Lvalue);
-
   double GetTotalAttenuationReflected (double A0, double frequency, double z0, double z1, double Lvalue);
-
   double GetTotalAttenuationRefracted (double A0, double frequency, double z0, double z1, double zmax, double Lvalue);
   
   /* Use GSL minimiser which uses Brent's Method to find root for a given function. This will be used to find roots wherever it is needed in my code.  */
