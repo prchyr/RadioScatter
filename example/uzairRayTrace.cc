@@ -7,7 +7,7 @@
 
 int main(int argc, char**argv){
 
-    if(argc<7){
+  if(argc<7){
     cout<<"More Arguments needed!"<<endl;
     cout<<"Example run command: ./IceRayTracing 0 0 -100 0 100 -5"<<endl;
     cout<<"Here the first three arguments are Tx coordinates i.e. x_Tx=0 m, y_Tx=0 m, z_Tx=-100 m  and the second three arguments are Rx coordinates i.e. x_Rx=0 m, y_Rx=100 m, z_Rx=-5 m "<<endl;
@@ -47,17 +47,28 @@ int main(int argc, char**argv){
   if(getresults[6]!=0 && getresults[7]!=0 && getresults[8]!=0){
     cout<<"No Possible Ray Paths between Tx and Rx!!! :("<<endl;
   }
-  
+
+  double A0, frequency, Lvalue;
   if(getresults[6]!=0 && getresults[8]!=0){ 
     cout<<"Direct and Refracted: dt(D,R)="<<(getresults[5]-getresults[3])*pow(10,9)<<" ns"<<endl;
     cout<<"*******For the Direct Ray********"<<endl;
     cout<<"Launch Angle: "<<getresults[0]<<" deg"<<endl;
     cout<<"Recieve Angle: "<<getresults[6]<<" deg"<<endl;
     cout<<"Propogation Time: "<<getresults[3]*pow(10,9)<<" ns"<<endl;
+    A0=1;
+    frequency=0.1;//in GHz
+    Lvalue=getresults[12];
+    cout<<"Total Attenuation for Direct is (at "<<frequency<<" GHz): "<<IceRayTracing::GetTotalAttenuationDirect (A0,frequency,z0,z1,Lvalue)<<endl;
+
     cout<<"*******For the Refracted Ray********"<<endl;
     cout<<"Launch Angle: "<<getresults[2]<<" deg"<<endl;
     cout<<"Recieve Angle: "<<getresults[8]<<" deg"<<endl;
     cout<<"Propogation Time: "<<getresults[5]*pow(10,9)<<" ns"<<endl;
+    cout<<"zmax: "<<getresults[15]<<" m"<<endl;
+    A0=1;
+    frequency=0.1;//in GHz
+    Lvalue=getresults[14];
+    cout<<"Total Attenuation for Refracted is (at "<<frequency<<" GHz): "<<IceRayTracing::GetTotalAttenuationRefracted (A0,frequency,z0,z1,getresults[15],Lvalue)<<endl;
   }
       
   if(getresults[6]!=0 && getresults[7]!=0){
@@ -66,11 +77,20 @@ int main(int argc, char**argv){
     cout<<"Launch Angle: "<<getresults[0]<<" deg"<<endl;
     cout<<"Recieve Angle: "<<getresults[6]<<" deg"<<endl;
     cout<<"Propogation Time: "<<getresults[3]*pow(10,9)<<" ns"<<endl;
+    A0=1;
+    frequency=0.1;//in GHz
+    Lvalue=getresults[12];
+    cout<<"Total Attenuation for Direct is (at "<<frequency<<" GHz): "<<IceRayTracing::GetTotalAttenuationDirect (A0,frequency,z0,z1,Lvalue)<<endl;
+    
     cout<<"*******For the Reflected Ray********"<<endl;
     cout<<"Launch Angle: "<<getresults[1]<<" deg"<<endl;
     cout<<"Recieve Angle: "<<getresults[7]<<" deg"<<endl;
     cout<<"Propogation Time: "<<getresults[4]*pow(10,9)<<" ns"<<endl;   
     cout<<"Incident Angle in Ice on the Surface: "<<getresults[11]<<" deg"<<endl;
+    A0=1;
+    frequency=0.1;//in GHz
+    Lvalue=getresults[13];
+    cout<<"Total Attenuation for Reflected is (at "<<frequency<<" GHz): "<<IceRayTracing::GetTotalAttenuationReflected (A0,frequency,z0,z1,Lvalue)<<endl;
   }
       
   if(getresults[8]!=0 && getresults[7]!=0 && getresults[6]==0){
@@ -80,16 +100,25 @@ int main(int argc, char**argv){
     cout<<"Recieve Angle: "<<getresults[7]<<" deg"<<endl;
     cout<<"Propogation Time: "<<getresults[4]*pow(10,9)<<" ns"<<endl;
     cout<<"Incident Angle in Ice on the Surface: "<<getresults[11]<<" deg"<<endl;
+    A0=1;
+    frequency=0.1;//in GHz
+    Lvalue=getresults[13];
+    
+    cout<<"Total Attenuation for Reflected is (at "<<frequency<<" GHz): "<<IceRayTracing::GetTotalAttenuationReflected (A0,frequency,z0,z1,Lvalue)<<endl;
     cout<<"*******For the Refracted Ray********"<<endl;
     cout<<"Launch Angle: "<<getresults[2]<<" deg"<<endl;
     cout<<"Recieve Angle: "<<getresults[8]<<" deg"<<endl;
     cout<<"Propogation Time: "<<getresults[5]*pow(10,9)<<" ns"<<endl;
+    cout<<"zmax: "<<getresults[15]<<" m"<<endl;
+    A0=1;
+    frequency=0.1;//in GHz
+    Lvalue=getresults[14];
+    cout<<"Total Attenuation for Refracted is (at "<<frequency<<" GHz): "<<IceRayTracing::GetTotalAttenuationRefracted (A0,frequency,z0,z1,getresults[15],Lvalue)<<endl;
   }
   
   delete []getresults;  
 
   return 0;
-
   
 }
 

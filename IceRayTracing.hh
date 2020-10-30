@@ -23,6 +23,7 @@ released under GPL3.
 #include <gsl/gsl_roots.h>
 #include <gsl/gsl_deriv.h>
 #include <sys/time.h>
+#include <gsl/gsl_integration.h>
 
 using namespace std;
 
@@ -57,7 +58,17 @@ namespace IceRayTracing{
 
   /* Ice Attenuation Length model: Takes in value of frequency in Ghz and depth z and returns you the value of attenuation length in m */
   double GetIceAttenuationLength(double z, double frequency);
- 
+
+  double AttenuationIntegrand (double x, void * params);
+
+  double IntegrateOveLAttn (double A0, double frequency, double z0, double z1, double Lvalue);
+  
+  double GetTotalAttenuationDirect (double A0, double frequency, double z0, double z1, double Lvalue);
+
+  double GetTotalAttenuationReflected (double A0, double frequency, double z0, double z1, double Lvalue);
+
+  double GetTotalAttenuationRefracted (double A0, double frequency, double z0, double z1, double zmax, double Lvalue);
+  
   /* Use GSL minimiser which uses Brent's Method to find root for a given function. This will be used to find roots wherever it is needed in my code.  */
   double FindFunctionRoot(gsl_function F,double x_lo, double x_hi);
 

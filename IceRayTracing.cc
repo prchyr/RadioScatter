@@ -97,6 +97,59 @@ double IceRayTracing::GetIceAttenuationLength(double z, double frequency){
   return Lval;
 }
 
+double IceRayTracing::AttenuationIntegrand (double x, void * params) {
+
+  double *p=(double*)params;
+
+  double A0=p[0];
+  double Frequency=p[1];
+  double L=p[2];
+
+  double Integrand=(A0/IceRayTracing::GetIceAttenuationLength(x,Frequency))*sqrt(1+pow(tan(asin(L/IceRayTracing::Getnz(x))) ,2));
+  return Integrand;
+}
+
+double IceRayTracing::IntegrateOveLAttn (double A0, double Frequency, double z0, double z1, double Lvalue) {
+  gsl_integration_workspace * w= gsl_integration_workspace_alloc (1000);
+
+  double result, error;
+  double zlimit[2] = {z0,z1};
+  double param[3] = {A0,Frequency,Lvalue};
+  
+  gsl_function F;
+  F.function = &AttenuationIntegrand;
+  F.params = &param;
+
+  gsl_integration_qags (&F, zlimit[0], zlimit[1], 0, 1e-7, 1000,
+                        w, &result, &error);
+
+  // printf ("result          = % .18f\n", result);
+  // printf ("estimated error = % .18f\n", error);
+  // printf ("intervals       = %zu\n", w->size);
+
+  gsl_integration_workspace_free (w);  
+
+  return fabs(result);
+}
+
+double IceRayTracing::GetTotalAttenuationDirect (double A0, double frequency, double z0, double z1, double Lvalue) {
+  z0=fabs(z0);
+  z1=fabs(z1);
+  return IceRayTracing::IntegrateOveLAttn(A0,frequency,z0,z1,Lvalue);
+}
+
+double IceRayTracing::GetTotalAttenuationReflected (double A0, double frequency, double z0, double z1, double Lvalue) {
+  z0=fabs(z0);
+  z1=fabs(z1);
+  return IceRayTracing::IntegrateOveLAttn(A0,frequency,z0,0.000001,Lvalue) + IceRayTracing::IntegrateOveLAttn(A0,frequency,z1,0.000001,Lvalue);
+}
+
+double IceRayTracing::GetTotalAttenuationRefracted (double A0, double frequency, double z0, double z1, double zmax, double Lvalue) {
+  z0=fabs(z0);
+  z1=fabs(z1);
+  return IceRayTracing::IntegrateOveLAttn(A0,frequency,z0,zmax,Lvalue) + IceRayTracing::IntegrateOveLAttn(A0,frequency,z1,zmax,Lvalue);
+}
+
 /* Use GSL minimiser which uses Brent's Method to find root for a given function. This will be used to find roots wherever it is needed in my code.  */
 double IceRayTracing::FindFunctionRoot(gsl_function F,double x_lo, double x_hi)
 {
@@ -904,7 +957,7 @@ void IceRayTracing::PlotAndStoreRays(double x0,double z0, double z1, double x1, 
 double *IceRayTracing::IceRayTracing(double x0, double z0, double x1, double z1){
 
   /* define a pointer to give back the output of raytracing */ 
-  double *output=new double[12];
+  double *output=new double[16];
 
   /* Store the ray paths in text files */
   bool PlotRayPaths=false;
@@ -1001,6 +1054,11 @@ double *IceRayTracing::IceRayTracing(double x0, double z0, double x1, double z1)
 
   output[11]=AngleOfIncidenceInIce;
 
+  output[12]=lvalueD;
+  output[13]=lvalueR;
+  output[14]=lvalueRa;
+  output[15]=zmax;
+  
   /* Set the recieve angle to be zero for a ray which did not give us a possible path between Tx and Rx. I use this as a flag to determine which two rays gave me possible ray paths. */
   if(fabs(checkzeroD)>0.5){
     output[6]=0;
