@@ -803,7 +803,7 @@ double RadioScatter::makeRays(TLorentzVector point, double e, double l, double e
       
       //electron number density, using step length cube
       n_e = n*n_primaries/pow(step_length, 3);
-
+   
 
       if(n_e==0)return 0;
 
@@ -1189,6 +1189,7 @@ int RadioScatter::makeSummary(TFile *f){
     intree->GetEntry(i);
     rss->position=rs->position;
     rss->direction=rs->direction;
+    rss->nPrimaries=rs->nPrimaries
     rss->primaryParticleEnergy=rs->primaryParticleEnergy();
     rss->inelasticity=rs->inelasticity;
     rss->primaryEnergyG4=rs->primaryEnergy;

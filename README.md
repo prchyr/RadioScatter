@@ -12,6 +12,8 @@ the module slac_rf is g4 source code that will produce histograms of voltages re
 GEANT4 (https://geant4.web.cern.ch/geant4/support/download.shtml)
 The GEANT4 software is fully independent of RadioScatter, and its license is available here: (https://geant4.web.cern.ch/license/LICENSE.html). Per that license: "This product includes software developed by Members of the Geant4 Collaboration ( http://cern.ch/geant4)."
 
+NOTE: When installing GEANT4, be sure to install with the install data option (-DGEANT4_INSTALL_DATA=ON) to be sure that things work.
+
 you can use any monte-carlo program you want with RadioScatter, but this package includes some GEANT4 programs, built on their examples, that harness the full power of GEANT to make realistic rf scattering signals. if you want to use those, i'm gonna assume that you know how to use GEANT4 and ROOT.
 
 

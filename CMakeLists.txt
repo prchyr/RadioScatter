@@ -41,7 +41,7 @@ else()
 endif()
 
 
-include_directories(${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include ${CLHEP_INCLUDE_DIR} ${ROOT_INCLUDE_DIRS} ${RS_INCLUDE_DIR} ${RS_INCLUDE_DIR}/../)
+include_directories(${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include ${ROOT_INCLUDE_DIRS} ${RS_INCLUDE_DIR} ${RS_INCLUDE_DIR}/../)
 
 #----------------------------------------------------------------------------
 # Locate sources and headers for this project
