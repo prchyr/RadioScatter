@@ -27,13 +27,12 @@ endif()
 
 
 unset(CMAKE_MODULE_PATH)
-#use the CLHEP things
-#will generate a bunch of library modules CLHEP::stuff that can be linked to
-find_package(CLHEP REQUIRED)
+
+
 
 #use the ROOT things
 list(APPEND CMAKE_PREFIX_PATH $ENV{ROOTSYS})
-#list(APPEND CMAKE_PREFIX_PATH $ENV{CLHEP_ROOT_DIR})
+
 find_package(ROOT REQUIRED COMPONENTS RIO Tree)
 include(${ROOT_USE_FILE})
 #add_definitions(${ROOT_CXX_FLAGS})
@@ -59,7 +58,7 @@ endif()
 
 include(${Geant4_USE_FILE})
 
-include_directories(${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include ${CLHEP_INCLUDE_DIR} ${ROOT_INCLUDE_DIRS} ${RS_INCLUDE_DIR} ${RS_INCLUDE_DIR}/../)
+include_directories(${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/include  ${ROOT_INCLUDE_DIRS} ${RS_INCLUDE_DIR} ${RS_INCLUDE_DIR}/../)
 
 #----------------------------------------------------------------------------
 # Locate sources and headers for this project
