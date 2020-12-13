@@ -84,7 +84,7 @@ The RadioScatter module calculates rf scattering from an energy deposit in 4 spa
 
 the examples directory has some use cases that don't involve geant4. to compile, be sure to link to the radio scatter library, i e -lRadioScatter, and also the root libraries, like so:
 
-```g++ -std=c++0x example.cc -o example `root-config --cflags --glibs --libs`-lRadioScatter ```
+```g++ -std=c++0x example.cc -o example `root-config --cflags --glibs --libs` -lRadioScatter ```
 
 in the examples, there is a use case where a shower has been prepared using GEANT4 and then this is used in a standalone program to scatter radio, as an example of runnning radioscatter outside of a monte carlo program. various options are shown and explained in the example
 
