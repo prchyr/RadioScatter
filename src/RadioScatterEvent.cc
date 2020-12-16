@@ -384,7 +384,7 @@ TH1F* RadioScatterEvent::makeBackgroundSubtractHist(int txindex, int rxindex, TS
 }
 
 
-int RadioScatterEvent::plotEvent(int txindex, int rxindex, double noise_flag, int show_geom, int bins, int overlap){
+int RadioScatterEvent::plotEvent(int txindex, int rxindex, double noise_flag, int show_geom, int bins, int overlap, int logFlag){
   // TCanvas *c=0;
   TSeqCollection *canlist = gROOT->GetListOfCanvases();
   TCanvas *openc = (TCanvas*)canlist->At(canlist->GetEntries()-1);
@@ -476,7 +476,7 @@ int RadioScatterEvent::plotEvent(int txindex, int rxindex, double noise_flag, in
   // ccc->cd(3);
   //  g.plot(vals, "with lines");
 
-  auto spec=TUtilRadioScatter::FFT::spectrogram(evG, bins, overlap, bins*2, 2, 2,0,(sampleRate/2.)-(sampleRate/bins));
+  auto spec=TUtilRadioScatter::FFT::spectrogram(evG, bins, overlap, bins*2, 2, logFlag,0,(sampleRate/2.)-(sampleRate/bins));
   gPad->SetBottomMargin(.12);
   gPad->SetRightMargin(.19);
   gPad->SetLeftMargin(.15);
@@ -582,9 +582,9 @@ int RadioScatterEvent::plotEvent(int txindex, int rxindex, double noise_flag, in
   
 }
 
-int RadioScatterEvent::plotEventNotebook(int txindex, int rxindex, int noise_flag, int show_geom, int bins, int overlap){
+int RadioScatterEvent::plotEventNotebook(int txindex, int rxindex, double noise_flag, int show_geom, int bins, int overlap, int logFlag){
 
-  TCanvas * ccc = new TCanvas();
+  TCanvas * ccc = new TCanvas("", "", 800, 400);
 
   ccc->SetName("plotEvent");
   ccc->SetTitle("plotEvent");
@@ -612,35 +612,20 @@ int RadioScatterEvent::plotEventNotebook(int txindex, int rxindex, int noise_fla
   }
 
   ccc->cd(1)->cd(1)->SetGrid();
-  Float_t bandwidth = 1e9*sampleRate/20.;//bandwith in Hz/10
-  Float_t kB = 1.831e-23;
-  Float_t thermal_noise = sqrt(kB*300.*50.*bandwidth);//thermal noise (V)
-  int nbins = eventHist[txindex][rxindex]->GetNbinsX();
-  //  std::cout<<bandwidth<<thermal_noise<<std::endl<<std::setprecision(10)<<nbins;
-  Float_t noise, r1, r2, val;
-  int j=0;
-  for(int i=0;i<nbins;i++){
-    j=i-(sampleRate*20);
-    ran->Rannor(r1, r2);
-    if(noise_flag==1){
-      noise = r1*thermal_noise;
-      //ev->eventHist->Fill(i, noise);
-      eventHist[txindex][rxindex]->AddBinContent(i, noise);
-      //    val=ev->eventHist->GetBinContent(i);
-      }
-    if(noise_flag>1){
-      noise=r1*(double)noise_flag;
-      eventHist[txindex][rxindex]->AddBinContent(i, noise);
-      //    val=ev->eventHist->GetBinContent(i);
-      }
-    if(SINE_SUBTRACT==1){
-      sineSubtract(txindex, rxindex);
-    }
+
+
+  Float_t bandwidth = 1e9*sampleRate;
+  Float_t thermal_noise = sqrt(kBJoulesKelvin*300.*50.*bandwidth);//thermal noise (V)
+  auto evG=getGraph(txindex, rxindex);
+  if(noise_flag>0){
+    evG=TUtilRadioScatter::addNoise(evG, noise_flag);
   }
-  eventHist[txindex][rxindex]->GetXaxis()->SetTitle("Time (ns)");
-  eventHist[txindex][rxindex]->GetYaxis()->SetTitle("V");
-  eventHist[txindex][rxindex]->Draw("histl");
-  eventHist[txindex][rxindex]->SetStats(0);
+  TUtilRadioScatter::titles(evG, "", "Time [ns]", "V");
+  TUtilRadioScatter::style(evG, kBlack, 1, 1);
+  TUtilRadioScatter::xrange(evG, evG->GetX()[0], evG->GetX()[evG->GetN()-1]);
+  gPad->SetLeftMargin(.15);
+  gPad->SetBottomMargin(.12);
+  evG->Draw("al");
   //timme->Draw();
   ccc->cd(1)->cd(2);
   // fft = dofft(eventHist);
@@ -652,7 +637,13 @@ int RadioScatterEvent::plotEventNotebook(int txindex, int rxindex, int noise_fla
   // fft->Draw();
   // ccc->cd(3);
   //  g.plot(vals, "with lines");
-  spectrogram(txindex, rxindex, bins, overlap);
+  auto spec=TUtilRadioScatter::FFT::spectrogram(evG, bins, overlap, bins*2, logFlag, 2,0,(sampleRate/2.)-(sampleRate/bins));
+  gPad->SetBottomMargin(.12);
+  gPad->SetRightMargin(.19);
+  gPad->SetLeftMargin(.15);
+  spec->Draw("colz");
+
+
   //  TImage *img =TImage::Create();
   //  img->FromPad(c);
   //img->WriteImage("54mhz_100TeV_proton.png");

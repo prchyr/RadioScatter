@@ -353,6 +353,8 @@ utilities.
   TGraphErrors * shiftY(TProfile *g1, double factor);
   //shift a graph along the x axis by the factor
   TGraph * shiftX(TGraph *g1, double factor);
+  //resample a graph by a factor
+  TGraph * reSample(TGraph *g1, int factor);
   //scale a TGraph by a constant factor
   TGraph * scale(TGraph *g1, double factor);
   //stretch a TGraph in time by a factor
@@ -474,6 +476,8 @@ utilities.
   double deg2Rad(double deg);
   //radians to degrees
   double rad2Deg(double rad);
+  //plot the thermal noise for a given bandwidth
+  double thermalNoiseRMS(double bandwidth=1e9);//hz
   //add some noise to a graph
   TGraph * addNoise(TGraph * inGr, double level);
   //find the x values of zero crossings. can also plot the relative time between subsequent zero crossings if relative = 1

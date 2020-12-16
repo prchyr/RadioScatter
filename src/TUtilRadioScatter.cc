@@ -1781,6 +1781,13 @@ TGraph * TUtilRadioScatter::divide(TGraph *g1, TGraph *g2, double constant){
   return outGr;
 }
 
+TGraph * TUtilRadioScatter::reSample(TGraph *g1, int factor){
+  TGraph *outGr=new TGraph(g1->GetN()/factor);
+  for(int i=0;i<outGr->GetN();i++){
+    outGr->SetPoint(i, g1->GetX()[i*factor], g1->GetY()[i*factor]);
+  }
+  return outGr;
+}
 
 TGraph * TUtilRadioScatter::scale(TGraph *g1, double factor){
   TGraph *outGr=new TGraph(g1->GetN());
@@ -2719,6 +2726,12 @@ TGraph * TUtilRadioScatter::brickWallFilter(TGraph * inGr, double low, double hi
   auto outGr=(TGraph*)TUtilRadioScatter::FFT::ifft(fT)->Clone();
   return outGr;
 }
+
+double TUtilRadioScatter::thermalNoiseRMS(double bandwidth){//hz
+  double kB = 1.831e-23;
+  return  sqrt(kB*300.*50.*bandwidth);//thermal noise RMS (mV)
+}
+
 
 TGraph * TUtilRadioScatter::addNoise(TGraph * inGr, double level){
   auto outGr=new TGraph();
