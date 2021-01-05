@@ -4,6 +4,9 @@ This is the RadioScatter module. It has been made to run independently of, or wi
 
 ### Prerequisites
 
+these are the general prerequisites, please see below for system-specific notes
+
+
 ROOT 6.08 or higher (https://root.cern.ch/downloading-root)
 
 
@@ -16,7 +19,9 @@ NOTE: When installing GEANT4, be sure to install with the install data option (-
 
 you can use any monte-carlo program you want with RadioScatter, but this package includes some GEANT4 programs, built on their examples, that harness the full power of GEANT to make realistic rf scattering signals. if you want to use those, i'm gonna assume that you know how to use GEANT4 and ROOT.
 
+#### system-specific notes:
 
+on Ubunutu 20.04 LTS, GSL is not installed by default, so ROOT will not build MathMore, which it needs. So, before installing ROOT, install the libgsl-dev library and be sure that ROOT is built with MathMore support (should be the default behavior). 
 
 
 ************
