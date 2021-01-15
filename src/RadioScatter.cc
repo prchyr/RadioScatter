@@ -777,13 +777,20 @@ double RadioScatter::makeRays(TLorentzVector point, double e, double l, double e
   }
 
   double rx_time, rx_amplitude, rx_phase, point_time, t_step=0.;
-  double zz=point.Z()*zscale;
-  double tt=point.T()*tscale;
+  
+  auto pVec=point.Vect()-event.position;
+  pVec.SetMag(zscale);
+  auto pointNew=pVec+event.position;
+  point.SetXYZT(pointNew.X(), pointNew.Y(), pointNew.Z(), point.T()*tscale);
+
+  //double zz=point.Z()*zscale;
+  //double tt=point.T()*tscale;
 
   //std::cout<<point.Z()<<" ";
-  point.SetZ(zz);
+  //point.SetZ(zz);
+  //point.SetVect(point.Vect()*zScaleVec);
   //  std::cout<<zscale<<" "<<point.Z()<<std::endl;
-  point.SetT(tt);
+  //point.SetT(tt);
 
 
   for(int i=0;i<ntx;i++){
