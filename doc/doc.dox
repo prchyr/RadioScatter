@@ -66,8 +66,7 @@ the theory of operation is outlined in this paper:
 
 http://arxiv.org/abs/1710.02883
 
-please see RadioScatter.hh for the main documentation. each function and variable is described, and it should give a picture of what's going on. 
-
+This document serves as the primary documentation, pulled from the source code.
 
 how it works, breifly:
 
@@ -79,7 +78,7 @@ The RadioScatter module calculates rf scattering from an energy deposit in 4 spa
 the examples directory has some use cases that don't involve geant4. to compile, be sure to link to the radio scatter library, i e -lRadioScatter, and also the root libraries, like so:
 
 ~~~{.sh}
-g++ -std=c++0x example.cc -o example `root-config --cflags --glibs --libs` -lt576 -lRadioScatter
+g++ -std=c++0x example.cc -o example `root-config --cflags --glibs --libs` -lRadioScatter
 ~~~
 
 in the examples, there is a use case where a shower has been prepared using GEANT4 and then this is used in a standalone program to scatter radio, as an example of runnning radioscatter outside of a monte carlo program. various options are shown and explained in the example
@@ -132,11 +131,74 @@ run1.mac:
 
 
 
-\subsection Some Use Cases
+\subsection use Some Use Cases
 
 One use of RadioScatter is to generate a lot of events over some volume using a monte-carlo approach, and calculate information about each event. If you run within GEANT4 using one of the examples included, you simply do /RS/setFillByEvent 1 within your macro. This calls a function, radio->writeEvent() after each event. Coupled with setMakeSummary(1), this is a good way to get information that you can use to develop sensitivity curves, etc.
 
-Another use of RadioScatter is to generate a statistically varied sample of events at the same vertex position, to achieve a high-resolution signal. Because RadioScatter calculates the scattering from each individual charge, we can't run over an actual 10^18 eV cascade, as it would take too long. running over a 100GeV cascade even begins to take a long time. but, you can run over a 1-10GeV cascade, which is fast, and then run multiple of them to get some statistical variation in the 4-positions of the ionization deposits. If you were to do this for N events, that is, generate N events at the same vertex position and direction, you wouldn't call writeEvent() at the end of each event, and it would just continue to fill the same event histogram. after all N, you'd run writeRun(N) and the output histogram would be scaled by 1/N to get the correct amplitude for the energy you specified. For more information, see the documentation for setNPrimaries() inside of RadioScatter.cc.
+Another use of RadioScatter is to generate a statistically varied sample of events at the same vertex position, to achieve a high-resolution signal. Because RadioScatter calculates the scattering from each individual charge, we can't run over an actual 10^18 eV cascade, as it would take too long. running over a 100GeV cascade even begins to take a long time. but, you can run over a 1-10GeV cascade, which is fast, and then run multiple of them to get some statistical variation in the 4-positions of the ionization deposits. In the next section, we discuss how scaling works in RadioScatter to make this possible.
+
+\subsection scaling Scaling in RadioScatter
+
+Because the radio signal is built up through calculation of scattering from the individual particles, the simulation time scales with energy. And, when running in GEANT4, there is an upper limit of about 100TeV for some of the physics processes. To simulate higher energies, RadioScatter employs empirical scaling of the density of the cascade, the length of the cascade, and the associated travel time of the lengthened cascade. We breifly discuss here how this is done (it is a bit confusing).
+
+\subsubsection indep Running Independently of GEANT4 or other MC program
+
+if running radioscatter on an independently generated energy deposition, scaling may not be required (for example, if you have generated a 3-d energy deposition profile for a cascade at 1 EeV, RadioScatter simply runs off of that). If, however, you use a lower energy cascade (10GeV, for example) and want to scale it up to 1 EeV, then scaling must be enabled. First, RadioScatter needs to know the energy of the primary particle of the cascade being simulated. so in this example, you'd set it to 10GeV (be sure to specify an energy unit). so,
+
+setPrimaryEnergy(10*TUtilRadioScatter::GeV);
+
+and then, to scale this up to the proper density, you 'throw' the correct number of primaries to make up the difference between the input energy (10 GeV) and the target energy (1 EeV). hence,
+
+setNPrimaries(1e8);
+
+What this does is simply multiply the number of ionization electrons at each step by nPrimaries, which is roughly equivalent to having a higher energy primary particle (for details see arxiv:1710.02883). However, the profile of a 10 GeV particle and a 1 EeV particle are not the same, so the final step to make the scaling work is:
+
+setScaleByEnergy(1);
+
+which scales the cascade along the longitudinal dimension and the time dimension the appropriate amount for the given scaling. The target energy is calculated via the primary energy and the nPrimaries, you don't set it yourself.
+
+in the future we may change this, and instead have the user set the primary energy and the target energy, rather than nPrimaries (nPrimaries is vestigal from when this simulation was first written to simulate cascades in a collider setting) but the end result is the same.
+
+\subsubsection within Running within GEANT4
+
+inside of GEANT4 there is a different set of steps to set the correct scaling. It is important to remember that RadioScatter and GEANT4 are different programs running together, so there are some commands for one, and some commands for the other. information is shared between the two of them, but the usage within GEANT4 is very different from the usage outside of it.
+
+GEANT4 (at least in the provided examples with RadioScatter) sets the primary particle energy internally in RadioScatter. so when you set the primary energy in your G4 macro via,
+
+/gps/energy 10GeV
+
+this also sets the primaryParticleEnergy in GEANT, so you don't need to set that manually. You can, but ic will be overwritten; this is to maintain internal consistsncy when running in G4 mode.
+
+another thing you can do in GEANT4 is simulate more than one event. meaning, you can do
+
+/run/beamOn(1)
+
+or
+
+/run/beamOn(n)
+
+where n is any number of events that will be simulated with the set simulation parameters. so if you did
+
+/gps/energy 10GeV
+/run/beamOn(10)
+
+then it would simulate 10 events, each at 10GeV, at the same vertex position (set elsewhere). You have flexibility in how these events are saved. You can either set them to be saved as individual events, or you can have them averaged into a single event. this is done via
+
+setFillByEvent(0) to have them averaged and
+setFillByEvent(1) to save each event individually.
+
+when using setFillByEvent(0), the resultant radioscatter signal is scaled by 1/n, with n being the argument to /run/beamOn(n), such that the scatter you receive is the appropriate amplitude for the specified input energy. Why run like this? well, this increases the fideliity of the time-domain signal, by 'filling in' the scattering space randomly with different events, all of the same energy. This is different from using the nPrimaries scaling, which simply scales the number of ionization electrons at each point for a single cascade, because different events have different ionization electron geometry. you can think of it as the difference between increasing the brightness of a photo of a lightning strike and a long-exposure photo of lightning strikes. a single lightning strike has arms in random positions. to scale up the 'density' of the lightning, you could simply increase the brightness of that single strike by some value of n strikes. but in the case of numerous lightning strikes starting from the same place, the overall integrated brightness would increase by n strikes, but the random arms would slowly fill in the frame, as a time-integrated collection of the many strikes. This is essentially the difference between using setNPrimaries(n)[increasing the brightness] and beamOn(n)[long exposure]. The resultant signal will have the same(ish) amplitude, because radar only cares about the total number of scattering centers, but the long-exposure method will be more robust in terms of signal fidelity, because the more filled-out the scattering suface is, the cleaner the reflected signal.
+
+so why use nPrimaries ever? well, it's fast. ideally you'd just do /run/beamOn(1e8) and you're done, but this would take years to run. so it is up to the user to define what kind of signal fidelity is needed for a given simulation, and set all of these various parameters appropriately for their use case.
+
+\subsubsection guidance General Guidance
+
+for a general usage:
+
+a 10 GeV input cascade results in decent signal fidelity. This is what has been used as the base energy for cascades simulated for RET-N. for T576, we used a 10-13.6GeV primary (depending on the actual beam energy) and then did /run/beamOn(10) to get a higher-fideilty signal. we found that beyond that, the time domain signal did not change in any noticeable way by increasing the argument to beamOn(), and only increased the comuptational time. [note: remember that the resultant RF signal is scaled by 1/n. so by doubling the number to beamOn you are not doubling the signal amplitude, just the signal fidelity, because the resultant amplitude is scaled back to reflect the added cascade(s)]. a 1GeV cascade will have fairly significant shot-to-shot differences, but is very fast [speed is linear in energy/particle number, 10GeV is 10x slower than 1GeV], so if number is your game and you can accept some error on the scattered signal, 1GeV may be sufficient. This can be appropriate for monte-carlo studies. 
+
+
+
 
 enjoy. questions can be sent to prohira dot 1 at osu dot edu
 */
