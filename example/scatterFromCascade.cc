@@ -1,8 +1,8 @@
 #include <RadioScatter/RadioScatter.hh>
 /*
-This example shows the basic use of radioscatter. the input file is a cascade produced by GEANT4 in which we have saved the 4-vector (x, y, z, t) of each step in each particle's track, as well as the step length and the energy deposited in that step. This particular shower is a 10 GeV shower which we scale to 10PeV.
+This example shows the basic use of radioscatter. the input file is a cascade produced by GEANT4 in which we have saved the 4-vector (x, y, z, t) of each step in each particle's track, as well as the step length and the energy deposited in that step. This particular shower is a 10 GeV shower which we scale to 10PeV for efficiency.
 
-we then set the simulation parameters. transmitter frequency, power, polarization, antenna gains, the number of primaries (which allows for the simulation of a 'bunch'), whether or not to scale the shower longitudinally by energy (so that a GeV shower can be simulated and scaled instead of a PeV shower which would take forever for GEANT4 to produce) etc. for more information, see the documentation. 
+we then set the simulation parameters. transmitter frequency, power, polarization, antenna gains, the target energy (which allows us to scale the number density up), whether or not to scale the shower longitudinally by energy (so that a GeV shower can be simulated and scaled instead of a PeV shower which would take forever for GEANT4 to produce) etc. for more information, see the documentation. 
 
 finally, we simply loop through the file and calculate the scatter. for this, compile against the root libraries (`root-config --cflags --glibs --libs`) and the radioscatter library (-lRadioScatter) once you've installed. it should run in about 1 second. try:
 
@@ -52,8 +52,12 @@ void doIt(double lifetimens, double frequency, double power){
   radio->setRxPos(r1);//sets the 1st receiver as r1
   radio->setRxPos(r2);//sets the 1st receiver as r2
 
-  double nPrimaries=1e9;
-  radio->setNPrimaries(nPrimaries);//the number of 'primaries'. used to imitate the density of a charge bunch or the approximate density of a higher-energy primary
+
+  radio->setTargetEnergy(1e10*TUtilRadioScatter::GeV);//the target energy that we want to scale this 10GeV cascade up to, useful for using a 10GeV cascade to simulate much higher-energy cascades for computational efficiency. This should be used with "setScaleByEnergy(1)" to scale in space and time. 
+  
+  //an alternate way to set the scaling, rather than a target energy. For example, if you wanted to simulate a beam experiment where there are 10^9 primary particles, but each particle is 10GeV. 
+  //double nPrimaries=1e9;
+  //radio->setNPrimaries(nPrimaries);//the number of 'primaries'. used to imitate the density of a charge bunch or the approximate density of a higher-energy primary
   radio->setTxFreq(frequency);//transmitter frequency (set by user)
 
   radio->setTxPower(power); //transmitter power in Watts (set by user) 
@@ -63,8 +67,8 @@ void doIt(double lifetimens, double frequency, double power){
   radio->setRecordWindowLength(100);//length of the received window
   radio->setCalculateUsingAttnLength(0);//use ice attenuation length in the calculation?
   radio->setPolarization("vertical");//antenna polarization. currently vertical = (0,1,0) and horizontal = (0,0,1); 
-  radio->setPrimaryEnergy(1e4);//10GeV in MeV. need to set this for the scaling to be correct, if you simulate a higher energy shower than the input file (which was 10GeV)
-  radio->setScaleByEnergy(0);//scales the shower longitudinally by a factor to simulate a higher energy shower. not exact, but fast.
+  radio->setPrimaryEnergy(10*TUtilRadioScatter::GeV);//10GeV (the energy of the example cascade provided here) in MeV. need to set this for the scaling to be correct, if you simulate a higher energy shower than the input file (which was 10GeV)
+  radio->setScaleByEnergy(1);//scales the shower longitudinally by a factor to simulate a higher energy shower. not exact, but fast.
   radio->setMakeSummary(1);//make a nice summary file for simple plotting of things like peak power, voltage, etc.
   radio->setPlasmaLifetime(lifetimens);//set the plasma lifetime
 

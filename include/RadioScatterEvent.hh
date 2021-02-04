@@ -80,7 +80,8 @@ public:
   std::vector<TLorentzVector> tx;
   std::vector<TLorentzVector> rx;
   //the energy of the primary as set in geant
-  double primaryEnergy=1000;//1000MeV (geant units) as a default
+  double primaryEnergy=1*GeV;//1GeV as a default
+  double targetEnergy=1*GeV;///1GeV
   double inelasticity=1.;
   double weight=1.; //used for some calculations. 
   double sampleRate;

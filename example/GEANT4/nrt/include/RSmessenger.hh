@@ -29,7 +29,8 @@ private:
   G4UIcmdWithADouble*        receiverGainCommand;
   G4UIcmdWithADouble*        transmitterGainCommand;
   G4UIcmdWithADouble*        powerCommand;
-  G4UIcmdWithADouble*        setPrimaryEnergyCommand;
+  G4UIcmdWithADoubleAndUnit*        setPrimaryEnergyCommand;
+  G4UIcmdWithADoubleAndUnit*        setTargetEnergyCommand;
   G4UIcmdWithADouble*        setScaleByEnergyCommand;
   G4UIcmdWithADouble*        setCrossSectionCommand;
   G4UIcmdWithADouble*        lifetimeCommand;

@@ -175,10 +175,11 @@ public:
   int TX_FREQ_SET=0;
   int RX_FREQ_SET=0;
   
-  int NPRIMARIES_SET=0;
-  int PRIMARY_ENERGY_SET=0;
-  int SCALE_BY_ENERGY=0;
-
+  int NPRIMARIES_SET=0;///indicates that the number of primaries has been set.
+  int TARGET_ENERGY_SET=0;///inicates that a target energy for scaling has been set.
+  int PRIMARY_ENERGY_SET=0;///indicates that the primary particle energy is known to radioscatter
+  int SCALE_BY_ENERGY=0;///sets the flag to scale by energy. 
+  int ENERGY_SCALING_SET=0;///indicates that the energy scaling has been set.
 
   int REAL_DATA=0;
   RadioScatter();
@@ -273,10 +274,15 @@ this is important when running over some arbitrary shower input file, as there i
   /**\brief
 use this flag to scale the shower by some amount. 
 
-use this flag to scale the shower by some amount. to use it, you first must call setPrimaryEnergy to the energy of the primary, and then using setNPrimaries, this will calculate the 'target' energy. it they scales the shower accordingly in the longitudinal direction.
+use this flag to scale the shower by some amount. it then scales the shower accordingly in the longitudinal direction.
    */
   int setScaleByEnergy(double val);
+  /**\brief
+sets the scaling by energy.
 
+this function actually does the scaling. prior to it being called, it makes sure that all of the information is there, namely, the energy of the actual primary particle that makes the cascade, and the number of primaries, either via nprimaries or targetenergy.
+  */
+  int scaleByEnergy();
   void setPlasmaLifetime(double l);  ///<set the plasma lifetime in nanoseconds
 
   void setPolarization(const char * p);  ///<set the antenna polarization. very primitive now: vertical=(0,1,0), horizontal=(0,0,1). TODO: fix this.

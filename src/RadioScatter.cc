@@ -247,7 +247,7 @@ void RadioScatter::setReceiverGain(double gain){
   if(RX_GAIN_SET!=1){
     RX_GAIN_SET==1;
 
-    std::cout<<" receiver gain: "<<gain<<" dB, ("<<gg<<" linear)"<<std::endl;
+    std::cout<<"receiver gain: "<<gain<<" dB, ("<<gg<<" linear)"<<std::endl;
     //from rice paper
     rxEffectiveHeight=sqrt(lambda*lambda*rx_gain/(480.*pi*pi));
     //from wikipedia antenna factor
@@ -304,33 +304,40 @@ void RadioScatter::setCrossSection(double val){
 }
 
 void RadioScatter::setTargetEnergy(double e){
-  setNPrimaries(e-event.primaryEnergy);
-  NPRIMARIES_SET=1;
+  event.targetEnergy=e;
+  cout<<"target simulation energy: "<<event.targetEnergy/TUtilRadioScatter::GeV<<" GeV"<<endl;
+  TARGET_ENERGY_SET=1;
 }
 int RadioScatter::setScaleByEnergy(double val){
   if((int)val==1){
-    if(PRIMARY_ENERGY_SET==0){
-      std::cout<<"primary energy has not been set in RadioScatter, scaling will not work. please call setPrimaryEnergy to tell RadioScatter what energy your primary is!"<<std::endl;
-      return 0;
+    SCALE_BY_ENERGY=1;
+  }
+}
+  
+int RadioScatter::scaleByEnergy(){
+  if(NPRIMARIES_SET==1&&PRIMARY_ENERGY_SET==1){
+    if(TARGET_ENERGY_SET!=1){
+      setTargetEnergy(event.primaryEnergy*event.nPrimaries);
     }
-    if(NPRIMARIES_SET==0){
-      std::cout<<"number of primaries/target energy has not been set in RadioScatter, scaling will not work. please call setNPrimaries or setTargetEnergy to tell RadioScatter how to scale!"<<std::endl;
-      return 0;
-    }
-    double current_energy = event.primaryEnergy/1000.;//gev
-    double target_energy = (current_energy+event.nPrimaries);//gev
-
-    zscale = (3000.*log10(event.nPrimaries)+6000.)/((log10(event.primaryEnergy/1000.)*3000.)+6000);
-
-    tscale = (10.*log10(event.nPrimaries)+22.)/((log10(event.primaryEnergy/1000.)*10.)+22);
+        
+    zscale = (3.*log10(event.targetEnergy)+6.)/((log10(event.primaryEnergy)*3.)+6);
+    
+    tscale = (10.*log10(event.targetEnergy)+22.)/((log10(event.primaryEnergy)*10.)+22);
     std::cout<<"scaling activated. zscale="<<zscale<<" , tscale="<<tscale<<std::endl;
 
-    SCALE_BY_ENERGY=1;
+    //cout<<"__________________"<<endl<<" "<<event.primaryEnergy<<" "<<event.targetEnergy<<" "<<event.nPrimaries<<endl<<"______________"<<endl;
+    
+    ENERGY_SCALING_SET=1;
     return 1;
   }
+  // else {
+  //   cout<<
+  //     }
 }
 void RadioScatter::setPrimaryEnergy(double e){
   event.primaryEnergy=e;
+  cout<<"primary simulated particle energy: "<<event.primaryEnergy/TUtilRadioScatter::GeV<<" GeV"<<endl;
+  //cout<<"__________________"<<endl<<e<<" "<<event.nPrimaries<<endl<<"______________"<<endl;
   PRIMARY_ENERGY_SET=1;
 }
 void RadioScatter::setPrimaryDirection(TVector3 d){
@@ -777,11 +784,29 @@ double RadioScatter::makeRays(TLorentzVector point, double e, double l, double e
   }
 
   double rx_time, rx_amplitude, rx_phase, point_time, t_step=0.;
+
+  if(SCALE_BY_ENERGY==1&&ENERGY_SCALING_SET==0){
+
+    if(PRIMARY_ENERGY_SET==0){
+      cout<<"The primary energy has not been set, but scaling has been enabled. Please tell radioscatter what the energy of the primary cascade particle is. If running within GEANT4, do this in RunAction() initialization. If not running in GEANT4, set directly with setPrimaryEnergy(), with the energy provided in MeV."<<endl;
+      exit(0);
+    }
+    
+    if(NPRIMARIES_SET==0){
+      if(TARGET_ENERGY_SET==1){
+	setNPrimaries(event.targetEnergy/event.primaryEnergy);
+      }
+    }
+      
+    scaleByEnergy();
+  }
   
-  auto pVec=point.Vect()-event.position;
-  pVec.SetMag(zscale);
-  auto pointNew=pVec+event.position;
-  point.SetXYZT(pointNew.X(), pointNew.Y(), pointNew.Z(), point.T()*tscale);
+  if(ENERGY_SCALING_SET==1){
+    auto pVec=point.Vect()-event.position;
+    pVec.SetMag(zscale);
+    auto pointNew=pVec+event.position;
+    point.SetXYZT(pointNew.X(), pointNew.Y(), pointNew.Z(), point.T()*tscale);
+  }
 
   //double zz=point.Z()*zscale;
   //double tt=point.T()*tscale;

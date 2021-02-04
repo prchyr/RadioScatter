@@ -88,9 +88,17 @@ RSmessenger::RSmessenger(RadioScatter *rscat)
   setScaleByEnergyCommand->SetGuidance("set scale by energy!");
   setScaleByEnergyCommand->SetParameterName("choice", false);
 
-    setPrimaryEnergyCommand = new G4UIcmdWithADouble("/RS/setPrimaryEnergy", this);
+    setPrimaryEnergyCommand = new G4UIcmdWithADoubleAndUnit("/RS/setPrimaryEnergy", this);
   setPrimaryEnergyCommand->SetGuidance("set primary energy!");
+  setPrimaryEnergyCommand->SetDefaultUnit("GeV");
+  setPrimaryEnergyCommand->SetUnitCandidates("eV MeV GeV TeV");
   setPrimaryEnergyCommand->SetParameterName("choice", false);
+
+      setTargetEnergyCommand = new G4UIcmdWithADoubleAndUnit("/RS/setTargetEnergy", this);
+  setTargetEnergyCommand->SetGuidance("set target energy!");
+  setTargetEnergyCommand->SetDefaultUnit("GeV");
+  setTargetEnergyCommand->SetUnitCandidates("eV MeV GeV TeV");
+  setTargetEnergyCommand->SetParameterName("choice", false);
 
   
   setFillParticleInfoCommand = new G4UIcmdWithADouble("/RS/setFillParticleInfo", this);
@@ -142,6 +150,7 @@ RSmessenger::~RSmessenger()
   delete setFillByEventCommand;
   delete makeSummaryCommand;
   delete setPrimaryEnergyCommand;
+  delete setTargetEnergyCommand;
   delete setScaleByEnergyCommand;
   delete setCrossSectionCommand;
   delete setFillParticleInfoCommand;
@@ -169,7 +178,8 @@ void RSmessenger::SetNewValue(G4UIcommand* command,G4String newValue)
   if(command==receiverGainCommand)rs->setReceiverGain(val);
   if(command==transmitterGainCommand)rs->setTransmitterGain(val);
   if(command==makeSummaryCommand)rs->setMakeSummary(val);
-  if(command==setPrimaryEnergyCommand)rs->setPrimaryEnergy(val);
+  if(command==setPrimaryEnergyCommand)rs->setPrimaryEnergy(setPrimaryEnergyCommand->GetNewDoubleValue(newValue));
+  if(command==setTargetEnergyCommand)rs->setTargetEnergy(setTargetEnergyCommand->GetNewDoubleValue(newValue));
   if(command==setScaleByEnergyCommand)rs->setScaleByEnergy(val);
   if(command==lifetimeCommand)rs->setPlasmaLifetime(val);
   if(command==setFillByEventCommand)rs->setFillByEvent(val);
