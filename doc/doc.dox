@@ -139,35 +139,50 @@ Another use of RadioScatter is to generate a statistically varied sample of even
 
 \subsection scaling Scaling in RadioScatter
 
-Because the radio signal is built up through calculation of scattering from the individual particles, the simulation time scales with energy. And, when running in GEANT4, there is an upper limit of about 100TeV for some of the physics processes. To simulate higher energies, RadioScatter employs empirical scaling of the density of the cascade, the length of the cascade, and the associated travel time of the lengthened cascade. We breifly discuss here how this is done (it is a bit confusing).
+Because the radio signal is built up through calculation of scattering from the individual particles, the simulation time scales with energy. And, when running in GEANT4, there is an upper limit of about 100TeV for some of the physics processes. To simulate higher energies, RadioScatter employs empirical scaling of the density of the cascade, the length of the cascade, and the associated travel time of the lengthened cascade. We breifly discuss here how this is done.
+
+There are two regimes in which scaling might be wanted.
+
+1) for a collider experiment. instead of running 10^9 cascades to simulate a bunch of 1 billion primary particles, you might want to just run 1 cascade and scale the number density by 10^9 for computational efficiency.
+
+2) for a UHE experiment. Instead of trying to simulate a 1PeV cascade, you'd simulate a 10GeV cascade and then set a target energy of 1PeV, and then scale both the number density and the physical scale of the cascade to the target energy.
+
+
+
 
 \subsubsection indep Running Independently of GEANT4 or other MC program
 
-if running radioscatter on an independently generated energy deposition, scaling may not be required (for example, if you have generated a 3-d energy deposition profile for a cascade at 1 EeV, RadioScatter simply runs off of that). If, however, you use a lower energy cascade (10GeV, for example) and want to scale it up to 1 EeV, then scaling must be enabled. First, RadioScatter needs to know the energy of the primary particle of the cascade being simulated. so in this example, you'd set it to 10GeV (be sure to specify an energy unit). so,
+if running radioscatter on an independently generated energy deposition, scaling may not be required (for example, if you have generated a 3-d energy deposition profile for a cascade at 1 EeV, RadioScatter simply runs off of that). If, however, you use a lower energy cascade (10GeV, for example) and want to scale it up to a 1 EeV cascade, then scaling must be enabled. First, RadioScatter needs to know the energy of the primary particle of the cascade being simulated. so in this example, you'd set it to 10GeV (be sure to specify an energy unit). so,
 
 setPrimaryEnergy(10*TUtilRadioScatter::GeV);
 
-and then, to scale this up to the proper density, you 'throw' the correct number of primaries to make up the difference between the input energy (10 GeV) and the target energy (1 EeV). hence,
+then, to scale this up to the proper density, you set the target energy to 1 EeV which tells RadioScatter what the target energy is to make the calculations for scaling. 
 
-setNPrimaries(1e8);
+setTargetEnergy(1e9*TUtilRadioScatter::GeV);
 
-What this does is simply multiply the number of ionization electrons at each step by nPrimaries, which is roughly equivalent to having a higher energy primary particle (for details see arxiv:1710.02883). However, the profile of a 10 GeV particle and a 1 EeV particle are not the same, so the final step to make the scaling work is:
+This essentially makes a scaling factor that each ionization deposity is multiplied by to increase the ionization densty to the target point (for details see arxiv:1710.02883). However, the profile of a 10 GeV particle and a 1 EeV particle are not the same, so the final step to make the scaling work is:
 
 setScaleByEnergy(1);
 
-which scales the cascade along the longitudinal dimension and the time dimension the appropriate amount for the given scaling. The target energy is calculated via the primary energy and the nPrimaries, you don't set it yourself.
+which scales the cascade along the longitudinal dimension and the time dimension the appropriate amount for the given scaling. 
 
-in the future we may change this, and instead have the user set the primary energy and the target energy, rather than nPrimaries (nPrimaries is vestigal from when this simulation was first written to simulate cascades in a collider setting) but the end result is the same.
+Alternatively, if you are wanting to simulate a beam test in with there are a large number of primaries at a single energy, meaning you want to scale the density but not the physical/temporal extent of the cascade, you can use setNPrimaries but not scale with energy, like:
+
+setNPrimaries(1e9);
+setScaleByEnergy(0);
 
 \subsubsection within Running within GEANT4
 
-inside of GEANT4 there is a different set of steps to set the correct scaling. It is important to remember that RadioScatter and GEANT4 are different programs running together, so there are some commands for one, and some commands for the other. information is shared between the two of them, but the usage within GEANT4 is very different from the usage outside of it.
-
-GEANT4 (at least in the provided examples with RadioScatter) sets the primary particle energy internally in RadioScatter. so when you set the primary energy in your G4 macro via,
+inside of GEANT4 there is a different set of steps to set the correct scaling. It is important to remember that RadioScatter and GEANT4 are different programs running together, so there are some commands for one, and some commands for the other. when running in GEANT4, you need to tell GEANT4 the primary energy, not RadioScatter. so instead of setPrimaryEnergy() (RadioScatter command) you use the GEANT4 command in your macro,
 
 /gps/energy 10GeV
 
-this also sets the primaryParticleEnergy in GEANT, so you don't need to set that manually. You can, but ic will be overwritten; this is to maintain internal consistsncy when running in G4 mode.
+this also sets the primaryParticleEnergy in GEANT, so you don't need to set that manually. You can, but it will be overwritten; this is to maintain internal consistsncy when running in G4 mode.
+
+you can then set the target energy (RadioScatter command) as above, and then set the scaling (RadioScatter command) to 1 in your macro file like:
+
+/RS/setTargetEnergy 1e9 GeV
+/RS/setScaleByEnergy 1
 
 another thing you can do in GEANT4 is simulate more than one event. meaning, you can do
 
@@ -187,7 +202,7 @@ then it would simulate 10 events, each at 10GeV, at the same vertex position (se
 setFillByEvent(0) to have them averaged and
 setFillByEvent(1) to save each event individually.
 
-when using setFillByEvent(0), the resultant radioscatter signal is scaled by 1/n, with n being the argument to /run/beamOn(n), such that the scatter you receive is the appropriate amplitude for the specified input energy. Why run like this? well, this increases the fideliity of the time-domain signal, by 'filling in' the scattering space randomly with different events, all of the same energy. This is different from using the nPrimaries scaling, which simply scales the number of ionization electrons at each point for a single cascade, because different events have different ionization electron geometry. you can think of it as the difference between increasing the brightness of a photo of a lightning strike and a long-exposure photo of lightning strikes. a single lightning strike has arms in random positions. to scale up the 'density' of the lightning, you could simply increase the brightness of that single strike by some value of n strikes. but in the case of numerous lightning strikes starting from the same place, the overall integrated brightness would increase by n strikes, but the random arms would slowly fill in the frame, as a time-integrated collection of the many strikes. This is essentially the difference between using setNPrimaries(n)[increasing the brightness] and beamOn(n)[long exposure]. The resultant signal will have the same(ish) amplitude, because radar only cares about the total number of scattering centers, but the long-exposure method will be more robust in terms of signal fidelity, because the more filled-out the scattering suface is, the cleaner the reflected signal.
+when using setFillByEvent(0), the resultant radioscatter signal is scaled by 1/n, with n being the argument to /run/beamOn(n), such that the scatter you receive is the appropriate amplitude for the specified input energy. Why run like this? well, this increases the fideliity of the time-domain signal, by 'filling in' the scattering space randomly with different events, all of the same energy. This is different from using the nPrimaries scaling, which simply scales the number of ionization electrons at each point for a single cascade, because different events have different ionization electron geometry. you can think of it as the difference between increasing the brightness of a photo of a lightning strike and a long-exposure photo of lightning strikes. a single lightning strike has arms in random positions. to scale up the 'density' of the lightning, you could simply increase the brightness of that single strike by some value of n strikes. but in the case of numerous lightning strikes starting from the same place, the overall integrated brightness would increase by n strikes, but the random arms would slowly fill in the frame, as a time-integrated collection of the many strikes. This is essentially the difference between using setNPrimaries [increasing the brightness] and beamOn(n)[long exposure]. The resultant signal will have the same(ish) amplitude, because radar only cares about the total number of scattering centers, but the long-exposure method will be more robust in terms of signal fidelity, because the more filled-out the scattering suface is, the cleaner the reflected signal.
 
 so why use nPrimaries ever? well, it's fast. ideally you'd just do /run/beamOn(1e8) and you're done, but this would take years to run. so it is up to the user to define what kind of signal fidelity is needed for a given simulation, and set all of these various parameters appropriately for their use case.
 
