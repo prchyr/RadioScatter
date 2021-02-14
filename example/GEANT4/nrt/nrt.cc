@@ -258,7 +258,7 @@ int main(int argc,char** argv)
     //   //      cout<<tx.x()<<" "<<tx.y()<<" "<<tx.z()<<endl;
     // }
     //    runManager->BeamOn(1);
-    runManager->BeamOn(1);
+    runManager->BeamOn(10);
   }
 
 
@@ -392,7 +392,7 @@ int main(int argc,char** argv)
      TRandom3 *rann=new TRandom3();
      rann->SetSeed();
 
-     int nThrow=1000;
+     int nThrow=100;
      for(int j=0;j<nThrow;j++){
        auto val= rann->Integer(500000);
        

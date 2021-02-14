@@ -181,6 +181,8 @@ public:
   int SCALE_BY_ENERGY=0;///sets the flag to scale by energy. 
   int ENERGY_SCALING_SET=0;///indicates that the energy scaling has been set.
 
+
+  bool RADIOSCATTER_INIT=0;///indicates that all the values needed for radioscatter to do the things have been set.
   int REAL_DATA=0;
   RadioScatter();
 

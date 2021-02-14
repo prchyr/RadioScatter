@@ -22,6 +22,9 @@ RSEventSummary::RSEventSummary(int ntransmitters, int nreceivers){
   integratedPower.resize(ntx, vector<double>(nrx, 0.));
   peakPowerW.resize(ntx, vector<double>(nrx, 0.));
   pathLengthM.resize(ntx, vector<double>(nrx, 0.));
+  angRVP.resize(ntx, vector<double>(nrx, 0.));
+  angTVP.resize(ntx, vector<double>(nrx, 0.));
+  angTVR.resize(ntx, vector<double>(nrx, 0.));
   delta.resize(ntx, vector<double>(nrx, 0.));
   beta.resize(ntx, vector<double>(nrx, 0.));
   doppler.resize(ntx, vector<double>(nrx, 0.));

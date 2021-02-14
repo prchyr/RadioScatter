@@ -91,6 +91,9 @@ public:
   double freq=0;
   double txGain=1.;
   double rxGain=1.;
+  std::vector<std::vector<double>> angRVP;///angle subtended by receiver, vertex, and cascade momentum direction
+  std::vector<std::vector<double>> angTVP;///angle subtended by transmitter, vertex, and cascade momentum direction
+  std::vector<std::vector<double>> angTVR;///angle subtended by transmitter, vertex, and receiver.
   std::vector<std::vector<double>> beta;//the bistatic angle
   std::vector<std::vector<double>> delta;//the aspect angle
   std::vector<std::vector<double>> doppler;//the doppler shift

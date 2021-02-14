@@ -83,7 +83,7 @@ void EventAction::BeginOfEventAction(const G4Event* /*event*/)
   fTrackLAbs = 0.;
   fTrackLGap = 0.;
   fEnergyTot =0.;
-  if(fRadio->FILL_BY_EVENT==1){
+  if(fRadio->FILL_BY_EVENT==1||fRadio->RADIOSCATTER_INIT==false){
     //set some parameters of the shower for radioscatter
     auto gpsDat=G4GeneralParticleSourceData::Instance();
     auto gps = gpsDat->GetCurrentSource();

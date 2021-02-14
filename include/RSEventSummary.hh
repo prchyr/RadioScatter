@@ -85,8 +85,11 @@ public:
   vector<vector<double>> integratedPower;
   vector<vector<double>> peakPowerW;
   vector<vector<double>> pathLengthM;
-  std::vector<std::vector<double>> beta;
-  std::vector<std::vector<double>> delta;
+  std::vector<std::vector<double>> angRVP;///angle subtended by receiver, vertex, and cascade momentum direction
+  std::vector<std::vector<double>> angTVP;///angle subtended by transmitter, vertex, and cascade momentum direction
+  std::vector<std::vector<double>> angTVR;///angle subtended by transmitter, vertex, and receiver.
+  std::vector<std::vector<double>> beta;///the bistatic angle
+  std::vector<std::vector<double>> delta;///the aspect angle
   std::vector<std::vector<double>> doppler;
   
 

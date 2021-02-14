@@ -93,8 +93,14 @@ RadioScatter::RadioScatter(){
      event.delta.resize(ntx, vector<double>(nrx, 0.));
      event.beta.resize(ntx, vector<double>(nrx, 0.));
      event.doppler.resize(ntx, vector<double>(nrx, 0.));
+     event.angTVP.resize(ntx, vector<double>(nrx, 0.));
+     event.angRVP.resize(ntx, vector<double>(nrx, 0.));
+     event.angTVR.resize(ntx, vector<double>(nrx, 0.));
      auto d = event.direction;
+     cout<<d.X()<<" "<<d.Y()<<" "<<d.Z()<<endl;
+     
      auto p=event.position;
+     cout<<p.X()<<" "<<p.Y()<<" "<<p.Z()<<endl;
      for(int i=0;i<ntx;i++){
        auto p_tx=tx[i].Vect()-p;
        for(int j=0;j<nrx;j++){
@@ -118,6 +124,9 @@ RadioScatter::RadioScatter(){
 	 delta=d.Angle(B2);
 	 event.delta[i][j]=delta;
 	 event.beta[i][j]=beta;
+	 event.angTVP[i][j]=d.Angle(p_tx);
+	 event.angRVP[i][j]=d.Angle(p_rx);
+	 event.angTVR[i][j]=beta;//redundant
        }
      }
    }
@@ -165,13 +174,13 @@ void RadioScatter::setTxPos(double xin, double yin, double zin, int index){
     tx[index].SetX(xin);
     tx[index].SetY(yin);
     tx[index].SetZ(zin);
-    RSCAT_HIST_RESIZE=false;//resize the output histogram
+    RADIOSCATTER_INIT=false;//resize the output histogram
   }
 void RadioScatter::setRxPos(double xin, double yin, double zin, int index){
     rx[index].SetX(xin);
     rx[index].SetY(yin);
     rx[index].SetZ(zin);
-    RSCAT_HIST_RESIZE=false;
+    RADIOSCATTER_INIT=false;
   }
 void RadioScatter::setTxPos(TVector3 in){
   setTxPos(in, TX_ITERATOR);
@@ -181,7 +190,7 @@ void RadioScatter::setTxPos(TVector3 in, int index){
   tx[index].SetX(in.X());
   tx[index].SetY(in.Y());
   tx[index].SetZ(in.Z());
-  RSCAT_HIST_RESIZE=false;
+  RADIOSCATTER_INIT=false;
   }
 void RadioScatter::setRxPos(TVector3 in){
   setRxPos(in, RX_ITERATOR);
@@ -191,7 +200,7 @@ void RadioScatter::setRxPos(TVector3 in, int index){
   rx[index].SetX(in.X());
   rx[index].SetY(in.Y());
   rx[index].SetZ(in.Z());
-  RSCAT_HIST_RESIZE=false;
+  RADIOSCATTER_INIT=false;
   }
   void RadioScatter::setTxVals(double f, double power=1., double gain=1.){
     frequency = f*GHz;
@@ -374,7 +383,7 @@ void RadioScatter::setPrimaryDirection(TVector3 d){
   //   }
   // }
 
-  RSCAT_HIST_RESIZE=false;
+  RADIOSCATTER_INIT=false;
   RSCAT_DIRECTION_SET=true;
 }
 
@@ -390,7 +399,7 @@ void RadioScatter::setPrimaryPosition(TVector3 p){
   //     event.beta[i][j]=beta;
   //   }
   // }
-  RSCAT_HIST_RESIZE=false;
+  RADIOSCATTER_INIT=false;
   RSCAT_POSITION_SET=true;
 }
 void RadioScatter::setPolarization(const char * p){
@@ -778,11 +787,11 @@ calculate the phase, the amplitude, and the prefactors for cross-section,
 
 
 double RadioScatter::makeRays(TLorentzVector point, double e, double l, double e_i){
-  if(RSCAT_HIST_RESIZE==false){
+  if(RADIOSCATTER_INIT==false){
     makeTimeHist();
-    RSCAT_HIST_RESIZE=true;
+    RADIOSCATTER_INIT=true;
     RSCAT_HIST_DECLARE=true;
-    
+    //RADIOSCATTER_INIT=true;
   }
 
   double rx_time, rx_amplitude, rx_phase, point_time, t_step=0.;
@@ -1250,6 +1259,9 @@ int RadioScatter::makeSummary(TFile *f){
 	rss->effectiveCrossSection[j][k]=rs->effectiveCrossSection(j,k);
 	rss->delta[j][k]=rs->delta[j][k];
 	rss->beta[j][k]=rs->beta[j][k];
+	rss->angTVP[j][k]=rs->angTVP[j][k];
+	rss->angRVP[j][k]=rs->angRVP[j][k];
+	rss->angTVR[j][k]=rs->angTVR[j][k];
 	rss->doppler[j][k]=2*rs->freq*cos(rs->delta[j][k])*cos(rs->beta[j][k]/2);
       }
     }
