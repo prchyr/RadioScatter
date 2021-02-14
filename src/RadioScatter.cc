@@ -307,6 +307,7 @@ void RadioScatter::setTargetEnergy(double e){
   event.targetEnergy=e;
   cout<<"target simulation energy: "<<event.targetEnergy/TUtilRadioScatter::GeV<<" GeV"<<endl;
   TARGET_ENERGY_SET=1;
+  ENERGY_SCALING_SET=0;//it is possible that the target energy has changed (from a previous value). re-set the scaling.
 }
 int RadioScatter::setScaleByEnergy(double val){
   if((int)val==1){
@@ -338,7 +339,8 @@ void RadioScatter::setPrimaryEnergy(double e){
   event.primaryEnergy=e;
   cout<<"primary simulated particle energy: "<<event.primaryEnergy/TUtilRadioScatter::GeV<<" GeV"<<endl;
   //cout<<"__________________"<<endl<<e<<" "<<event.nPrimaries<<endl<<"______________"<<endl;
-  PRIMARY_ENERGY_SET=1;
+  PRIMARY_ENERGY_SET=1;//the primary energy has been set
+
 }
 void RadioScatter::setPrimaryDirection(TVector3 d){
   // if(RSCAT_POSITION_SET==0){
