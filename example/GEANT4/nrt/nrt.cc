@@ -407,7 +407,7 @@ int main(int argc,char** argv)
        auto pos=TVector3(x*m, y*m, z*m);
        auto dir=TVector3(1., 1.,1.);
        dir.SetMagThetaPhi(1., theta, phi);
-       UImanager->ApplyCommand("/gps/energy 1 GeV");
+       //UImanager->ApplyCommand("/gps/energy 1 GeV");
        auto posStr=Form("/gps/position %f %f %f m", x, y, z);
        auto dirStr=Form("/gps/direction %f %f %f m", dir.Unit().x(), dir.Unit().y(), dir.Unit().z());
        UImanager->ApplyCommand(posStr);
