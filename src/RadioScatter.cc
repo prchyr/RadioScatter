@@ -97,10 +97,10 @@ RadioScatter::RadioScatter(){
      event.angRVP.resize(ntx, vector<double>(nrx, 0.));
      event.angTVR.resize(ntx, vector<double>(nrx, 0.));
      auto d = event.direction;
-     cout<<d.X()<<" "<<d.Y()<<" "<<d.Z()<<endl;
+     //cout<<d.X()<<" "<<d.Y()<<" "<<d.Z()<<endl;
      
      auto p=event.position;
-     cout<<p.X()<<" "<<p.Y()<<" "<<p.Z()<<endl;
+     //cout<<p.X()<<" "<<p.Y()<<" "<<p.Z()<<endl;
      for(int i=0;i<ntx;i++){
        auto p_tx=tx[i].Vect()-p;
        for(int j=0;j<nrx;j++){
@@ -316,6 +316,7 @@ void RadioScatter::setTargetEnergy(double e){
   event.targetEnergy=e;
   cout<<"target simulation energy: "<<event.targetEnergy/TUtilRadioScatter::GeV<<" GeV"<<endl;
   TARGET_ENERGY_SET=1;
+  NPRIMARIES_SET=0;
   ENERGY_SCALING_SET=0;//it is possible that the target energy has changed (from a previous value). re-set the scaling.
 }
 int RadioScatter::setScaleByEnergy(double val){
@@ -796,6 +797,13 @@ double RadioScatter::makeRays(TLorentzVector point, double e, double l, double e
 
   double rx_time, rx_amplitude, rx_phase, point_time, t_step=0.;
 
+  if(NPRIMARIES_SET==0){
+      if(TARGET_ENERGY_SET==1){
+	setNPrimaries(event.targetEnergy/event.primaryEnergy);
+	//cout<<"<<<<<<<<<<<<<<<"<<event.targetEnergy<<" "<<event.nPrimaries<<" "<<event.primaryEnergy<<endl<<">>>>>>>>>>>>>"<<endl;
+      }
+    }
+
   if(SCALE_BY_ENERGY==1&&ENERGY_SCALING_SET==0){
 
     if(PRIMARY_ENERGY_SET==0){
@@ -803,11 +811,6 @@ double RadioScatter::makeRays(TLorentzVector point, double e, double l, double e
       exit(0);
     }
     
-    if(NPRIMARIES_SET==0){
-      if(TARGET_ENERGY_SET==1){
-	setNPrimaries(event.targetEnergy/event.primaryEnergy);
-      }
-    }
       
     scaleByEnergy();
   }
