@@ -817,7 +817,7 @@ double RadioScatter::makeRays(TLorentzVector point, double e, double l, double e
   
   if(ENERGY_SCALING_SET==1){
     auto pVec=point.Vect()-event.position;
-    pVec.SetMag(zscale);
+    pVec.SetMag(pVec.Mag()*zscale);
     auto pointNew=pVec+event.position;
     point.SetXYZT(pointNew.X(), pointNew.Y(), pointNew.Z(), point.T()*tscale);
   }
