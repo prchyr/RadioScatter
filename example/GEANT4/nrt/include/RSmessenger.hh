@@ -11,6 +11,7 @@ class G4UIcmdWithADouble;
 class G4UIcmdWithAString;
 class G4UIcmdWithADoubleAndUnit;
 class G4UIcmdWith3VectorAndUnit;
+class G4UIcmdWith3Vector;
 class RSmessenger: public G4UImessenger
 {
 public:
@@ -35,7 +36,7 @@ private:
   G4UIcmdWithADouble*        setCrossSectionCommand;
   G4UIcmdWithADouble*        lifetimeCommand;
   G4UIcmdWithADouble*        windowLengthCommand;
-  G4UIcmdWithAString*        polarizationCommand;
+  G4UIcmdWith3Vector*        polarizationCommand;
   G4UIcmdWithADouble*        setFillByEventCommand;
   G4UIcmdWithADouble*        setFillParticleInfoCommand;
   G4UIcmdWithAString*        setParticleInfoFilenameCommand;
