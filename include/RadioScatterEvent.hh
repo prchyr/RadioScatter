@@ -75,6 +75,7 @@ public:
 
   TVector3 direction=TVector3(0,0,1);
   TVector3 position=TVector3(1, 1, 1);
+  TVector3 polarization=TVector3(0,0,1);//antenna polarization
   //TLorentzVector *tx;
   //TLorentzVector *rx;
   std::vector<TLorentzVector> tx;

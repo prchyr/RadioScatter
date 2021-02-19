@@ -403,10 +403,11 @@ void RadioScatter::setPrimaryPosition(TVector3 p){
   RADIOSCATTER_INIT=false;
   RSCAT_POSITION_SET=true;
 }
-void RadioScatter::setPolarization(const char * p){
-  pol=p;
-  std::cout<<"polarization: "<<pol<<std::endl;
-  polarization=TString(pol);
+void RadioScatter::setPolarization(TVector3 p){//const char * p){
+  event.polarization=p;
+
+  std::cout<<"polarization: "<<event.polarization.X()<<" "<<event.polarization.Y()<<" "<<event.polarization.Z()<<std::endl;
+
 }
 
 void RadioScatter::setPlasmaLifetime(double l){
@@ -521,8 +522,9 @@ use the calculated refraction vectors (from makeRays()) to sort out the correct 
   TVector3 vert(1.,1.,1.), horiz(1.,1.,1.); 
   //  l1plane.setTheta(0);
   //  l1plane.setPhi(0);
-  
-  if(polarization=="vertical"){
+
+  //NB unused  
+  if(event.polarization.Z()==1){
     //refraction angle change
     theta = theta+(pi/2.);
 
@@ -559,18 +561,12 @@ double RadioScatter::getRxAmplitude(int txindex,int rxindex, TLorentzVector poin
 
   double angle_dependence=1.;
   TVector3 nhat(two.Unit());
-  TVector3 vert(0,1.,0), horiz(0,0,1.); 
+  
 
-  if(polarization=="vertical"){
-    TVector3 pol=-one.Unit().Cross(one.Unit().Cross(vert));//for a dipole rad pattern
 
-    angle_dependence = nhat.Cross(nhat.Cross(pol)).Mag();
-  }
-  else{
-    TVector3 pol=-one.Unit().Cross(one.Unit().Cross(horiz));
+  TVector3 pol=-one.Unit().Cross(one.Unit().Cross(event.polarization.Unit()));//for a dipole rad pattern
 
-    angle_dependence = nhat.Cross(nhat.Cross(pol)).Mag();
-  }
+  angle_dependence = nhat.Cross(nhat.Cross(pol)).Mag();
 
   //double amplitude = ((tx_voltage/txEffectiveHeight)/dist)*angle_dependence;
   double amplitude = ((tx_voltage*txFactor)/dist)*angle_dependence;
@@ -592,15 +588,10 @@ double RadioScatter::getAmplitudeFromAt(double E_0,TLorentzVector from, TLorentz
   TVector3 nhat(two.Unit());
   TVector3 vert(0,1.,0), horiz(0,0,1.);
 
-  if(polarization=="vertical"){
 
-    angle_dependence = nhat.Cross(nhat.Cross(vert)).Mag();
-  }
-  else{
 
-    angle_dependence = nhat.Cross(nhat.Cross(horiz)).Mag();
-  }
-
+  angle_dependence = nhat.Cross(nhat.Cross(event.polarization.Unit())).Mag();
+  
   double amplitude = (tx_voltage*m*m/dist)*angle_dependence;
   if(useAttnLengthFlag==1){
     amplitude=amplitude*exp(-dist/attnLength);
@@ -1235,6 +1226,7 @@ int RadioScatter::makeSummary(TFile *f){
     intree->GetEntry(i);
     rss->position=rs->position;
     rss->direction=rs->direction;
+    rss->polarization=rs->polarization;
     rss->nPrimaries=rs->nPrimaries;
     rss->primaryParticleEnergy=rs->primaryParticleEnergy();
     rss->inelasticity=rs->inelasticity;

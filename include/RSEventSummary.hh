@@ -57,6 +57,7 @@ public:
 
   TVector3 direction;
   TVector3 position;
+  TVector3 polarization;
 
   vector<TLorentzVector> tx{1};
   vector<TLorentzVector> rx{1};

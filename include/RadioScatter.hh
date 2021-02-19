@@ -81,7 +81,7 @@ public:
 
   TString output_file_name;
   const char* pol = (char*)"horizontal";///<default, also set as default in set_simulation_paramaters
-  TString polarization="horizontal";
+  TVector3 polarization=TVector3(0,0,1);
   double x_offset=0*m, z_offset = 2.*m, y_offset = 5.*m;///<unused
 
   double tcs = .655e-24;///<thompson cross section
@@ -287,7 +287,7 @@ this function actually does the scaling. prior to it being called, it makes sure
   int scaleByEnergy();
   void setPlasmaLifetime(double l);  ///<set the plasma lifetime in nanoseconds
 
-  void setPolarization(const char * p);  ///<set the antenna polarization. very primitive now: vertical=(0,1,0), horizontal=(0,0,1). TODO: fix this.
+  void setPolarization(TVector3 p);  ///<set the antenna polarization using a 3 vector.
 
   void setTxVals(double f, double power, double gain);  ///<not really useful. set them individually instead.
 
