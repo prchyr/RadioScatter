@@ -258,7 +258,7 @@ int main(int argc,char** argv)
     //   //      cout<<tx.x()<<" "<<tx.y()<<" "<<tx.z()<<endl;
     // }
     //    runManager->BeamOn(1);
-    runManager->BeamOn(10);
+    runManager->BeamOn(1);
   }
 
 
@@ -394,7 +394,7 @@ int main(int argc,char** argv)
 
      int nThrow=100;
      for(int j=0;j<nThrow;j++){
-       auto val= rann->Integer(500000);
+       auto val= rann->Integer(600000);
        
        auto num=0.,x=0., y=0., z=0., theta=0., phi=0., en=0., enC=0., weight=0.;
        iff.seekg(iff.beg);
