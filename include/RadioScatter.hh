@@ -37,6 +37,8 @@ released under GPL3.
 #include "RadioScatterEvent.hh"
 #include "RSEventSummary.hh"
 
+#include "IceRayTracing.hh"
+
 using namespace TUtilRadioScatter;
 //using namespace CLHEP;
 //using namespace std;

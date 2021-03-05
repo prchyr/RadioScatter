@@ -22,5 +22,6 @@
 #pragma link C++ class TUtilRadioScatter+;
 //#pragma link C++ global gROOT;
 //#pragma link C++ class CLHEP::HepLorentzVector+;
+#pragma link C++ class IceRayTracing+;
 
 #endif
