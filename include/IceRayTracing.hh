@@ -126,5 +126,39 @@ namespace IceRayTracing{
   /* This is the main raytracing function. x0 always has to be zero. z0 is the Tx depth in m and z1 is the depth of the Rx in m. Both depths are negative. x1 is the distance between them */
   double *IceRayTracing(double x0, double z0, double x1, double z1);
 
+  /* Analytical solution describing ray paths in ice as function of depth for constant refractive index*/
+  double fDnfR_Cnz(double x,void *params);
+  
+  /* Analytical solution describing the ray path in ice as a function of the L parameter for constant refractive index*/
+  double fDnfR_L_Cnz(double x,void *params);
+  
+  /* The function used to calculate ray propogation time in ice for constant refractive index*/
+  double ftimeD_Cnz(double x,void *params);
+  
+  /* This function is minimised to find the launch angle (or the L parameter) for the direct ray for constant refractive index */
+  double fDa_Cnz(double x,void *params);
+  
+  /* This function is minimised to find the launch angle (or the L parameter) for the reflected ray for constant refractive index*/
+  double fRa_Cnz(double x,void *params);
+
+  /* This functions works for the Direct ray and gives you back the launch angle, receive angle and propagation time of the ray together with values of the L parameter. This for constant refractive index*/
+  double* GetDirectRayPar_Cnz(double z0, double x1, double z1, double A_ice_Cnz);
+  
+  /* This functions works for the Reflected ray and gives you back the launch angle, receive angle and propagation times (of the whole ray and the two direct rays that make it up) together with values of the L parameter. This is for constant refractive index*/
+  double *GetReflectedRayPar_Cnz(double z0, double x1 , double z1, double A_ice_Cnz);
+
+  /* This function returns the x and z values for the full Direct ray path in a TGraph and also prints out the ray path in a text file. This is for a constant refractive index. */
+  TGraph* GetFullDirectRayPath_Cnz(double z0, double x1, double z1, double lvalueD, double A_ice_Cnz);
+
+  /* This function returns the x and z values for the full Reflected ray path in a TGraph and also prints out the ray path in a text file. This is for a constant refractive index. */
+  TGraph* GetFullReflectedRayPath_Cnz(double z0, double x1, double z1, double lvalueR, double A_ice_Cnz);
+
+  /* function for plotting and storing all the rays. This is for constant refractive index. */
+  void PlotAndStoreRays_Cnz(double x0,double z0, double z1, double x1, double lvalues[2], double A_ice_Cnz);
+  
+  /* This is the main raytracing function. x0 always has to be zero. z0 is the Tx depth in m and z1 is the depth of the Rx in m. Both depths are negative. x1 is the distance between them. This functions works for a constant refractive index */
+  double *IceRayTracing_Cnz(double x0, double z0, double x1, double z1, double A_ice_Cnz);
+
+  
 }
 #endif
