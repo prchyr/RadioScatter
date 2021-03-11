@@ -1,6 +1,6 @@
  <img src="doc/RSLogo.png" alt="RadioScatter"> 
 
-This is the RadioScatter module. It has been made to run independently of, or within, GEANT4. It simulates RF scattering from points in 4 space, which may be ionization deposits left by particle showers produced in geant4. it is highly customizable. more information is found in the header files where the functions are documented, and the examples.
+This is the RadioScatter code. It is used to simulate radar reflections from ionization deposits. It is meant to run independently of, or within, a monte-carlo program (such as GEANT4). More documentation can be found in the included user manual.
 
 ### Prerequisites
 
@@ -76,7 +76,7 @@ the theory of operation is outlined in this paper:
 
 http://arxiv.org/abs/1710.02883
 
-please see RadioScatter.hh for the main documentation. each function and variable is described, and it should give a picture of what's going on. 
+Please see the User Manual for detailed documentation of how RadioScatter works, and the function definitions. 
 
 
 how it works, breifly:
@@ -89,9 +89,13 @@ The RadioScatter module calculates rf scattering from an energy deposit in 4 spa
 
 the examples directory has some use cases that don't involve geant4. to compile, be sure to link to the radio scatter library, i e -lRadioScatter, and also the root libraries, like so:
 
-```g++ -std=c++0x example.cc -o example `root-config --cflags --glibs --libs` -lRadioScatter ```
+```g++ -std=c++0x scatterFromCascade.cc -o scatterFromCascade `root-config --cflags --glibs --libs` -lRadioScatter ```
 
 in the examples, there is a use case where a shower has been prepared using GEANT4 and then this is used in a standalone program to scatter radio, as an example of runnning radioscatter outside of a monte carlo program. various options are shown and explained in the example
+
+Once compiled, you would then run the above example via
+
+```./scatterFromCascade <plasma lifetime [ns]> <frequency [GHz]> <tx power [W]>```
 
 *************
 ### GEANT4 usage
