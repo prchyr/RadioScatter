@@ -1,9 +1,0 @@
-*~
-slac_build/
-build/
-doc/output_test*
-example/scatterFromCascade
-example/exampleRayTrace
-example/scatterFromCascadeMultiple
-example/*~
-doc/*~
