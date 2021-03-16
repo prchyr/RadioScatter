@@ -632,7 +632,8 @@ TGraph* IceRayTracing::GetFullDirectRayPath(double z0, double x1, double z1,doub
   }
    
   /* Set the name of the text files */
-  ofstream aoutD("DirectRay.txt");
+  //ofstream aoutD("DirectRay.txt");
+
   /* Set the step size for plotting */
   double h=0.1;
   /* Set the total steps required for looping over the whole ray path */
@@ -655,13 +656,13 @@ TGraph* IceRayTracing::GetFullDirectRayPath(double z0, double x1, double z1,doub
     checknan=fDnfR(zn,&params6a);
     if(std::isnan(checknan)==false && Flip==false){
       gr1->SetPoint(npnt,xn,zn);
-      aoutD<<npnt<<" "<<xn<<" "<<zn<<endl;;
+      //aoutD<<npnt<<" "<<xn<<" "<<zn<<endl;;
       npnt++;
     }
 
     if(std::isnan(checknan)==false && Flip==true){
       gr1->SetPoint(npnt,x1-xn,zn);
-      aoutD<<npnt<<" "<<x1-xn<<" "<<zn<<endl;;
+      //aoutD<<npnt<<" "<<x1-xn<<" "<<zn<<endl;;
       npnt++;
     }
 
@@ -671,8 +672,15 @@ TGraph* IceRayTracing::GetFullDirectRayPath(double z0, double x1, double z1,doub
       i=dmax+2;      
     }  
   }
-  gr1->SetPoint(npnt,0,z0);
-  npnt++;
+  
+  params6a = {IceRayTracing::A_ice, GetB(zn), GetC(zn), lvalueD};
+  params6b = {IceRayTracing::A_ice, GetB(z0), GetC(z0), lvalueD};
+  xn=fDnfR(zn,&params6a)-fDnfR(z0,&params6b);
+  if(Flip==true){
+    gr1->SetPoint(npnt,x1-xn,zn);
+  }else{
+    gr1->SetPoint(npnt,xn,zn);
+  }
   
   dsw=0;
   /* If the Tx and Rx depth were switched then put them back to their original position */
@@ -699,7 +707,7 @@ TGraph* IceRayTracing::GetFullReflectedRayPath(double z0, double x1, double z1,d
   }
   
   /* Set the name of the text files */
-  ofstream aoutR("ReflectedRay.txt");
+  //ofstream aoutR("ReflectedRay.txt");
   /* Set the step size for plotting. */
   double h=0.1;
   /* Set the total steps required for looping over the whole ray path */
@@ -725,13 +733,13 @@ TGraph* IceRayTracing::GetFullReflectedRayPath(double z0, double x1, double z1,d
     checknan=fDnfR(-zn,&params6a);
     if(std::isnan(checknan)==false && zn<=0 && Flip==false){
       gr2->SetPoint(npnt,xn,zn);
-      aoutR<<npnt<<" "<<xn<<" "<<zn<<endl;
+      //aoutR<<npnt<<" "<<xn<<" "<<zn<<endl;
       npnt++;
     }
 
     if(std::isnan(checknan)==false && zn<=0 && Flip==true){
       gr2->SetPoint(npnt,x1-xn,zn);
-      aoutR<<npnt<<" "<<x1-xn<<" "<<zn<<endl;
+      //aoutR<<npnt<<" "<<x1-xn<<" "<<zn<<endl;
       npnt++;
     }
       
@@ -750,13 +758,13 @@ TGraph* IceRayTracing::GetFullReflectedRayPath(double z0, double x1, double z1,d
     checknan=fDnfR(zn,&params6a);
     if(std::isnan(checknan)==false && Flip==false){
       gr2->SetPoint(npnt,xn,zn);
-      aoutR<<npnt<<" "<<xn<<" "<<zn<<endl;
+      //aoutR<<npnt<<" "<<xn<<" "<<zn<<endl;
       npnt++;
     }
       
     if(std::isnan(checknan)==false && Flip==true){
       gr2->SetPoint(npnt,x1-xn,zn);
-      aoutR<<npnt<<" "<<x1-xn<<" "<<zn<<endl;
+      //aoutR<<npnt<<" "<<x1-xn<<" "<<zn<<endl;
       npnt++;
     }
 
@@ -766,8 +774,15 @@ TGraph* IceRayTracing::GetFullReflectedRayPath(double z0, double x1, double z1,d
       i=dmax+2;
     }
   }
-  gr2->SetPoint(npnt,0,z0);
-  npnt++;
+  
+  params6a = {IceRayTracing::A_ice, GetB(zn), GetC(zn), lvalueR};
+  params6b = {IceRayTracing::A_ice, GetB(z0), GetC(z0), lvalueR};
+  xn=fDnfR(zn,&params6a)-fDnfR(z0,&params6b);
+  if(Flip==true){
+    gr2->SetPoint(npnt,x1-xn,zn);
+  }else{
+    gr2->SetPoint(npnt,xn,zn);
+  }
   
   dsw=0;
   /* If the Tx and Rx depth were switched then put them back to their original position */
@@ -778,7 +793,6 @@ TGraph* IceRayTracing::GetFullReflectedRayPath(double z0, double x1, double z1,d
   }
   
   return gr2;
-
 }
 
 /* This function returns the x and z values for the full Refracted ray path in a TGraph and also prints out the ray path in a text file */
@@ -794,7 +808,8 @@ TGraph* IceRayTracing::GetFullRefractedRayPath(double z0, double x1, double z1, 
   }
   
   /* Set the name of the text files */
-  ofstream aoutRa("RefractedRay.txt");
+  //ofstream aoutRa("RefractedRay.txt");
+
   /* Set the step size for plotting. */
   double h=0.1;
   /* Set the total steps required for looping over the whole ray path */
@@ -820,13 +835,13 @@ TGraph* IceRayTracing::GetFullRefractedRayPath(double z0, double x1, double z1, 
     checknan=fDnfR(-zn,&params6a);
     if(std::isnan(checknan)==false && zn<=0 && Flip==false){
       gr3->SetPoint(npnt,xn,zn);
-      aoutRa<<npnt<<" "<<xn<<" "<<zn<<endl;
+      //aoutRa<<npnt<<" "<<xn<<" "<<zn<<endl;
       npnt++;
     }
 
     if(std::isnan(checknan)==false && zn<=0 && Flip==true){
       gr3->SetPoint(npnt,x1-xn,zn);
-      aoutRa<<npnt<<" "<<x1-xn<<" "<<zn<<endl;
+      //aoutRa<<npnt<<" "<<x1-xn<<" "<<zn<<endl;
       npnt++;
     }
     
@@ -845,13 +860,13 @@ TGraph* IceRayTracing::GetFullRefractedRayPath(double z0, double x1, double z1, 
     checknan=fDnfR(zn,&params6a);
     if(std::isnan(checknan)==false && Flip==false){
       gr3->SetPoint(npnt,xn,zn);
-      aoutRa<<npnt<<" "<<xn<<" "<<zn<<endl;
+      //aoutRa<<npnt<<" "<<xn<<" "<<zn<<endl;
       npnt++;
     }
 
     if(std::isnan(checknan)==false && Flip==true){
       gr3->SetPoint(npnt,x1-xn,zn);
-      aoutRa<<npnt<<" "<<x1-xn<<" "<<zn<<endl;
+      //aoutRa<<npnt<<" "<<x1-xn<<" "<<zn<<endl;
       npnt++;
     }
     
@@ -861,8 +876,14 @@ TGraph* IceRayTracing::GetFullRefractedRayPath(double z0, double x1, double z1, 
       i=dmax+2;
     }
   }
-  gr3->SetPoint(npnt,0,z0);
-  npnt++;
+  params6a = {IceRayTracing::A_ice, GetB(zn), GetC(zn), lvalueRa};
+  params6b = {IceRayTracing::A_ice, GetB(z0), GetC(z0), lvalueRa};
+  xn=fDnfR(zn,&params6a)-fDnfR(z0,&params6b);
+  if(Flip==true){
+    gr3->SetPoint(npnt,x1-xn,zn);
+  }else{
+    gr3->SetPoint(npnt,xn,zn);
+  }  
   
   dsw=0;
   /* If the Tx and Rx depth were switched then put them back to their original position */
@@ -873,7 +894,6 @@ TGraph* IceRayTracing::GetFullRefractedRayPath(double z0, double x1, double z1, 
   }
   
   return gr3;
-  
 }
 
 /* function for plotting and storing all the rays */
@@ -1150,7 +1170,7 @@ double IceRayTracing::fRa_Cnz(double x,void *params){
 double* IceRayTracing::GetDirectRayPar_Cnz(double z0, double x1, double z1, double A_ice_Cnz){
 
   double *output=new double[4];
-  
+
   /* My raytracer can only work the Tx is below the Rx. If the Tx is higher than the Rx than we need to flip the depths to allow for raytracing and then we will flip them back later at the end */
   bool Flip=false;
   double dsw=z0;
@@ -1159,12 +1179,6 @@ double* IceRayTracing::GetDirectRayPar_Cnz(double z0, double x1, double z1, doub
     z1=dsw;
     Flip=true;
   }
-  
-  /* First we setup the fDa function that will be minimised to get the launch angle (or the L parameter) for the direct ray. */
-  gsl_function F1;
-  struct IceRayTracing::fDanfRa_params params1= {A_ice_Cnz, z0, x1, z1};
-  F1.function = &fDa_Cnz;
-  F1.params = &params1;
   
   /* Calculate the launch angle and the value of the L parameter */
   double LangD=(pi*0.5-atan(fabs(z1-z0)/x1))*(180.0/pi);
@@ -1251,7 +1265,7 @@ double *IceRayTracing::GetReflectedRayPar_Cnz(double z0, double x1 , double z1, 
   /* Calculate the recieve angle for reflected ray using simple geometry*/
   double RangR=180-LangR;
 
-   /* Calculate the angle of incidence of the reflected ray at the surface ice. This will be used to calculate the Fresnel Coefficients.*/
+  /* Calculate the angle of incidence of the reflected ray at the surface ice. This will be used to calculate the Fresnel Coefficients.*/
   double IncidenceAngleInIce=LangR;
   
   dsw=0;
@@ -1293,7 +1307,8 @@ TGraph* IceRayTracing::GetFullDirectRayPath_Cnz(double z0, double x1, double z1,
   }
    
   /* Set the name of the text files */
-  //ofstream aoutD("DirectRay.txt");
+  //ofstream aoutD("DirectRay_Cnz.txt");
+
   /* Set the step size for plotting */
   double h=0.1;
   /* Set the total steps required for looping over the whole ray path */
@@ -1332,8 +1347,15 @@ TGraph* IceRayTracing::GetFullDirectRayPath_Cnz(double z0, double x1, double z1,
       i=dmax+2;      
     }  
   }
-  gr1->SetPoint(npnt,0,z0);
-  npnt++;
+  
+  params6a = {A_ice_Cnz, 0, 0, lvalueD};
+  params6b = {A_ice_Cnz, 0, 0, lvalueD};
+  xn=fDnfR_Cnz(zn,&params6a)-fDnfR_Cnz(z0,&params6b);
+  if(Flip==true){
+    gr1->SetPoint(npnt,x1-xn,zn);
+  }else{
+    gr1->SetPoint(npnt,xn,zn);
+  }
   
   dsw=0;
   /* If the Tx and Rx depth were switched then put them back to their original position */
@@ -1344,7 +1366,6 @@ TGraph* IceRayTracing::GetFullDirectRayPath_Cnz(double z0, double x1, double z1,
   }
   
   return gr1;
-
 }
 
 /* This function returns the x and z values for the full Reflected ray path in a TGraph and also prints out the ray path in a text file. This is for a constant refractive index. */
@@ -1360,7 +1381,7 @@ TGraph* IceRayTracing::GetFullReflectedRayPath_Cnz(double z0, double x1, double 
   }
   
   // /* Set the name of the text files */
-  // ofstream aoutR("ReflectedRay.txt");
+  // ofstream aoutR("ReflectedRay_Cnz.txt");
   /* Set the step size for plotting. */
   double h=0.1;
   /* Set the total steps required for looping over the whole ray path */
@@ -1428,6 +1449,15 @@ TGraph* IceRayTracing::GetFullReflectedRayPath_Cnz(double z0, double x1, double 
     }
   }
 
+  params6a = {A_ice_Cnz, 0, 0, lvalueR};
+  params6b = {A_ice_Cnz, 0, 0, lvalueR};
+  xn=fDnfR_Cnz(zn,&params6a)-fDnfR_Cnz(z0,&params6b);
+  if(Flip==true){
+    gr2->SetPoint(npnt,x1-xn,zn);
+  }else{
+    gr2->SetPoint(npnt,xn,zn);
+  }
+  
   dsw=0;
   /* If the Tx and Rx depth were switched then put them back to their original position */
   if(Flip==true){
@@ -1435,12 +1465,8 @@ TGraph* IceRayTracing::GetFullReflectedRayPath_Cnz(double z0, double x1, double 
     z0=z1;
     z1=dsw;
   }
-  gr2->SetPoint(npnt,0,z0);
-  npnt++;
-
   
   return gr2;
-
 }
 
 /* function for plotting and storing all the rays. This is for constant refractive index. */
