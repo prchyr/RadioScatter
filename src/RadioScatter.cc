@@ -763,6 +763,177 @@ TH1F * RadioScatter::getDirectSignal(int txindex, int rxindex, const TH1F *in){
   return outhist;
 }
 
+/* This function is used by the analytical raytracer to sort out ray parameters for the two ray solutions out the three possible ones */
+double* RadioScatter::getPathAndTimeOfRays(double TxRaySolPar[3][5], double RxRaySolPar[3][5]){
+  
+  /* define a pointer to give back the output of raytracing */ 
+  double *output=new double[4];
+  double TxRays[4]={0, 0, 0, 0};
+  double RxRays[4]={0, 0, 0, 0};
+
+  /************************Tx Ray Parameters**********************/
+  if(TxRaySolPar[0][1]!=0 && TxRaySolPar[1][1]!=0){
+    ////****************For Direct and Reflected Ray btw Tx and Shower***********************
+    TxRays[0]=TxRaySolPar[0][3];
+    TxRays[1]=TxRaySolPar[1][3];
+    TxRays[2]=TxRaySolPar[0][2];
+    TxRays[3]=TxRaySolPar[1][2];
+  }
+
+  if(TxRaySolPar[0][1]!=0 && TxRaySolPar[2][1]!=0){
+    ////****************For Direct and Refracted Ray btw Tx and Shower***********************
+    TxRays[0]=TxRaySolPar[0][3];
+    TxRays[1]=TxRaySolPar[2][3];
+    TxRays[2]=TxRaySolPar[0][2];
+    TxRays[3]=TxRaySolPar[2][2];
+  }
+
+  if(TxRaySolPar[2][1]!=0 && TxRaySolPar[1][1]!=0){
+    ////****************For Refracted and Reflected Ray btw Tx and Shower***********************
+    TxRays[0]=TxRaySolPar[2][3];
+    TxRays[1]=TxRaySolPar[1][3];
+    TxRays[2]=TxRaySolPar[2][2];
+    TxRays[3]=TxRaySolPar[1][2];
+  }
+
+  /************************Rx Ray Parameters**********************/
+  if(RxRaySolPar[0][1]!=0 && RxRaySolPar[1][1]!=0){
+    ////****************For Direct and Reflected Ray btw Rx and Shower***********************
+    RxRays[0]=RxRaySolPar[0][3];
+    RxRays[1]=RxRaySolPar[1][3];
+    RxRays[2]=RxRaySolPar[0][2];
+    RxRays[3]=RxRaySolPar[1][2];
+  }
+
+  if(RxRaySolPar[0][1]!=0 && RxRaySolPar[2][1]!=0){
+    ////****************For Direct and Refracted Ray btw Rx and Shower***********************
+    RxRays[0]=RxRaySolPar[0][3];
+    RxRays[1]=RxRaySolPar[2][3];
+    RxRays[2]=RxRaySolPar[0][2];
+    RxRays[3]=RxRaySolPar[2][2];
+  }
+
+  if(RxRaySolPar[2][1]!=0 && RxRaySolPar[1][1]!=0){
+    ////****************For Refracted and Reflected Ray btw Rx and Shower***********************
+    RxRays[0]=RxRaySolPar[2][3];
+    RxRays[1]=RxRaySolPar[1][3];
+    RxRays[2]=RxRaySolPar[2][2];
+    RxRays[3]=RxRaySolPar[1][2];
+  }
+
+  output[0]=TxRays[2];
+  output[1]=TxRays[3];
+  output[2]=RxRays[2];
+  output[3]=RxRays[3];
+  
+  return output;    
+}
+
+/* This function calls the analytical raytracer and calculates propogation times, optical path lengths, launch angles and recieve angles for all the possible ray paths in the given Tx->Shower->Rx configuration */
+double *RadioScatter::rayTrace(TLorentzVector Tx, TLorentzVector Rx, TVector3 Shwr){
+
+  //////////////////////////////////////////////////////////////////////
+  double Tx_x=Tx.X()*m;
+  double Tx_y=Tx.Y()*m;
+  double Tx_z=Tx.Z()*m;
+
+  double Rx_x=Rx.X()*m;
+  double Rx_y=Rx.Y()*m;
+  double Rx_z=Rx.Z()*m;
+
+  double Shwr_x=Shwr.X()*m;
+  double Shwr_y=Shwr.Y()*m;
+  double Shwr_z=Shwr.Z()*m;
+  
+  double startpoint=0;////always zero
+  double Tx2ShwrDist=sqrt(pow(Tx_x-Shwr_x,2)+ pow(Tx_y-Shwr_y,2));
+  double Rx2ShwrDist=sqrt(pow(Rx_x-Shwr_x,2)+ pow(Rx_y-Shwr_y,2));
+  
+  /* These Two arrays will be filled up with the ray parameters */
+  /* for each of the 3 possible rays we have 4 elements*/
+  /* element 0 is LaunchAngle */
+  /* element 1 is RecieveAngle  */
+  /* element 2 is PropogationTime  */
+  /* element 3 is PropogationDistance  */
+  /* element 4 is the IncidentAngleInIce for Reflected ray. For the other two rays this number goes to zero.  */
+  double TxRaySolPar[3][5];
+  double RxRaySolPar[3][5];
+  
+  double* GetTx2ShwrRays=IceRayTracing::IceRayTracing(startpoint,Tx_z,Tx2ShwrDist,Shwr_z);
+ 
+  if(GetTx2ShwrRays[6]!=0){
+    //cout<<"we got a direct ray!"<<endl;
+    TxRaySolPar[0][0]=GetTx2ShwrRays[0];
+    TxRaySolPar[0][1]=GetTx2ShwrRays[6];
+    TxRaySolPar[0][2]=GetTx2ShwrRays[3]*s;
+    TxRaySolPar[0][3]=GetTx2ShwrRays[3]*IceRayTracing::c_light_ms;
+    TxRaySolPar[0][4]=0;
+  }
+
+  if(GetTx2ShwrRays[7]!=0){
+    //cout<<"we got a reflected ray!"<<endl;
+    TxRaySolPar[1][0]=GetTx2ShwrRays[1];
+    TxRaySolPar[1][1]=GetTx2ShwrRays[7];
+    TxRaySolPar[1][2]=GetTx2ShwrRays[4]*s;
+    TxRaySolPar[1][3]=GetTx2ShwrRays[4]*IceRayTracing::c_light_ms;
+    TxRaySolPar[1][4]=GetTx2ShwrRays[11];
+  }
+  if(GetTx2ShwrRays[8]!=0){
+    //cout<<"we got a refracted ray!"<<endl;
+    TxRaySolPar[2][0]=GetTx2ShwrRays[2];
+    TxRaySolPar[2][1]=GetTx2ShwrRays[8];
+    TxRaySolPar[2][2]=GetTx2ShwrRays[5]*s;
+    TxRaySolPar[2][3]=GetTx2ShwrRays[5]*IceRayTracing::c_light_ms;
+    TxRaySolPar[2][4]=0;
+  }
+  delete []GetTx2ShwrRays;
+
+  if(TxRaySolPar[0][1]!=0 || TxRaySolPar[1][1]!=0 || TxRaySolPar[2][1]!=0){
+    double* GetRx2ShwrRays=IceRayTracing::IceRayTracing(startpoint,Rx_z,Rx2ShwrDist,Shwr_z);
+
+    if(GetRx2ShwrRays[6]!=0){
+      //cout<<"we got a direct ray!"<<endl;
+      RxRaySolPar[0][0]=GetRx2ShwrRays[0];
+      RxRaySolPar[0][1]=GetRx2ShwrRays[6];
+      RxRaySolPar[0][2]=GetRx2ShwrRays[3]*s;
+      RxRaySolPar[0][3]=GetRx2ShwrRays[3]*IceRayTracing::c_light_ms;
+      RxRaySolPar[0][4]=0;
+    }
+    if(GetRx2ShwrRays[7]!=0){
+      //cout<<"we got a reflected ray!"<<endl;
+      RxRaySolPar[1][0]=GetRx2ShwrRays[1];
+      RxRaySolPar[1][1]=GetRx2ShwrRays[7];
+      RxRaySolPar[1][2]=GetRx2ShwrRays[4]*s;
+      RxRaySolPar[1][3]=GetRx2ShwrRays[4]*IceRayTracing::c_light_ms;
+      RxRaySolPar[1][4]=GetRx2ShwrRays[11];
+    }
+    if(GetRx2ShwrRays[8]!=0){
+      //cout<<"we got a refracted ray!"<<endl;
+      RxRaySolPar[2][0]=GetRx2ShwrRays[2];
+      RxRaySolPar[2][1]=GetRx2ShwrRays[8];
+      RxRaySolPar[2][2]=GetRx2ShwrRays[5]*s;
+      RxRaySolPar[2][3]=GetRx2ShwrRays[5]*IceRayTracing::c_light_ms;
+      RxRaySolPar[2][4]=0;
+    }
+    delete []GetRx2ShwrRays;
+  }
+
+  double *PathAndTimeOfRays=RadioScatter::getPathAndTimeOfRays(TxRaySolPar, RxRaySolPar);    
+  double *StraightLineDTimeTx=IceRayTracing::GetDirectRayPar_Cnz(Tx_z,Tx2ShwrDist,Shwr_z, n_rel);
+  double *StraightLineDTimeRx=IceRayTracing::GetDirectRayPar_Cnz(Rx_z,Rx2ShwrDist,Shwr_z, n_rel);
+  
+  delete []PathAndTimeOfRays;
+  delete []StraightLineDTimeTx;
+  delete []StraightLineDTimeRx;
+  
+  double *output=new double[4];
+  output[0]=PathAndTimeOfRays[0]-StraightLineDTimeTx[2];
+  output[1]=PathAndTimeOfRays[1]-StraightLineDTimeTx[2];
+  output[2]=PathAndTimeOfRays[2]-StraightLineDTimeRx[2];
+  output[3]=PathAndTimeOfRays[3]-StraightLineDTimeRx[2];
+  return output;
+}
+
 /*
 the main function.
 lifetime and screeing are included. 
@@ -775,8 +946,7 @@ l1, l2 are the vectors from these refraction points to the interaction point.
 
 calculate the phase, the amplitude, and the prefactors for cross-section, 
 
- */
-
+*/
 
 double RadioScatter::makeRays(TLorentzVector point, double e, double l, double e_i){
   if(RADIOSCATTER_INIT==false){
@@ -822,7 +992,56 @@ double RadioScatter::makeRays(TLorentzVector point, double e, double l, double e
   //  std::cout<<zscale<<" "<<point.Z()<<std::endl;
   //point.SetT(tt);
 
+  TVector3 showerStart=TVector3(event.position);
+  TVector3 stretch=TVector3(event.direction);
+  double showerAngle=stretch.Theta();
 
+  const int totalShowerPoints=11;
+  double delta_t[ntx][nrx][4][totalShowerPoints];
+  double showerPoint[totalShowerPoints];
+  
+  double firstShwrPropTime=0;
+  for(int insh=0;insh<totalShowerPoints;insh++){
+    showerPoint[insh]=insh;
+    if(insh==0){
+      stretch.SetMag((double)insh + 0.00001);
+    }else{
+      stretch.SetMag(insh);
+    }
+
+    TVector3 showerPoint=showerStart+stretch;
+    double pointDepth=showerPoint.Z();
+    double showerAngle=stretch.Theta();
+	
+    double shwrPropTime=((fabs(pointDepth)/cos(pi-showerAngle))/IceRayTracing::c_light_ms)*s-firstShwrPropTime;
+    if(insh==0){
+      firstShwrPropTime=shwrPropTime;
+    }
+	
+    for(int i=0;i<ntx;i++){
+      for(int j=0;j<nrx;j++){
+	double *rayTraceTimes=rayTrace(tx[i], rx[j], showerPoint);
+	delta_t[i][j][0][insh]=rayTraceTimes[0]+shwrPropTime;
+	delta_t[i][j][1][insh]=rayTraceTimes[1]+shwrPropTime;
+	delta_t[i][j][2][insh]=rayTraceTimes[2]+shwrPropTime;
+	delta_t[i][j][3][insh]=rayTraceTimes[3]+shwrPropTime;
+	delete []rayTraceTimes;
+      }
+    }
+  }  
+
+  for(int i=0;i<ntx;i++){
+    for(int j=0;j<nrx;j++){    
+      for (int irxtx = 0; irxtx < 4; irxtx++){
+	gsl_interp_accel *acc= gsl_interp_accel_alloc ();
+	gsl_spline *spline= gsl_spline_alloc (gsl_interp_cspline, totalShowerPoints);
+	gsl_spline_init (spline, showerPoint, delta_t[i][j][irxtx], totalShowerPoints);
+	gsl_spline_free (spline);
+	gsl_interp_accel_free (acc);
+      }
+    }
+  }
+  
   for(int i=0;i<ntx;i++){
     for(int j=0;j<nrx;j++){
 

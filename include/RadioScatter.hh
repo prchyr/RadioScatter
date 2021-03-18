@@ -38,6 +38,8 @@ released under GPL3.
 #include "RSEventSummary.hh"
 
 #include "IceRayTracing.hh"
+#include <gsl/gsl_spline.h>
+#include <gsl/gsl_interp.h>
 
 using namespace TUtilRadioScatter;
 //using namespace CLHEP;
@@ -347,6 +349,9 @@ this function actually does the scaling. prior to it being called, it makes sure
   double makeRays(TLorentzVector point, double e, double l, double e_i);
   double makeRays(TLorentzVector point, double e, double l, double e_i, TH1F *hist);///<optional to include a histogram to fill.
 
+  double* getPathAndTimeOfRays(double TxRaySolPar[3][5], double RxRaySolPar[3][5]);/// This function is used by the analytical raytracer to sort out ray parameters for the two ray solutions out the three possible ones
+  double* rayTrace(TLorentzVector Tx, TLorentzVector Rx, TVector3 Shwr);///This function calls the analytical raytracer and calculates propogation times, optical path lengths, launch angles and recieve angles for all the possible ray paths in the given Tx->Shower->Rx configuration
+  
   void printEventStats();  ///<print out some event statistics. not used much. 
 
   std::vector<std::vector<TH1F*>> scaleHist(float num_events);  ///<scale the histogram (when averaging over several events)
