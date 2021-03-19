@@ -1016,8 +1016,9 @@ double RadioScatter::makeRays(TLorentzVector point, double e, double l, double e
     double shwrPropTime=((fabs(pointDepth)/cos(pi-showerAngle))/IceRayTracing::c_light_ms)*s-firstShwrPropTime;
     if(insh==0){
       firstShwrPropTime=shwrPropTime;
+      shwrPropTime=0;
     }
-	
+    
     for(int i=0;i<ntx;i++){
       for(int j=0;j<nrx;j++){
 	double *rayTraceTimes=rayTrace(tx[i], rx[j], showerPoint);
