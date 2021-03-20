@@ -833,17 +833,18 @@ double* RadioScatter::getPathAndTimeOfRays(double TxRaySolPar[3][5], double RxRa
 double *RadioScatter::rayTrace(TLorentzVector Tx, TLorentzVector Rx, TVector3 Shwr){
 
   //////////////////////////////////////////////////////////////////////
-  double Tx_x=Tx.X()*m;
-  double Tx_y=Tx.Y()*m;
-  double Tx_z=Tx.Z()*m;
+  //divide by meter. m = 1000 *mm
+  double Tx_x=Tx.X()/m;
+  double Tx_y=Tx.Y()/m;
+  double Tx_z=Tx.Z()/m;
 
-  double Rx_x=Rx.X()*m;
-  double Rx_y=Rx.Y()*m;
-  double Rx_z=Rx.Z()*m;
+  double Rx_x=Rx.X()/m;
+  double Rx_y=Rx.Y()/m;
+  double Rx_z=Rx.Z()/m;
 
-  double Shwr_x=Shwr.X()*m;
-  double Shwr_y=Shwr.Y()*m;
-  double Shwr_z=Shwr.Z()*m;
+  double Shwr_x=Shwr.X()/m;
+  double Shwr_y=Shwr.Y()/m;
+  double Shwr_z=Shwr.Z()/m;
   
   double startpoint=0;////always zero
   double Tx2ShwrDist=sqrt(pow(Tx_x-Shwr_x,2)+ pow(Tx_y-Shwr_y,2));
@@ -866,7 +867,7 @@ double *RadioScatter::rayTrace(TLorentzVector Tx, TLorentzVector Rx, TVector3 Sh
     TxRaySolPar[0][0]=GetTx2ShwrRays[0];
     TxRaySolPar[0][1]=GetTx2ShwrRays[6];
     TxRaySolPar[0][2]=GetTx2ShwrRays[3]*s;
-    TxRaySolPar[0][3]=GetTx2ShwrRays[3]*IceRayTracing::c_light_ms;
+    TxRaySolPar[0][3]=GetTx2ShwrRays[3]*IceRayTracing::c_light_ms*m;
     TxRaySolPar[0][4]=0;
   }
 
@@ -875,7 +876,7 @@ double *RadioScatter::rayTrace(TLorentzVector Tx, TLorentzVector Rx, TVector3 Sh
     TxRaySolPar[1][0]=GetTx2ShwrRays[1];
     TxRaySolPar[1][1]=GetTx2ShwrRays[7];
     TxRaySolPar[1][2]=GetTx2ShwrRays[4]*s;
-    TxRaySolPar[1][3]=GetTx2ShwrRays[4]*IceRayTracing::c_light_ms;
+    TxRaySolPar[1][3]=GetTx2ShwrRays[4]*IceRayTracing::c_light_ms*m;
     TxRaySolPar[1][4]=GetTx2ShwrRays[11];
   }
   if(GetTx2ShwrRays[8]!=0){
@@ -883,7 +884,7 @@ double *RadioScatter::rayTrace(TLorentzVector Tx, TLorentzVector Rx, TVector3 Sh
     TxRaySolPar[2][0]=GetTx2ShwrRays[2];
     TxRaySolPar[2][1]=GetTx2ShwrRays[8];
     TxRaySolPar[2][2]=GetTx2ShwrRays[5]*s;
-    TxRaySolPar[2][3]=GetTx2ShwrRays[5]*IceRayTracing::c_light_ms;
+    TxRaySolPar[2][3]=GetTx2ShwrRays[5]*IceRayTracing::c_light_ms*m;
     TxRaySolPar[2][4]=0;
   }
   delete []GetTx2ShwrRays;
@@ -896,7 +897,7 @@ double *RadioScatter::rayTrace(TLorentzVector Tx, TLorentzVector Rx, TVector3 Sh
       RxRaySolPar[0][0]=GetRx2ShwrRays[0];
       RxRaySolPar[0][1]=GetRx2ShwrRays[6];
       RxRaySolPar[0][2]=GetRx2ShwrRays[3]*s;
-      RxRaySolPar[0][3]=GetRx2ShwrRays[3]*IceRayTracing::c_light_ms;
+      RxRaySolPar[0][3]=GetRx2ShwrRays[3]*IceRayTracing::c_light_ms*m;
       RxRaySolPar[0][4]=0;
     }
     if(GetRx2ShwrRays[7]!=0){
@@ -904,7 +905,7 @@ double *RadioScatter::rayTrace(TLorentzVector Tx, TLorentzVector Rx, TVector3 Sh
       RxRaySolPar[1][0]=GetRx2ShwrRays[1];
       RxRaySolPar[1][1]=GetRx2ShwrRays[7];
       RxRaySolPar[1][2]=GetRx2ShwrRays[4]*s;
-      RxRaySolPar[1][3]=GetRx2ShwrRays[4]*IceRayTracing::c_light_ms;
+      RxRaySolPar[1][3]=GetRx2ShwrRays[4]*IceRayTracing::c_light_ms*m;
       RxRaySolPar[1][4]=GetRx2ShwrRays[11];
     }
     if(GetRx2ShwrRays[8]!=0){
@@ -912,7 +913,7 @@ double *RadioScatter::rayTrace(TLorentzVector Tx, TLorentzVector Rx, TVector3 Sh
       RxRaySolPar[2][0]=GetRx2ShwrRays[2];
       RxRaySolPar[2][1]=GetRx2ShwrRays[8];
       RxRaySolPar[2][2]=GetRx2ShwrRays[5]*s;
-      RxRaySolPar[2][3]=GetRx2ShwrRays[5]*IceRayTracing::c_light_ms;
+      RxRaySolPar[2][3]=GetRx2ShwrRays[5]*IceRayTracing::c_light_ms*m;
       RxRaySolPar[2][4]=0;
     }
     delete []GetRx2ShwrRays;
@@ -927,10 +928,10 @@ double *RadioScatter::rayTrace(TLorentzVector Tx, TLorentzVector Rx, TVector3 Sh
   delete []StraightLineDTimeRx;
   
   double *output=new double[4];
-  output[0]=PathAndTimeOfRays[0]-StraightLineDTimeTx[2];
-  output[1]=PathAndTimeOfRays[1]-StraightLineDTimeTx[2];
-  output[2]=PathAndTimeOfRays[2]-StraightLineDTimeRx[2];
-  output[3]=PathAndTimeOfRays[3]-StraightLineDTimeRx[2];
+  output[0]=PathAndTimeOfRays[0]-StraightLineDTimeTx[2]*s;
+  output[1]=PathAndTimeOfRays[1]-StraightLineDTimeTx[2]*s;
+  output[2]=PathAndTimeOfRays[2]-StraightLineDTimeRx[2]*s;
+  output[3]=PathAndTimeOfRays[3]-StraightLineDTimeRx[2]*s;
   return output;
 }
 
@@ -953,7 +954,50 @@ double RadioScatter::makeRays(TLorentzVector point, double e, double l, double e
     makeTimeHist();
     RADIOSCATTER_INIT=true;
     RSCAT_HIST_DECLARE=true;
-    //RADIOSCATTER_INIT=true;
+
+    if(RAYTRACING_INIT==true){
+      delta_t.resize(ntx,vector<vector<vector<double> > >(nrx,vector<vector<double> >(4,vector<double>(totalShowerPoints))));
+      
+      TVector3 showerStart=TVector3(event.position);
+      TVector3 stretch=TVector3(event.direction);
+      double showerAngle=stretch.Theta();
+  
+      for(int insh=0;insh<totalShowerPoints;insh++){
+	showerPointDist2Vertex[insh]=insh*m;
+	if(insh==0){  
+	  stretch.SetMag(showerPointDist2Vertex[insh] + 0.000001*m);
+	}else{
+	  stretch.SetMag(showerPointDist2Vertex[insh]);
+	}
+
+	TVector3 showerPoint=showerStart+stretch;
+	double pointDepth=showerPoint.Z();
+	double showerAngle=stretch.Theta();
+	double shwrPropTime=(showerPointDist2Vertex[insh]/c_light)*s;
+    
+	for(int i=0;i<ntx;i++){
+	  for(int j=0;j<nrx;j++){
+	    double *rayTraceTimes=rayTrace(tx[i], rx[j], showerPoint);
+	    delta_t[i][j][0][insh]=rayTraceTimes[0]+shwrPropTime;
+	    delta_t[i][j][1][insh]=rayTraceTimes[1]+shwrPropTime;
+	    delta_t[i][j][2][insh]=rayTraceTimes[2]+shwrPropTime;
+	    delta_t[i][j][3][insh]=rayTraceTimes[3]+shwrPropTime;
+	    delete []rayTraceTimes;
+	  }
+	}
+      }  
+      
+      spline.resize(ntx,vector<vector<gsl_spline* > >(nrx,vector<gsl_spline* >(4)));
+      for(int i=0;i<ntx;i++){
+	for(int j=0;j<nrx;j++){    
+	  for (int irxtx = 0; irxtx < 4; irxtx++){
+	    spline[i][j][irxtx]= gsl_spline_alloc (gsl_interp_cspline, totalShowerPoints);
+	    gsl_spline_init (spline[i][j][irxtx], showerPointDist2Vertex, delta_t[i][j][irxtx].data(), totalShowerPoints);
+	  }
+	}
+      }
+      
+    }///if raytracing is true
   }
 
   double rx_time, rx_amplitude, rx_phase, point_time, t_step=0.;
@@ -991,57 +1035,6 @@ double RadioScatter::makeRays(TLorentzVector point, double e, double l, double e
   //point.SetVect(point.Vect()*zScaleVec);
   //  std::cout<<zscale<<" "<<point.Z()<<std::endl;
   //point.SetT(tt);
-
-  TVector3 showerStart=TVector3(event.position);
-  TVector3 stretch=TVector3(event.direction);
-  double showerAngle=stretch.Theta();
-
-  const int totalShowerPoints=11;
-  double delta_t[ntx][nrx][4][totalShowerPoints];
-  double showerPoint[totalShowerPoints];
-  
-  double firstShwrPropTime=0;
-  for(int insh=0;insh<totalShowerPoints;insh++){
-    showerPoint[insh]=insh;
-    if(insh==0){
-      stretch.SetMag((double)insh + 0.00001);
-    }else{
-      stretch.SetMag(insh);
-    }
-
-    TVector3 showerPoint=showerStart+stretch;
-    double pointDepth=showerPoint.Z();
-    double showerAngle=stretch.Theta();
-	
-    double shwrPropTime=((fabs(pointDepth)/cos(pi-showerAngle))/IceRayTracing::c_light_ms)*s-firstShwrPropTime;
-    if(insh==0){
-      firstShwrPropTime=shwrPropTime;
-      shwrPropTime=0;
-    }
-    
-    for(int i=0;i<ntx;i++){
-      for(int j=0;j<nrx;j++){
-	double *rayTraceTimes=rayTrace(tx[i], rx[j], showerPoint);
-	delta_t[i][j][0][insh]=rayTraceTimes[0]+shwrPropTime;
-	delta_t[i][j][1][insh]=rayTraceTimes[1]+shwrPropTime;
-	delta_t[i][j][2][insh]=rayTraceTimes[2]+shwrPropTime;
-	delta_t[i][j][3][insh]=rayTraceTimes[3]+shwrPropTime;
-	delete []rayTraceTimes;
-      }
-    }
-  }  
-
-  for(int i=0;i<ntx;i++){
-    for(int j=0;j<nrx;j++){    
-      for (int irxtx = 0; irxtx < 4; irxtx++){
-	gsl_interp_accel *acc= gsl_interp_accel_alloc ();
-	gsl_spline *spline= gsl_spline_alloc (gsl_interp_cspline, totalShowerPoints);
-	gsl_spline_init (spline, showerPoint, delta_t[i][j][irxtx], totalShowerPoints);
-	gsl_spline_free (spline);
-	gsl_interp_accel_free (acc);
-      }
-    }
-  }
   
   for(int i=0;i<ntx;i++){
     for(int j=0;j<nrx;j++){
@@ -1056,15 +1049,11 @@ double RadioScatter::makeRays(TLorentzVector point, double e, double l, double e
       double n_e =1.;
       
       if(step_length==0)return 0;
-      
-      
+            
       //electron number density, using step length cube
       n_e = n*n_primaries/pow(step_length, 3);
-   
 
       if(n_e==0)return 0;
-
-
 
       //rad scat as published
       double N_ice=3.2e19;//per mm^3;
@@ -1092,7 +1081,6 @@ double RadioScatter::makeRays(TLorentzVector point, double e, double l, double e
       //the screening term. as derived in paper
       double alpha= ((omega_p*omega_p)/(2.*c_light_r))*(nu_col/(omega*omega + nu_col*nu_col))*x_0;
 
-
       double attn_factor = exp(-alpha);
 
       prefactor=prefactor*attn_factor;
@@ -1115,52 +1103,106 @@ double RadioScatter::makeRays(TLorentzVector point, double e, double l, double e
 	TVector3 l2;
 	l2.SetXYZ(q2.X()-rx_interface_dist[j], 0., q2.Z()-j2.Z());
 
+	if(RAYTRACING_INIT==false){
+	  point_time=point_temp.T();
+	  double point_time_end=point_time+lifetime;
 
-	point_time=point_temp.T();
-	double point_time_end=point_time+lifetime;
-	while(point_time<point_time_end){
-	  //get the reflected signal amplitude and phase
-	  rx_phase = getRxPhase(point_temp, j1, j2, l1, l2);
-	  rx_amplitude = getRxAmplitude(j, point_temp, j1, j2, l1, l2);
- 	  rx_time = getRxTime(point_temp, j2, l2);
+	  while(point_time<point_time_end){
+	    //get the reflected signal amplitude and phase
+	    rx_phase = getRxPhase(point_temp, j1, j2, l1, l2);
+	    rx_amplitude = getRxAmplitude(j, point_temp, j1, j2, l1, l2);
+	    rx_time = getRxTime(point_temp, j2, l2);
 
-	  double E_real= prefactor*rx_amplitude*(omega*cos(rx_phase)+nu_col*sin(rx_phase));
-      	  double E_imag = prefactor*rx_amplitude*(-nu_col*cos(rx_phase)+omega*sin(rx_phase));
+	    double E_real= prefactor*rx_amplitude*(omega*cos(rx_phase)+nu_col*sin(rx_phase));
+	    double E_imag = prefactor*rx_amplitude*(-nu_col*cos(rx_phase)+omega*sin(rx_phase));
       
-	  if(abs(E_real)<tx_voltage){//simple sanity check, probably not needed      
-	    time_hist[i][j]->Fill(rx_time, E_real);
-	    re_hist[i][j]->Fill(rx_time, E_real);
-	    im_hist[i][j]->Fill(rx_time, E_imag);
-	  }
-	  point_time+=samplingperiod;
-	  point_temp.SetT(point_time);
+	    if(abs(E_real)<tx_voltage){//simple sanity check, probably not needed      
+	      time_hist[i][j]->Fill(rx_time, E_real);
+	      re_hist[i][j]->Fill(rx_time, E_real);
+	      im_hist[i][j]->Fill(rx_time, E_imag);
+	    }
+	    point_time+=samplingperiod;
+	    point_temp.SetT(point_time);
+	  }///while loop
+	  
+	}else{///add raytracing times since its on
+	  for (int irxtx = 0; irxtx < 4; irxtx++){
+	    double showerPoint=vec.Mag();
+	    double dt_time=gsl_spline_eval(spline[i][j][irxtx], showerPoint, acc);
+	  
+	    point_time=point_temp.T()+dt_time;
+	    double point_time_end=point_time+lifetime;
+	    while(point_time<point_time_end){
+	      //get the reflected signal amplitude and phase
+	      rx_phase = getRxPhase(point_temp, j1, j2, l1, l2);
+	      rx_amplitude = getRxAmplitude(j, point_temp, j1, j2, l1, l2);
+	      rx_time = getRxTime(point_temp, j2, l2);
 
-
-	}
+	      double E_real= prefactor*rx_amplitude*(omega*cos(rx_phase)+nu_col*sin(rx_phase));
+	      double E_imag = prefactor*rx_amplitude*(-nu_col*cos(rx_phase)+omega*sin(rx_phase));
+      
+	      if(abs(E_real)<tx_voltage){//simple sanity check, probably not needed      
+		time_hist[i][j]->Fill(rx_time, E_real);
+		re_hist[i][j]->Fill(rx_time, E_real);
+		im_hist[i][j]->Fill(rx_time, E_imag);
+	      }
+	      point_time+=samplingperiod;
+	      point_temp.SetT(point_time);
+	    }///while loop
+	  }///irxtx loop
+	}///add raytracing else statement
 	
       }
       //assuming transmitter and interaction and receiver are in a medium with same refractive index.    
       else{
-	point_time=point_temp.T();
-	double point_time_end=point_time+lifetime;
-	while(point_time<point_time_end){
-	  rx_phase=getRxPhase(i,j,point_temp);
-	  rx_amplitude=getRxAmplitude(i,j,point_temp);
-	  rx_time=getRxTime(j,point_temp);
+	if(RAYTRACING_INIT==false){	  
+	  point_time=point_temp.T();
+	  double point_time_end=point_time+lifetime;
 
+	  while(point_time<point_time_end){
+	    rx_phase=getRxPhase(i,j,point_temp);
+	    rx_amplitude=getRxAmplitude(i,j,point_temp);
+	    rx_time=getRxTime(j,point_temp);
 	  
-	  double E_real= prefactor*rx_amplitude*(omega*cos(rx_phase)+nu_col*sin(rx_phase));
-	  double E_imag = prefactor*rx_amplitude*(-nu_col*cos(rx_phase)+omega*sin(rx_phase));
+	    double E_real= prefactor*rx_amplitude*(omega*cos(rx_phase)+nu_col*sin(rx_phase));
+	    double E_imag = prefactor*rx_amplitude*(-nu_col*cos(rx_phase)+omega*sin(rx_phase));
 
-	  if(abs(E_real)<tx_voltage){//simple sanity check
-	    time_hist[i][j]->Fill(rx_time, E_real);
-	    re_hist[i][j]->Fill(rx_time, E_real);
-	    im_hist[i][j]->Fill(rx_time, E_imag);
-	  }
-	  point_time+=samplingperiod;
-	  point_temp.SetT(point_time);
+	    if(abs(E_real)<tx_voltage){//simple sanity check
+	      time_hist[i][j]->Fill(rx_time, E_real);
+	      re_hist[i][j]->Fill(rx_time, E_real);
+	      im_hist[i][j]->Fill(rx_time, E_imag);
+	    }
+	    point_time+=samplingperiod;
+	    point_temp.SetT(point_time);
+	  }///while loop
 
-	}
+	}else{///add raytracing times since raytracing is on
+	  for (int irxtx = 0; irxtx < 4; irxtx++){
+	    double showerPoint=vec.Mag();
+	    double dt_time=gsl_spline_eval(spline[i][j][irxtx], vec.Mag(), acc);
+	    
+	    point_time=point_temp.T()+dt_time;    	
+	    double point_time_end=point_time+lifetime;
+	    while(point_time<point_time_end){
+	      rx_phase=getRxPhase(i,j,point_temp);
+	      rx_amplitude=getRxAmplitude(i,j,point_temp);
+	      rx_time=getRxTime(j,point_temp);
+	  
+	      double E_real= prefactor*rx_amplitude*(omega*cos(rx_phase)+nu_col*sin(rx_phase));
+	      double E_imag = prefactor*rx_amplitude*(-nu_col*cos(rx_phase)+omega*sin(rx_phase));
+
+	      if(abs(E_real)<tx_voltage){//simple sanity check
+		time_hist[i][j]->Fill(rx_time, E_real);
+		re_hist[i][j]->Fill(rx_time, E_real);
+		im_hist[i][j]->Fill(rx_time, E_imag);
+	      }
+	      point_time+=samplingperiod;
+	      point_temp.SetT(point_time);
+
+	    }///while loop
+	  }///irxtx for loop
+	}///add raytracing else statement
+	
       }
     }
     return 1;

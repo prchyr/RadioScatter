@@ -142,9 +142,13 @@ public:
   std::vector<double> rx_interface_dist{1};
  
   double n_rel=1.5; ///<relative index of refraction, calculated to always be >1.
-
+  ///<interpolation setup for calculating dt times
+  const static int totalShowerPoints=11;
+  gsl_interp_accel *acc= gsl_interp_accel_alloc ();
+  vector <vector <vector <gsl_spline* > > > spline;
+  vector <vector <vector <vector <double> > > > delta_t;
+  double showerPointDist2Vertex[totalShowerPoints];
   
-
   ///<some histograms 
   TH1F *fft_hist, *power_hist;
   TH1F *t_h = new TH1F("eventHist", "eventHist", 100, 0, 10);
@@ -185,9 +189,10 @@ public:
   int SCALE_BY_ENERGY=0;///sets the flag to scale by energy. 
   int ENERGY_SCALING_SET=0;///indicates that the energy scaling has been set.
 
-
   bool RADIOSCATTER_INIT=0;///indicates that all the values needed for radioscatter to do the things have been set.
   int REAL_DATA=0;
+
+  bool RAYTRACING_INIT=true;///indicates if raytracing is on or off. its on by default.
   RadioScatter();
 
   /*
