@@ -192,7 +192,7 @@ public:
   bool RADIOSCATTER_INIT=0;///indicates that all the values needed for radioscatter to do the things have been set.
   int REAL_DATA=0;
 
-  bool RAYTRACING_INIT=true;///indicates if raytracing is on or off. its on by default.
+  bool USE_RAYTRACING=true;///indicates if raytracing is on or off. its on by default.
   RadioScatter();
 
   /*
@@ -354,6 +354,9 @@ this function actually does the scaling. prior to it being called, it makes sure
   double makeRays(TLorentzVector point, double e, double l, double e_i);
   double makeRays(TLorentzVector point, double e, double l, double e_i, TH1F *hist);///<optional to include a histogram to fill.
 
+  
+  void setUseRayTracing(bool flag);///Function for use to turn the analytic raytracing on or off
+  
   double* getPathAndTimeOfRays(double TxRaySolPar[3][5], double RxRaySolPar[3][5]);/// This function is used by the analytical raytracer to sort out ray parameters for the two ray solutions out the three possible ones
   double* rayTrace(TLorentzVector Tx, TLorentzVector Rx, TVector3 Shwr);///This function calls the analytical raytracer and calculates propogation times, optical path lengths, launch angles and recieve angles for all the possible ray paths in the given Tx->Shower->Rx configuration
   

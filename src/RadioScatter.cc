@@ -763,6 +763,11 @@ TH1F * RadioScatter::getDirectSignal(int txindex, int rxindex, const TH1F *in){
   return outhist;
 }
 
+/* Function for use to turn the analytic raytracing on or off*/
+void RadioScatter::setUseRayTracing(bool flag){
+  USE_RAYTRACING=flag;
+}
+
 /* This function is used by the analytical raytracer to sort out ray parameters for the two ray solutions out the three possible ones */
 double* RadioScatter::getPathAndTimeOfRays(double TxRaySolPar[3][5], double RxRaySolPar[3][5]){
   
@@ -955,7 +960,7 @@ double RadioScatter::makeRays(TLorentzVector point, double e, double l, double e
     RADIOSCATTER_INIT=true;
     RSCAT_HIST_DECLARE=true;
 
-    if(RAYTRACING_INIT==true){
+    if(USE_RAYTRACING==true){
       delta_t.resize(ntx,vector<vector<vector<double> > >(nrx,vector<vector<double> >(4,vector<double>(totalShowerPoints))));
       
       TVector3 showerStart=TVector3(event.position);
@@ -1103,7 +1108,7 @@ double RadioScatter::makeRays(TLorentzVector point, double e, double l, double e
 	TVector3 l2;
 	l2.SetXYZ(q2.X()-rx_interface_dist[j], 0., q2.Z()-j2.Z());
 
-	if(RAYTRACING_INIT==false){
+	if(USE_RAYTRACING==false){
 	  point_time=point_temp.T();
 	  double point_time_end=point_time+lifetime;
 
@@ -1155,7 +1160,7 @@ double RadioScatter::makeRays(TLorentzVector point, double e, double l, double e
       }
       //assuming transmitter and interaction and receiver are in a medium with same refractive index.    
       else{
-	if(RAYTRACING_INIT==false){	  
+	if(USE_RAYTRACING==false){	  
 	  point_time=point_temp.T();
 	  double point_time_end=point_time+lifetime;
 
