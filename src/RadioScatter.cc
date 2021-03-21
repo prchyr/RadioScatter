@@ -77,7 +77,8 @@ RadioScatter::RadioScatter(){
        double time =(dist/c_light_r)-half_window; 
        
        time<0?start_time=0:start_time=time;
-       end_time = start_time+(2*half_window);
+       //end_time = start_time+(2*half_window);
+       end_time = start_time+(6*half_window);
        time_hist[i][j]->Reset();
        re_hist[i][j]->Reset();
        im_hist[i][j]->Reset();
@@ -777,15 +778,17 @@ double* RadioScatter::getPathAndTimeOfRays(double TxRaySolPar[3][5], double RxRa
   double RxRays[4]={0, 0, 0, 0};
 
   /************************Tx Ray Parameters**********************/
-  if(TxRaySolPar[0][1]!=0 && TxRaySolPar[1][1]!=0){
+  if(TxRaySolPar[0][1]!=-1000 && TxRaySolPar[1][1]!=-1000){
     ////****************For Direct and Reflected Ray btw Tx and Shower***********************
+    // cout<<"Tx Direct ray "<<TxRaySolPar[0][0]<<" "<<TxRaySolPar[0][1]<<" "<<TxRaySolPar[0][2]<<" "<<TxRaySolPar[0][3]<<" "<<TxRaySolPar[0][4]<<endl;
+    // cout<<"Tx Reflected ray "<<TxRaySolPar[1][0]<<" "<<TxRaySolPar[1][1]<<" "<<TxRaySolPar[1][2]<<" "<<TxRaySolPar[1][3]<<" "<<TxRaySolPar[1][4]<<endl;    
     TxRays[0]=TxRaySolPar[0][3];
     TxRays[1]=TxRaySolPar[1][3];
     TxRays[2]=TxRaySolPar[0][2];
     TxRays[3]=TxRaySolPar[1][2];
   }
 
-  if(TxRaySolPar[0][1]!=0 && TxRaySolPar[2][1]!=0){
+  if(TxRaySolPar[0][1]!=-1000 && TxRaySolPar[2][1]!=-1000){
     ////****************For Direct and Refracted Ray btw Tx and Shower***********************
     TxRays[0]=TxRaySolPar[0][3];
     TxRays[1]=TxRaySolPar[2][3];
@@ -793,7 +796,7 @@ double* RadioScatter::getPathAndTimeOfRays(double TxRaySolPar[3][5], double RxRa
     TxRays[3]=TxRaySolPar[2][2];
   }
 
-  if(TxRaySolPar[2][1]!=0 && TxRaySolPar[1][1]!=0){
+  if(TxRaySolPar[2][1]!=-1000 && TxRaySolPar[1][1]!=-1000){
     ////****************For Refracted and Reflected Ray btw Tx and Shower***********************
     TxRays[0]=TxRaySolPar[2][3];
     TxRays[1]=TxRaySolPar[1][3];
@@ -802,7 +805,7 @@ double* RadioScatter::getPathAndTimeOfRays(double TxRaySolPar[3][5], double RxRa
   }
 
   /************************Rx Ray Parameters**********************/
-  if(RxRaySolPar[0][1]!=0 && RxRaySolPar[1][1]!=0){
+  if(RxRaySolPar[0][1]!=-1000 && RxRaySolPar[1][1]!=-1000){
     ////****************For Direct and Reflected Ray btw Rx and Shower***********************
     RxRays[0]=RxRaySolPar[0][3];
     RxRays[1]=RxRaySolPar[1][3];
@@ -810,7 +813,7 @@ double* RadioScatter::getPathAndTimeOfRays(double TxRaySolPar[3][5], double RxRa
     RxRays[3]=RxRaySolPar[1][2];
   }
 
-  if(RxRaySolPar[0][1]!=0 && RxRaySolPar[2][1]!=0){
+  if(RxRaySolPar[0][1]!=-1000 && RxRaySolPar[2][1]!=-1000){
     ////****************For Direct and Refracted Ray btw Rx and Shower***********************
     RxRays[0]=RxRaySolPar[0][3];
     RxRays[1]=RxRaySolPar[2][3];
@@ -818,7 +821,7 @@ double* RadioScatter::getPathAndTimeOfRays(double TxRaySolPar[3][5], double RxRa
     RxRays[3]=RxRaySolPar[2][2];
   }
 
-  if(RxRaySolPar[2][1]!=0 && RxRaySolPar[1][1]!=0){
+  if(RxRaySolPar[2][1]!=-1000 && RxRaySolPar[1][1]!=-1000){
     ////****************For Refracted and Reflected Ray btw Rx and Shower***********************
     RxRays[0]=RxRaySolPar[2][3];
     RxRays[1]=RxRaySolPar[1][3];
@@ -830,6 +833,7 @@ double* RadioScatter::getPathAndTimeOfRays(double TxRaySolPar[3][5], double RxRa
   output[1]=TxRays[3];
   output[2]=RxRays[2];
   output[3]=RxRays[3];
+  //cout<<"Tx Rx rays are "<<output[0]<<" "<<output[1]<<" "<<output[2]<<" "<<output[3]<<endl;
   
   return output;    
 }
@@ -841,16 +845,22 @@ double *RadioScatter::rayTrace(TLorentzVector Tx, TLorentzVector Rx, TVector3 Sh
   //divide by meter. m = 1000 *mm
   double Tx_x=Tx.X()/m;
   double Tx_y=Tx.Y()/m;
-  double Tx_z=Tx.Z()/m;
-
+  double Tx_z=-Tx.Z()/m;
+  if(Tx_z==0){
+    Tx_z=-1e-4;
+  }
   double Rx_x=Rx.X()/m;
   double Rx_y=Rx.Y()/m;
-  double Rx_z=Rx.Z()/m;
-
+  double Rx_z=-Rx.Z()/m;
+  if(Rx_z==0){
+    Rx_z=-1e-4;
+  }
   double Shwr_x=Shwr.X()/m;
   double Shwr_y=Shwr.Y()/m;
-  double Shwr_z=Shwr.Z()/m;
-  
+  double Shwr_z=-Shwr.Z()/m;
+  if(Shwr_z==0){
+    Shwr_z=-1e-4;
+  }
   double startpoint=0;////always zero
   double Tx2ShwrDist=sqrt(pow(Tx_x-Shwr_x,2)+ pow(Tx_y-Shwr_y,2));
   double Rx2ShwrDist=sqrt(pow(Rx_x-Shwr_x,2)+ pow(Rx_y-Shwr_y,2));
@@ -867,76 +877,97 @@ double *RadioScatter::rayTrace(TLorentzVector Tx, TLorentzVector Rx, TVector3 Sh
   
   double* GetTx2ShwrRays=IceRayTracing::IceRayTracing(startpoint,Tx_z,Tx2ShwrDist,Shwr_z);
  
-  if(GetTx2ShwrRays[6]!=0){
-    //cout<<"we got a direct ray!"<<endl;
+  if(GetTx2ShwrRays[6]!=-1000){
     TxRaySolPar[0][0]=GetTx2ShwrRays[0];
     TxRaySolPar[0][1]=GetTx2ShwrRays[6];
     TxRaySolPar[0][2]=GetTx2ShwrRays[3]*s;
     TxRaySolPar[0][3]=GetTx2ShwrRays[3]*IceRayTracing::c_light_ms*m;
     TxRaySolPar[0][4]=0;
+    //cout<<"Tx Direct ray "<<TxRaySolPar[0][0]<<" "<<TxRaySolPar[0][1]<<" "<<TxRaySolPar[0][2]<<" "<<TxRaySolPar[0][3]<<" "<<TxRaySolPar[0][4]<<endl;
+  }else{
+    TxRaySolPar[0][1]=GetTx2ShwrRays[6];
   }
 
-  if(GetTx2ShwrRays[7]!=0){
-    //cout<<"we got a reflected ray!"<<endl;
+  if(GetTx2ShwrRays[7]!=-1000){
     TxRaySolPar[1][0]=GetTx2ShwrRays[1];
     TxRaySolPar[1][1]=GetTx2ShwrRays[7];
     TxRaySolPar[1][2]=GetTx2ShwrRays[4]*s;
     TxRaySolPar[1][3]=GetTx2ShwrRays[4]*IceRayTracing::c_light_ms*m;
     TxRaySolPar[1][4]=GetTx2ShwrRays[11];
+    //cout<<"Tx Reflected ray "<<TxRaySolPar[1][0]<<" "<<TxRaySolPar[1][1]<<" "<<TxRaySolPar[1][2]<<" "<<TxRaySolPar[1][3]<<" "<<TxRaySolPar[1][4]<<endl;
+  }else{
+    TxRaySolPar[1][1]=GetTx2ShwrRays[7];
   }
-  if(GetTx2ShwrRays[8]!=0){
-    //cout<<"we got a refracted ray!"<<endl;
+  
+  if(GetTx2ShwrRays[8]!=-1000){
     TxRaySolPar[2][0]=GetTx2ShwrRays[2];
     TxRaySolPar[2][1]=GetTx2ShwrRays[8];
     TxRaySolPar[2][2]=GetTx2ShwrRays[5]*s;
     TxRaySolPar[2][3]=GetTx2ShwrRays[5]*IceRayTracing::c_light_ms*m;
     TxRaySolPar[2][4]=0;
+    //cout<<"Tx Refracted ray "<<TxRaySolPar[2][0]<<" "<<TxRaySolPar[2][1]<<" "<<TxRaySolPar[2][2]<<" "<<TxRaySolPar[2][3]<<" "<<TxRaySolPar[2][4]<<endl;
+  }else{
+    TxRaySolPar[2][1]=GetTx2ShwrRays[8];
   }
-  delete []GetTx2ShwrRays;
 
-  if(TxRaySolPar[0][1]!=0 || TxRaySolPar[1][1]!=0 || TxRaySolPar[2][1]!=0){
-    double* GetRx2ShwrRays=IceRayTracing::IceRayTracing(startpoint,Rx_z,Rx2ShwrDist,Shwr_z);
+  //cout<<"Tx check values are "<<GetTx2ShwrRays[6]<<" "<<GetTx2ShwrRays[7]<<" "<<GetTx2ShwrRays[8]<<endl;
+  double* GetRx2ShwrRays=0;
+  if(GetTx2ShwrRays[6]!=-1000 || GetTx2ShwrRays[7]!=-1000 || GetTx2ShwrRays[8]!=-1000){
+    GetRx2ShwrRays=IceRayTracing::IceRayTracing(startpoint,Rx_z,Rx2ShwrDist,Shwr_z);
 
-    if(GetRx2ShwrRays[6]!=0){
-      //cout<<"we got a direct ray!"<<endl;
+    if(GetRx2ShwrRays[6]!=-1000){
       RxRaySolPar[0][0]=GetRx2ShwrRays[0];
       RxRaySolPar[0][1]=GetRx2ShwrRays[6];
       RxRaySolPar[0][2]=GetRx2ShwrRays[3]*s;
       RxRaySolPar[0][3]=GetRx2ShwrRays[3]*IceRayTracing::c_light_ms*m;
       RxRaySolPar[0][4]=0;
+      //cout<<"Rx Direct ray "<<RxRaySolPar[0][0]<<" "<<RxRaySolPar[0][1]<<" "<<RxRaySolPar[0][2]<<" "<<RxRaySolPar[0][3]<<" "<<RxRaySolPar[0][4]<<endl;
+    }else{
+      RxRaySolPar[0][1]=GetRx2ShwrRays[6];
     }
-    if(GetRx2ShwrRays[7]!=0){
-      //cout<<"we got a reflected ray!"<<endl;
+    
+    if(GetRx2ShwrRays[7]!=-1000){
       RxRaySolPar[1][0]=GetRx2ShwrRays[1];
       RxRaySolPar[1][1]=GetRx2ShwrRays[7];
       RxRaySolPar[1][2]=GetRx2ShwrRays[4]*s;
       RxRaySolPar[1][3]=GetRx2ShwrRays[4]*IceRayTracing::c_light_ms*m;
       RxRaySolPar[1][4]=GetRx2ShwrRays[11];
+      //cout<<"Rx Reflected ray "<<RxRaySolPar[1][0]<<" "<<RxRaySolPar[1][1]<<" "<<RxRaySolPar[1][2]<<" "<<RxRaySolPar[1][3]<<" "<<RxRaySolPar[1][4]<<endl;
+    }else{
+      RxRaySolPar[1][1]=GetRx2ShwrRays[7];
     }
-    if(GetRx2ShwrRays[8]!=0){
-      //cout<<"we got a refracted ray!"<<endl;
+    
+    if(GetRx2ShwrRays[8]!=-1000){
       RxRaySolPar[2][0]=GetRx2ShwrRays[2];
       RxRaySolPar[2][1]=GetRx2ShwrRays[8];
       RxRaySolPar[2][2]=GetRx2ShwrRays[5]*s;
       RxRaySolPar[2][3]=GetRx2ShwrRays[5]*IceRayTracing::c_light_ms*m;
       RxRaySolPar[2][4]=0;
+      //cout<<"Rx Refracted ray "<<RxRaySolPar[2][0]<<" "<<RxRaySolPar[2][1]<<" "<<RxRaySolPar[2][2]<<" "<<RxRaySolPar[2][3]<<" "<<RxRaySolPar[2][4]<<endl;
+    }else{
+      RxRaySolPar[2][1]=GetRx2ShwrRays[8];
     }
-    delete []GetRx2ShwrRays;
+  
   }
-
+  
   double *PathAndTimeOfRays=RadioScatter::getPathAndTimeOfRays(TxRaySolPar, RxRaySolPar);    
   double *StraightLineDTimeTx=IceRayTracing::GetDirectRayPar_Cnz(Tx_z,Tx2ShwrDist,Shwr_z, n_rel);
   double *StraightLineDTimeRx=IceRayTracing::GetDirectRayPar_Cnz(Rx_z,Rx2ShwrDist,Shwr_z, n_rel);
-  
-  delete []PathAndTimeOfRays;
-  delete []StraightLineDTimeTx;
-  delete []StraightLineDTimeRx;
-  
+    
   double *output=new double[4];
   output[0]=PathAndTimeOfRays[0]-StraightLineDTimeTx[2]*s;
   output[1]=PathAndTimeOfRays[1]-StraightLineDTimeTx[2]*s;
   output[2]=PathAndTimeOfRays[2]-StraightLineDTimeRx[2]*s;
   output[3]=PathAndTimeOfRays[3]-StraightLineDTimeRx[2]*s;
+
+  //cout<<"Straightline times are "<<StraightLineDTimeTx[2]*s<<" "<<StraightLineDTimeRx[2]*s<<endl;
+  
+  delete []PathAndTimeOfRays;
+  delete []StraightLineDTimeTx;
+  delete []StraightLineDTimeRx;
+  delete []GetTx2ShwrRays;
+  delete []GetRx2ShwrRays;
+  
   return output;
 }
 
@@ -987,6 +1018,9 @@ double RadioScatter::makeRays(TLorentzVector point, double e, double l, double e
 	    delta_t[i][j][1][insh]=rayTraceTimes[1]+shwrPropTime;
 	    delta_t[i][j][2][insh]=rayTraceTimes[2]+shwrPropTime;
 	    delta_t[i][j][3][insh]=rayTraceTimes[3]+shwrPropTime;
+
+	    //cout<<"delta ts are "<<i<<" "<<j<<" "<<insh<<" "<<delta_t[i][j][0][insh]<<" "<<delta_t[i][j][1][insh]<<" "<<delta_t[i][j][2][insh]<<" "<<delta_t[i][j][3][insh]<<endl;
+	    //cout<<"delta ts are "<<i<<" "<<j<<" "<<insh<<" "<<rayTraceTimes[0]<<" "<<rayTraceTimes[1]<<" "<<rayTraceTimes[2]<<" "<<rayTraceTimes[3]<<" "<<shwrPropTime<<endl;
 	    delete []rayTraceTimes;
 	  }
 	}
