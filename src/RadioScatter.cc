@@ -844,19 +844,19 @@ double *RadioScatter::rayTrace(TLorentzVector Tx, TLorentzVector Rx, TVector3 Sh
   //divide by meter. m = 1000 *mm
   double Tx_x=Tx.X()/m;
   double Tx_y=Tx.Y()/m;
-  double Tx_z=-Tx.Z()/m;
+  double Tx_z=Tx.Z()/m;
   if(Tx_z==0){
     Tx_z=-1e-4;
   }
   double Rx_x=Rx.X()/m;
   double Rx_y=Rx.Y()/m;
-  double Rx_z=-Rx.Z()/m;
+  double Rx_z=Rx.Z()/m;
   if(Rx_z==0){
     Rx_z=-1e-4;
   }
   double Shwr_x=Shwr.X()/m;
   double Shwr_y=Shwr.Y()/m;
-  double Shwr_z=-Shwr.Z()/m;
+  double Shwr_z=Shwr.Z()/m;
   if(Shwr_z==0){
     Shwr_z=-1e-4;
   }
