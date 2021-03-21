@@ -77,8 +77,7 @@ RadioScatter::RadioScatter(){
        double time =(dist/c_light_r)-half_window; 
        
        time<0?start_time=0:start_time=time;
-       //end_time = start_time+(2*half_window);
-       end_time = start_time+(6*half_window);
+       end_time = start_time+(2*half_window);
        time_hist[i][j]->Reset();
        re_hist[i][j]->Reset();
        im_hist[i][j]->Reset();
