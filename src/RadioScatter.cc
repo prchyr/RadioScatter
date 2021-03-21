@@ -978,7 +978,7 @@ double RadioScatter::makeRays(TLorentzVector point, double e, double l, double e
 	TVector3 showerPoint=showerStart+stretch;
 	double pointDepth=showerPoint.Z();
 	double showerAngle=stretch.Theta();
-	double shwrPropTime=(showerPointDist2Vertex[insh]/c_light)*s;
+	double shwrPropTime=(showerPointDist2Vertex[insh]/c_light)*ns;
     
 	for(int i=0;i<ntx;i++){
 	  for(int j=0;j<nrx;j++){
