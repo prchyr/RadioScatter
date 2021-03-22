@@ -130,13 +130,7 @@ namespace IceRayTracing{
   double fDnfR_Cnz(double x,void *params);
   
   /* Analytical solution describing the ray path in ice as a function of the L parameter for constant refractive index*/
-  double fDnfR_L_Cnz(double x,void *params);
-  
-  /* The function used to calculate ray propogation time in ice for constant refractive index*/
-  double ftimeD_Cnz(double x,void *params);
-  
-  /* This function is minimised to find the launch angle (or the L parameter) for the direct ray for constant refractive index */
-  double fDa_Cnz(double x,void *params);
+  double fDnfR_L_Cnz(double x,void *params);  
   
   /* This function is minimised to find the launch angle (or the L parameter) for the reflected ray for constant refractive index*/
   double fRa_Cnz(double x,void *params);

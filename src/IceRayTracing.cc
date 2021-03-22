@@ -1125,33 +1125,6 @@ double IceRayTracing::fDnfR_L_Cnz(double x,void *params){
   return out;
 }
 
-/* The function used to calculate ray propogation time in ice for constant refractive index*/
-double IceRayTracing::ftimeD_Cnz(double x,void *params){
-
-  struct IceRayTracing::ftimeD_params *p= (struct IceRayTracing::ftimeD_params *) params;
-  double A = p->a;
-  double Speedc = p->speedc;
-  double L = p->l;
-
-  double output=0;
-  
-  return ((A*x)/Speedc)*sqrt( tan(L) + 1 );
-}
-
-/* This function is minimised to find the launch angle (or the L parameter) for the direct ray for constant refractive index */
-double IceRayTracing::fDa_Cnz(double x,void *params){
-  struct IceRayTracing::fDanfRa_params *p= (struct IceRayTracing::fDanfRa_params *) params;
-  double A = p->a;
-  double z0 = p->z0;
-  double x1 = p->x1;
-  double z1 = p->z1;
-
-  struct IceRayTracing::fDnfR_L_params params1a = {A, 0, 0, z1};
-  struct IceRayTracing::fDnfR_L_params params1b = {A, 0, 0, z0};
-  
-  return fDnfR_L_Cnz(x,&params1a) - fDnfR_L_Cnz(x,&params1b) - x1;
-}
-
 /* This function is minimised to find the launch angle (or the L parameter) for the reflected ray for constant refractive index*/
 double IceRayTracing::fRa_Cnz(double x,void *params){
   struct IceRayTracing::fDanfRa_params *p= (struct IceRayTracing::fDanfRa_params *) params;
@@ -1237,17 +1210,13 @@ double *IceRayTracing::GetReflectedRayPar_Cnz(double z0, double x1 , double z1, 
   /* Do the minimisation and get the value of the L parameter and the launch angle */
   double lvalueR=FindFunctionRoot(F3,0.0,UpperLimitL);
   double LangR=asin(lvalueR/A_ice_Cnz)*(180.0/pi);
-  
-  /* Get the propagation time for the reflected ray using the ftimeD function after we have gotten the value of the L parameter. */
-  struct IceRayTracing::ftimeD_params params3a = {A_ice_Cnz, 0, 0, IceRayTracing::c_light_ms,(90-LangR)*(pi/180)};
-  struct IceRayTracing::ftimeD_params params3b = {A_ice_Cnz, 0, 0, IceRayTracing::c_light_ms,(90-LangR)*(pi/180)};
-  struct IceRayTracing::ftimeD_params params3c = {A_ice_Cnz, 0, 0, IceRayTracing::c_light_ms,(90-LangR)*(pi/180)};
-  
-  /* we do the subtraction because we are measuring the time taken between the Tx and Rx positions. In the reflected case we basically have two direct rays 1) from Tx to surface 2) from surface to Rx. . Also get the time for the two individual direct rays separately */
-  double timeR1=ftimeD_Cnz(0.0,&params3c) - ftimeD_Cnz(z0,&params3a);
-  double timeR2=ftimeD_Cnz(0.0,&params3c) - ftimeD_Cnz(z1,&params3b);
+    
+  /* In the reflected case we basically have two direct rays 1) from Tx to surface 2) from surface to Rx. . Also get the time for the two individual direct rays separately */
+  double z2=0,x2=fabs(z0)*tan(LangR*(pi/180));///coordinates of point of incidence in ice at the surface
+  double timeR1=(sqrt( pow(x2,2) + pow(z2-z0,2) )/IceRayTracing::c_light_ms)*A_ice_Cnz;
+  double timeR2=(sqrt( pow(x2-x1,2) + pow(z2-z1,2) )/IceRayTracing::c_light_ms)*A_ice_Cnz;
   double timeR= timeR1 + timeR2;
-  
+
   /* flip the times back if the original positions were flipped */
   if(Flip==true){
     double dumR=timeR2;
