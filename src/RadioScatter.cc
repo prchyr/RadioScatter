@@ -332,8 +332,13 @@ int RadioScatter::scaleByEnergy(){
     }
         
     zscale = (3.*log10(event.targetEnergy)+6.)/((log10(event.primaryEnergy)*3.)+6);
-    
     tscale = (10.*log10(event.targetEnergy)+22.)/((log10(event.primaryEnergy)*10.)+22);
+    //from V. Lukic
+    auto a = 6783.485;
+    auto b = 0.14;
+    zscale = pow(event.targetEnergy/a, b)/pow(event.primaryEnergy/a, b);
+    
+    
     std::cout<<"scaling activated. zscale="<<zscale<<" , tscale="<<tscale<<std::endl;
 
     //cout<<"__________________"<<endl<<" "<<event.primaryEnergy<<" "<<event.targetEnergy<<" "<<event.nPrimaries<<endl<<"______________"<<endl;
