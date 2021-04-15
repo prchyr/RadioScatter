@@ -838,7 +838,7 @@ double RadioScatter::makeRays(TLorentzVector point, double e, double l, double e
 
       //calculate plasma freq and collison freq
       
-      step_length=l;//to make our density approximation
+      step_length=l*zscale;//to make our density approximation
       double n = e/e_i;//edeposited/ionization E
       double n_e =1.;
       
