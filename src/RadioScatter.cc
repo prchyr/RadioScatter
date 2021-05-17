@@ -331,15 +331,15 @@ int RadioScatter::scaleByEnergy(){
       setTargetEnergy(event.primaryEnergy*event.nPrimaries);
     }
         
-    //zscale = (3.*log10(event.targetEnergy)+6.)/((log10(event.primaryEnergy)*3.)+6);
-    //tscale = (10.*log10(event.targetEnergy)+22.)/((log10(event.primaryEnergy)*10.)+22);
+    zscale = (3.*log10(event.targetEnergy)+6.)/((log10(event.primaryEnergy)*3.)+6);
+    tscale = (10.*log10(event.targetEnergy)+22.)/((log10(event.primaryEnergy)*10.)+22);
     //from V. Lukic, empirical fits to GEANT4 cascades
-    auto a = 6783.485;
-    auto b = 0.14;
-    zscale = pow(event.targetEnergy/a, b)/pow(event.primaryEnergy/a, b);
-    auto c = 9746.134;
-    auto d = 0.16;
-    zscale = pow(event.targetEnergy/c, d)/pow(event.primaryEnergy/c, d);
+    // auto a = 6783.485;
+    // auto b = 0.14;
+    // zscale = pow(event.targetEnergy/a, b)/pow(event.primaryEnergy/a, b);
+    // auto c = 9746.134;
+    // auto d = 0.16;
+    // zscale = pow(event.targetEnergy/c, d)/pow(event.primaryEnergy/c, d);
     
     std::cout<<"scaling activated. zscale="<<zscale<<" , tscale="<<tscale<<std::endl;
 
