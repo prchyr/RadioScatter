@@ -3,8 +3,7 @@ this is radioscatter. copyright s. prohira
 
 released under GPL3.
  
- */
-
+*/
 
 
 #ifndef R_Scat
@@ -145,8 +144,12 @@ public:
   ///<interpolation setup for calculating dt times
   const static int totalShowerPoints=11;
   gsl_interp_accel *acc= gsl_interp_accel_alloc ();
-  vector <vector <vector <gsl_spline* > > > spline;
-  vector <vector <vector <vector <double> > > > delta_t;
+  vector <vector <vector <gsl_spline* > > > splineTime;
+  vector <vector <vector <gsl_spline* > > > splineLaunchAngle;
+  vector <vector <vector <gsl_spline* > > > splineReceiveAngle;
+  vector <vector <vector <vector <double> > > > rayTraceTimes;
+  vector <vector <vector <vector <double> > > > rayTraceLaunchAngle;
+  vector <vector <vector <vector <double> > > > rayTraceReceiveAngle;
   double showerPointDist2Vertex[totalShowerPoints];
   
   ///<some histograms 
@@ -357,7 +360,7 @@ this function actually does the scaling. prior to it being called, it makes sure
   
   void setUseRayTracing(bool flag);///Function for use to turn the analytic raytracing on or off
   
-  double* getPathAndTimeOfRays(double TxRaySolPar[3][5], double RxRaySolPar[3][5]);/// This function is used by the analytical raytracer to sort out ray parameters for the two ray solutions out the three possible ones
+  double* getPathAndTimeOfRays(double TxRaySolPar[3][7], double RxRaySolPar[3][7]);/// This function is used by the analytical raytracer to sort out ray parameters for the two ray solutions out the three possible ones
   double* rayTrace(TLorentzVector Tx, TLorentzVector Rx, TVector3 Shwr);///This function calls the analytical raytracer and calculates propogation times, optical path lengths, launch angles and recieve angles for all the possible ray paths in the given Tx->Shower->Rx configuration
   
   void printEventStats();  ///<print out some event statistics. not used much. 
@@ -383,14 +386,19 @@ private:
    */
 double getTxAmplitude(int index,TLorentzVector point);
   double getRxAmplitude(int index, TLorentzVector point, TVector3 j1,  TVector3 j2, TVector3 l1, TVector3 l2);
+  double getRxAmplitudeRT(int index,TLorentzVector point, TVector3 j1, TVector3 j2, TVector3 l1, TVector3 l2, double distanceFactor, double alpha1, double alpha_prime1, double alpha2,double alpha_prime2);
   double getRxAmplitude(int txindex, int rxindex, TLorentzVector point);
+  double getRxAmplitudeRT(int txindex,int rxindex, TLorentzVector point,double distanceFactor, double TxLaunchAngle, double ShowerLaunchAngle);
   double getTxPhase(double t_0);
   double getRxTime(TLorentzVector point, TVector3 j, TVector3 l);
   double getRxTime(int index,TLorentzVector point);
+  
   double getTxTime(int index,TLorentzVector point, int direct);
   double getRxPhase(TLorentzVector point, TVector3 j1, TVector3 j2, TVector3 l1, TVector3 l2);
-
+  double getRxPhaseRT(TLorentzVector point, TVector3 j1, TVector3 j2, TVector3 l1, TVector3 l2, double tof);
+  
   double getRxPhase(int txindex, int rxindex, TLorentzVector point);
+  double getRxPhaseRT(int txindex, int rxindex, TLorentzVector point, double rxtime, double txtime);
   double getRxPhaseRel(int index,TLorentzVector point, double v);
   double getAmplitudeFromAt(double E_0, TLorentzVector from, TLorentzVector at);
   double getPhaseFromAt(TLorentzVector from, TLorentzVector at);

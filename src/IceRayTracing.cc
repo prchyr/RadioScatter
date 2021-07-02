@@ -10,7 +10,7 @@ double IceRayTracing::GetB(double z){
   z=fabs(z);
   double B=0;
 
-  B=-0.48;
+  B=-0.43;
   return B;
 }
 
@@ -991,7 +991,7 @@ double *IceRayTracing::IceRayTracing(double x0, double z0, double x1, double z1)
   /* calculate the attenuation (not included yet!) */
   bool attcal=false;
 
-  //cout<<"x0 z0 values are "<<x0<<" "<<z0<<" "<<x1<<" "<<z1<<endl;
+  cout<<"x0 z0 values are "<<x0<<" "<<z0<<" "<<x1<<" "<<z1<<endl;
   
   /*  ********This part of the code will try to get the Direct ray between Rx and Tx.********** */
   double* GetDirectRay=GetDirectRayPar(z0,x1,z1);

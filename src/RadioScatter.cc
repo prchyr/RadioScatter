@@ -72,10 +72,32 @@ RadioScatter::RadioScatter(){
 
    for(int i=0;i<ntx;i++){
      for(int j=0;j<nrx;j++){
-       TVector3 dv = rx[j].Vect()-event.position;
-       double dist = abs(dv.Mag());
-       double time =(dist/c_light_r)-half_window; 
-       
+       double time=0;
+       if(USE_RAYTRACING==false){
+	 TVector3 dv = rx[j].Vect()-event.position;
+	 double dist = abs(dv.Mag());
+	 time =(dist/c_light_r)-half_window;
+       }else{
+	 double rx_x=rx[j].X()/m;
+	 double rx_y=rx[j].Y()/m;
+	 double rx_z=rx[j].Z()/m;
+	 if(rx_z==0){
+	   rx_z=-1e-4;
+	 }
+	 double vertex_x=event.position.X()/m;
+	 double vertex_y=event.position.Y()/m;
+	 double vertex_z=event.position.Z()/m;
+	 if(vertex_z==0){
+	   vertex_z=-1e-4;
+	 }
+	 double startpoint=0;////always zero  
+	 double rx2VertexDist=sqrt(pow(rx_x-vertex_x,2)+ pow(rx_y-vertex_y,2));
+
+	 double* getTOF=IceRayTracing::IceRayTracing(startpoint,rx_z,rx2VertexDist,vertex_z);     
+	 double tof=getTOF[3]*s;
+	 time =tof-half_window;
+	 delete []getTOF;
+       }
        time<0?start_time=0:start_time=time;
        end_time = start_time+(2*half_window);
        time_hist[i][j]->Reset();
@@ -552,6 +574,62 @@ use the calculated refraction vectors (from makeRays()) to sort out the correct 
   return amplitude;
 }
 
+double RadioScatter::getRxAmplitudeRT(int index,TLorentzVector point, TVector3 j1, TVector3 j2, TVector3 l1, TVector3 l2, double distanceFactor, double alpha1, double alpha_prime1, double alpha2,double alpha_prime2){
+  //  double dist = ((j1.Mag()+j2.Mag())/m)*((l1.Mag()+l2.Mag())/m);
+  // //refraction things:
+
+
+  // double alpha1 = atan(j1.Z()/j1.X());
+  // double alpha_prime1 = atan(l1.Z()/l1.X());
+  // double alpha2 = atan(j2.Z()/j2.X());
+  // double alpha_prime2 = atan(l2.Z()/l2.X());
+
+  //E for polarization parallel to plane of incidence
+  double E1_para = (2.*cos(alpha1))/(cos(alpha1)+(n_rel*cos(alpha_prime1)));
+  double E1_perp = (2.*n_rel*cos(alpha1))/(n_rel*n_rel*cos(alpha1)+(n_rel*cos(alpha_prime1)));
+
+  //E for polarization perpendicular to plane of incidence
+  double E2_para = (2.*cos(alpha2))/(cos(alpha2)+(n_rel*cos(alpha_prime2)));
+  double E2_perp = (2.*n_rel*cos(alpha2))/(n_rel*n_rel*cos(alpha2)+(n_rel*cos(alpha_prime2)));
+
+  //find angle between plane of incidence and polarization vector
+  double theta = atan(point.Y()/point.Z());
+  double angle_dependence=1.;
+
+  
+  TVector3 nhat((point-rx[index]).Vect().Unit());
+
+  //TVector3 vert(0,1.,0), horiz(0,0,1.);
+  TVector3 vert(1.,1.,1.), horiz(1.,1.,1.); 
+  //  l1plane.setTheta(0);
+  //  l1plane.setPhi(0);
+
+  //NB unused  
+  if(event.polarization.Z()==1){
+    //refraction angle change
+    theta = theta+(pi/2.);
+
+    //angle_dependence = vert.Cross(nhat).Mag();
+    angle_dependence = nhat.Cross(nhat.Cross(vert)).Mag();
+
+  }
+  else{
+
+    //angle_dependence = horiz.Cross(nhat).Mag();
+    angle_dependence = nhat.Cross(nhat.Cross(horiz)).Mag();
+
+  }
+  double amp1 = sqrt(pow(E1_para*cos(theta), 2)+pow(E1_perp*sin(theta), 2));
+  double amp2 = sqrt(pow(E2_para*cos(theta), 2)+pow(E2_perp*sin(theta), 2));
+
+  double amplitude = ((tx_voltage*txFactor)/distanceFactor)*amp1*amp2*angle_dependence;
+  if(useAttnLengthFlag==1){
+    double attn_dist = (j1.Mag()+j2.Mag())+(l1.Mag()+l2.Mag());
+    amplitude=amplitude*exp(-attn_dist/attnLength);
+  }
+  return amplitude;
+}
+
 //non-refracted amplitude
 double RadioScatter::getRxAmplitude(int txindex,int rxindex, TLorentzVector point){
   double dist = ((tx[txindex].Vect()-point.Vect()).Mag()/m)*((rx[rxindex].Vect()-point.Vect()).Mag()/m);//here we've used the product of the distances as the radiated amplitude E~(E_0/R_1)/R_2. 
@@ -561,14 +639,11 @@ double RadioScatter::getRxAmplitude(int txindex,int rxindex, TLorentzVector poin
 
   double angle_dependence=1.;
   TVector3 nhat(two.Unit());
-  
-
 
   TVector3 pol=-one.Unit().Cross(one.Unit().Cross(event.polarization.Unit()));//for a dipole rad pattern
 
   angle_dependence = nhat.Cross(nhat.Cross(pol)).Mag();
 
-  //double amplitude = ((tx_voltage/txEffectiveHeight)/dist)*angle_dependence;
   double amplitude = ((tx_voltage*txFactor)/dist)*angle_dependence;
   if(useAttnLengthFlag==1){
     double attn_dist = ((tx[txindex].Vect()-point.Vect()).Mag())+((rx[rxindex].Vect()-point.Vect()).Mag());//here the overall attenuation is just calculated over the full path length. 
@@ -578,17 +653,41 @@ double RadioScatter::getRxAmplitude(int txindex,int rxindex, TLorentzVector poin
   return amplitude;
 }
 
+//non-refracted amplitude
+double RadioScatter::getRxAmplitudeRT(int txindex,int rxindex, TLorentzVector point,double distanceFactor, double TxLaunchAngle, double ShowerLaunchAngle){
+  //double dist = ((tx[txindex].Vect()-point.Vect()).Mag()/m)*((rx[rxindex].Vect()-point.Vect()).Mag()/m);//here we've used the product of the distances as the radiated amplitude E~(E_0/R_1)/R_2. 
+
+  TVector3 one=tx[txindex].Vect()-point.Vect();
+  one.SetTheta(TxLaunchAngle*(IceRayTracing::pi/180));
+  TVector3 two=point.Vect()-rx[rxindex].Vect();
+  two.SetTheta((180-ShowerLaunchAngle)*(IceRayTracing::pi/180));
+  
+  double angle_dependence=1.;
+  TVector3 nhat(two.Unit());
+
+  TVector3 pol=-one.Unit().Cross(one.Unit().Cross(event.polarization.Unit()));//for a dipole rad pattern
+
+  angle_dependence = nhat.Cross(nhat.Cross(pol)).Mag();
+
+  double amplitude = ((tx_voltage*txFactor)/distanceFactor)*angle_dependence;
+  if(useAttnLengthFlag==1){
+    double attn_dist = ((tx[txindex].Vect()-point.Vect()).Mag())+((rx[rxindex].Vect()-point.Vect()).Mag());//here the overall attenuation is just calculated over the full path length. 
+    amplitude=amplitude*exp(-attn_dist/attnLength);
+  }
+
+  return amplitude;
+}
+
+
 double RadioScatter::getAmplitudeFromAt(double E_0,TLorentzVector from, TLorentzVector at){
   double dist=((tx[0].Vect()-from.Vect()).Mag()/m)*((from.Vect()-at.Vect()).Mag()/m);
 
   TVector3 one=tx[0].Vect()-from.Vect();
-  TVector3 two=from.Vect()-at.Vect();
-
+  TVector3 two=from.Vect()-at.Vect(); 
+  
   double angle_dependence=1.;
   TVector3 nhat(two.Unit());
   TVector3 vert(0,1.,0), horiz(0,0,1.);
-
-
 
   angle_dependence = nhat.Cross(nhat.Cross(event.polarization.Unit())).Mag();
   
@@ -704,12 +803,62 @@ double RadioScatter::getRxPhase(TLorentzVector point, TVector3 j1, TVector3 j2, 
   double  kx = kvec1.Mag()+kvec2.Mag()+kvec3.Mag()+kvec4.Mag();
 
   return ((kx) - omega*tof + txphase);
-  }
+}
+
+double RadioScatter::getRxPhaseRT(TLorentzVector point, TVector3 j1, TVector3 j2, TVector3 l1, TVector3 l2, double tof){
+  
+  //debug:check that snell's law is satisfied for the found paths.
+  // std::cout<<(j1.Z()/j1.Mag())/(l1.Z()/l1.Mag())<<std::endl;
+  // std::cout<<(j2.Z()/j2.Mag())/(l2.Z()/l2.Mag())<<std::endl<<std::endl;
+  
+  //calculate the time of flight using correct values for velocity
+  //double  tof = j1.Mag()/c_light + l1.Mag()/c_light_r + j2.Mag()/c_light + l2.Mag()/c_light_r;
+
+   //this is possibly incorrect. for a lifetime of zero, it may be correct to stop at the reflection point
+  //and propagate the phase at the point of scattering. so the signal is a delta function with a fixed
+  //phase (polarity).
+  //double  tof = j1.Mag()/c_light + l1.Mag()/c_light_r;
+
+  double txphase = getTxPhase(point.T()-tof);//find phase at retarded time
+  //wave vector calculation, with correct phase velocity
+  TVector3  kvec1 = k*j1;
+  TVector3  kvec2 = k_r*l1;
+  TVector3  kvec3 = k_r*l2;
+  TVector3  kvec4 = k*j2;
+  TVector3  ktot = kvec1+kvec2+kvec3+kvec4;
+  double  kx = kvec1.Mag()+kvec2.Mag()+kvec3.Mag()+kvec4.Mag();
+
+  return ((kx) - omega*tof + txphase);
+}
 
 //non-refraction phase finder
 double RadioScatter::getRxPhase(int txindex, int rxindex, TLorentzVector point){
   double rxtime = getRxTime(rxindex,point);//find advanced time
   double txtime = getTxTime(txindex,point);//find retarted time
+  double txphase = getTxPhase(txtime);//find phase at retarded time
+  //time of full flight
+  //  double tof = abs(rxtime-txtime);//time of flight
+  //time of flight for zero lifetime(phase is fixed at interaction point)
+  //  double tof = point.T()-(point.Vect()-tx[index].Vect()).Mag()/c_light;
+  double tof=point.T()-txtime;
+  TLorentzVector tx_pr=tx[txindex]-point, pr_rx = point-rx[rxindex];//make vectors
+  //wave number addition
+  TVector3 kvec1 = k*tx_pr.Vect();
+  TVector3 kvec2 = k*pr_rx.Vect();
+  TVector3 ktot = kvec1+kvec2;
+  double kx = ktot.Mag();
+  //calculate compton effects
+  //  double inv_omega_c = (1/omega)+(1/omega_e)*(1-cos(tx_pr.Vect().Unit().Angle(pr_rx[index].Vect().Unit())));
+  //omega_c = 1/inv_omega_c;
+  //    std::cout<<txtime<<" "<<txphase<<" "<<rxtime<<std::endl;
+  return ((kx) - omega*tof + txphase);
+}
+
+//non-refraction phase finder
+double RadioScatter::getRxPhaseRT(int txindex, int rxindex, TLorentzVector point, double rxtime, double txtime){
+  // double rxtime = getRxTime(rxindex,point);//find advanced time
+  // double txtime = getTxTime(txindex,point);//find retarted time
+
   double txphase = getTxPhase(txtime);//find phase at retarded time
   //time of full flight
   //  double tof = abs(rxtime-txtime);//time of flight
@@ -769,12 +918,12 @@ void RadioScatter::setUseRayTracing(bool flag){
 }
 
 /* This function is used by the analytical raytracer to sort out ray parameters for the two ray solutions out the three possible ones */
-double* RadioScatter::getPathAndTimeOfRays(double TxRaySolPar[3][5], double RxRaySolPar[3][5]){
+double* RadioScatter::getPathAndTimeOfRays(double TxRaySolPar[3][7], double RxRaySolPar[3][7]){
   
   /* define a pointer to give back the output of raytracing */ 
-  double *output=new double[4];
-  double TxRays[4]={0, 0, 0, 0};
-  double RxRays[4]={0, 0, 0, 0};
+  double *output=new double[16];
+  double TxRays[10]={0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+  double RxRays[10]={0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
   /************************Tx Ray Parameters**********************/
   if(TxRaySolPar[0][1]!=-1000 && TxRaySolPar[1][1]!=-1000){
@@ -785,6 +934,14 @@ double* RadioScatter::getPathAndTimeOfRays(double TxRaySolPar[3][5], double RxRa
     TxRays[1]=TxRaySolPar[1][3];
     TxRays[2]=TxRaySolPar[0][2];
     TxRays[3]=TxRaySolPar[1][2];
+
+    TxRays[4]=TxRaySolPar[0][0];
+    TxRays[5]=TxRaySolPar[1][0];
+    TxRays[6]=TxRaySolPar[0][1];
+    TxRays[7]=TxRaySolPar[1][1];
+
+    TxRays[8]=TxRaySolPar[0][6];
+    TxRays[9]=TxRaySolPar[1][6];
   }
 
   if(TxRaySolPar[0][1]!=-1000 && TxRaySolPar[2][1]!=-1000){
@@ -793,6 +950,14 @@ double* RadioScatter::getPathAndTimeOfRays(double TxRaySolPar[3][5], double RxRa
     TxRays[1]=TxRaySolPar[2][3];
     TxRays[2]=TxRaySolPar[0][2];
     TxRays[3]=TxRaySolPar[2][2];
+
+    TxRays[4]=TxRaySolPar[0][0];
+    TxRays[5]=TxRaySolPar[2][0];
+    TxRays[6]=TxRaySolPar[0][1];
+    TxRays[7]=TxRaySolPar[2][1];
+
+    TxRays[8]=TxRaySolPar[0][6];
+    TxRays[9]=TxRaySolPar[2][6];
   }
 
   if(TxRaySolPar[2][1]!=-1000 && TxRaySolPar[1][1]!=-1000){
@@ -801,6 +966,14 @@ double* RadioScatter::getPathAndTimeOfRays(double TxRaySolPar[3][5], double RxRa
     TxRays[1]=TxRaySolPar[1][3];
     TxRays[2]=TxRaySolPar[2][2];
     TxRays[3]=TxRaySolPar[1][2];
+
+    TxRays[4]=TxRaySolPar[2][0];
+    TxRays[5]=TxRaySolPar[1][0];
+    TxRays[6]=TxRaySolPar[2][1];
+    TxRays[7]=TxRaySolPar[1][1];
+
+    TxRays[8]=TxRaySolPar[2][6];
+    TxRays[9]=TxRaySolPar[1][6];
   }
 
   /************************Rx Ray Parameters**********************/
@@ -810,6 +983,14 @@ double* RadioScatter::getPathAndTimeOfRays(double TxRaySolPar[3][5], double RxRa
     RxRays[1]=RxRaySolPar[1][3];
     RxRays[2]=RxRaySolPar[0][2];
     RxRays[3]=RxRaySolPar[1][2];
+
+    RxRays[4]=RxRaySolPar[0][0];
+    RxRays[5]=RxRaySolPar[1][0];
+    RxRays[6]=RxRaySolPar[0][1];
+    RxRays[7]=RxRaySolPar[1][1];
+
+    RxRays[8]=RxRaySolPar[0][6];
+    RxRays[9]=RxRaySolPar[1][6];
   }
 
   if(RxRaySolPar[0][1]!=-1000 && RxRaySolPar[2][1]!=-1000){
@@ -818,6 +999,14 @@ double* RadioScatter::getPathAndTimeOfRays(double TxRaySolPar[3][5], double RxRa
     RxRays[1]=RxRaySolPar[2][3];
     RxRays[2]=RxRaySolPar[0][2];
     RxRays[3]=RxRaySolPar[2][2];
+
+    RxRays[4]=RxRaySolPar[0][0];
+    RxRays[5]=RxRaySolPar[2][0];
+    RxRays[6]=RxRaySolPar[0][1];
+    RxRays[7]=RxRaySolPar[2][1];
+
+    RxRays[8]=RxRaySolPar[0][6];
+    RxRays[9]=RxRaySolPar[2][6];
   }
 
   if(RxRaySolPar[2][1]!=-1000 && RxRaySolPar[1][1]!=-1000){
@@ -826,12 +1015,35 @@ double* RadioScatter::getPathAndTimeOfRays(double TxRaySolPar[3][5], double RxRa
     RxRays[1]=RxRaySolPar[1][3];
     RxRays[2]=RxRaySolPar[2][2];
     RxRays[3]=RxRaySolPar[1][2];
+
+    RxRays[4]=RxRaySolPar[2][0];
+    RxRays[5]=RxRaySolPar[1][0];
+    RxRays[6]=RxRaySolPar[2][1];
+    RxRays[7]=RxRaySolPar[1][1];
+
+    RxRays[8]=RxRaySolPar[2][6];
+    RxRays[9]=RxRaySolPar[1][6];
   }
 
   output[0]=TxRays[2];
   output[1]=TxRays[3];
   output[2]=RxRays[2];
   output[3]=RxRays[3];
+
+  output[4]=TxRays[4];
+  output[5]=TxRays[5];
+  output[6]=RxRays[4];
+  output[7]=RxRays[5];
+
+  output[8]=TxRays[6];
+  output[9]=TxRays[7];
+  output[10]=RxRays[6];
+  output[11]=RxRays[7];
+
+  output[12]=TxRays[8];
+  output[13]=TxRays[9];
+  output[14]=RxRays[8];
+  output[15]=RxRays[9]; 
   //cout<<"Tx Rx rays are "<<output[0]<<" "<<output[1]<<" "<<output[2]<<" "<<output[3]<<endl;
   
   return output;    
@@ -840,6 +1052,8 @@ double* RadioScatter::getPathAndTimeOfRays(double TxRaySolPar[3][5], double RxRa
 /* This function calls the analytical raytracer and calculates propogation times, optical path lengths, launch angles and recieve angles for all the possible ray paths in the given Tx->Shower->Rx configuration */
 double *RadioScatter::rayTrace(TLorentzVector Tx, TLorentzVector Rx, TVector3 Shwr){
 
+  //cout<<"we are here 1"<<endl;
+  
   //////////////////////////////////////////////////////////////////////
   //divide by meter. m = 1000 *mm
   double Tx_x=Tx.X()/m;
@@ -871,17 +1085,32 @@ double *RadioScatter::rayTrace(TLorentzVector Tx, TLorentzVector Rx, TVector3 Sh
   /* element 2 is PropogationTime  */
   /* element 3 is PropogationDistance  */
   /* element 4 is the IncidentAngleInIce for Reflected ray. For the other two rays this number goes to zero.  */
-  double TxRaySolPar[3][5];
-  double RxRaySolPar[3][5];
-  
+  /* element 5 is zmax (peak ray point)  for Refracted ray. For the other two rays this number goes to zero.  */
+  /* element 6 is the ray attenuation calculated at the given Tx frequency  */
+  double TxRaySolPar[3][7];
+  double RxRaySolPar[3][7];
+
+  /* Initialize arrays*/
+  for(int i=0;i<3;i++){
+    for(int j=0;j<7;j++){
+      TxRaySolPar[i][j]=0;
+      RxRaySolPar[i][j]=0;
+    }
+  }
+      
   double* GetTx2ShwrRays=IceRayTracing::IceRayTracing(startpoint,Tx_z,Tx2ShwrDist,Shwr_z);
- 
+  /* Parameters for calculating attenuation */
+  double A0=1;
+  double frequency=getFreq();//Tx frequency in GHz
+  
   if(GetTx2ShwrRays[6]!=-1000){
     TxRaySolPar[0][0]=GetTx2ShwrRays[0];
     TxRaySolPar[0][1]=GetTx2ShwrRays[6];
     TxRaySolPar[0][2]=GetTx2ShwrRays[3]*s;
     TxRaySolPar[0][3]=GetTx2ShwrRays[3]*IceRayTracing::c_light_ms*m;
     TxRaySolPar[0][4]=0;
+    TxRaySolPar[0][5]=0;
+    TxRaySolPar[0][6]=1-IceRayTracing::GetTotalAttenuationDirect (A0,frequency,Tx_z,Tx2ShwrDist,GetTx2ShwrRays[12]);
     //cout<<"Tx Direct ray "<<TxRaySolPar[0][0]<<" "<<TxRaySolPar[0][1]<<" "<<TxRaySolPar[0][2]<<" "<<TxRaySolPar[0][3]<<" "<<TxRaySolPar[0][4]<<endl;
   }else{
     TxRaySolPar[0][1]=GetTx2ShwrRays[6];
@@ -893,6 +1122,8 @@ double *RadioScatter::rayTrace(TLorentzVector Tx, TLorentzVector Rx, TVector3 Sh
     TxRaySolPar[1][2]=GetTx2ShwrRays[4]*s;
     TxRaySolPar[1][3]=GetTx2ShwrRays[4]*IceRayTracing::c_light_ms*m;
     TxRaySolPar[1][4]=GetTx2ShwrRays[11];
+    TxRaySolPar[1][5]=0;
+    TxRaySolPar[1][6]=1-IceRayTracing::GetTotalAttenuationReflected (A0,frequency,Tx_z,Tx2ShwrDist,GetTx2ShwrRays[13]);
     //cout<<"Tx Reflected ray "<<TxRaySolPar[1][0]<<" "<<TxRaySolPar[1][1]<<" "<<TxRaySolPar[1][2]<<" "<<TxRaySolPar[1][3]<<" "<<TxRaySolPar[1][4]<<endl;
   }else{
     TxRaySolPar[1][1]=GetTx2ShwrRays[7];
@@ -904,6 +1135,8 @@ double *RadioScatter::rayTrace(TLorentzVector Tx, TLorentzVector Rx, TVector3 Sh
     TxRaySolPar[2][2]=GetTx2ShwrRays[5]*s;
     TxRaySolPar[2][3]=GetTx2ShwrRays[5]*IceRayTracing::c_light_ms*m;
     TxRaySolPar[2][4]=0;
+    TxRaySolPar[2][5]=GetTx2ShwrRays[15];
+    TxRaySolPar[2][6]=1-IceRayTracing::GetTotalAttenuationRefracted (A0,frequency,Tx_z,Tx2ShwrDist,GetTx2ShwrRays[15],GetTx2ShwrRays[14]);
     //cout<<"Tx Refracted ray "<<TxRaySolPar[2][0]<<" "<<TxRaySolPar[2][1]<<" "<<TxRaySolPar[2][2]<<" "<<TxRaySolPar[2][3]<<" "<<TxRaySolPar[2][4]<<endl;
   }else{
     TxRaySolPar[2][1]=GetTx2ShwrRays[8];
@@ -920,6 +1153,8 @@ double *RadioScatter::rayTrace(TLorentzVector Tx, TLorentzVector Rx, TVector3 Sh
       RxRaySolPar[0][2]=GetRx2ShwrRays[3]*s;
       RxRaySolPar[0][3]=GetRx2ShwrRays[3]*IceRayTracing::c_light_ms*m;
       RxRaySolPar[0][4]=0;
+      RxRaySolPar[0][5]=0;
+      RxRaySolPar[0][6]=1-IceRayTracing::GetTotalAttenuationDirect (A0,frequency,Rx_z,Rx2ShwrDist,GetRx2ShwrRays[12]);
       //cout<<"Rx Direct ray "<<RxRaySolPar[0][0]<<" "<<RxRaySolPar[0][1]<<" "<<RxRaySolPar[0][2]<<" "<<RxRaySolPar[0][3]<<" "<<RxRaySolPar[0][4]<<endl;
     }else{
       RxRaySolPar[0][1]=GetRx2ShwrRays[6];
@@ -931,6 +1166,8 @@ double *RadioScatter::rayTrace(TLorentzVector Tx, TLorentzVector Rx, TVector3 Sh
       RxRaySolPar[1][2]=GetRx2ShwrRays[4]*s;
       RxRaySolPar[1][3]=GetRx2ShwrRays[4]*IceRayTracing::c_light_ms*m;
       RxRaySolPar[1][4]=GetRx2ShwrRays[11];
+      RxRaySolPar[1][5]=0;
+      RxRaySolPar[1][6]=1-IceRayTracing::GetTotalAttenuationReflected (A0,frequency,Rx_z,Rx2ShwrDist,GetRx2ShwrRays[13]);
       //cout<<"Rx Reflected ray "<<RxRaySolPar[1][0]<<" "<<RxRaySolPar[1][1]<<" "<<RxRaySolPar[1][2]<<" "<<RxRaySolPar[1][3]<<" "<<RxRaySolPar[1][4]<<endl;
     }else{
       RxRaySolPar[1][1]=GetRx2ShwrRays[7];
@@ -942,6 +1179,8 @@ double *RadioScatter::rayTrace(TLorentzVector Tx, TLorentzVector Rx, TVector3 Sh
       RxRaySolPar[2][2]=GetRx2ShwrRays[5]*s;
       RxRaySolPar[2][3]=GetRx2ShwrRays[5]*IceRayTracing::c_light_ms*m;
       RxRaySolPar[2][4]=0;
+      RxRaySolPar[2][5]=GetRx2ShwrRays[15];
+      RxRaySolPar[2][6]=1-IceRayTracing::GetTotalAttenuationRefracted (A0,frequency,Rx_z,Rx2ShwrDist,GetRx2ShwrRays[15],GetRx2ShwrRays[14]);
       //cout<<"Rx Refracted ray "<<RxRaySolPar[2][0]<<" "<<RxRaySolPar[2][1]<<" "<<RxRaySolPar[2][2]<<" "<<RxRaySolPar[2][3]<<" "<<RxRaySolPar[2][4]<<endl;
     }else{
       RxRaySolPar[2][1]=GetRx2ShwrRays[8];
@@ -949,23 +1188,45 @@ double *RadioScatter::rayTrace(TLorentzVector Tx, TLorentzVector Rx, TVector3 Sh
   
   }
   
-  double *PathAndTimeOfRays=RadioScatter::getPathAndTimeOfRays(TxRaySolPar, RxRaySolPar);    
-  double *StraightLineDTimeTx=IceRayTracing::GetDirectRayPar_Cnz(Tx_z,Tx2ShwrDist,Shwr_z, n_rel);
-  double *StraightLineDTimeRx=IceRayTracing::GetDirectRayPar_Cnz(Rx_z,Rx2ShwrDist,Shwr_z, n_rel);
-    
-  double *output=new double[4];
-  output[0]=PathAndTimeOfRays[0]-StraightLineDTimeTx[2]*s;
-  output[1]=PathAndTimeOfRays[1]-StraightLineDTimeTx[2]*s;
-  output[2]=PathAndTimeOfRays[2]-StraightLineDTimeRx[2]*s;
-  output[3]=PathAndTimeOfRays[3]-StraightLineDTimeRx[2]*s;
+  double *RayParameters=RadioScatter::getPathAndTimeOfRays(TxRaySolPar, RxRaySolPar);    
+  // double *StraightLineDTimeTx=IceRayTracing::GetDirectRayPar_Cnz(Tx_z,Tx2ShwrDist,Shwr_z, n_rel);
+  // double *StraightLineDTimeRx=IceRayTracing::GetDirectRayPar_Cnz(Rx_z,Rx2ShwrDist,Shwr_z, n_rel);
+  
+  double *output=new double[16];
+  // output[0]=PathAndTimeOfRays[0]-StraightLineDTimeTx[2]*s;
+  // output[1]=PathAndTimeOfRays[1]-StraightLineDTimeTx[2]*s;
+  // output[2]=PathAndTimeOfRays[2]-StraightLineDTimeRx[2]*s;
+  // output[3]=PathAndTimeOfRays[3]-StraightLineDTimeRx[2]*s;
 
+  output[0]=RayParameters[0];//tx time ray 1
+  output[1]=RayParameters[1];//tx time ray 2
+  output[2]=RayParameters[2];//rx time ray 1
+  output[3]=RayParameters[3];//rx time ray 2
+
+  output[4]=RayParameters[4];//tx launch angle ray 1
+  output[5]=RayParameters[5];//tx launch angle ray 2
+  output[6]=RayParameters[6];//rx launch angle ray 1
+  output[7]=RayParameters[7];//rx launch angle ray 2
+
+  output[8]=RayParameters[8];//tx receive angle ray 1
+  output[9]=RayParameters[9];//tx receive angle ray 2
+  output[10]=RayParameters[10];//rx receive angle ray 1
+  output[11]=RayParameters[11];//rx receive angle ray 2  
+
+  output[12]=RayParameters[12];//tx attenuation ray 1
+  output[13]=RayParameters[13];//tx attenuation ray 2
+  output[14]=RayParameters[14];//rx attenuation ray 1
+  output[15]=RayParameters[15];//rx attenuation ray 2  
+  
   //cout<<"Straightline times are "<<StraightLineDTimeTx[2]*s<<" "<<StraightLineDTimeRx[2]*s<<endl;
   
-  delete []PathAndTimeOfRays;
-  delete []StraightLineDTimeTx;
-  delete []StraightLineDTimeRx;
+  delete []RayParameters;
+  // delete []StraightLineDTimeTx;
+  // delete []StraightLineDTimeRx;
   delete []GetTx2ShwrRays;
   delete []GetRx2ShwrRays;
+
+  //cout<<"we are here 2"<<endl;
   
   return output;
 }
@@ -985,14 +1246,18 @@ calculate the phase, the amplitude, and the prefactors for cross-section,
 */
 
 double RadioScatter::makeRays(TLorentzVector point, double e, double l, double e_i){
+  //cout<<"we are here 0 "<<endl;
   if(RADIOSCATTER_INIT==false){
     makeTimeHist();
     RADIOSCATTER_INIT=true;
     RSCAT_HIST_DECLARE=true;
 
     if(USE_RAYTRACING==true){
-      delta_t.resize(ntx,vector<vector<vector<double> > >(nrx,vector<vector<double> >(4,vector<double>(totalShowerPoints))));
-      
+      rayTraceTimes.resize(ntx,vector<vector<vector<double> > >(nrx,vector<vector<double> >(4,vector<double>(totalShowerPoints))));
+      rayTraceLaunchAngle.resize(ntx,vector<vector<vector<double> > >(nrx,vector<vector<double> >(4,vector<double>(totalShowerPoints))));
+      rayTraceReceiveAngle.resize(ntx,vector<vector<vector<double> > >(nrx,vector<vector<double> >(4,vector<double>(totalShowerPoints))));
+      //rayTraceAttenuation.resize(ntx,vector<vector<vector<double> > >(nrx,vector<vector<double> >(4,vector<double>(totalShowerPoints))));
+       
       TVector3 showerStart=TVector3(event.position);
       TVector3 stretch=TVector3(event.direction);
       double showerAngle=stretch.Theta();
@@ -1012,25 +1277,49 @@ double RadioScatter::makeRays(TLorentzVector point, double e, double l, double e
     
 	for(int i=0;i<ntx;i++){
 	  for(int j=0;j<nrx;j++){
-	    double *rayTraceTimes=rayTrace(tx[i], rx[j], showerPoint);
-	    delta_t[i][j][0][insh]=rayTraceTimes[0]+shwrPropTime;
-	    delta_t[i][j][1][insh]=rayTraceTimes[1]+shwrPropTime;
-	    delta_t[i][j][2][insh]=rayTraceTimes[2]+shwrPropTime;
-	    delta_t[i][j][3][insh]=rayTraceTimes[3]+shwrPropTime;
+	    double *rayTracePar=rayTrace(tx[i], rx[j], showerPoint);
+	    rayTraceTimes[i][j][0][insh]=rayTracePar[0];
+	    rayTraceTimes[i][j][1][insh]=rayTracePar[1];
+	    rayTraceTimes[i][j][2][insh]=rayTracePar[2];
+	    rayTraceTimes[i][j][3][insh]=rayTracePar[3];
 
-	    //cout<<"delta ts are "<<i<<" "<<j<<" "<<insh<<" "<<delta_t[i][j][0][insh]<<" "<<delta_t[i][j][1][insh]<<" "<<delta_t[i][j][2][insh]<<" "<<delta_t[i][j][3][insh]<<endl;
+	    rayTraceLaunchAngle[i][j][0][insh]=rayTracePar[4];
+	    rayTraceLaunchAngle[i][j][1][insh]=rayTracePar[5];
+	    rayTraceLaunchAngle[i][j][2][insh]=rayTracePar[6];
+	    rayTraceLaunchAngle[i][j][3][insh]=rayTracePar[7];
+
+	    rayTraceReceiveAngle[i][j][0][insh]=rayTracePar[8];
+	    rayTraceReceiveAngle[i][j][1][insh]=rayTracePar[9];
+	    rayTraceReceiveAngle[i][j][2][insh]=rayTracePar[10];
+	    rayTraceReceiveAngle[i][j][3][insh]=rayTracePar[11];
+
+	    // rayTraceAttenuation[i][j][0][insh]=rayTracePar[12];
+	    // rayTraceAttenuation[i][j][1][insh]=rayTracePar[13];
+	    // rayTraceAttenuation[i][j][2][insh]=rayTracePar[14];
+	    // rayTraceAttenuation[i][j][3][insh]=rayTracePar[15];	 
+	    
+	    //cout<<"delta ts are "<<i<<" "<<j<<" "<<insh<<" "<<rayTraceTimes[i][j][0][insh]<<" "<<rayTraceTimes[i][j][1][insh]<<" "<<rayTraceTimes[i][j][2][insh]<<" "<<rayTraceTimes[i][j][3][insh]<<endl;
 	    //cout<<"delta ts are "<<i<<" "<<j<<" "<<insh<<" "<<rayTraceTimes[0]<<" "<<rayTraceTimes[1]<<" "<<rayTraceTimes[2]<<" "<<rayTraceTimes[3]<<" "<<shwrPropTime<<endl;
-	    delete []rayTraceTimes;
+	    delete []rayTracePar;
 	  }
 	}
       }  
       
-      spline.resize(ntx,vector<vector<gsl_spline* > >(nrx,vector<gsl_spline* >(4)));
+      splineTime.resize(ntx,vector<vector<gsl_spline* > >(nrx,vector<gsl_spline* >(4)));
+      splineLaunchAngle.resize(ntx,vector<vector<gsl_spline* > >(nrx,vector<gsl_spline* >(4)));
+      splineReceiveAngle.resize(ntx,vector<vector<gsl_spline* > >(nrx,vector<gsl_spline* >(4)));
       for(int i=0;i<ntx;i++){
 	for(int j=0;j<nrx;j++){    
 	  for (int irxtx = 0; irxtx < 4; irxtx++){
-	    spline[i][j][irxtx]= gsl_spline_alloc (gsl_interp_cspline, totalShowerPoints);
-	    gsl_spline_init (spline[i][j][irxtx], showerPointDist2Vertex, delta_t[i][j][irxtx].data(), totalShowerPoints);
+	    splineTime[i][j][irxtx]= gsl_spline_alloc (gsl_interp_cspline, totalShowerPoints);
+	    gsl_spline_init (splineTime[i][j][irxtx], showerPointDist2Vertex, rayTraceTimes[i][j][irxtx].data(), totalShowerPoints);
+
+	    splineLaunchAngle[i][j][irxtx]= gsl_spline_alloc (gsl_interp_cspline, totalShowerPoints);
+	    gsl_spline_init (splineLaunchAngle[i][j][irxtx], showerPointDist2Vertex, rayTraceLaunchAngle[i][j][irxtx].data(), totalShowerPoints);
+	    
+	    splineReceiveAngle[i][j][irxtx]= gsl_spline_alloc (gsl_interp_cspline, totalShowerPoints);
+	    gsl_spline_init (splineReceiveAngle[i][j][irxtx], showerPointDist2Vertex, rayTraceReceiveAngle[i][j][irxtx].data(), totalShowerPoints);
+
 	  }
 	}
       }
@@ -1046,9 +1335,9 @@ double RadioScatter::makeRays(TLorentzVector point, double e, double l, double e
 	//cout<<"<<<<<<<<<<<<<<<"<<event.targetEnergy<<" "<<event.nPrimaries<<" "<<event.primaryEnergy<<endl<<">>>>>>>>>>>>>"<<endl;
       }
     }
-
+  //cout<<"we are here 4"<<endl;
   if(SCALE_BY_ENERGY==1&&ENERGY_SCALING_SET==0){
-
+    //cout<<"we are here 5"<<endl;
     if(PRIMARY_ENERGY_SET==0){
       cout<<"The primary energy has not been set, but scaling has been enabled. Please tell radioscatter what the energy of the primary cascade particle is. If running within GEANT4, do this in RunAction() initialization. If not running in GEANT4, set directly with setPrimaryEnergy(), with the energy provided in MeV."<<endl;
       exit(0);
@@ -1057,14 +1346,17 @@ double RadioScatter::makeRays(TLorentzVector point, double e, double l, double e
       
     scaleByEnergy();
   }
-  
+  //cout<<"we are here 6"<<endl;
   if(ENERGY_SCALING_SET==1){
+    //cout<<"we are here 7"<<endl;
     auto pVec=point.Vect()-event.position;
     pVec.SetMag(pVec.Mag()*zscale);
     auto pointNew=pVec+event.position;
     point.SetXYZT(pointNew.X(), pointNew.Y(), pointNew.Z(), point.T()*tscale);
   }
 
+  //cout<<"we are here 8"<<endl;
+  
   //double zz=point.Z()*zscale;
   //double tt=point.T()*tscale;
 
@@ -1076,7 +1368,7 @@ double RadioScatter::makeRays(TLorentzVector point, double e, double l, double e
   
   for(int i=0;i<ntx;i++){
     for(int j=0;j<nrx;j++){
-
+     
       //would RF from the transmitter reached this point?
       if(checkTxOn(getTxTime(i,point))!=1)return 0;
 
@@ -1125,6 +1417,7 @@ double RadioScatter::makeRays(TLorentzVector point, double e, double l, double e
       
       TLorentzVector point_temp=point;      
       //are we calculating in a region where there is a boundary? (like in a test-beam setup
+      //cout<<"we are here 9 "<<endl;
       if(BOUNDARY_FLAG==1){
 	TVector3  q1 = findRefractionPlane(tx[i], point);//make a plane where the refraction will happen
 	TVector3 j1;
@@ -1140,7 +1433,7 @@ double RadioScatter::makeRays(TLorentzVector point, double e, double l, double e
 	l1.SetXYZ(q1.X()-tx_interface_dist[i], 0., q1.Z()-j1.Z());
 	TVector3 l2;
 	l2.SetXYZ(q2.X()-rx_interface_dist[j], 0., q2.Z()-j2.Z());
-
+	//cout<<"we are here 10 "<<endl;
 	if(USE_RAYTRACING==false){
 	  point_time=point_temp.T();
 	  double point_time_end=point_time+lifetime;
@@ -1162,37 +1455,53 @@ double RadioScatter::makeRays(TLorentzVector point, double e, double l, double e
 	    point_time+=samplingperiod;
 	    point_temp.SetT(point_time);
 	  }///while loop
-	  
+	  //cout<<"we are here 11 "<<endl;
 	}else{///add raytracing times since its on
-	  for (int irxtx = 0; irxtx < 4; irxtx++){
-	    double showerPoint=vec.Mag();
-	    double dt_time=gsl_spline_eval(spline[i][j][irxtx], showerPoint, acc);
+	 
+	  double showerPoint=vec.Mag();
+	  double tof_TxRay[2]={gsl_spline_eval(splineTime[i][j][0], showerPoint, acc), gsl_spline_eval(splineTime[i][j][1], showerPoint, acc)};
+	  double lA_TxRay[2]={gsl_spline_eval(splineLaunchAngle[i][j][0], showerPoint, acc),gsl_spline_eval(splineLaunchAngle[i][j][1], showerPoint, acc)};
+	  double rA_TxRay[2]={gsl_spline_eval(splineReceiveAngle[i][j][0], showerPoint, acc),gsl_spline_eval(splineReceiveAngle[i][j][1], showerPoint, acc)};
+	  double distanceFactor;
 	  
-	    point_time=point_temp.T()+dt_time;
-	    double point_time_end=point_time+lifetime;
-	    while(point_time<point_time_end){
-	      //get the reflected signal amplitude and phase
-	      rx_phase = getRxPhase(point_temp, j1, j2, l1, l2);
-	      rx_amplitude = getRxAmplitude(j, point_temp, j1, j2, l1, l2);
-	      rx_time = getRxTime(point_temp, j2, l2);
+	  for (int irxtx = 2; irxtx < 4; irxtx++){
+	 
+	    double tof_RxRay=gsl_spline_eval(splineTime[i][j][irxtx], showerPoint, acc);
+	    double lA_RxRay=gsl_spline_eval(splineLaunchAngle[i][j][irxtx], showerPoint, acc);
+	    double rA_RxRay=gsl_spline_eval(splineReceiveAngle[i][j][irxtx], showerPoint, acc);	    
 
-	      double E_real= prefactor*rx_amplitude*(omega*cos(rx_phase)+nu_col*sin(rx_phase));
-	      double E_imag = prefactor*rx_amplitude*(-nu_col*cos(rx_phase)+omega*sin(rx_phase));
-      
-	      if(abs(E_real)<tx_voltage){//simple sanity check, probably not needed      
-		time_hist[i][j]->Fill(rx_time, E_real);
-		re_hist[i][j]->Fill(rx_time, E_real);
-		im_hist[i][j]->Fill(rx_time, E_imag);
-	      }
-	      point_time+=samplingperiod;
-	      point_temp.SetT(point_time);
-	    }///while loop
+	    for (int itx = 0; itx < 2; itx++){
+	      distanceFactor=(tof_TxRay[itx]*tof_RxRay)*pow(c_light/m,2);
+	      
+	      point_time=point_temp.T();
+	      double point_time_end=point_time+lifetime;
+	      while(point_time<point_time_end){
+		//get the signal amplitude and phase
+		rx_time = point_time+tof_RxRay;  
+		rx_phase = getRxPhaseRT(point_temp, j1, j2, l1, l2,tof_TxRay[itx]);
+		rx_amplitude = getRxAmplitudeRT(j, point_temp, j1, j2, l1, l2, distanceFactor, lA_TxRay[itx], rA_TxRay[itx], lA_RxRay,rA_RxRay);	     
+
+		double E_real= prefactor*rx_amplitude*(omega*cos(rx_phase)+nu_col*sin(rx_phase));
+		double E_imag = prefactor*rx_amplitude*(-nu_col*cos(rx_phase)+omega*sin(rx_phase));
+     
+		if(abs(E_real)<tx_voltage){//simple sanity check, probably not needed
+		  time_hist[i][j]->Fill(rx_time, E_real);
+		  re_hist[i][j]->Fill(rx_time, E_real);
+		  im_hist[i][j]->Fill(rx_time, E_imag);
+		}
+		point_time+=samplingperiod;
+		point_temp.SetT(point_time);
+	      }///while loop
+	    }//itx loop
+	    
 	  }///irxtx loop
+	  //cout<<"we are here 12 "<<endl;
 	}///add raytracing else statement
 	
       }
       //assuming transmitter and interaction and receiver are in a medium with same refractive index.    
       else{
+	//cout<<"we are here 13 "<<endl;
 	if(USE_RAYTRACING==false){	  
 	  point_time=point_temp.T();
 	  double point_time_end=point_time+lifetime;
@@ -1213,36 +1522,54 @@ double RadioScatter::makeRays(TLorentzVector point, double e, double l, double e
 	    point_time+=samplingperiod;
 	    point_temp.SetT(point_time);
 	  }///while loop
-
+	
 	}else{///add raytracing times since raytracing is on
-	  for (int irxtx = 0; irxtx < 4; irxtx++){
-	    double showerPoint=vec.Mag();
-	    double dt_time=gsl_spline_eval(spline[i][j][irxtx], vec.Mag(), acc);
+	  //cout<<"we are here 14 "<<endl;
+	  double showerPoint=vec.Mag();
+	  double tof_TxRay[2]={gsl_spline_eval(splineTime[i][j][0], showerPoint, acc),gsl_spline_eval(splineTime[i][j][1], showerPoint, acc)};
+	  double lA_TxRay[2]={gsl_spline_eval(splineLaunchAngle[i][j][0], showerPoint, acc),gsl_spline_eval(splineLaunchAngle[i][j][1], showerPoint, acc)};
+	  double rA_TxRay[2]={gsl_spline_eval(splineReceiveAngle[i][j][0], showerPoint, acc),gsl_spline_eval(splineReceiveAngle[i][j][1], showerPoint, acc)};
+	  double distanceFactor;
+	  //cout<<"we are here 15 "<<endl;
+	  for (int irxtx = 2; irxtx < 4; irxtx++){
+	    //cout<<"we are here 16 "<<irxtx<<endl;
+	    double tof_RxRay=gsl_spline_eval(splineTime[i][j][irxtx], showerPoint, acc);
+	    double lA_RxRay=gsl_spline_eval(splineLaunchAngle[i][j][irxtx], showerPoint, acc);
+	    double rA_RxRay=gsl_spline_eval(splineReceiveAngle[i][j][irxtx], showerPoint, acc);	    
 	    
-	    point_time=point_temp.T()+dt_time;    	
-	    double point_time_end=point_time+lifetime;
-	    while(point_time<point_time_end){
-	      rx_phase=getRxPhase(i,j,point_temp);
-	      rx_amplitude=getRxAmplitude(i,j,point_temp);
-	      rx_time=getRxTime(j,point_temp);
+	    for (int itx = 0; itx < 2; itx++){
+	      distanceFactor=(tof_TxRay[itx]*tof_RxRay)*pow(c_light/m,2);
+	     
+	      //cout<<"we are here 17 "<<itx<<endl;
+	      point_time=point_temp.T();
+	      double point_time_end=point_time+lifetime;
+	      while(point_time<point_time_end){
+		//get the signal amplitude and phase
+		rx_time = point_time+tof_RxRay;
+		rx_phase= getRxPhaseRT(i, j, point_temp, point_time+tof_RxRay, point_time-tof_TxRay[itx]);
+		rx_amplitude=getRxAmplitudeRT(i,j,point_temp,distanceFactor,lA_TxRay[itx],rA_RxRay);		
 	  
-	      double E_real= prefactor*rx_amplitude*(omega*cos(rx_phase)+nu_col*sin(rx_phase));
-	      double E_imag = prefactor*rx_amplitude*(-nu_col*cos(rx_phase)+omega*sin(rx_phase));
-
-	      if(abs(E_real)<tx_voltage){//simple sanity check
-		time_hist[i][j]->Fill(rx_time, E_real);
-		re_hist[i][j]->Fill(rx_time, E_real);
-		im_hist[i][j]->Fill(rx_time, E_imag);
-	      }
-	      point_time+=samplingperiod;
-	      point_temp.SetT(point_time);
-
-	    }///while loop
-	  }///irxtx for loop
+		double E_real= prefactor*rx_amplitude*(omega*cos(rx_phase)+nu_col*sin(rx_phase));
+		double E_imag = prefactor*rx_amplitude*(-nu_col*cos(rx_phase)+omega*sin(rx_phase));
+     
+		if(abs(E_real)<tx_voltage){//simple sanity check, probably not needed
+		  time_hist[i][j]->Fill(rx_time, E_real);
+		  re_hist[i][j]->Fill(rx_time, E_real);
+		  im_hist[i][j]->Fill(rx_time, E_imag);
+		}
+		point_time+=samplingperiod;
+		point_temp.SetT(point_time);
+	      }///while loop
+	    }//itx loop
+	    //cout<<"we are here 18 "<<endl;
+	  }///irxtx loop
+	  //cout<<"we are here 15 "<<endl;
 	}///add raytracing else statement
 	
       }
+      //cout<<"we are here "<<i << j<<endl;
     }
+    
     return 1;
   }
 }
