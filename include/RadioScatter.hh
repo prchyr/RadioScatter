@@ -285,6 +285,10 @@ sets the scaling by energy.
 this function actually does the scaling. prior to it being called, it makes sure that all of the information is there, namely, the energy of the actual primary particle that makes the cascade, and the number of primaries, either via nprimaries or targetenergy.
   */
   int scaleByEnergy();
+
+  double zStretch(double z); ///<this is a function to return the stretch factor along the momentum direction of the cascade.
+  double tStretch(double t); ///<this is a function to return the stretch factor in time.
+  
   void setPlasmaLifetime(double l);  ///<set the plasma lifetime in nanoseconds
 
   void setPolarization(TVector3 p);  ///<set the antenna polarization using a 3 vector.

@@ -324,26 +324,87 @@ int RadioScatter::setScaleByEnergy(double val){
     SCALE_BY_ENERGY=1;
   }
 }
+
+
+double RadioScatter::zStretch(double z){
+  if(NPRIMARIES_SET==1&&PRIMARY_ENERGY_SET==1){
+    if(TARGET_ENERGY_SET!=1){
+      setTargetEnergy(event.primaryEnergy*event.nPrimaries);
+    }
+
+    auto E_t=event.targetEnergy;
+    auto E_p=event.primaryEnergy;
+
+    auto A1 = 992.5;
+    auto B1= 0.00336;
+    auto A2= 0.6;
+    auto B2 =0.6;
+    auto D = 174.543;// mm (For 10 GeV primary)
+    auto E = 1439.3;// mm (For 10 GeV primary)
+  
+    auto C=D*log(E_p)-E;// = 174.543*np.log(10000) -1439.3 = 168.3 mm
+    auto z_max = A1*log10(B1*E_p);// - > 992.5*log10(0.00336*10000) = 1514.9 mm (close enough to 1.515m at 10 GeV)
+    auto s_vz=log10(E_t/78.6)/log10(E_p/78.6);
+    auto s_z=s_vz-(s_vz-1)*exp(-pow((A2*z_max/z),B2));
+
+    return z*s_z+C*log10(E_t/E_p);
+  }
+}
+
+double RadioScatter::tStretch(double t){
+  if(NPRIMARIES_SET==1&&PRIMARY_ENERGY_SET==1){
+    if(TARGET_ENERGY_SET!=1){
+      setTargetEnergy(event.primaryEnergy*event.nPrimaries);
+    }
+
+    auto E_t=event.targetEnergy;
+    auto E_p=event.primaryEnergy;
+
+    auto A1 = 2.675;
+    auto B1= 0.0175;
+    auto A2= 1.3;
+    auto B2 =0.6;
+    auto D = 0.6;// ns (For 10 GeV primary)
+    auto E = 5.076;// ns (For 10 GeV primary)
+    auto C=D*log(E_p)-E;// = 0.6*np.log(10000) -5.076 = 0.45 ns
+    auto t_max = A1*log10(B1*E_p);// - > 2.675*log10(0.0175*10000) = 6 ns
+    auto s_vx=log10(E_t/78.6)/log10(E_p/78.6);
+    auto s_t=s_vx-(s_vx-1)*exp(-pow((A2*t_max/t),B2));
+    return t*s_t+C*log(E_t/E_p);
+  }
+}
   
 int RadioScatter::scaleByEnergy(){
   if(NPRIMARIES_SET==1&&PRIMARY_ENERGY_SET==1){
     if(TARGET_ENERGY_SET!=1){
       setTargetEnergy(event.primaryEnergy*event.nPrimaries);
     }
-        
-    zscale = (3.*log10(event.targetEnergy)+6.)/((log10(event.primaryEnergy)*3.)+6);
-    tscale = (10.*log10(event.targetEnergy)+22.)/((log10(event.primaryEnergy)*10.)+22);
-    //from V. Lukic, empirical fits to GEANT4 cascades
-    // auto a = 6783.485;
-    // auto b = 0.14;
-    // zscale = pow(event.targetEnergy/a, b)/pow(event.primaryEnergy/a, b);
-    // auto c = 9746.134;
-    // auto d = 0.16;
-    // zscale = pow(event.targetEnergy/c, d)/pow(event.primaryEnergy/c, d);
+    //original, hacky scaling  
+    //zscale = (3.*log10(event.targetEnergy)+6.)/((log10(event.primaryEnergy)*3.)+6);
+    //tscale = (10.*log10(event.targetEnergy)+22.)/((log10(event.primaryEnergy)*10.)+22);
     
-    std::cout<<"scaling activated. zscale="<<zscale<<" , tscale="<<tscale<<std::endl;
+    //from V. Lukic, empirical fits to GEANT4 cascades
+    //
+    // E_t=event.targetEnergy;
+    // E_p=event.primaryEnergy;
 
-    //cout<<"__________________"<<endl<<" "<<event.primaryEnergy<<" "<<event.targetEnergy<<" "<<event.nPrimaries<<endl<<"______________"<<endl;
+    // A1 = 992.5;
+    // B1= 0.00336;
+    // A2= 0.6;
+    // B2 =0.6;
+    // D = 174.543;// mm (For 10 GeV primary)
+    // E = 1439.3;// mm (For 10 GeV primary)
+  
+    // C=D*log(E_p)-E;// = 174.543*log(10000) -1439.3 = 168.3 mm
+    // x_max = A1*log10(B1*E_p);// - > 992.5*log10(0.00336*10000) = 1514.9 mm (close enough to 1.515m at 10 GeV)
+    // s_vx=log10(E_t/78.6)/log10(E_p/78.6);
+    // s_x=s_vx-(s_vx-1)*exp(-(A2*x_max/x)**B2);
+
+    // zscale=s_x+C*log10(E_t/E_p)
+
+    // std::cout<<"stretching activated. zstretch="<<zscale<<" , tstretch="<<tscale<<std::endl;
+
+    // //cout<<"__________________"<<endl<<" "<<event.primaryEnergy<<" "<<event.targetEnergy<<" "<<event.nPrimaries<<endl<<"______________"<<endl;
     
     ENERGY_SCALING_SET=1;
     return 1;
@@ -809,15 +870,15 @@ double RadioScatter::makeRays(TLorentzVector point, double e, double l, double e
       exit(0);
     }
     
-      
-    scaleByEnergy();
+    ENERGY_SCALING_SET=1;
+    //scaleByEnergy();
   }
   
   if(ENERGY_SCALING_SET==1){
     auto pVec=point.Vect()-event.position;
-    pVec.SetMag(pVec.Mag()*zscale);
+    pVec.SetMag(zStretch(pVec.Mag()));
     auto pointNew=pVec+event.position;
-    point.SetXYZT(pointNew.X(), pointNew.Y(), pointNew.Z(), point.T()*tscale);
+    point.SetXYZT(pointNew.X(), pointNew.Y(), pointNew.Z(), tStretch(point.T()));
   }
 
   //double zz=point.Z()*zscale;
