@@ -147,9 +147,12 @@ public:
   vector <vector <vector <gsl_spline* > > > splineTime;
   vector <vector <vector <gsl_spline* > > > splineLaunchAngle;
   vector <vector <vector <gsl_spline* > > > splineReceiveAngle;
+  vector <vector <vector <gsl_spline* > > > splineAttenuation;
+
   vector <vector <vector <vector <double> > > > rayTraceTimes;
   vector <vector <vector <vector <double> > > > rayTraceLaunchAngle;
   vector <vector <vector <vector <double> > > > rayTraceReceiveAngle;
+  vector <vector <vector <vector <double> > > > rayTraceAttenuation;
   double showerPointDist2Vertex[totalShowerPoints];
   
   ///<some histograms 
@@ -386,9 +389,9 @@ private:
    */
 double getTxAmplitude(int index,TLorentzVector point);
   double getRxAmplitude(int index, TLorentzVector point, TVector3 j1,  TVector3 j2, TVector3 l1, TVector3 l2);
-  double getRxAmplitudeRT(int index,TLorentzVector point, TVector3 j1, TVector3 j2, TVector3 l1, TVector3 l2, double distanceFactor, double alpha1, double alpha_prime1, double alpha2,double alpha_prime2);
+  double getRxAmplitudeRT(int index,TLorentzVector point, TVector3 j1, TVector3 j2, TVector3 l1, TVector3 l2, double distanceFactor, double alpha1, double alpha_prime1, double alpha2,double alpha_prime2, double attenuationFactor);
   double getRxAmplitude(int txindex, int rxindex, TLorentzVector point);
-  double getRxAmplitudeRT(int txindex,int rxindex, TLorentzVector point,double distanceFactor, double TxLaunchAngle, double ShowerLaunchAngle);
+  double getRxAmplitudeRT(int txindex,int rxindex, TLorentzVector point,double distanceFactor, double TxLaunchAngle, double ShowerLaunchAngle, double attenuationFactor);
   double getTxPhase(double t_0);
   double getRxTime(TLorentzVector point, TVector3 j, TVector3 l);
   double getRxTime(int index,TLorentzVector point);

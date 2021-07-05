@@ -574,7 +574,7 @@ use the calculated refraction vectors (from makeRays()) to sort out the correct 
   return amplitude;
 }
 
-double RadioScatter::getRxAmplitudeRT(int index,TLorentzVector point, TVector3 j1, TVector3 j2, TVector3 l1, TVector3 l2, double distanceFactor, double alpha1, double alpha_prime1, double alpha2,double alpha_prime2){
+double RadioScatter::getRxAmplitudeRT(int index,TLorentzVector point, TVector3 j1, TVector3 j2, TVector3 l1, TVector3 l2, double distanceFactor, double alpha1, double alpha_prime1, double alpha2,double alpha_prime2, double attenuationFactor){
   //  double dist = ((j1.Mag()+j2.Mag())/m)*((l1.Mag()+l2.Mag())/m);
   // //refraction things:
 
@@ -624,8 +624,9 @@ double RadioScatter::getRxAmplitudeRT(int index,TLorentzVector point, TVector3 j
 
   double amplitude = ((tx_voltage*txFactor)/distanceFactor)*amp1*amp2*angle_dependence;
   if(useAttnLengthFlag==1){
-    double attn_dist = (j1.Mag()+j2.Mag())+(l1.Mag()+l2.Mag());
-    amplitude=amplitude*exp(-attn_dist/attnLength);
+    //double attn_dist = (j1.Mag()+j2.Mag())+(l1.Mag()+l2.Mag());
+    //amplitude=amplitude*exp(-attn_dist/attnLength)attenuationFactor;
+    amplitude=amplitude*attenuationFactor;
   }
   return amplitude;
 }
@@ -654,7 +655,7 @@ double RadioScatter::getRxAmplitude(int txindex,int rxindex, TLorentzVector poin
 }
 
 //non-refracted amplitude
-double RadioScatter::getRxAmplitudeRT(int txindex,int rxindex, TLorentzVector point,double distanceFactor, double TxLaunchAngle, double ShowerLaunchAngle){
+double RadioScatter::getRxAmplitudeRT(int txindex,int rxindex, TLorentzVector point,double distanceFactor, double TxLaunchAngle, double ShowerLaunchAngle, double attenuationFactor){
   //double dist = ((tx[txindex].Vect()-point.Vect()).Mag()/m)*((rx[rxindex].Vect()-point.Vect()).Mag()/m);//here we've used the product of the distances as the radiated amplitude E~(E_0/R_1)/R_2. 
 
   TVector3 one=tx[txindex].Vect()-point.Vect();
@@ -671,8 +672,9 @@ double RadioScatter::getRxAmplitudeRT(int txindex,int rxindex, TLorentzVector po
 
   double amplitude = ((tx_voltage*txFactor)/distanceFactor)*angle_dependence;
   if(useAttnLengthFlag==1){
-    double attn_dist = ((tx[txindex].Vect()-point.Vect()).Mag())+((rx[rxindex].Vect()-point.Vect()).Mag());//here the overall attenuation is just calculated over the full path length. 
-    amplitude=amplitude*exp(-attn_dist/attnLength);
+    // double attn_dist = ((tx[txindex].Vect()-point.Vect()).Mag())+((rx[rxindex].Vect()-point.Vect()).Mag());//here the overall attenuation is just calculated over the full path length. 
+    // amplitude=amplitude*exp(-attn_dist/attnLength);
+    amplitude=amplitude*attenuationFactor;
   }
 
   return amplitude;
@@ -1256,7 +1258,7 @@ double RadioScatter::makeRays(TLorentzVector point, double e, double l, double e
       rayTraceTimes.resize(ntx,vector<vector<vector<double> > >(nrx,vector<vector<double> >(4,vector<double>(totalShowerPoints))));
       rayTraceLaunchAngle.resize(ntx,vector<vector<vector<double> > >(nrx,vector<vector<double> >(4,vector<double>(totalShowerPoints))));
       rayTraceReceiveAngle.resize(ntx,vector<vector<vector<double> > >(nrx,vector<vector<double> >(4,vector<double>(totalShowerPoints))));
-      //rayTraceAttenuation.resize(ntx,vector<vector<vector<double> > >(nrx,vector<vector<double> >(4,vector<double>(totalShowerPoints))));
+      rayTraceAttenuation.resize(ntx,vector<vector<vector<double> > >(nrx,vector<vector<double> >(4,vector<double>(totalShowerPoints))));
        
       TVector3 showerStart=TVector3(event.position);
       TVector3 stretch=TVector3(event.direction);
@@ -1293,10 +1295,10 @@ double RadioScatter::makeRays(TLorentzVector point, double e, double l, double e
 	    rayTraceReceiveAngle[i][j][2][insh]=rayTracePar[10];
 	    rayTraceReceiveAngle[i][j][3][insh]=rayTracePar[11];
 
-	    // rayTraceAttenuation[i][j][0][insh]=rayTracePar[12];
-	    // rayTraceAttenuation[i][j][1][insh]=rayTracePar[13];
-	    // rayTraceAttenuation[i][j][2][insh]=rayTracePar[14];
-	    // rayTraceAttenuation[i][j][3][insh]=rayTracePar[15];	 
+	    rayTraceAttenuation[i][j][0][insh]=rayTracePar[12];
+	    rayTraceAttenuation[i][j][1][insh]=rayTracePar[13];
+	    rayTraceAttenuation[i][j][2][insh]=rayTracePar[14];
+	    rayTraceAttenuation[i][j][3][insh]=rayTracePar[15];	 
 	    
 	    //cout<<"delta ts are "<<i<<" "<<j<<" "<<insh<<" "<<rayTraceTimes[i][j][0][insh]<<" "<<rayTraceTimes[i][j][1][insh]<<" "<<rayTraceTimes[i][j][2][insh]<<" "<<rayTraceTimes[i][j][3][insh]<<endl;
 	    //cout<<"delta ts are "<<i<<" "<<j<<" "<<insh<<" "<<rayTraceTimes[0]<<" "<<rayTraceTimes[1]<<" "<<rayTraceTimes[2]<<" "<<rayTraceTimes[3]<<" "<<shwrPropTime<<endl;
@@ -1308,6 +1310,8 @@ double RadioScatter::makeRays(TLorentzVector point, double e, double l, double e
       splineTime.resize(ntx,vector<vector<gsl_spline* > >(nrx,vector<gsl_spline* >(4)));
       splineLaunchAngle.resize(ntx,vector<vector<gsl_spline* > >(nrx,vector<gsl_spline* >(4)));
       splineReceiveAngle.resize(ntx,vector<vector<gsl_spline* > >(nrx,vector<gsl_spline* >(4)));
+      splineAttenuation.resize(ntx,vector<vector<gsl_spline* > >(nrx,vector<gsl_spline* >(4)));
+      
       for(int i=0;i<ntx;i++){
 	for(int j=0;j<nrx;j++){    
 	  for (int irxtx = 0; irxtx < 4; irxtx++){
@@ -1320,6 +1324,8 @@ double RadioScatter::makeRays(TLorentzVector point, double e, double l, double e
 	    splineReceiveAngle[i][j][irxtx]= gsl_spline_alloc (gsl_interp_cspline, totalShowerPoints);
 	    gsl_spline_init (splineReceiveAngle[i][j][irxtx], showerPointDist2Vertex, rayTraceReceiveAngle[i][j][irxtx].data(), totalShowerPoints);
 
+	    splineAttenuation[i][j][irxtx]= gsl_spline_alloc (gsl_interp_cspline, totalShowerPoints);
+	    gsl_spline_init (splineAttenuation[i][j][irxtx], showerPointDist2Vertex, rayTraceAttenuation[i][j][irxtx].data(), totalShowerPoints);
 	  }
 	}
       }
@@ -1433,7 +1439,7 @@ double RadioScatter::makeRays(TLorentzVector point, double e, double l, double e
 	l1.SetXYZ(q1.X()-tx_interface_dist[i], 0., q1.Z()-j1.Z());
 	TVector3 l2;
 	l2.SetXYZ(q2.X()-rx_interface_dist[j], 0., q2.Z()-j2.Z());
-	//cout<<"we are here 10 "<<endl;
+	
 	if(USE_RAYTRACING==false){
 	  point_time=point_temp.T();
 	  double point_time_end=point_time+lifetime;
@@ -1455,20 +1461,22 @@ double RadioScatter::makeRays(TLorentzVector point, double e, double l, double e
 	    point_time+=samplingperiod;
 	    point_temp.SetT(point_time);
 	  }///while loop
-	  //cout<<"we are here 11 "<<endl;
 	}else{///add raytracing times since its on
 	 
 	  double showerPoint=vec.Mag();
 	  double tof_TxRay[2]={gsl_spline_eval(splineTime[i][j][0], showerPoint, acc), gsl_spline_eval(splineTime[i][j][1], showerPoint, acc)};
 	  double lA_TxRay[2]={gsl_spline_eval(splineLaunchAngle[i][j][0], showerPoint, acc),gsl_spline_eval(splineLaunchAngle[i][j][1], showerPoint, acc)};
 	  double rA_TxRay[2]={gsl_spline_eval(splineReceiveAngle[i][j][0], showerPoint, acc),gsl_spline_eval(splineReceiveAngle[i][j][1], showerPoint, acc)};
+	  double att_TxRay[2]={gsl_spline_eval(splineAttenuation[i][j][0], showerPoint, acc),gsl_spline_eval(splineAttenuation[i][j][1], showerPoint, acc)};
+	  
 	  double distanceFactor;
 	  
 	  for (int irxtx = 2; irxtx < 4; irxtx++){
 	 
 	    double tof_RxRay=gsl_spline_eval(splineTime[i][j][irxtx], showerPoint, acc);
 	    double lA_RxRay=gsl_spline_eval(splineLaunchAngle[i][j][irxtx], showerPoint, acc);
-	    double rA_RxRay=gsl_spline_eval(splineReceiveAngle[i][j][irxtx], showerPoint, acc);	    
+	    double rA_RxRay=gsl_spline_eval(splineReceiveAngle[i][j][irxtx], showerPoint, acc);
+	    double att_RxRay=gsl_spline_eval(splineAttenuation[i][j][irxtx], showerPoint, acc);
 
 	    for (int itx = 0; itx < 2; itx++){
 	      distanceFactor=(tof_TxRay[itx]*tof_RxRay)*pow(c_light/m,2);
@@ -1479,7 +1487,7 @@ double RadioScatter::makeRays(TLorentzVector point, double e, double l, double e
 		//get the signal amplitude and phase
 		rx_time = point_time+tof_RxRay;  
 		rx_phase = getRxPhaseRT(point_temp, j1, j2, l1, l2,tof_TxRay[itx]);
-		rx_amplitude = getRxAmplitudeRT(j, point_temp, j1, j2, l1, l2, distanceFactor, lA_TxRay[itx], rA_TxRay[itx], lA_RxRay,rA_RxRay);	     
+		rx_amplitude = getRxAmplitudeRT(j, point_temp, j1, j2, l1, l2, distanceFactor, lA_TxRay[itx], rA_TxRay[itx], lA_RxRay,rA_RxRay,att_RxRay*att_TxRay[itx]);
 
 		double E_real= prefactor*rx_amplitude*(omega*cos(rx_phase)+nu_col*sin(rx_phase));
 		double E_imag = prefactor*rx_amplitude*(-nu_col*cos(rx_phase)+omega*sin(rx_phase));
@@ -1493,9 +1501,7 @@ double RadioScatter::makeRays(TLorentzVector point, double e, double l, double e
 		point_temp.SetT(point_time);
 	      }///while loop
 	    }//itx loop
-	    
 	  }///irxtx loop
-	  //cout<<"we are here 12 "<<endl;
 	}///add raytracing else statement
 	
       }
@@ -1524,30 +1530,31 @@ double RadioScatter::makeRays(TLorentzVector point, double e, double l, double e
 	  }///while loop
 	
 	}else{///add raytracing times since raytracing is on
-	  //cout<<"we are here 14 "<<endl;
+	  
 	  double showerPoint=vec.Mag();
 	  double tof_TxRay[2]={gsl_spline_eval(splineTime[i][j][0], showerPoint, acc),gsl_spline_eval(splineTime[i][j][1], showerPoint, acc)};
 	  double lA_TxRay[2]={gsl_spline_eval(splineLaunchAngle[i][j][0], showerPoint, acc),gsl_spline_eval(splineLaunchAngle[i][j][1], showerPoint, acc)};
 	  double rA_TxRay[2]={gsl_spline_eval(splineReceiveAngle[i][j][0], showerPoint, acc),gsl_spline_eval(splineReceiveAngle[i][j][1], showerPoint, acc)};
+	  double att_TxRay[2]={gsl_spline_eval(splineAttenuation[i][j][0], showerPoint, acc),gsl_spline_eval(splineAttenuation[i][j][1], showerPoint, acc)};
+	  
 	  double distanceFactor;
-	  //cout<<"we are here 15 "<<endl;
+
 	  for (int irxtx = 2; irxtx < 4; irxtx++){
-	    //cout<<"we are here 16 "<<irxtx<<endl;
 	    double tof_RxRay=gsl_spline_eval(splineTime[i][j][irxtx], showerPoint, acc);
 	    double lA_RxRay=gsl_spline_eval(splineLaunchAngle[i][j][irxtx], showerPoint, acc);
 	    double rA_RxRay=gsl_spline_eval(splineReceiveAngle[i][j][irxtx], showerPoint, acc);	    
+	    double att_RxRay=gsl_spline_eval(splineAttenuation[i][j][irxtx], showerPoint, acc);
 	    
 	    for (int itx = 0; itx < 2; itx++){
 	      distanceFactor=(tof_TxRay[itx]*tof_RxRay)*pow(c_light/m,2);
 	     
-	      //cout<<"we are here 17 "<<itx<<endl;
 	      point_time=point_temp.T();
 	      double point_time_end=point_time+lifetime;
 	      while(point_time<point_time_end){
 		//get the signal amplitude and phase
 		rx_time = point_time+tof_RxRay;
 		rx_phase= getRxPhaseRT(i, j, point_temp, point_time+tof_RxRay, point_time-tof_TxRay[itx]);
-		rx_amplitude=getRxAmplitudeRT(i,j,point_temp,distanceFactor,lA_TxRay[itx],rA_RxRay);		
+		rx_amplitude=getRxAmplitudeRT(i,j,point_temp,distanceFactor,lA_TxRay[itx],rA_RxRay,att_RxRay*att_TxRay[itx]);		
 	  
 		double E_real= prefactor*rx_amplitude*(omega*cos(rx_phase)+nu_col*sin(rx_phase));
 		double E_imag = prefactor*rx_amplitude*(-nu_col*cos(rx_phase)+omega*sin(rx_phase));
@@ -1561,17 +1568,13 @@ double RadioScatter::makeRays(TLorentzVector point, double e, double l, double e
 		point_temp.SetT(point_time);
 	      }///while loop
 	    }//itx loop
-	    //cout<<"we are here 18 "<<endl;
+	   
 	  }///irxtx loop
-	  //cout<<"we are here 15 "<<endl;
 	}///add raytracing else statement
-	
       }
-      //cout<<"we are here "<<i << j<<endl;
-    }
-    
+    }/// j loop over nrx
     return 1;
-  }
+  }/// i loop over ntx
 }
 
 
