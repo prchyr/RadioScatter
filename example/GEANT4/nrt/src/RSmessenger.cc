@@ -26,10 +26,19 @@ RSmessenger::RSmessenger(RadioScatter *rscat)
   receiverGainCommand->SetGuidance("set receiverGain!");
   receiverGainCommand->SetParameterName("choice", false);
 
+  rxGainCommand = new G4UIcmdWithADouble("/RS/setRxGain", this);
+  rxGainCommand->SetGuidance("set rxGain!");
+  rxGainCommand->SetParameterName("choice", false);
+
   transmitterGainCommand = new G4UIcmdWithADouble("/RS/setTransmitterGain", this);
   transmitterGainCommand->SetGuidance("set transmitterGain!");
   transmitterGainCommand->SetParameterName("choice", false);
 
+  txGainCommand = new G4UIcmdWithADouble("/RS/setTxGain", this);
+  txGainCommand->SetGuidance("set txGain!");
+  txGainCommand->SetParameterName("choice", false);
+
+  
   windowLengthCommand = new G4UIcmdWithADouble("/RS/setRecordWindowLength", this);
   windowLengthCommand->SetGuidance("set the length of receiver record window");
   windowLengthCommand->SetParameterName("choice", false);
@@ -89,6 +98,10 @@ RSmessenger::RSmessenger(RadioScatter *rscat)
   setScaleByEnergyCommand->SetGuidance("set scale by energy!");
   setScaleByEnergyCommand->SetParameterName("choice", false);
 
+  setUseRayTracingCommand = new G4UIcmdWithADouble("/RS/setUseRayTracing", this);
+  setUseRayTracingCommand->SetGuidance("set use ray tracing!");
+  setUseRayTracingCommand->SetParameterName("choice", false);
+
     setPrimaryEnergyCommand = new G4UIcmdWithADoubleAndUnit("/RS/setPrimaryEnergy", this);
   setPrimaryEnergyCommand->SetGuidance("set primary energy!");
   setPrimaryEnergyCommand->SetDefaultUnit("GeV");
@@ -147,12 +160,16 @@ RSmessenger::~RSmessenger()
   delete setNRxCommand;
   delete lifetimeCommand;
   delete receiverGainCommand;
+  delete rxGainCommand;
+  delete transmitterGainCommand;
+  delete txGainCommand;
   delete windowLengthCommand;
   delete setFillByEventCommand;
   delete makeSummaryCommand;
   delete setPrimaryEnergyCommand;
   delete setTargetEnergyCommand;
   delete setScaleByEnergyCommand;
+  delete setUseRayTracingCommand;
   delete setCrossSectionCommand;
   delete setFillParticleInfoCommand;
   delete setParticleInfoFilenameCommand;
@@ -177,11 +194,14 @@ void RSmessenger::SetNewValue(G4UIcommand* command,G4String newValue)
   if(command==setNRxCommand)rs->setNRx(val);
   if(command==setCrossSectionCommand)rs->setCrossSection(val);
   if(command==receiverGainCommand)rs->setReceiverGain(val);
+  if(command==rxGainCommand)rs->setReceiverGain(val);
   if(command==transmitterGainCommand)rs->setTransmitterGain(val);
+  if(command==txGainCommand)rs->setTransmitterGain(val);
   if(command==makeSummaryCommand)rs->setMakeSummary(val);
   if(command==setPrimaryEnergyCommand)rs->setPrimaryEnergy(setPrimaryEnergyCommand->GetNewDoubleValue(newValue));
   if(command==setTargetEnergyCommand)rs->setTargetEnergy(setTargetEnergyCommand->GetNewDoubleValue(newValue));
   if(command==setScaleByEnergyCommand)rs->setScaleByEnergy(val);
+    if(command==setUseRayTracingCommand)rs->setUseRayTracing(val);
   if(command==lifetimeCommand)rs->setPlasmaLifetime(val);
   if(command==setFillByEventCommand)rs->setFillByEvent(val);
   if(command==setFillParticleInfoCommand)rs->setFillParticleInfo(val);

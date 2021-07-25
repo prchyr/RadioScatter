@@ -28,11 +28,14 @@ private:
   G4UIcmdWithADouble*        voltageCommand;
   G4UIcmdWithADouble*        makeSummaryCommand;
   G4UIcmdWithADouble*        receiverGainCommand;
+  G4UIcmdWithADouble*        rxGainCommand;
   G4UIcmdWithADouble*        transmitterGainCommand;
+  G4UIcmdWithADouble*        txGainCommand;
   G4UIcmdWithADouble*        powerCommand;
   G4UIcmdWithADoubleAndUnit*        setPrimaryEnergyCommand;
   G4UIcmdWithADoubleAndUnit*        setTargetEnergyCommand;
   G4UIcmdWithADouble*        setScaleByEnergyCommand;
+  G4UIcmdWithADouble*        setUseRayTracingCommand;
   G4UIcmdWithADouble*        setCrossSectionCommand;
   G4UIcmdWithADouble*        lifetimeCommand;
   G4UIcmdWithADouble*        windowLengthCommand;
