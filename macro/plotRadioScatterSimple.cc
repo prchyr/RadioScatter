@@ -16,5 +16,5 @@ void plotRadioScatterSimple(TString infile, int antenna=0, int entry=0){
   //get whatever entry you specified (first entry is default)
   tree->GetEntry(entry);
   //plot it.
-  event->plotEvent(0,antenna, 1, 0, 120, 100);
+  event->plotEvent(0,antenna, 0, 0, 120, 100);
 }
