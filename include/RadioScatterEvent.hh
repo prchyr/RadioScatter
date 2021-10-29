@@ -130,6 +130,7 @@ public:
   TH1F* makeBackgroundSubtractHist(int txindex, int rxindex, TString bfile);
   double peakFreq(int txindex, int rxindex);
   double bandWidth();
+  //peak voltage (absolute value of the highest voltage)
   double peakV(int txindex, int rxindex);
   double effectiveCrossSection(int txindex, int rxindex);
   double rms(int txindex, int rxindex);

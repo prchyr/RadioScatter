@@ -105,7 +105,9 @@ double RadioScatterEvent::thermalNoiseRMS(){
 }
 
 double RadioScatterEvent::peakV(int txindex, int rxindex){
-  return reHist[txindex][rxindex]->GetMaximum();
+  auto maxx=reHist[txindex][rxindex]->GetMaximum();
+  auto minn=abs(reHist[txindex][rxindex]->GetMinimum());
+  return maxx>minn?maxx:minn;
 }
 
 double RadioScatterEvent::primaryParticleEnergy(){
