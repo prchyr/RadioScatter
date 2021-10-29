@@ -386,7 +386,11 @@ TH1F* RadioScatterEvent::makeBackgroundSubtractHist(int txindex, int rxindex, TS
 }
 
 
-int RadioScatterEvent::plotEvent(int txindex, int rxindex, double noise_flag, int show_geom, int bins, int overlap, int logFlag){
+int RadioScatterEvent::plotEvent(int txindex, int rxindex, double noise_flag, int show_geom, int bins, int overlap, int logFlag, double ymin, double ymax){
+  if(ymin==-1||ymax==-1){
+    ymin=0;
+    ymax=(sampleRate/2.)-(sampleRate/bins);
+  }
   // TCanvas *c=0;
   TSeqCollection *canlist = gROOT->GetListOfCanvases();
   TCanvas *openc = (TCanvas*)canlist->At(canlist->GetEntries()-1);
@@ -478,7 +482,7 @@ int RadioScatterEvent::plotEvent(int txindex, int rxindex, double noise_flag, in
   // ccc->cd(3);
   //  g.plot(vals, "with lines");
 
-  auto spec=TUtilRadioScatter::FFT::spectrogram(evG, bins, overlap, bins*2, 2, logFlag,0,(sampleRate/2.)-(sampleRate/bins));
+  auto spec=TUtilRadioScatter::FFT::spectrogram(evG, bins, overlap, bins*2, 2, logFlag,ymin, ymax);
   gPad->SetBottomMargin(.12);
   gPad->SetRightMargin(.19);
   gPad->SetLeftMargin(.15);
@@ -584,8 +588,11 @@ int RadioScatterEvent::plotEvent(int txindex, int rxindex, double noise_flag, in
   
 }
 
-int RadioScatterEvent::plotEventNotebook(int txindex, int rxindex, double noise_flag, int show_geom, int bins, int overlap, int logFlag){
-
+int RadioScatterEvent::plotEventNotebook(int txindex, int rxindex, double noise_flag, int show_geom, int bins, int overlap, int logFlag, double ymin, double ymax){
+  if(ymin==-1||ymax==-1){
+    ymin=0;
+    ymax=(sampleRate/2.)-(sampleRate/bins);
+  }
   TCanvas * ccc = new TCanvas("", "", 800, 400);
 
   ccc->SetName("plotEvent");
@@ -639,7 +646,7 @@ int RadioScatterEvent::plotEventNotebook(int txindex, int rxindex, double noise_
   // fft->Draw();
   // ccc->cd(3);
   //  g.plot(vals, "with lines");
-  auto spec=TUtilRadioScatter::FFT::spectrogram(evG, bins, overlap, bins*2, logFlag, 2,0,(sampleRate/2.)-(sampleRate/bins));
+  auto spec=TUtilRadioScatter::FFT::spectrogram(evG, bins, overlap, bins*2, logFlag, 2,ymin, ymax);
   gPad->SetBottomMargin(.12);
   gPad->SetRightMargin(.19);
   gPad->SetLeftMargin(.15);
