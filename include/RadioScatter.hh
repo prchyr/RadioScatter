@@ -139,7 +139,8 @@ public:
  
   double n_rel=1.5; ///<relative index of refraction, calculated to always be >1.
 
-  
+  //a function for the lifetime
+  TF1 * lifetimeFunc=0;
 
   ///<some histograms 
   TH1F *fft_hist, *power_hist;

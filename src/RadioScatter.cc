@@ -480,6 +480,8 @@ void RadioScatter::setPolarization(TVector3 p){//const char * p){
 
 void RadioScatter::setPlasmaLifetime(double l){
   lifetime=l;
+  lifetimeFunc=new TF1("lifetime", "exp(-x/[0])", 0, 50);
+  lifetimeFunc->SetParameter(0,lifetime);
 }
 void RadioScatter::setRxVals(double s=1., double gain=1.){
     samplerate = s*ns;
@@ -965,7 +967,7 @@ double RadioScatter::makeRays(TLorentzVector point, double e, double l, double e
 
 
 	point_time=point_temp.T();
-	double point_time_end=point_time+lifetime;
+	double point_time_end=point_time+lifetimeFunc->GetRandom();
 	while(point_time<point_time_end){
 	  //get the reflected signal amplitude and phase
 	  rx_phase = getRxPhase(point_temp, j1, j2, l1, l2);
