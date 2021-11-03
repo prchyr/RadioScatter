@@ -967,7 +967,9 @@ double RadioScatter::makeRays(TLorentzVector point, double e, double l, double e
 
 
 	point_time=point_temp.T();
-	double point_time_end=point_time+lifetimeFunc->GetRandom();
+	auto randLifetime=lifetimeFunc->GetRandom();
+	double point_time_end=point_time+randLifetime;
+	//std::cout<<randLifetime<<endl;
 	while(point_time<point_time_end){
 	  //get the reflected signal amplitude and phase
 	  rx_phase = getRxPhase(point_temp, j1, j2, l1, l2);
@@ -992,7 +994,9 @@ double RadioScatter::makeRays(TLorentzVector point, double e, double l, double e
       //assuming transmitter and interaction and receiver are in a medium with same refractive index.    
       else{
 	point_time=point_temp.T();
-	double point_time_end=point_time+lifetime;
+	auto randLifetime=lifetimeFunc->GetRandom();
+	double point_time_end=point_time+randLifetime;
+	//	std::cout<<randLifetime<<endl;
 	while(point_time<point_time_end){
 	  rx_phase=getRxPhase(i,j,point_temp);
 	  rx_amplitude=getRxAmplitude(i,j,point_temp);
