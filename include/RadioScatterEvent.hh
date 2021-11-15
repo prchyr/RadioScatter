@@ -110,6 +110,7 @@ public:
   int SINE_SUBTRACT=0;
   int ntx=1;
   int nrx=1;
+  int evtNo=0;
   //plotting things
 
   TH1F *  getComplexEnvelope(int txindex, int rxindex,double cutoff=0);
@@ -150,7 +151,7 @@ public:
   int triggered(double thresh, int n_antennas=1);
   int nTriggered(double thresh);
   int trigSingle(double thresh, int ant=0);
-
+  void eventToTxt(int txindex, int rxindex, double addNoise=0.);
   //pointing things
 
   //TLorentzVector findSource(int debug=0);
@@ -158,8 +159,6 @@ public:
   int buildMap();
   TLorentzVector pointUsingMap();
 
-
-
-  ClassDef(RadioScatterEvent, 5);
+  ClassDef(RadioScatterEvent, 6);
 };
 #endif

@@ -387,6 +387,7 @@ TH1F* RadioScatterEvent::makeBackgroundSubtractHist(int txindex, int rxindex, TS
 
 
 int RadioScatterEvent::plotEvent(int txindex, int rxindex, double noise_flag, int show_geom, int bins, int overlap, int logFlag, double ymin, double ymax){
+    if(rxindex>=nrx||txindex>=ntx)return 0;
   if(ymin==-1||ymax==-1){
     ymin=0;
     ymax=(sampleRate/2.)-(sampleRate/bins);
@@ -589,6 +590,7 @@ int RadioScatterEvent::plotEvent(int txindex, int rxindex, double noise_flag, in
 }
 
 int RadioScatterEvent::plotEventNotebook(int txindex, int rxindex, double noise_flag, int show_geom, int bins, int overlap, int logFlag, double ymin, double ymax){
+  if(rxindex>=nrx||txindex>=ntx)return 0;
   if(ymin==-1||ymax==-1){
     ymin=0;
     ymax=(sampleRate/2.)-(sampleRate/bins);
@@ -952,4 +954,22 @@ TLorentzVector RadioScatterEvent::pointUsingMap(){
   //source vector using interpolation
   return source[index];
     
+}
+
+void RadioScatterEvent::eventToTxt(int txIndex, int rxIndex, double addNoise){
+  auto fname=(TString)gDirectory->GetFile()->GetName();
+  auto txi=TString::Itoa(txIndex, 10);
+  auto rxi=TString::Itoa(rxIndex, 10);
+  auto tree=(TTree*)gDirectory->GetFile()->Get("tree");
+  TString  ofname=fname+"event"+TString::Itoa(evtNo, 10)+"_"+txi+"_"+rxi+".txt";
+  ofstream outt(ofname.Data());
+  auto gr=getGraph(txIndex, rxIndex);
+  if(addNoise>0){
+    gr=TUtilRadioScatter::addNoise(gr, addNoise);
+  }
+  int N=gr->GetN();
+  for(int i=0;i<N;i++){
+    outt<<gr->GetX()[i]<<" "<<gr->GetY()[i]<<endl;
+  }
+  outt.close();
 }

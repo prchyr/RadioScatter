@@ -878,7 +878,11 @@ double RadioScatter::makeRays(TLorentzVector point, double e, double l, double e
   
   if(ENERGY_SCALING_SET==1){
     auto pVec=point.Vect()-event.position;
+    auto originalMag=pVec.Mag();
     pVec.SetMag(zStretch(pVec.Mag()));
+    auto updatedMag=pVec.Mag();
+    //scale factor for the step length
+    zscale=updatedMag/originalMag;
     auto pointNew=pVec+event.position;
     point.SetXYZT(pointNew.X(), pointNew.Y(), pointNew.Z(), tStretch(point.T()));
   }
@@ -1243,7 +1247,7 @@ int RadioScatter::writeEvent(int debug){
   TFile *f = ((TFile *)(gROOT->GetFile(output_file_name)));
   TTree *t = (TTree*)f->Get("tree");
   event.nPrimaries = n_primaries;
-  
+  event.evtNo=fRunCounter;
   event.ntx=ntx;
   event.nrx=nrx;
   event.txGain=tx_gain;
@@ -1298,6 +1302,7 @@ int RadioScatter::makeSummary(TFile *f){
   int entries = intree->GetEntries();
   for(int i=0;i<entries;i++){
     intree->GetEntry(i);
+    rss->evtNo=rs->evtNo;
     rss->position=rs->position;
     rss->direction=rs->direction;
     rss->polarization=rs->polarization;
