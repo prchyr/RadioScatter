@@ -76,6 +76,7 @@ public:
   double inelasticity=1;
   int ntx=1;
   int nrx=1;
+  int evtNo;
   //plotting things
 
   vector<vector<double>> peakFreq;
@@ -99,6 +100,6 @@ public:
   int trigSingle(double thresh, int txx=0, int rxx=0);
 
   
-  ClassDef(RSEventSummary, 1);
+  ClassDef(RSEventSummary, 2);
 };
 #endif
