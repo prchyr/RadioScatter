@@ -671,7 +671,7 @@ double RadioScatter::getAmplitudeFromAt(double E_0,TLorentzVector from, TLorentz
 
 double RadioScatter::getPhaseFromAt(TLorentzVector from, TLorentzVector at){
   double txtime = getTxTime(0,from, 0);//find retarted time
-  double txphase = getTxPhase(txtime);//find phase at retarded time
+  double txphase = getTxPhase(0,from);//find phase at retarded time
   //time of full flight
   //  double tof = abs(rxtime-txtime);//time of flight
   //time of flight for zero lifetime(phase is fixed at interaction point)
@@ -691,9 +691,11 @@ double RadioScatter::getPhaseFromAt(TLorentzVector from, TLorentzVector at){
 }
 
 
-double RadioScatter::getTxPhase(double t_0){
-  //    TLorentzVector tx_pr = tx-point;
-  double phase = omega*t_0 + phase0;
+double RadioScatter::getTxPhase(int txindex, TLorentzVector point){
+  TLorentzVector tx_pr = tx[txindex]-point;
+  TVector3 kvec=k*tx_pr.Vect();
+  auto t_0=getTxTime(txindex, point);
+  double phase = -(kvec.Mag() - omega*t_0 + phase0);
   return phase;
 }
 
@@ -712,7 +714,7 @@ double RadioScatter::getTxPhase(double t_0){
   return time;
   }
 
-  double RadioScatter::getTxTime(int index,TLorentzVector point, int direct=0){
+  double RadioScatter::getTxTime(int index,TLorentzVector point, int direct){
   TVector3 distvec = point.Vect()-tx[index].Vect();
   double dist=0;
   if(direct==0){
@@ -746,6 +748,9 @@ double RadioScatter::getDirectSignalPhase(int txindex, int rxindex, TLorentzVect
   return t_0*omega;
 }
 /*
+
+BROKEN DO NOT USE
+
 using the refraction vectors (calculated in makeRays), calculate the wave vectors (including with modified k value in the medium) and the 
 total time-of-flight and phase. the values n_rel, k_r, and c_light_r are the relative index of refraction, and 
 the modified wavenumber and speed of light (for the medium) respectively  
@@ -764,7 +769,7 @@ double RadioScatter::getRxPhase(TLorentzVector point, TVector3 j1, TVector3 j2, 
   //phase (polarity).
   double  tof = j1.Mag()/c_light + l1.Mag()/c_light_r;
 
-  double txphase = getTxPhase(point.T()-tof);//find phase at retarded time
+  double txphase = getTxPhase(0,point);//find phase at retarded time
   //wave vector calculation, with correct phase velocity
   TVector3  kvec1 = k*j1;
   TVector3  kvec2 = k_r*l1;
@@ -779,24 +784,20 @@ double RadioScatter::getRxPhase(TLorentzVector point, TVector3 j1, TVector3 j2, 
 //non-refraction phase finder
 double RadioScatter::getRxPhase(int txindex, int rxindex, TLorentzVector point){
   double rxtime = getRxTime(rxindex,point);//find advanced time
-  double txtime = getTxTime(txindex,point);//find retarted time
-  double txphase = getTxPhase(txtime);//find phase at retarded time
-  //time of full flight
-  //  double tof = abs(rxtime-txtime);//time of flight
-  //time of flight for zero lifetime(phase is fixed at interaction point)
-  //  double tof = point.T()-(point.Vect()-tx[index].Vect()).Mag()/c_light;
-  double tof=point.T()-txtime;
+  //  double txtime = getTxTime(txindex,point);//find retarded time
+  double txphase = getTxPhase(txindex, point);//find phase at retarded time
+
   TLorentzVector tx_pr=tx[txindex]-point, pr_rx = point-rx[rxindex];//make vectors
   //wave number addition
   TVector3 kvec1 = k*tx_pr.Vect();
   TVector3 kvec2 = k*pr_rx.Vect();
-  TVector3 ktot = kvec1+kvec2;
-  double kx = ktot.Mag();
-  //calculate compton effects
+  
+  double kx = kvec1.Mag()+kvec2.Mag();//ktot.Mag();
+  //calculate compton effects UNUSED
   //  double inv_omega_c = (1/omega)+(1/omega_e)*(1-cos(tx_pr.Vect().Unit().Angle(pr_rx[index].Vect().Unit())));
   //omega_c = 1/inv_omega_c;
   //    std::cout<<txtime<<" "<<txphase<<" "<<rxtime<<std::endl;
-  return ((kx) - omega*tof + txphase);
+  return ((kx) - omega*rxtime + phase0);//txphase);//this may not correctly calculate the initial phase. but it also might. 
 }
 
 

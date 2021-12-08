@@ -374,10 +374,10 @@ private:
 double getTxAmplitude(int index,TLorentzVector point);
   double getRxAmplitude(int index, TLorentzVector point, TVector3 j1,  TVector3 j2, TVector3 l1, TVector3 l2);
   double getRxAmplitude(int txindex, int rxindex, TLorentzVector point);
-  double getTxPhase(double t_0);
+  double getTxPhase(int txindex, TLorentzVector point);
   double getRxTime(TLorentzVector point, TVector3 j, TVector3 l);
   double getRxTime(int index,TLorentzVector point);
-  double getTxTime(int index,TLorentzVector point, int direct);
+  double getTxTime(int index,TLorentzVector point, int direct=0);
   double getRxPhase(TLorentzVector point, TVector3 j1, TVector3 j2, TVector3 l1, TVector3 l2);
 
   double getRxPhase(int txindex, int rxindex, TLorentzVector point);
