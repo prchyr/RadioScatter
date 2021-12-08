@@ -4,6 +4,7 @@
 #include "G4UIcmdWithAString.hh"
 #include "G4UIcmdWithADoubleAndUnit.hh"
 #include "G4UIcmdWith3VectorAndUnit.hh"
+#include "G4UIcmdWith3Vector.hh"
 #include "globals.hh"
 
 
@@ -54,9 +55,9 @@ RSmessenger::RSmessenger(RadioScatter *rscat)
   lifetimeCommand->SetGuidance("set lifetime!");
   lifetimeCommand->SetParameterName("choice", false);
 
-  polarizationCommand = new G4UIcmdWithAString("/RS/setPolarization", this);
+  polarizationCommand = new G4UIcmdWith3Vector("/RS/setPolarization", this);
   polarizationCommand->SetGuidance("set Polarization!");
-  polarizationCommand->SetParameterName("choice", false);
+  
 
     setParticleInfoFilenameCommand = new G4UIcmdWithAString("/RS/setParticleInfoFilename", this);
   setParticleInfoFilenameCommand->SetGuidance("set SetParticleInfoFilename!");
@@ -88,9 +89,17 @@ RSmessenger::RSmessenger(RadioScatter *rscat)
   setScaleByEnergyCommand->SetGuidance("set scale by energy!");
   setScaleByEnergyCommand->SetParameterName("choice", false);
 
-    setPrimaryEnergyCommand = new G4UIcmdWithADouble("/RS/setPrimaryEnergy", this);
+    setPrimaryEnergyCommand = new G4UIcmdWithADoubleAndUnit("/RS/setPrimaryEnergy", this);
   setPrimaryEnergyCommand->SetGuidance("set primary energy!");
+  setPrimaryEnergyCommand->SetDefaultUnit("GeV");
+  setPrimaryEnergyCommand->SetUnitCandidates("eV MeV GeV TeV");
   setPrimaryEnergyCommand->SetParameterName("choice", false);
+
+      setTargetEnergyCommand = new G4UIcmdWithADoubleAndUnit("/RS/setTargetEnergy", this);
+  setTargetEnergyCommand->SetGuidance("set target energy!");
+  setTargetEnergyCommand->SetDefaultUnit("GeV");
+  setTargetEnergyCommand->SetUnitCandidates("eV MeV GeV TeV");
+  setTargetEnergyCommand->SetParameterName("choice", false);
 
   
   setFillParticleInfoCommand = new G4UIcmdWithADouble("/RS/setFillParticleInfo", this);
@@ -142,6 +151,7 @@ RSmessenger::~RSmessenger()
   delete setFillByEventCommand;
   delete makeSummaryCommand;
   delete setPrimaryEnergyCommand;
+  delete setTargetEnergyCommand;
   delete setScaleByEnergyCommand;
   delete setCrossSectionCommand;
   delete setFillParticleInfoCommand;
@@ -156,7 +166,7 @@ RSmessenger::~RSmessenger()
 
 void RSmessenger::SetNewValue(G4UIcommand* command,G4String newValue)
 {
-  if(command==polarizationCommand)rs->setPolarization((char*)newValue.c_str());
+  //if(command==polarizationCommand)rs->setPolarization((char*)newValue.c_str());
   if(command==setParticleInfoFilenameCommand)rs->setParticleInfoFilename((char*)newValue.c_str());
   
   double val = (double)StoD(newValue);
@@ -169,7 +179,8 @@ void RSmessenger::SetNewValue(G4UIcommand* command,G4String newValue)
   if(command==receiverGainCommand)rs->setReceiverGain(val);
   if(command==transmitterGainCommand)rs->setTransmitterGain(val);
   if(command==makeSummaryCommand)rs->setMakeSummary(val);
-  if(command==setPrimaryEnergyCommand)rs->setPrimaryEnergy(val);
+  if(command==setPrimaryEnergyCommand)rs->setPrimaryEnergy(setPrimaryEnergyCommand->GetNewDoubleValue(newValue));
+  if(command==setTargetEnergyCommand)rs->setTargetEnergy(setTargetEnergyCommand->GetNewDoubleValue(newValue));
   if(command==setScaleByEnergyCommand)rs->setScaleByEnergy(val);
   if(command==lifetimeCommand)rs->setPlasmaLifetime(val);
   if(command==setFillByEventCommand)rs->setFillByEvent(val);
@@ -191,6 +202,12 @@ void RSmessenger::SetNewValue(G4UIcommand* command,G4String newValue)
     G4ThreeVector g4vec=txpositionCmd->GetNew3VectorValue(newValue);
     TVector3 vec(g4vec.x(), g4vec.y(), g4vec.z());
     rs->setRxPos(vec);
+  }
+
+  if(command==polarizationCommand){
+    G4ThreeVector g4vec=polarizationCommand->GetNew3VectorValue(newValue);
+    TVector3 vec(g4vec.x(), g4vec.y(), g4vec.z());
+    rs->setPolarization(vec);
   }
 
 }
