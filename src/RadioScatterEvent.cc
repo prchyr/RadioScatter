@@ -93,7 +93,7 @@ double RadioScatterEvent::effectiveCrossSection(int txindex, int rxindex){
   double r_tx = (tx[txindex].Vect()-position).Mag()/TUtilRadioScatter::m;//m
   double r_rx = (rx[rxindex].Vect()-position).Mag()/TUtilRadioScatter::m;
   double lambda = TUtilRadioScatter::c_light/(freq*TUtilRadioScatter::GHz*TUtilRadioScatter::m);//m
-  std::cout<<r_rx<<" "<<r_tx<<" "<<lambda<<" "<<peakPowerW(txindex, rxindex)<<" txGain: "<<txGain<<" txpower: "<<txPowerW<<std::endl;
+  //  std::cout<<r_rx<<" "<<r_tx<<" "<<lambda<<" "<<peakPowerW(txindex, rxindex)<<" txGain: "<<txGain<<" txpower: "<<txPowerW<<std::endl;
   return (pow(4.*pi, 3)*pow(r_tx, 2)*pow(r_rx, 2)*peakPowerW(txindex, rxindex))/(txPowerW*txGain*rxGain*pow(lambda, 2));
 }
 
