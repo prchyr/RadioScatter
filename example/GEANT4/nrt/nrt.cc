@@ -258,7 +258,7 @@ int main(int argc,char** argv)
     //   //      cout<<tx.x()<<" "<<tx.y()<<" "<<tx.z()<<endl;
     // }
     //    runManager->BeamOn(1);
-    runManager->BeamOn(1);
+    runManager->BeamOn(10);
   }
 
 
@@ -425,6 +425,70 @@ int main(int argc,char** argv)
      
    }
 
+   if(macro.contains("effectivevol_infile_lowpower.mac")){
+     TVector3 rx;
+     TVector3 tx;
+     double dx=100*m;
+     double dy=100*m;
+     double dz=20*m;
+     int ntx=10;
+     int nrx=10;
+     double x0=-(ntx/2)*dx;
+     double y0=-(nrx/2)*dx;
+     double z0=-20*m;
+     for(int i=0;i<ntx;i++){
+       tx.SetXYZ(x0+(i*dx), y0+(i*dy), z0);
+       radio->setTxPos(tx);
+       for(int j=0;j<nrx;j++){
+	 tx.SetXYZ(x0+(i*dx), y0+(i*dy), z0-dz);
+   	 radio->setRxPos(rx);
+       }
+     }
+
+     //     auto gun=new G4ParticleGun();
+     auto gpsDat=G4GeneralParticleSourceData::Instance();
+     auto gps=gpsDat->GetCurrentSource();
+     //     gps->ListSource();
+
+     
+     auto iff=ifstream("simulatedEventsFlatSpectrum.txt");
+     TRandom3 *rann=new TRandom3();
+     rann->SetSeed();
+
+     int nThrow=100;
+     for(int j=0;j<nThrow;j++){
+       auto val= rann->Integer(600000);
+       
+       auto num=0.,x=0., y=0., z=0., theta=0., phi=0., en=0., enC=0., weight=0.;
+       iff.seekg(iff.beg);
+       for(int i=0;i<val;i++){
+	 iff.ignore(100000, '\n');
+       }
+
+       iff>>num>>x>>y>>z>>theta>>phi>>en>>enC;//>>weight;
+       cout<<en<<endl;
+       auto pos=TVector3(x*m, y*m, z*m);
+       auto dir=TVector3(1., 1.,1.);
+       dir.SetMagThetaPhi(1., theta, phi);
+       //UImanager->ApplyCommand("/gps/energy 1 GeV");
+       auto posStr=Form("/gps/position %f %f %f m", x, y, z);
+       auto dirStr=Form("/gps/direction %f %f %f m", dir.Unit().x(), dir.Unit().y(), dir.Unit().z());
+       UImanager->ApplyCommand(posStr);
+       UImanager->ApplyCommand(dirStr);
+       //  gun->SetParticlePosition(pos);
+       //gun->SetParticleMomentumDirection(dir);
+       //       radio->setPrimaryEnergy(1e9*TUtilRadioScatter::eV);
+       radio->setTargetEnergy(enC*TUtilRadioScatter::GeV);
+       radio->setInelasticity(enC/en);
+       radio->setWeight(weight);
+       runManager->BeamOn(1);
+     }
+
+     
+     
+   }
+
+   
       if(macro.contains("effectivevol_infile2.mac")){
      TVector3 rx;
 for(int i=0;i<9;i++){
