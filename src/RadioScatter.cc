@@ -851,6 +851,7 @@ calculate the phase, the amplitude, and the prefactors for cross-section,
 
 double RadioScatter::makeRays(TLorentzVector point, double e, double l, double e_i){
   if(RADIOSCATTER_INIT==false){
+    cout<<"ntx: "<<ntx<<" nrx: "<<nrx<<endl;
     makeTimeHist();
     RADIOSCATTER_INIT=true;
     RSCAT_HIST_DECLARE=true;
@@ -899,6 +900,7 @@ double RadioScatter::makeRays(TLorentzVector point, double e, double l, double e
 
 
   for(int i=0;i<ntx;i++){
+    //    if(i>0)cout<<"test"<<endl;
     for(int j=0;j<nrx;j++){
 
       //would RF from the transmitter reached this point?
@@ -929,8 +931,9 @@ double RadioScatter::makeRays(TLorentzVector point, double e, double l, double e
       //we use 3 for good measure.
       nu_col = sqrt(kB*(300)*kelvin/m_e)*collisionalCrossSection*(N_ice);
 
-      event.totNScatterers+=n;//track total number of scatterers
-
+      if(i==0&&j==0){
+	event.totNScatterers+=n;//track total number of scatterers. once per event.
+      }
       //the full scattering amplitude pre-factor  
       //double prefactor = -rxEffectiveHeight*n*n_primaries*e_radius*omega/(pow(omega, 2)+pow(nu_col, 2));
       double prefactor = -rxFactor*n*n_primaries*e_radius*omega/(pow(omega, 2)+pow(nu_col, 2));
@@ -1022,8 +1025,9 @@ double RadioScatter::makeRays(TLorentzVector point, double e, double l, double e
 	}
       }
     }
-    return 1;
   }
+  return 1;
+  
 }
 
 
