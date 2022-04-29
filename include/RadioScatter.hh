@@ -37,8 +37,6 @@ released under GPL3.
 #include "RSEventSummary.hh"
 
 #include "IceRayTracing.hh"
-#include <gsl/gsl_spline.h>
-#include <gsl/gsl_interp.h>
 
 using namespace TUtilRadioScatter;
 //using namespace CLHEP;
@@ -141,19 +139,28 @@ public:
   std::vector<double> rx_interface_dist{1};
  
   double n_rel=1.5; ///<relative index of refraction, calculated to always be >1.
-  ///<interpolation setup for calculating dt times
-  const static int totalShowerPoints=11;
-  gsl_interp_accel *acc= gsl_interp_accel_alloc ();
-  vector <vector <vector <gsl_spline* > > > splineTime;
-  vector <vector <vector <gsl_spline* > > > splineLaunchAngle;
-  vector <vector <vector <gsl_spline* > > > splineReceiveAngle;
-  vector <vector <vector <gsl_spline* > > > splineAttenuation;
 
-  vector <vector <vector <vector <double> > > > rayTraceTimes;
-  vector <vector <vector <vector <double> > > > rayTraceLaunchAngle;
-  vector <vector <vector <vector <double> > > > rayTraceReceiveAngle;
-  vector <vector <vector <vector <double> > > > rayTraceAttenuation;
-  double showerPointDist2Vertex[totalShowerPoints];
+  ///<interpolation setup for calculating dt times
+  double GridStepSizeX_O=0.2;
+  double GridStepSizeZ_O=0.2;
+  double GridWidthX=20;
+  double GridWidthZ=20;
+
+  int GridPoints=100;////just set a non-zeronumber for now
+  int TotalStepsX_O=100;////just set a non-zeronumber for now
+  int TotalStepsZ_O=100;////just set a non-zeronumber for now
+  double GridStartX=40;////just set a non-zeronumber for now
+  double GridStopX=60;////just set a non-zeronumber for now
+  double GridStartZ=-20;////just set a non-zeronumber for now
+  double GridStopZ=0;////just set any number for now
+
+  std::vector<std::vector <double>> GridPositionX_Tx;
+  std::vector<std::vector <double>> GridPositionZ_Tx;
+  std::vector<std::vector<std::vector <double>>> GridZValue_Tx;
+
+  std::vector<std::vector <double>> GridPositionX_Rx;
+  std::vector<std::vector <double>> GridPositionZ_Rx;
+  std::vector<std::vector<std::vector <double>>> GridZValue_Rx;
   
   ///<some histograms 
   TH1F *fft_hist, *power_hist;
@@ -345,6 +352,11 @@ this function actually does the scaling. prior to it being called, it makes sure
   double getTxGain(int index,double angle);  ///<get the transmitter gain at a certain angle (not implemented)
 
   double getRxGain(int index,double angle);  ///<get the receiver gain at a certain angle (not implemented)
+
+  void MakeRayTracingTable(TLorentzVector Tx,TVector3 Shwr,vector<double> (&GridPositionXb),vector<double> (&GridPositionZb),std::vector<std::vector<double>> (&GridZValueb)); ///<make the interpolation table that will be used for analytic raytracing
+  
+  double GetInterpolatedValue(double xR, double zR, int rtParameter,std::vector<double> GridPositionXb,std::vector<double> GridPositionZb,std::vector<std::vector<double>> GridZValueb); ///<interpolate raytrace parameters using the table
+  
   /**\brief the main function to do the actual scattering.
 
     this fuction are all that you need to call (for each point you want to scatter radio from.) 
@@ -363,7 +375,6 @@ this function actually does the scaling. prior to it being called, it makes sure
   
   void setUseRayTracing(bool flag);///Function for use to turn the analytic raytracing on or off
   
-  double* getPathAndTimeOfRays(double TxRaySolPar[3][7], double RxRaySolPar[3][7]);/// This function is used by the analytical raytracer to sort out ray parameters for the two ray solutions out the three possible ones
   double* rayTrace(TLorentzVector Tx, TLorentzVector Rx, TVector3 Shwr);///This function calls the analytical raytracer and calculates propogation times, optical path lengths, launch angles and recieve angles for all the possible ray paths in the given Tx->Shower->Rx configuration
   
   void printEventStats();  ///<print out some event statistics. not used much. 

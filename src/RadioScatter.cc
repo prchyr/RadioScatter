@@ -90,11 +90,9 @@ RadioScatter::RadioScatter(){
 	 if(vertex_z==0){
 	   vertex_z=-1e-4;
 	 }
-	 double startpoint=0;////always zero  
-	 double rx2VertexDist=sqrt(pow(rx_x-vertex_x,2)+ pow(rx_y-vertex_y,2));
 
-	 double* getTOF=IceRayTracing::IceRayTracing(startpoint,rx_z,rx2VertexDist,vertex_z);     
-	 double tof=getTOF[3]*s;
+	 double* getTOF=IceRayTracing::DirectRayTracer(rx_x, rx_y, rx_z, vertex_x , vertex_y, vertex_z);
+	 double tof=getTOF[4]*s;
 	 time =tof-half_window;
 	 delete []getTOF;
        }
@@ -919,142 +917,8 @@ void RadioScatter::setUseRayTracing(bool flag){
   USE_RAYTRACING=flag;
 }
 
-/* This function is used by the analytical raytracer to sort out ray parameters for the two ray solutions out the three possible ones */
-double* RadioScatter::getPathAndTimeOfRays(double TxRaySolPar[3][7], double RxRaySolPar[3][7]){
-  
-  /* define a pointer to give back the output of raytracing */ 
-  double *output=new double[16];
-  double TxRays[10]={0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-  double RxRays[10]={0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-
-  /************************Tx Ray Parameters**********************/
-  if(TxRaySolPar[0][1]!=-1000 && TxRaySolPar[1][1]!=-1000){
-    ////****************For Direct and Reflected Ray btw Tx and Shower***********************
-    // cout<<"Tx Direct ray "<<TxRaySolPar[0][0]<<" "<<TxRaySolPar[0][1]<<" "<<TxRaySolPar[0][2]<<" "<<TxRaySolPar[0][3]<<" "<<TxRaySolPar[0][4]<<endl;
-    // cout<<"Tx Reflected ray "<<TxRaySolPar[1][0]<<" "<<TxRaySolPar[1][1]<<" "<<TxRaySolPar[1][2]<<" "<<TxRaySolPar[1][3]<<" "<<TxRaySolPar[1][4]<<endl;    
-    TxRays[0]=TxRaySolPar[0][3];
-    TxRays[1]=TxRaySolPar[1][3];
-    TxRays[2]=TxRaySolPar[0][2];
-    TxRays[3]=TxRaySolPar[1][2];
-
-    TxRays[4]=TxRaySolPar[0][0];
-    TxRays[5]=TxRaySolPar[1][0];
-    TxRays[6]=TxRaySolPar[0][1];
-    TxRays[7]=TxRaySolPar[1][1];
-
-    TxRays[8]=TxRaySolPar[0][6];
-    TxRays[9]=TxRaySolPar[1][6];
-  }
-
-  if(TxRaySolPar[0][1]!=-1000 && TxRaySolPar[2][1]!=-1000){
-    ////****************For Direct and Refracted Ray btw Tx and Shower***********************
-    TxRays[0]=TxRaySolPar[0][3];
-    TxRays[1]=TxRaySolPar[2][3];
-    TxRays[2]=TxRaySolPar[0][2];
-    TxRays[3]=TxRaySolPar[2][2];
-
-    TxRays[4]=TxRaySolPar[0][0];
-    TxRays[5]=TxRaySolPar[2][0];
-    TxRays[6]=TxRaySolPar[0][1];
-    TxRays[7]=TxRaySolPar[2][1];
-
-    TxRays[8]=TxRaySolPar[0][6];
-    TxRays[9]=TxRaySolPar[2][6];
-  }
-
-  if(TxRaySolPar[2][1]!=-1000 && TxRaySolPar[1][1]!=-1000){
-    ////****************For Refracted and Reflected Ray btw Tx and Shower***********************
-    TxRays[0]=TxRaySolPar[2][3];
-    TxRays[1]=TxRaySolPar[1][3];
-    TxRays[2]=TxRaySolPar[2][2];
-    TxRays[3]=TxRaySolPar[1][2];
-
-    TxRays[4]=TxRaySolPar[2][0];
-    TxRays[5]=TxRaySolPar[1][0];
-    TxRays[6]=TxRaySolPar[2][1];
-    TxRays[7]=TxRaySolPar[1][1];
-
-    TxRays[8]=TxRaySolPar[2][6];
-    TxRays[9]=TxRaySolPar[1][6];
-  }
-
-  /************************Rx Ray Parameters**********************/
-  if(RxRaySolPar[0][1]!=-1000 && RxRaySolPar[1][1]!=-1000){
-    ////****************For Direct and Reflected Ray btw Rx and Shower***********************
-    RxRays[0]=RxRaySolPar[0][3];
-    RxRays[1]=RxRaySolPar[1][3];
-    RxRays[2]=RxRaySolPar[0][2];
-    RxRays[3]=RxRaySolPar[1][2];
-
-    RxRays[4]=RxRaySolPar[0][0];
-    RxRays[5]=RxRaySolPar[1][0];
-    RxRays[6]=RxRaySolPar[0][1];
-    RxRays[7]=RxRaySolPar[1][1];
-
-    RxRays[8]=RxRaySolPar[0][6];
-    RxRays[9]=RxRaySolPar[1][6];
-  }
-
-  if(RxRaySolPar[0][1]!=-1000 && RxRaySolPar[2][1]!=-1000){
-    ////****************For Direct and Refracted Ray btw Rx and Shower***********************
-    RxRays[0]=RxRaySolPar[0][3];
-    RxRays[1]=RxRaySolPar[2][3];
-    RxRays[2]=RxRaySolPar[0][2];
-    RxRays[3]=RxRaySolPar[2][2];
-
-    RxRays[4]=RxRaySolPar[0][0];
-    RxRays[5]=RxRaySolPar[2][0];
-    RxRays[6]=RxRaySolPar[0][1];
-    RxRays[7]=RxRaySolPar[2][1];
-
-    RxRays[8]=RxRaySolPar[0][6];
-    RxRays[9]=RxRaySolPar[2][6];
-  }
-
-  if(RxRaySolPar[2][1]!=-1000 && RxRaySolPar[1][1]!=-1000){
-    ////****************For Refracted and Reflected Ray btw Rx and Shower***********************
-    RxRays[0]=RxRaySolPar[2][3];
-    RxRays[1]=RxRaySolPar[1][3];
-    RxRays[2]=RxRaySolPar[2][2];
-    RxRays[3]=RxRaySolPar[1][2];
-
-    RxRays[4]=RxRaySolPar[2][0];
-    RxRays[5]=RxRaySolPar[1][0];
-    RxRays[6]=RxRaySolPar[2][1];
-    RxRays[7]=RxRaySolPar[1][1];
-
-    RxRays[8]=RxRaySolPar[2][6];
-    RxRays[9]=RxRaySolPar[1][6];
-  }
-
-  output[0]=TxRays[2];
-  output[1]=TxRays[3];
-  output[2]=RxRays[2];
-  output[3]=RxRays[3];
-
-  output[4]=TxRays[4];
-  output[5]=TxRays[5];
-  output[6]=RxRays[4];
-  output[7]=RxRays[5];
-
-  output[8]=TxRays[6];
-  output[9]=TxRays[7];
-  output[10]=RxRays[6];
-  output[11]=RxRays[7];
-
-  output[12]=TxRays[8];
-  output[13]=TxRays[9];
-  output[14]=RxRays[8];
-  output[15]=RxRays[9]; 
-  //cout<<"Tx Rx rays are "<<output[0]<<" "<<output[1]<<" "<<output[2]<<" "<<output[3]<<endl;
-  
-  return output;    
-}
-
 /* This function calls the analytical raytracer and calculates propogation times, optical path lengths, launch angles and recieve angles for all the possible ray paths in the given Tx->Shower->Rx configuration */
 double *RadioScatter::rayTrace(TLorentzVector Tx, TLorentzVector Rx, TVector3 Shwr){
-
-  //cout<<"we are here 1"<<endl;
   
   //////////////////////////////////////////////////////////////////////
   //divide by meter. m = 1000 *mm
@@ -1079,158 +943,284 @@ double *RadioScatter::rayTrace(TLorentzVector Tx, TLorentzVector Rx, TVector3 Sh
   double startpoint=0;////always zero
   double Tx2ShwrDist=sqrt(pow(Tx_x-Shwr_x,2)+ pow(Tx_y-Shwr_y,2));
   double Rx2ShwrDist=sqrt(pow(Rx_x-Shwr_x,2)+ pow(Rx_y-Shwr_y,2));
-  
-  /* These Two arrays will be filled up with the ray parameters */
-  /* for each of the 3 possible rays we have 4 elements*/
-  /* element 0 is LaunchAngle */
-  /* element 1 is RecieveAngle  */
-  /* element 2 is PropogationTime  */
-  /* element 3 is PropogationDistance  */
-  /* element 4 is the IncidentAngleInIce for Reflected ray. For the other two rays this number goes to zero.  */
-  /* element 5 is zmax (peak ray point)  for Refracted ray. For the other two rays this number goes to zero.  */
-  /* element 6 is the ray attenuation calculated at the given Tx frequency  */
-  double TxRaySolPar[3][7];
-  double RxRaySolPar[3][7];
 
-  /* Initialize arrays*/
-  for(int i=0;i<3;i++){
-    for(int j=0;j<7;j++){
-      TxRaySolPar[i][j]=0;
-      RxRaySolPar[i][j]=0;
-    }
-  }
-      
-  double* GetTx2ShwrRays=IceRayTracing::IceRayTracing(startpoint,Tx_z,Tx2ShwrDist,Shwr_z);
   /* Parameters for calculating attenuation */
   double A0=1;
-  double frequency=getFreq();//Tx frequency in GHz
+  double frequency=getFreq();//Tx frequency in GHz  
   
-  if(GetTx2ShwrRays[6]!=-1000){
-    TxRaySolPar[0][0]=GetTx2ShwrRays[0];
-    TxRaySolPar[0][1]=GetTx2ShwrRays[6];
-    TxRaySolPar[0][2]=GetTx2ShwrRays[3]*s;
-    TxRaySolPar[0][3]=GetTx2ShwrRays[3]*IceRayTracing::c_light_ms*m;
-    TxRaySolPar[0][4]=0;
-    TxRaySolPar[0][5]=0;
-    TxRaySolPar[0][6]=1-IceRayTracing::GetTotalAttenuationDirect (A0,frequency,Tx_z,Tx2ShwrDist,GetTx2ShwrRays[12]);
-    //cout<<"Tx Direct ray "<<TxRaySolPar[0][0]<<" "<<TxRaySolPar[0][1]<<" "<<TxRaySolPar[0][2]<<" "<<TxRaySolPar[0][3]<<" "<<TxRaySolPar[0][4]<<endl;
-  }else{
-    TxRaySolPar[0][1]=GetTx2ShwrRays[6];
-  }
+  double TimeRay_Tx[2]={0,0};
+  double PathRay_Tx[2]={0,0};
+  double LaunchAngle_Tx[2]={0,0};
+  double RecieveAngle_Tx[2]={0,0};
+  int IgnoreCh_Tx[2]={0,0};
+  double IncidenceAngleInIce_Tx[2]={0,0};
+  double AttRay_Tx[2]={0,0};
+  IceRayTracing::GetRayTracingSolutions(Shwr_z, Tx2ShwrDist, Tx_z, TimeRay_Tx, PathRay_Tx, LaunchAngle_Tx, RecieveAngle_Tx, IgnoreCh_Tx, IncidenceAngleInIce_Tx, A0, frequency, AttRay_Tx);
 
-  if(GetTx2ShwrRays[7]!=-1000){
-    TxRaySolPar[1][0]=GetTx2ShwrRays[1];
-    TxRaySolPar[1][1]=GetTx2ShwrRays[7];
-    TxRaySolPar[1][2]=GetTx2ShwrRays[4]*s;
-    TxRaySolPar[1][3]=GetTx2ShwrRays[4]*IceRayTracing::c_light_ms*m;
-    TxRaySolPar[1][4]=GetTx2ShwrRays[11];
-    TxRaySolPar[1][5]=0;
-    TxRaySolPar[1][6]=1-IceRayTracing::GetTotalAttenuationReflected (A0,frequency,Tx_z,Tx2ShwrDist,GetTx2ShwrRays[13]);
-    //cout<<"Tx Reflected ray "<<TxRaySolPar[1][0]<<" "<<TxRaySolPar[1][1]<<" "<<TxRaySolPar[1][2]<<" "<<TxRaySolPar[1][3]<<" "<<TxRaySolPar[1][4]<<endl;
-  }else{
-    TxRaySolPar[1][1]=GetTx2ShwrRays[7];
-  }
+  double TimeRay_Rx[2]={0,0};
+  double PathRay_Rx[2]={0,0};
+  double LaunchAngle_Rx[2]={0,0};
+  double RecieveAngle_Rx[2]={0,0};
+  int IgnoreCh_Rx[2]={0,0};
+  double IncidenceAngleInIce_Rx[2]={0,0};
+  double AttRay_Rx[2]={0,0};
   
-  if(GetTx2ShwrRays[8]!=-1000){
-    TxRaySolPar[2][0]=GetTx2ShwrRays[2];
-    TxRaySolPar[2][1]=GetTx2ShwrRays[8];
-    TxRaySolPar[2][2]=GetTx2ShwrRays[5]*s;
-    TxRaySolPar[2][3]=GetTx2ShwrRays[5]*IceRayTracing::c_light_ms*m;
-    TxRaySolPar[2][4]=0;
-    TxRaySolPar[2][5]=GetTx2ShwrRays[15];
-    TxRaySolPar[2][6]=1-IceRayTracing::GetTotalAttenuationRefracted (A0,frequency,Tx_z,Tx2ShwrDist,GetTx2ShwrRays[15],GetTx2ShwrRays[14]);
-    //cout<<"Tx Refracted ray "<<TxRaySolPar[2][0]<<" "<<TxRaySolPar[2][1]<<" "<<TxRaySolPar[2][2]<<" "<<TxRaySolPar[2][3]<<" "<<TxRaySolPar[2][4]<<endl;
-  }else{
-    TxRaySolPar[2][1]=GetTx2ShwrRays[8];
-  }
-
-  //cout<<"Tx check values are "<<GetTx2ShwrRays[6]<<" "<<GetTx2ShwrRays[7]<<" "<<GetTx2ShwrRays[8]<<endl;
-  double* GetRx2ShwrRays=0;
-  if(GetTx2ShwrRays[6]!=-1000 || GetTx2ShwrRays[7]!=-1000 || GetTx2ShwrRays[8]!=-1000){
-    GetRx2ShwrRays=IceRayTracing::IceRayTracing(startpoint,Rx_z,Rx2ShwrDist,Shwr_z);
-
-    if(GetRx2ShwrRays[6]!=-1000){
-      RxRaySolPar[0][0]=GetRx2ShwrRays[0];
-      RxRaySolPar[0][1]=GetRx2ShwrRays[6];
-      RxRaySolPar[0][2]=GetRx2ShwrRays[3]*s;
-      RxRaySolPar[0][3]=GetRx2ShwrRays[3]*IceRayTracing::c_light_ms*m;
-      RxRaySolPar[0][4]=0;
-      RxRaySolPar[0][5]=0;
-      RxRaySolPar[0][6]=1-IceRayTracing::GetTotalAttenuationDirect (A0,frequency,Rx_z,Rx2ShwrDist,GetRx2ShwrRays[12]);
-      //cout<<"Rx Direct ray "<<RxRaySolPar[0][0]<<" "<<RxRaySolPar[0][1]<<" "<<RxRaySolPar[0][2]<<" "<<RxRaySolPar[0][3]<<" "<<RxRaySolPar[0][4]<<endl;
-    }else{
-      RxRaySolPar[0][1]=GetRx2ShwrRays[6];
-    }
-    
-    if(GetRx2ShwrRays[7]!=-1000){
-      RxRaySolPar[1][0]=GetRx2ShwrRays[1];
-      RxRaySolPar[1][1]=GetRx2ShwrRays[7];
-      RxRaySolPar[1][2]=GetRx2ShwrRays[4]*s;
-      RxRaySolPar[1][3]=GetRx2ShwrRays[4]*IceRayTracing::c_light_ms*m;
-      RxRaySolPar[1][4]=GetRx2ShwrRays[11];
-      RxRaySolPar[1][5]=0;
-      RxRaySolPar[1][6]=1-IceRayTracing::GetTotalAttenuationReflected (A0,frequency,Rx_z,Rx2ShwrDist,GetRx2ShwrRays[13]);
-      //cout<<"Rx Reflected ray "<<RxRaySolPar[1][0]<<" "<<RxRaySolPar[1][1]<<" "<<RxRaySolPar[1][2]<<" "<<RxRaySolPar[1][3]<<" "<<RxRaySolPar[1][4]<<endl;
-    }else{
-      RxRaySolPar[1][1]=GetRx2ShwrRays[7];
-    }
-    
-    if(GetRx2ShwrRays[8]!=-1000){
-      RxRaySolPar[2][0]=GetRx2ShwrRays[2];
-      RxRaySolPar[2][1]=GetRx2ShwrRays[8];
-      RxRaySolPar[2][2]=GetRx2ShwrRays[5]*s;
-      RxRaySolPar[2][3]=GetRx2ShwrRays[5]*IceRayTracing::c_light_ms*m;
-      RxRaySolPar[2][4]=0;
-      RxRaySolPar[2][5]=GetRx2ShwrRays[15];
-      RxRaySolPar[2][6]=1-IceRayTracing::GetTotalAttenuationRefracted (A0,frequency,Rx_z,Rx2ShwrDist,GetRx2ShwrRays[15],GetRx2ShwrRays[14]);
-      //cout<<"Rx Refracted ray "<<RxRaySolPar[2][0]<<" "<<RxRaySolPar[2][1]<<" "<<RxRaySolPar[2][2]<<" "<<RxRaySolPar[2][3]<<" "<<RxRaySolPar[2][4]<<endl;
-    }else{
-      RxRaySolPar[2][1]=GetRx2ShwrRays[8];
-    }
+  if(IgnoreCh_Tx[0]!=0 || IgnoreCh_Tx[1]!=0){
+    IceRayTracing::GetRayTracingSolutions(Shwr_z, Rx2ShwrDist, Rx_z, TimeRay_Rx, PathRay_Rx, LaunchAngle_Rx, RecieveAngle_Rx, IgnoreCh_Rx, IncidenceAngleInIce_Rx, A0, frequency, AttRay_Rx);
   
   }
-  
-  double *RayParameters=RadioScatter::getPathAndTimeOfRays(TxRaySolPar, RxRaySolPar);    
-  // double *StraightLineDTimeTx=IceRayTracing::GetDirectRayPar_Cnz(Tx_z,Tx2ShwrDist,Shwr_z, n_rel);
-  // double *StraightLineDTimeRx=IceRayTracing::GetDirectRayPar_Cnz(Rx_z,Rx2ShwrDist,Shwr_z, n_rel);
   
   double *output=new double[16];
-  // output[0]=PathAndTimeOfRays[0]-StraightLineDTimeTx[2]*s;
-  // output[1]=PathAndTimeOfRays[1]-StraightLineDTimeTx[2]*s;
-  // output[2]=PathAndTimeOfRays[2]-StraightLineDTimeRx[2]*s;
-  // output[3]=PathAndTimeOfRays[3]-StraightLineDTimeRx[2]*s;
+  output[0]=TimeRay_Tx[0]*s;//tx time ray 1
+  output[1]=TimeRay_Tx[1]*s;//tx time ray 2
+  output[2]=TimeRay_Rx[0]*s;//rx time ray 1
+  output[3]=TimeRay_Rx[1]*s;//rx time ray 2
 
-  output[0]=RayParameters[0];//tx time ray 1
-  output[1]=RayParameters[1];//tx time ray 2
-  output[2]=RayParameters[2];//rx time ray 1
-  output[3]=RayParameters[3];//rx time ray 2
+  output[4]=LaunchAngle_Tx[0];//tx launch angle ray 1
+  output[5]=LaunchAngle_Tx[1];//tx launch angle ray 2
+  output[6]=LaunchAngle_Rx[0];//rx launch angle ray 1
+  output[7]=LaunchAngle_Rx[1];//rx launch angle ray 2
 
-  output[4]=RayParameters[4];//tx launch angle ray 1
-  output[5]=RayParameters[5];//tx launch angle ray 2
-  output[6]=RayParameters[6];//rx launch angle ray 1
-  output[7]=RayParameters[7];//rx launch angle ray 2
+  output[8]=RecieveAngle_Tx[0];//tx receive angle ray 1
+  output[9]=RecieveAngle_Tx[1];//tx receive angle ray 2
+  output[10]=RecieveAngle_Rx[0];//rx receive angle ray 1
+  output[11]=RecieveAngle_Rx[1];//rx receive angle ray 2  
 
-  output[8]=RayParameters[8];//tx receive angle ray 1
-  output[9]=RayParameters[9];//tx receive angle ray 2
-  output[10]=RayParameters[10];//rx receive angle ray 1
-  output[11]=RayParameters[11];//rx receive angle ray 2  
-
-  output[12]=RayParameters[12];//tx attenuation ray 1
-  output[13]=RayParameters[13];//tx attenuation ray 2
-  output[14]=RayParameters[14];//rx attenuation ray 1
-  output[15]=RayParameters[15];//rx attenuation ray 2  
+  output[12]=AttRay_Tx[0];//tx attenuation ray 1
+  output[13]=AttRay_Tx[1];//tx attenuation ray 2
+  output[14]=AttRay_Rx[0];//rx attenuation ray 1
+  output[15]=AttRay_Rx[1];//rx attenuation ray 2  
   
-  //cout<<"Straightline times are "<<StraightLineDTimeTx[2]*s<<" "<<StraightLineDTimeRx[2]*s<<endl;
-  
-  delete []RayParameters;
-  // delete []StraightLineDTimeTx;
-  // delete []StraightLineDTimeRx;
-  delete []GetTx2ShwrRays;
-  delete []GetRx2ShwrRays;
-
-  //cout<<"we are here 2"<<endl;
+  // delete []RayParameters;
+  // delete []GetTx2ShwrRays;
+  // delete []GetRx2ShwrRays;
   
   return output;
+}
+
+void RadioScatter::MakeRayTracingTable(TLorentzVector Tx,TVector3 Shwr,std::vector<double> (&GridPositionXb),std::vector<double> (&GridPositionZb),std::vector<std::vector<double>> (&GridZValueb)){ 
+  GridZValueb.resize(10);
+  
+  double Tx_x=Tx.X()/m;
+  double Tx_y=Tx.Y()/m;
+  double Tx_z=Tx.Z()/m;
+  if(Tx_z==0){
+    Tx_z=-1e-4;
+  }
+  double Shwr_x=Shwr.X()/m;
+  double Shwr_y=Shwr.Y()/m;
+  double Shwr_z=Shwr.Z()/m;
+  if(Shwr_z==0){
+    Shwr_z=-1e-4;
+  }
+  double startpoint=0;////always zero
+  double ShowerHitDistance=sqrt(pow(Tx_x-Shwr_x,2)+ pow(Tx_y-Shwr_y,2));
+
+  if(ShowerHitDistance<GridWidthX){
+    GridWidthX=ShowerHitDistance;
+  }
+  
+  TotalStepsX_O=(GridWidthX/GridStepSizeX_O)+1;
+  TotalStepsZ_O=(GridWidthZ/GridStepSizeZ_O)+1;
+
+  GridPoints=TotalStepsX_O*TotalStepsZ_O;
+  
+  GridStartX=ShowerHitDistance-(GridWidthX/2);
+  GridStopX=ShowerHitDistance+(GridWidthX/2);
+
+  GridStartZ=Shwr_z-(GridWidthZ/2);
+  GridStopZ=Shwr_z+(GridWidthZ/2);
+
+  if(GridStopZ>0){
+    GridStartZ=-20;
+    GridStopZ=0;
+  }
+  
+  //cout<<"Grid Variables are "<<GridStartX<<" "<<GridStartZ<<" "<<GridStopX<<" "<<GridStopZ<<" "<<GridWidthX<<" "<<TotalStepsX_O<<" "<<TotalStepsZ_O<<" "<<GridPoints<<endl;
+  
+  //////For recording how much time the process took
+  auto t1b = std::chrono::high_resolution_clock::now();  
+  
+  for(int ix=0;ix<TotalStepsX_O;ix++){
+    for(int iz=0;iz<TotalStepsZ_O;iz++){
+
+      double xR=GridStartX+GridStepSizeX_O*ix;
+      double zR=GridStartZ+GridStepSizeZ_O*iz;
+
+      double A0=1;
+      double frequency=0.1;//Tx frequency in GHz  
+  
+      double TimeRay_Tx[2]={0,0};
+      double PathRay_Tx[2]={0,0};
+      double LaunchAngle_Tx[2]={0,0};
+      double RecieveAngle_Tx[2]={0,0};
+      int IgnoreCh_Tx[2]={0,0};
+      double IncidenceAngleInIce_Tx[2]={0,0};
+      double AttRay_Tx[2]={0,0};
+      IceRayTracing::GetRayTracingSolutions(zR, xR, Tx.Z(), TimeRay_Tx, PathRay_Tx, LaunchAngle_Tx, RecieveAngle_Tx, IgnoreCh_Tx, IncidenceAngleInIce_Tx, A0, frequency, AttRay_Tx);
+      
+      GridPositionXb.push_back(xR);
+      GridPositionZb.push_back(zR);
+
+      if(IgnoreCh_Tx[0]!=0){
+	GridZValueb[0].push_back(TimeRay_Tx[0]*s);
+	GridZValueb[1].push_back(PathRay_Tx[0]*m);
+	GridZValueb[2].push_back(LaunchAngle_Tx[0]);
+	GridZValueb[3].push_back(RecieveAngle_Tx[0]);
+	GridZValueb[4].push_back(AttRay_Tx[0]);
+      }else{
+	GridZValueb[0].push_back(-1000.0);
+	GridZValueb[1].push_back(-1000.0);
+	GridZValueb[2].push_back(-1000.0);
+	GridZValueb[3].push_back(-1000.0);
+	GridZValueb[4].push_back(-1000.0);
+      }
+
+      if(IgnoreCh_Tx[1]!=0){
+	GridZValueb[5].push_back(TimeRay_Tx[1]*s);
+	GridZValueb[6].push_back(PathRay_Tx[1]*m);
+	GridZValueb[7].push_back(LaunchAngle_Tx[1]);
+	GridZValueb[8].push_back(RecieveAngle_Tx[1]);
+	GridZValueb[9].push_back(AttRay_Tx[1]);
+      }else{
+	GridZValueb[5].push_back(-1000.0);
+	GridZValueb[6].push_back(-1000.0);
+	GridZValueb[7].push_back(-1000.0);
+	GridZValueb[8].push_back(-1000.0);
+	GridZValueb[9].push_back(-1000.0);
+      }
+      
+    }
+  }
+
+  auto t2b = std::chrono::high_resolution_clock::now();
+  double duration = std::chrono::duration_cast<std::chrono::milliseconds>( t2b - t1b ).count();
+  cout<<"The table took "<<duration<<" ms to make"<<endl;
+  
+}
+
+
+double RadioScatter::GetInterpolatedValue(double xR, double zR, int rtParameter,std::vector<double> GridPositionXb,std::vector<double> GridPositionZb,std::vector<std::vector<double>> GridZValueb){
+ 
+  int MinDistBin[4];
+  double MinDist[10];
+
+  double sum1=0;
+  double sum2=0;
+  double NewZValue=0;
+
+  GridStartX=GridPositionXb[0];
+  GridStartZ=GridPositionZb[0];
+ 
+  GridStopX=GridPositionXb[GridPositionXb.size()-1];
+  GridStopZ=GridPositionZb[GridPositionZb.size()-1];
+ 
+  GridWidthX=GridStopX-GridStartX;
+  
+  TotalStepsX_O=sqrt(GridPositionXb.size());
+  TotalStepsZ_O=sqrt(GridPositionZb.size());
+
+  GridPoints=TotalStepsX_O*TotalStepsZ_O;
+
+  //cout<<"Grid Variables are "<<GridStartX<<" "<<GridStartZ<<" "<<GridStopX<<" "<<GridStopZ<<" "<<GridWidthX<<" "<<TotalStepsX_O<<" "<<TotalStepsZ_O<<" "<<GridPoints<<endl;
+  
+  double minXbin=round((xR-GridStartX)/GridStepSizeX_O);
+  double minZbin=round(fabs(zR-GridStartZ)/GridStepSizeZ_O);
+     
+  int newXbin=(minXbin/(TotalStepsX_O))*GridPoints;
+  int newZbin=newXbin+minZbin;
+      
+  int count=0;
+  if(minXbin<1){
+    minXbin=1;
+  }
+  if(minZbin<1){
+    minZbin=1;
+  }
+
+  if(minXbin+2>GridPoints){
+    minXbin=GridPoints-2;
+  }
+  if(minZbin+2>GridPoints){
+    minZbin=GridPoints-2;
+  }  
+
+  int startbinX=minXbin-1;
+  int endbinX=minXbin+1;
+  int startbinZ=minZbin-1;
+  int endbinZ=minZbin+1;
+     
+  newXbin=((minXbin-1)/TotalStepsX_O)*GridPoints;
+  newZbin=newXbin+(minZbin-1);
+  int newich=newZbin;
+
+  double minDist1=fabs(((xR-GridPositionXb[newich])*(xR-GridPositionXb[newich])+(zR-GridPositionZb[newich])*(zR-GridPositionZb[newich])));
+
+  newXbin=((minXbin+1)/TotalStepsX_O)*GridPoints;
+  newZbin=newXbin+(minZbin+1);
+  newich=newZbin;
+  double minDist2=fabs(((xR-GridPositionXb[newich])*(xR-GridPositionXb[newich])+(zR-GridPositionZb[newich])*(zR-GridPositionZb[newich])));
+  
+  if(minDist1<minDist2){
+    startbinX=minXbin-1;
+    endbinX=minXbin+1;
+    startbinZ=minZbin-1;
+    endbinZ=minZbin+1;
+  }
+
+  if(minDist1>minDist2){
+    startbinX=minXbin;
+    endbinX=minXbin+2;
+    startbinZ=minZbin;
+    endbinZ=minZbin+2;
+  }
+   
+  sum1=0;
+  sum2=0;
+  NewZValue=0;
+    
+  for(int ixn=startbinX;ixn<endbinX;ixn++){
+    for(int izn=startbinZ;izn<endbinZ;izn++){
+      newXbin=((double)ixn/TotalStepsX_O)*GridPoints;
+      newZbin=newXbin+izn;
+	  
+      newich=newZbin;
+      if(newich<GridPoints){
+	MinDist[count]=fabs(((xR-GridPositionXb[newich])*(xR-GridPositionXb[newich])+(zR-GridPositionZb[newich])*(zR-GridPositionZb[newich])));
+	MinDistBin[count]=newich;
+
+	if(GridZValueb[rtParameter][MinDistBin[count]]!=-1000){
+	  //cout<<"in here "<<endl;
+	  sum1+=(1.0/MinDist[count])*GridZValueb[rtParameter][MinDistBin[count]];
+	  sum2+=(1.0/MinDist[count]);
+	  NewZValue=sum1/sum2;
+	}else{
+	  //cout<<"in here too"<<endl;
+	  sum1+=0;
+	  sum2+=0;
+	  NewZValue=-1000;
+	}
+	
+	if(MinDist[count]==0){
+	  if(GridZValueb[rtParameter][MinDistBin[count]]!=-1000){
+	    //cout<<"in here too 2"<<endl;
+	    NewZValue=GridZValueb[rtParameter][MinDistBin[count]];
+	    izn=minZbin+3;
+	    ixn=minXbin+3;
+	  }else{
+	    //cout<<"in here too 3"<<endl;
+	    NewZValue=-1000;
+	    izn=minZbin+3;
+	    ixn=minXbin+3;
+	  }
+	}
+	count++;
+      }
+    }
+  }
+
+  return NewZValue;
+  
 }
 
 /*
@@ -1255,81 +1245,24 @@ double RadioScatter::makeRays(TLorentzVector point, double e, double l, double e
     RSCAT_HIST_DECLARE=true;
 
     if(USE_RAYTRACING==true){
-      rayTraceTimes.resize(ntx,vector<vector<vector<double> > >(nrx,vector<vector<double> >(4,vector<double>(totalShowerPoints))));
-      rayTraceLaunchAngle.resize(ntx,vector<vector<vector<double> > >(nrx,vector<vector<double> >(4,vector<double>(totalShowerPoints))));
-      rayTraceReceiveAngle.resize(ntx,vector<vector<vector<double> > >(nrx,vector<vector<double> >(4,vector<double>(totalShowerPoints))));
-      rayTraceAttenuation.resize(ntx,vector<vector<vector<double> > >(nrx,vector<vector<double> >(4,vector<double>(totalShowerPoints))));
-       
+
       TVector3 showerStart=TVector3(event.position);
-      TVector3 stretch=TVector3(event.direction);
-      double showerAngle=stretch.Theta();
-  
-      for(int insh=0;insh<totalShowerPoints;insh++){
-	showerPointDist2Vertex[insh]=insh*m;
-	if(insh==0){  
-	  stretch.SetMag(showerPointDist2Vertex[insh] + 0.000001*m);
-	}else{
-	  stretch.SetMag(showerPointDist2Vertex[insh]);
-	}
 
-	TVector3 showerPoint=showerStart+stretch;
-	double pointDepth=showerPoint.Z();
-	double showerAngle=stretch.Theta();
-	double shwrPropTime=(showerPointDist2Vertex[insh]/c_light)*ns;
-    
-	for(int i=0;i<ntx;i++){
-	  for(int j=0;j<nrx;j++){
-	    double *rayTracePar=rayTrace(tx[i], rx[j], showerPoint);
-	    rayTraceTimes[i][j][0][insh]=rayTracePar[0];
-	    rayTraceTimes[i][j][1][insh]=rayTracePar[1];
-	    rayTraceTimes[i][j][2][insh]=rayTracePar[2];
-	    rayTraceTimes[i][j][3][insh]=rayTracePar[3];
-
-	    rayTraceLaunchAngle[i][j][0][insh]=rayTracePar[4];
-	    rayTraceLaunchAngle[i][j][1][insh]=rayTracePar[5];
-	    rayTraceLaunchAngle[i][j][2][insh]=rayTracePar[6];
-	    rayTraceLaunchAngle[i][j][3][insh]=rayTracePar[7];
-
-	    rayTraceReceiveAngle[i][j][0][insh]=rayTracePar[8];
-	    rayTraceReceiveAngle[i][j][1][insh]=rayTracePar[9];
-	    rayTraceReceiveAngle[i][j][2][insh]=rayTracePar[10];
-	    rayTraceReceiveAngle[i][j][3][insh]=rayTracePar[11];
-
-	    rayTraceAttenuation[i][j][0][insh]=rayTracePar[12];
-	    rayTraceAttenuation[i][j][1][insh]=rayTracePar[13];
-	    rayTraceAttenuation[i][j][2][insh]=rayTracePar[14];
-	    rayTraceAttenuation[i][j][3][insh]=rayTracePar[15];	 
-	    
-	    //cout<<"delta ts are "<<i<<" "<<j<<" "<<insh<<" "<<rayTraceTimes[i][j][0][insh]<<" "<<rayTraceTimes[i][j][1][insh]<<" "<<rayTraceTimes[i][j][2][insh]<<" "<<rayTraceTimes[i][j][3][insh]<<endl;
-	    //cout<<"delta ts are "<<i<<" "<<j<<" "<<insh<<" "<<rayTraceTimes[0]<<" "<<rayTraceTimes[1]<<" "<<rayTraceTimes[2]<<" "<<rayTraceTimes[3]<<" "<<shwrPropTime<<endl;
-	    delete []rayTracePar;
-	  }
-	}
-      }  
+      GridPositionX_Tx.resize(ntx);
+      GridPositionZ_Tx.resize(ntx);
+      GridZValue_Tx.resize(ntx);
       
-      splineTime.resize(ntx,vector<vector<gsl_spline* > >(nrx,vector<gsl_spline* >(4)));
-      splineLaunchAngle.resize(ntx,vector<vector<gsl_spline* > >(nrx,vector<gsl_spline* >(4)));
-      splineReceiveAngle.resize(ntx,vector<vector<gsl_spline* > >(nrx,vector<gsl_spline* >(4)));
-      splineAttenuation.resize(ntx,vector<vector<gsl_spline* > >(nrx,vector<gsl_spline* >(4)));
-      
+      GridPositionX_Rx.resize(nrx);
+      GridPositionZ_Rx.resize(nrx);
+      GridZValue_Rx.resize(nrx);
+     
       for(int i=0;i<ntx;i++){
-	for(int j=0;j<nrx;j++){    
-	  for (int irxtx = 0; irxtx < 4; irxtx++){
-	    splineTime[i][j][irxtx]= gsl_spline_alloc (gsl_interp_cspline, totalShowerPoints);
-	    gsl_spline_init (splineTime[i][j][irxtx], showerPointDist2Vertex, rayTraceTimes[i][j][irxtx].data(), totalShowerPoints);
-
-	    splineLaunchAngle[i][j][irxtx]= gsl_spline_alloc (gsl_interp_cspline, totalShowerPoints);
-	    gsl_spline_init (splineLaunchAngle[i][j][irxtx], showerPointDist2Vertex, rayTraceLaunchAngle[i][j][irxtx].data(), totalShowerPoints);
-	    
-	    splineReceiveAngle[i][j][irxtx]= gsl_spline_alloc (gsl_interp_cspline, totalShowerPoints);
-	    gsl_spline_init (splineReceiveAngle[i][j][irxtx], showerPointDist2Vertex, rayTraceReceiveAngle[i][j][irxtx].data(), totalShowerPoints);
-
-	    splineAttenuation[i][j][irxtx]= gsl_spline_alloc (gsl_interp_cspline, totalShowerPoints);
-	    gsl_spline_init (splineAttenuation[i][j][irxtx], showerPointDist2Vertex, rayTraceAttenuation[i][j][irxtx].data(), totalShowerPoints);
-	  }
+	RadioScatter::MakeRayTracingTable(tx[i],showerStart,GridPositionX_Tx[i],GridPositionZ_Tx[i],GridZValue_Tx[i]);
 	}
-      }
-      
+      for(int j=0;j<nrx;j++){
+	RadioScatter::MakeRayTracingTable(rx[j],showerStart,GridPositionX_Rx[j],GridPositionZ_Rx[j],GridZValue_Rx[j]);
+      }      
+          
     }///if raytracing is true
   }
 
@@ -1462,46 +1395,47 @@ double RadioScatter::makeRays(TLorentzVector point, double e, double l, double e
 	    point_temp.SetT(point_time);
 	  }///while loop
 	}else{///add raytracing times since its on
-	 
-	  double showerPoint=vec.Mag();
-	  double tof_TxRay[2]={gsl_spline_eval(splineTime[i][j][0], showerPoint, acc), gsl_spline_eval(splineTime[i][j][1], showerPoint, acc)};
-	  double lA_TxRay[2]={gsl_spline_eval(splineLaunchAngle[i][j][0], showerPoint, acc),gsl_spline_eval(splineLaunchAngle[i][j][1], showerPoint, acc)};
-	  double rA_TxRay[2]={gsl_spline_eval(splineReceiveAngle[i][j][0], showerPoint, acc),gsl_spline_eval(splineReceiveAngle[i][j][1], showerPoint, acc)};
-	  double att_TxRay[2]={gsl_spline_eval(splineAttenuation[i][j][0], showerPoint, acc),gsl_spline_eval(splineAttenuation[i][j][1], showerPoint, acc)};
-	  
-	  double distanceFactor;
-	  
-	  for (int irxtx = 2; irxtx < 4; irxtx++){
-	 
-	    double tof_RxRay=gsl_spline_eval(splineTime[i][j][irxtx], showerPoint, acc);
-	    double lA_RxRay=gsl_spline_eval(splineLaunchAngle[i][j][irxtx], showerPoint, acc);
-	    double rA_RxRay=gsl_spline_eval(splineReceiveAngle[i][j][irxtx], showerPoint, acc);
-	    double att_RxRay=gsl_spline_eval(splineAttenuation[i][j][irxtx], showerPoint, acc);
 
-	    for (int itx = 0; itx < 2; itx++){
-	      distanceFactor=(tof_TxRay[itx]*tof_RxRay)*pow(c_light/m,2);
+	  double xR=sqrt(pow(tx[i].X()-vec.X(),2) + pow(tx[i].Y()-vec.Y(),2))/m;
+	  double zR=vec.Z()/m;
+	  double tof_TxRay[2]={GetInterpolatedValue(xR, zR, 0,GridPositionX_Tx[i],GridPositionZ_Tx[i],GridZValue_Tx[i]), GetInterpolatedValue(xR, zR, 5,GridPositionX_Tx[i],GridPositionZ_Tx[i],GridZValue_Tx[i])};
+	  double lA_TxRay[2]={GetInterpolatedValue(xR, zR, 2,GridPositionX_Tx[i],GridPositionZ_Tx[i],GridZValue_Tx[i]), GetInterpolatedValue(xR, zR, 7,GridPositionX_Tx[i],GridPositionZ_Tx[i],GridZValue_Tx[i])};
+	  double rA_TxRay[2]={GetInterpolatedValue(xR, zR, 3,GridPositionX_Tx[i],GridPositionZ_Tx[i],GridZValue_Tx[i]), GetInterpolatedValue(xR, zR, 8,GridPositionX_Tx[i],GridPositionZ_Tx[i],GridZValue_Tx[i])};
+	  double att_TxRay[2]={GetInterpolatedValue(xR, zR, 4,GridPositionX_Tx[i],GridPositionZ_Tx[i],GridZValue_Tx[i]), GetInterpolatedValue(xR, zR, 9,GridPositionX_Tx[i],GridPositionZ_Tx[i],GridZValue_Tx[i])};
+	  
+	  xR=sqrt(pow(rx[j].X()-vec.X(),2) + pow(rx[j].Y()-vec.Y(),2))/m;
+	  double tof_RxRay[2]={GetInterpolatedValue(xR, zR, 0,GridPositionX_Rx[j],GridPositionZ_Rx[j],GridZValue_Rx[j]), GetInterpolatedValue(xR, zR, 5,GridPositionX_Rx[j],GridPositionZ_Rx[j],GridZValue_Rx[j])};
+	  double lA_RxRay[2]={GetInterpolatedValue(xR, zR, 2,GridPositionX_Rx[j],GridPositionZ_Rx[j],GridZValue_Rx[j]), GetInterpolatedValue(xR, zR, 7,GridPositionX_Rx[j],GridPositionZ_Rx[j],GridZValue_Rx[j])};
+	  double rA_RxRay[2]={GetInterpolatedValue(xR, zR, 3,GridPositionX_Rx[j],GridPositionZ_Rx[j],GridZValue_Rx[j]), GetInterpolatedValue(xR, zR, 8,GridPositionX_Rx[j],GridPositionZ_Rx[j],GridZValue_Rx[j])};
+	  double att_RxRay[2]={GetInterpolatedValue(xR, zR, 4,GridPositionX_Rx[j],GridPositionZ_Rx[j],GridZValue_Rx[j]), GetInterpolatedValue(xR, zR, 9,GridPositionX_Rx[j],GridPositionZ_Rx[j],GridZValue_Rx[j])};
+	  
+	  for (int itx = 0; itx < 2; itx++){
+	    for (int irx = 0; irx < 2; irx++){
+	      if(att_TxRay[itx]!=-1000 && att_RxRay[irx]!=-1000){
+		double distanceFactor=(tof_TxRay[itx]*tof_RxRay[irx])*pow(c_light/m,2);
 	      
-	      point_time=point_temp.T();
-	      double point_time_end=point_time+lifetime;
-	      while(point_time<point_time_end){
-		//get the signal amplitude and phase
-		rx_time = point_time+tof_RxRay;  
-		rx_phase = getRxPhaseRT(point_temp, j1, j2, l1, l2,tof_TxRay[itx]);
-		rx_amplitude = getRxAmplitudeRT(j, point_temp, j1, j2, l1, l2, distanceFactor, lA_TxRay[itx], rA_TxRay[itx], lA_RxRay,rA_RxRay,att_RxRay*att_TxRay[itx]);
+		point_time=point_temp.T();
+		double point_time_end=point_time+lifetime;
+		while(point_time<point_time_end){
+		  //get the signal amplitude and phase
+		  rx_time = point_time+tof_RxRay[irx];  
+		  rx_phase = getRxPhaseRT(point_temp, j1, j2, l1, l2,tof_TxRay[itx]);
+		  rx_amplitude = getRxAmplitudeRT(j, point_temp, j1, j2, l1, l2, distanceFactor, lA_TxRay[itx], rA_TxRay[itx], lA_RxRay[irx],rA_RxRay[irx],att_RxRay[irx]*att_TxRay[itx]);
 
-		double E_real= prefactor*rx_amplitude*(omega*cos(rx_phase)+nu_col*sin(rx_phase));
-		double E_imag = prefactor*rx_amplitude*(-nu_col*cos(rx_phase)+omega*sin(rx_phase));
+		  double E_real= prefactor*rx_amplitude*(omega*cos(rx_phase)+nu_col*sin(rx_phase));
+		  double E_imag = prefactor*rx_amplitude*(-nu_col*cos(rx_phase)+omega*sin(rx_phase));
      
-		if(abs(E_real)<tx_voltage){//simple sanity check, probably not needed
-		  time_hist[i][j]->Fill(rx_time, E_real);
-		  re_hist[i][j]->Fill(rx_time, E_real);
-		  im_hist[i][j]->Fill(rx_time, E_imag);
-		}
-		point_time+=samplingperiod;
-		point_temp.SetT(point_time);
-	      }///while loop
-	    }//itx loop
-	  }///irxtx loop
+		  if(abs(E_real)<tx_voltage){//simple sanity check, probably not needed
+		    time_hist[i][j]->Fill(rx_time, E_real);
+		    re_hist[i][j]->Fill(rx_time, E_real);
+		    im_hist[i][j]->Fill(rx_time, E_imag);
+		  }
+		  point_time+=samplingperiod;
+		  point_temp.SetT(point_time);
+		}///while loop
+	      }///check if there is a valid solution
+	    }//irx loop
+	  }///itx loop
 	}///add raytracing else statement
 	
       }
@@ -1530,54 +1464,53 @@ double RadioScatter::makeRays(TLorentzVector point, double e, double l, double e
 	  }///while loop
 	
 	}else{///add raytracing times since raytracing is on
-	  
-	  double showerPoint=vec.Mag();
-	  double tof_TxRay[2]={gsl_spline_eval(splineTime[i][j][0], showerPoint, acc),gsl_spline_eval(splineTime[i][j][1], showerPoint, acc)};
-	  double lA_TxRay[2]={gsl_spline_eval(splineLaunchAngle[i][j][0], showerPoint, acc),gsl_spline_eval(splineLaunchAngle[i][j][1], showerPoint, acc)};
-	  double rA_TxRay[2]={gsl_spline_eval(splineReceiveAngle[i][j][0], showerPoint, acc),gsl_spline_eval(splineReceiveAngle[i][j][1], showerPoint, acc)};
-	  double att_TxRay[2]={gsl_spline_eval(splineAttenuation[i][j][0], showerPoint, acc),gsl_spline_eval(splineAttenuation[i][j][1], showerPoint, acc)};
-	  
-	  double distanceFactor;
 
-	  for (int irxtx = 2; irxtx < 4; irxtx++){
-	    double tof_RxRay=gsl_spline_eval(splineTime[i][j][irxtx], showerPoint, acc);
-	    double lA_RxRay=gsl_spline_eval(splineLaunchAngle[i][j][irxtx], showerPoint, acc);
-	    double rA_RxRay=gsl_spline_eval(splineReceiveAngle[i][j][irxtx], showerPoint, acc);	    
-	    double att_RxRay=gsl_spline_eval(splineAttenuation[i][j][irxtx], showerPoint, acc);
-	    
-	    for (int itx = 0; itx < 2; itx++){
-	      distanceFactor=(tof_TxRay[itx]*tof_RxRay)*pow(c_light/m,2);
-	     
-	      point_time=point_temp.T();
-	      double point_time_end=point_time+lifetime;
-	      while(point_time<point_time_end){
-		//get the signal amplitude and phase
-		rx_time = point_time+tof_RxRay;
-		rx_phase= getRxPhaseRT(i, j, point_temp, point_time+tof_RxRay, point_time-tof_TxRay[itx]);
-		rx_amplitude=getRxAmplitudeRT(i,j,point_temp,distanceFactor,lA_TxRay[itx],rA_RxRay,att_RxRay*att_TxRay[itx]);		
+	  double xR=sqrt(pow(tx[i].X()-vec.X(),2) + pow(tx[i].Y()-vec.Y(),2))/m;
+	  double zR=vec.Z()/m;
+	  double tof_TxRay[2]={GetInterpolatedValue(xR, zR, 0,GridPositionX_Tx[i],GridPositionZ_Tx[i],GridZValue_Tx[i]), GetInterpolatedValue(xR, zR, 5,GridPositionX_Tx[i],GridPositionZ_Tx[i],GridZValue_Tx[i])};
+	  double lA_TxRay[2]={GetInterpolatedValue(xR, zR, 2,GridPositionX_Tx[i],GridPositionZ_Tx[i],GridZValue_Tx[i]), GetInterpolatedValue(xR, zR, 7,GridPositionX_Tx[i],GridPositionZ_Tx[i],GridZValue_Tx[i])};
+	  double rA_TxRay[2]={GetInterpolatedValue(xR, zR, 3,GridPositionX_Tx[i],GridPositionZ_Tx[i],GridZValue_Tx[i]), GetInterpolatedValue(xR, zR, 8,GridPositionX_Tx[i],GridPositionZ_Tx[i],GridZValue_Tx[i])};
+	  double att_TxRay[2]={GetInterpolatedValue(xR, zR, 4,GridPositionX_Tx[i],GridPositionZ_Tx[i],GridZValue_Tx[i]), GetInterpolatedValue(xR, zR, 9,GridPositionX_Tx[i],GridPositionZ_Tx[i],GridZValue_Tx[i])};
 	  
-		double E_real= prefactor*rx_amplitude*(omega*cos(rx_phase)+nu_col*sin(rx_phase));
-		double E_imag = prefactor*rx_amplitude*(-nu_col*cos(rx_phase)+omega*sin(rx_phase));
+	  xR=sqrt(pow(rx[j].X()-vec.X(),2) + pow(rx[j].Y()-vec.Y(),2))/m;
+	  double tof_RxRay[2]={GetInterpolatedValue(xR, zR, 0,GridPositionX_Rx[j],GridPositionZ_Rx[j],GridZValue_Rx[j]), GetInterpolatedValue(xR, zR, 5,GridPositionX_Rx[j],GridPositionZ_Rx[j],GridZValue_Rx[j])};
+	  double lA_RxRay[2]={GetInterpolatedValue(xR, zR, 2,GridPositionX_Rx[j],GridPositionZ_Rx[j],GridZValue_Rx[j]), GetInterpolatedValue(xR, zR, 7,GridPositionX_Rx[j],GridPositionZ_Rx[j],GridZValue_Rx[j])};
+	  double rA_RxRay[2]={GetInterpolatedValue(xR, zR, 3,GridPositionX_Rx[j],GridPositionZ_Rx[j],GridZValue_Rx[j]), GetInterpolatedValue(xR, zR, 8,GridPositionX_Rx[j],GridPositionZ_Rx[j],GridZValue_Rx[j])};
+	  double att_RxRay[2]={GetInterpolatedValue(xR, zR, 4,GridPositionX_Rx[j],GridPositionZ_Rx[j],GridZValue_Rx[j]), GetInterpolatedValue(xR, zR, 9,GridPositionX_Rx[j],GridPositionZ_Rx[j],GridZValue_Rx[j])};
+	  
+	  for (int itx = 0; itx < 2; itx++){
+	    for (int irx = 0; irx < 2; irx++){
+	      if(att_TxRay[itx]!=-1000 && att_RxRay[irx]!=-1000){
+		double distanceFactor=(tof_TxRay[itx]*tof_RxRay[irx])*pow(c_light/m,2);
+	     
+		point_time=point_temp.T();
+		double point_time_end=point_time+lifetime;
+		while(point_time<point_time_end){
+		  //get the signal amplitude and phase
+		  rx_time = point_time+tof_RxRay[irx];
+		  rx_phase= getRxPhaseRT(i, j, point_temp, point_time+tof_RxRay[irx], point_time-tof_TxRay[itx]);
+		  rx_amplitude=getRxAmplitudeRT(i,j,point_temp,distanceFactor,lA_TxRay[itx],rA_RxRay[irx],att_RxRay[irx]*att_TxRay[itx]);		
+	  
+		  double E_real= prefactor*rx_amplitude*(omega*cos(rx_phase)+nu_col*sin(rx_phase));
+		  double E_imag = prefactor*rx_amplitude*(-nu_col*cos(rx_phase)+omega*sin(rx_phase));
      
-		if(abs(E_real)<tx_voltage){//simple sanity check, probably not needed
-		  time_hist[i][j]->Fill(rx_time, E_real);
-		  re_hist[i][j]->Fill(rx_time, E_real);
-		  im_hist[i][j]->Fill(rx_time, E_imag);
-		}
-		point_time+=samplingperiod;
-		point_temp.SetT(point_time);
-	      }///while loop
-	    }//itx loop
-	   
-	  }///irxtx loop
+		  if(abs(E_real)<tx_voltage){//simple sanity check, probably not needed
+		    time_hist[i][j]->Fill(rx_time, E_real);
+		    re_hist[i][j]->Fill(rx_time, E_real);
+		    im_hist[i][j]->Fill(rx_time, E_imag);
+		  }
+		  point_time+=samplingperiod;
+		  point_temp.SetT(point_time);
+		}///while loop
+	      }///check if there is any solution
+	    }//irx loop
+	  }///itx loop
 	}///add raytracing else statement
       }
     }/// j loop over nrx
     return 1;
   }/// i loop over ntx
 }
-
-
 
 //calculate screeing effects. at the moment, cannot be run in 'realtime' inside of GEANT4.
 double RadioScatter::doScreening(TTree * tree, int entry){
