@@ -105,8 +105,18 @@ public:
   double plasma_const = 4.*pi*e_charge_cgs*e_charge_cgs/e_mass_cgs;
   ///<e^2/(4pi epislon0 m c^2), in units of m
   double e_radius=classic_electr_radius/m;
-  double nu_col = 0;///<collisional frequency
-  
+
+
+  double N_ice=3.2e19;
+  ///     number density of ice per mm^3;  
+  double nu_col = sqrt(kB*(300)*kelvin/m_e)*collisionalCrossSection*(N_ice);  
+  /**\brief collisional cross section. 
+
+     the collisional cross section is some number x10^-16cm^-3.
+     NIST has a plot that depends upon the incident ionization energy
+     a value of 1e-16 is for 15eV ionization electron energy,  
+     other values are plugged in. the value is of order THz.
+ **/
   double half_window = 300;///<number of nanoseconds in 1/2 of the record window. can be changed;   
 
   int useAttnLengthFlag=0;///<use attenuation length?
@@ -140,7 +150,7 @@ public:
   double n_rel=1.5; ///<relative index of refraction, calculated to always be >1.
 
   //a function for the lifetime
-  TF1 * lifetimeFunc=0;
+  TF1 * lifetimeFunc=new TF1("lifetime", "exp(-x/[0])", 0, 50);
 
   ///<some histograms 
   TH1F *fft_hist, *power_hist;
@@ -181,7 +191,7 @@ public:
   int PRIMARY_ENERGY_SET=0;///indicates that the primary particle energy is known to radioscatter
   int SCALE_BY_ENERGY=0;///sets the flag to scale by energy. 
   int ENERGY_SCALING_SET=0;///indicates that the energy scaling has been set.
-
+  int PLASMA_LIFETIME_SET=0;///indicates that the user has not set a plasma lifetime, and it will therefore be the default value. 
 
   bool RADIOSCATTER_INIT=0;///indicates that all the values needed for radioscatter to do the things have been set.
   int REAL_DATA=0;

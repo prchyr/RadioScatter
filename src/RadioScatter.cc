@@ -236,6 +236,7 @@ void RadioScatter::setRxPos(TVector3 in, int index){
   std::cout<<"lambda: "<<lambda<<std::endl;
 
   std::cout<<"attn length (mm): "<<attnLength<<std::endl;
+  std::cout<<"collisional freq [GHz]: "<<nu_col<<std::endl;
 }
  void RadioScatter::setTxVoltage(double v){
   tx_voltage = v;
@@ -480,8 +481,9 @@ void RadioScatter::setPolarization(TVector3 p){//const char * p){
 
 void RadioScatter::setPlasmaLifetime(double l){
   lifetime=l;
-  lifetimeFunc=new TF1("lifetime", "exp(-x/[0])", 0, 50);
+  //lifetimeFunc=new TF1("lifetime", "exp(-x/[0])", 0, 50);
   lifetimeFunc->SetParameter(0,lifetime);
+  PLASMA_LIFETIME_SET=1;
 }
 void RadioScatter::setRxVals(double s=1., double gain=1.){
     samplerate = s*ns;
@@ -858,6 +860,9 @@ double RadioScatter::makeRays(TLorentzVector point, double e, double l, double e
     //RADIOSCATTER_INIT=true;
   }
 
+  if(PLASMA_LIFETIME_SET==0){
+    setPlasmaLifetime(lifetime);
+  }
   double rx_time, rx_amplitude, rx_phase, point_time, t_step=0.;
 
   if(NPRIMARIES_SET==0){
@@ -923,13 +928,7 @@ double RadioScatter::makeRays(TLorentzVector point, double e, double l, double e
 
 
 
-      //rad scat as published
-      double N_ice=3.2e19;//per mm^3;
-      //the collisional cross section is some number x10^-16cm^-3.
-      //NIST has a plot that depends upon the incident ionization energy
-      //a value of 1e-16 is for 15eV ionization electron energy,
-      //we use 3 for good measure.
-      nu_col = sqrt(kB*(300)*kelvin/m_e)*collisionalCrossSection*(N_ice);
+      
 
       if(i==0&&j==0){
 	event.totNScatterers+=n;//track total number of scatterers. once per event.
