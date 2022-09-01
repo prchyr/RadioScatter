@@ -1015,10 +1015,6 @@ void RadioScatter::MakeRayTracingTable(TLorentzVector Tx,TVector3 Shwr,std::vect
   }
   double startpoint=0;////always zero
   double ShowerHitDistance=sqrt(pow(Tx_x-Shwr_x,2)+ pow(Tx_y-Shwr_y,2));
-
-  if(ShowerHitDistance<GridWidthX){
-    GridWidthX=ShowerHitDistance;
-  }
   
   TotalStepsX_O=(GridWidthX/GridStepSizeX_O)+1;
   TotalStepsZ_O=(GridWidthZ/GridStepSizeZ_O)+1;
@@ -1028,6 +1024,10 @@ void RadioScatter::MakeRayTracingTable(TLorentzVector Tx,TVector3 Shwr,std::vect
   GridStartX=ShowerHitDistance-(GridWidthX/2);
   GridStopX=ShowerHitDistance+(GridWidthX/2);
 
+  if(ShowerHitDistance<GridWidthX){
+    GridStartX=0;
+  }
+  
   GridStartZ=Shwr_z-(GridWidthZ/2);
   GridStopZ=Shwr_z+(GridWidthZ/2);
 
@@ -1040,6 +1040,9 @@ void RadioScatter::MakeRayTracingTable(TLorentzVector Tx,TVector3 Shwr,std::vect
   
   //////For recording how much time the process took
   auto t1b = std::chrono::high_resolution_clock::now();  
+
+  GridPositionXb.resize(TotalStepsX_O);
+  GridPositionZb.resize(TotalStepsZ_O);
   
   for(int ix=0;ix<TotalStepsX_O;ix++){
     for(int iz=0;iz<TotalStepsZ_O;iz++){
@@ -1057,11 +1060,11 @@ void RadioScatter::MakeRayTracingTable(TLorentzVector Tx,TVector3 Shwr,std::vect
       int IgnoreCh_Tx[2]={0,0};
       double IncidenceAngleInIce_Tx[2]={0,0};
       double AttRay_Tx[2]={0,0};
-      IceRayTracing::GetRayTracingSolutions(zR, xR, Tx.Z(), TimeRay_Tx, PathRay_Tx, LaunchAngle_Tx, RecieveAngle_Tx, IgnoreCh_Tx, IncidenceAngleInIce_Tx, A0, frequency, AttRay_Tx);
-      
-      GridPositionXb.push_back(xR);
-      GridPositionZb.push_back(zR);
+      IceRayTracing::GetRayTracingSolutions(zR, xR, Tx.Z(), TimeRay_Tx, PathRay_Tx, LaunchAngle_Tx, RecieveAngle_Tx, IgnoreCh_Tx, IncidenceAngleInIce_Tx, A0, frequency, AttRay_Tx);      
 
+      GridPositionXb[ix]=xR;
+      GridPositionZb[iz]=zR;
+      
       if(IgnoreCh_Tx[0]!=0){
 	GridZValueb[0].push_back(TimeRay_Tx[0]*s);
 	GridZValueb[1].push_back(PathRay_Tx[0]*m);
@@ -1102,8 +1105,8 @@ void RadioScatter::MakeRayTracingTable(TLorentzVector Tx,TVector3 Shwr,std::vect
 
 double RadioScatter::GetInterpolatedValue(double xR, double zR, int rtParameter,std::vector<double> GridPositionXb,std::vector<double> GridPositionZb,std::vector<std::vector<double>> GridZValueb){
  
-  int MinDistBin[4];
-  double MinDist[10];
+  int MinDistBin[20];
+  double MinDist[20];
 
   double sum1=0;
   double sum2=0;
@@ -1150,30 +1153,19 @@ double RadioScatter::GetInterpolatedValue(double xR, double zR, int rtParameter,
   int startbinZ=minZbin-1;
   int endbinZ=minZbin+1;
      
-  newXbin=((minXbin-1)/TotalStepsX_O)*GridPoints;
-  newZbin=newXbin+(minZbin-1);
-  int newich=newZbin;
+  newXbin=(minXbin-1);
+  newZbin=(minZbin-1);
 
-  double minDist1=fabs(((xR-GridPositionXb[newich])*(xR-GridPositionXb[newich])+(zR-GridPositionZb[newich])*(zR-GridPositionZb[newich])));
+  double minDist1=fabs(((xR-GridPositionXb[newXbin])*(xR-GridPositionXb[newXbin])+(zR-GridPositionZb[newZbin])*(zR-GridPositionZb[newZbin])));
 
-  newXbin=((minXbin+1)/TotalStepsX_O)*GridPoints;
-  newZbin=newXbin+(minZbin+1);
-  newich=newZbin;
-  double minDist2=fabs(((xR-GridPositionXb[newich])*(xR-GridPositionXb[newich])+(zR-GridPositionZb[newich])*(zR-GridPositionZb[newich])));
+  newXbin=(minXbin+1);
+  newZbin=(minZbin+1);
+  double minDist2=fabs(((xR-GridPositionXb[newXbin])*(xR-GridPositionXb[newXbin])+(zR-GridPositionZb[newZbin])*(zR-GridPositionZb[newZbin])));
   
-  if(minDist1<minDist2){
-    startbinX=minXbin-1;
-    endbinX=minXbin+1;
-    startbinZ=minZbin-1;
-    endbinZ=minZbin+1;
-  }
-
-  if(minDist1>minDist2){
-    startbinX=minXbin;
-    endbinX=minXbin+2;
-    startbinZ=minZbin;
-    endbinZ=minZbin+2;
-  }
+  startbinX=minXbin-1;
+  endbinX=minXbin+1;
+  startbinZ=minZbin-1;
+  endbinZ=minZbin+1;
    
   sum1=0;
   sum2=0;
@@ -1181,11 +1173,11 @@ double RadioScatter::GetInterpolatedValue(double xR, double zR, int rtParameter,
     
   for(int ixn=startbinX;ixn<endbinX;ixn++){
     for(int izn=startbinZ;izn<endbinZ;izn++){
-      newXbin=((double)ixn/TotalStepsX_O)*GridPoints;
-      newZbin=newXbin+izn;
-	  
-      newich=newZbin;
-      if(newich<GridPoints){
+      newXbin=ixn;
+      newZbin=izn;
+      int newich=(ixn)*TotalStepsZ_O+(izn);	  
+  
+      if(newich>=0 && newich<GridPoints && ixn<TotalStepsX_O && izn<TotalStepsZ_O && ixn>=0 && izn>=0){
 	MinDist[count]=fabs(((xR-GridPositionXb[newich])*(xR-GridPositionXb[newich])+(zR-GridPositionZb[newich])*(zR-GridPositionZb[newich])));
 	MinDistBin[count]=newich;
 
@@ -1258,7 +1250,7 @@ double RadioScatter::makeRays(TLorentzVector point, double e, double l, double e
      
       for(int i=0;i<ntx;i++){
 	RadioScatter::MakeRayTracingTable(tx[i],showerStart,GridPositionX_Tx[i],GridPositionZ_Tx[i],GridZValue_Tx[i]);
-	}
+      }
       for(int j=0;j<nrx;j++){
 	RadioScatter::MakeRayTracingTable(rx[j],showerStart,GridPositionX_Rx[j],GridPositionZ_Rx[j],GridZValue_Rx[j]);
       }      
