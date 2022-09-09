@@ -206,7 +206,7 @@ void RadioScatter::setRxPos(TVector3 in, int index){
     frequency = f*GHz;
     omega = frequency*twoPi;
     period = 1./omega;
-    lambda = (c_light/frequency)/m;
+    lambda = (c_light/frequency);
     k = (omega/c_light);
     tx_gain = gain;
     tx_voltage = sqrt(power*50.);
@@ -216,7 +216,7 @@ void RadioScatter::setRxPos(TVector3 in, int index){
    frequency = f*GHz;
   omega = frequency*twoPi;
   period = 1./omega;
-  lambda = (c_light/f)/m;
+  lambda = (c_light/f);
   k = (omega/c_light);
   
   if(TX_GAIN_SET!=1){
@@ -237,7 +237,11 @@ void RadioScatter::setRxPos(TVector3 in, int index){
 
   std::cout<<"attn length (mm): "<<attnLength<<std::endl;
   std::cout<<"collisional freq [GHz]: "<<nu_col<<std::endl;
-}
+
+  std::cout<<"plasma const: "<<plasma_const<<std::endl;
+
+  std::cout<<"electr radius: "<<e_radius<<std::endl;
+ }
  void RadioScatter::setTxVoltage(double v){
   tx_voltage = v;
   event.txVoltage=v;
@@ -566,7 +570,7 @@ use the calculated refraction vectors (from makeRays()) to sort out the correct 
  */
 
  double RadioScatter::getRxAmplitude(int index,TLorentzVector point, TVector3 j1, TVector3 j2, TVector3 l1, TVector3 l2){
-   double dist = ((j1.Mag()+j2.Mag())/m)*((l1.Mag()+l2.Mag())/m);
+   double dist = ((j1.Mag()+j2.Mag()))*((l1.Mag()+l2.Mag()));
   //refraction things:
 
 
@@ -626,7 +630,7 @@ use the calculated refraction vectors (from makeRays()) to sort out the correct 
 
 //non-refracted amplitude
 double RadioScatter::getRxAmplitude(int txindex,int rxindex, TLorentzVector point){
-  double dist = ((tx[txindex].Vect()-point.Vect()).Mag()/m)*((rx[rxindex].Vect()-point.Vect()).Mag()/m);//here we've used the product of the distances as the radiated amplitude E~(E_0/R_1)/R_2. 
+  double dist = ((tx[txindex].Vect()-point.Vect()).Mag())*((rx[rxindex].Vect()-point.Vect()).Mag());//here we've used the product of the distances as the radiated amplitude E~(E_0/R_1)/R_2. 
 
   TVector3 one=tx[txindex].Vect()-point.Vect();
   TVector3 two=point.Vect()-rx[rxindex].Vect();
@@ -651,7 +655,7 @@ double RadioScatter::getRxAmplitude(int txindex,int rxindex, TLorentzVector poin
 }
 
 double RadioScatter::getAmplitudeFromAt(double E_0,TLorentzVector from, TLorentzVector at){
-  double dist=((tx[0].Vect()-from.Vect()).Mag()/m)*((from.Vect()-at.Vect()).Mag()/m);
+  double dist=((tx[0].Vect()-from.Vect()).Mag())*((from.Vect()-at.Vect()).Mag());
 
   TVector3 one=tx[0].Vect()-from.Vect();
   TVector3 two=from.Vect()-at.Vect();
@@ -813,7 +817,7 @@ TH1F * RadioScatter::getDirectSignal(int txindex, int rxindex, const TH1F *in){
   TLorentzVector point=rx[rxindex];
   double rx_amp, rx_ph, amp;
   TVector3 dist_vec = tx[txindex].Vect()-rx[rxindex].Vect();
-  double dist = dist_vec.Mag()/m;//in meters
+  double dist = dist_vec.Mag();//in meters
   rx_amp = tx_voltage*txFactor/dist;
   //  std::cout<<"rx amp: "<<tx_voltage<<" "<<tx_voltage*m*m<<" "<<(tx[index].Vect()-rx[index].Vect()).Mag()<<" "<<rx_amp;
   int size = in->GetNbinsX();
@@ -934,7 +938,7 @@ double RadioScatter::makeRays(TLorentzVector point, double e, double l, double e
 	event.totNScatterers+=n;//track total number of scatterers. once per event.
       }
       //the full scattering amplitude pre-factor  
-      //double prefactor = -rxEffectiveHeight*n*n_primaries*e_radius*omega/(pow(omega, 2)+pow(nu_col, 2));
+      // this is the common term of \alpha from the article when split into real and imaginary parts, with the remaining parts calculated later in E_real and E_imag
       double prefactor = -rxFactor*n*n_primaries*e_radius*omega/(pow(omega, 2)+pow(nu_col, 2));
 
       //x position of charge w/r/t shower axis
@@ -946,13 +950,10 @@ double RadioScatter::makeRays(TLorentzVector point, double e, double l, double e
       //plasma frequency
       double omega_p=sqrt(plasma_const*n_e)*1e-9;//in ns^-1
 
-      //the screening term. as derived in paper
-      double alpha= ((omega_p*omega_p)/(2.*c_light_r))*(nu_col/(omega*omega + nu_col*nu_col))*x_0;
-
-
-      double attn_factor = exp(-alpha);
-
-      prefactor=prefactor*attn_factor;
+      //this is the imaginary part of the wave vector and represents damping within the plasma.
+      double beta=((omega_p*omega_p)/(2.*c_light_r))*(nu_col/(omega*omega + nu_col*nu_col))*x_0;
+      double damping_factor = exp(-beta);
+      prefactor=prefactor*damping_factor;
       
       TLorentzVector point_temp=point;      
       //are we calculating in a region where there is a boundary? (like in a test-beam setup

@@ -85,7 +85,7 @@ public:
   double x_offset=0*m, z_offset = 2.*m, y_offset = 5.*m;///<unused
 
   double tcs = .655e-24;///<thompson cross section
-  double collisionalCrossSection = 3.e-13;///<mm^-3, from NIST, converted in to mm^-3
+  double collisionalCrossSection = 3.e-14;///<mm^2, from NIST, converted in to mm^2
   double n_primaries = 1;///<set this based on number of events in run
   double tx_voltage = 1.;///<V
   double zscale=1.;///<the longitudinal scale factor
@@ -104,18 +104,22 @@ public:
   ///<4*pi e^2/m_e
   double plasma_const = 4.*pi*e_charge_cgs*e_charge_cgs/e_mass_cgs;
   ///<e^2/(4pi epislon0 m c^2), in units of m
-  double e_radius=classic_electr_radius/m;
+  double e_radius=classic_electr_radius;
 
 
   double N_ice=3.2e19;
   ///     number density of ice per mm^3;  
-  double nu_col = sqrt(kB*(300)*kelvin/m_e)*collisionalCrossSection*(N_ice);  
+    double nu_col = sqrt(kB*(300)*kelvin/m_e*(c_light*c_light))*collisionalCrossSection*(N_ice);
+  
+  
   /**\brief collisional cross section. 
 
-     the collisional cross section is some number x10^-16cm^-3.
+     the collisional cross section is some number x10^-16cm^-2.
      NIST has a plot that depends upon the incident ionization energy
      a value of 1e-16 is for 15eV ionization electron energy,  
-     other values are plugged in. the value is of order THz.
+     other values are plugged in. the value is of order 10 THz. note 
+     that we multiply by c_light^2 in order to get the correct number, 
+     since m_e is units of mev/c^2. 
  **/
   double half_window = 300;///<number of nanoseconds in 1/2 of the record window. can be changed;   
 
@@ -150,7 +154,7 @@ public:
   double n_rel=1.5; ///<relative index of refraction, calculated to always be >1.
 
   //a function for the lifetime
-  TF1 * lifetimeFunc=new TF1("lifetime", "exp(-x/[0])", 0, 50);
+  TF1 * lifetimeFunc=new TF1("lifetime", "exp(-x/[0])", 0, 500);
 
   ///<some histograms 
   TH1F *fft_hist, *power_hist;
