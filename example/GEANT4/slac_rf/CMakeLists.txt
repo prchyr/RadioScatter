@@ -27,8 +27,8 @@ endif()
 
 
 unset(CMAKE_MODULE_PATH)
-
-
+set(CMAKE_CXXFLAGS "-std=c++14")
+set (CMAKE_CXX_STANDARD 14)
 
 #use the ROOT things
 list(APPEND CMAKE_PREFIX_PATH $ENV{ROOTSYS})
