@@ -141,8 +141,8 @@ public:
   double n_rel=1.5; ///<relative index of refraction, calculated to always be >1.
 
   ///<interpolation setup for calculating dt times
-  double GridStepSizeX_O=0.2;
-  double GridStepSizeZ_O=0.2;
+  double GridStepSizeX_O=0.1;
+  double GridStepSizeZ_O=0.1;
   double GridWidthX=20;
   double GridWidthZ=20;
 
@@ -353,9 +353,15 @@ this function actually does the scaling. prior to it being called, it makes sure
 
   double getRxGain(int index,double angle);  ///<get the receiver gain at a certain angle (not implemented)
 
-  void MakeRayTracingTable(TLorentzVector Tx,TVector3 Shwr,vector<double> (&GridPositionXb),vector<double> (&GridPositionZb),std::vector<std::vector<double>> (&GridZValueb)); ///<make the interpolation table that will be used for analytic raytracing
+  void MakeRayTracingTable_Tx(TLorentzVector Tx,TVector3 Shwr,int iant); ///<make the interpolation table that will be used for analytic raytracing
+  //void MakeRayTracingTable(TLorentzVector Tx,TVector3 Shwr,vector<double> (&GridPositionXb),vector<double> (&GridPositionZb),std::vector<std::vector<double>> (&GridZValueb)); ///<make the interpolation table that will be used for analytic raytracing
   
-  double GetInterpolatedValue(double xR, double zR, int rtParameter,std::vector<double> GridPositionXb,std::vector<double> GridPositionZb,std::vector<std::vector<double>> GridZValueb); ///<interpolate raytrace parameters using the table
+  double GetInterpolatedValue_Tx(double xR, double zR, int rtParameter,int iant); ///<interpolate raytrace parameters using the table
+
+   void MakeRayTracingTable_Rx(TLorentzVector Tx,TVector3 Shwr,int iant); ///<make the interpolation table that will be used for analytic raytracing
+  
+  double GetInterpolatedValue_Rx(double xR, double zR, int rtParameter,int iant); ///<interpolate raytrace parameters using the table
+  //double GetInterpolatedValue(double xR, double zR, int rtParameter,std::vector<double> GridPositionXb,std::vector<double> GridPositionZb,std::vector<std::vector<double>> GridZValueb); ///<interpolate raytrace parameters using the table
   
   /**\brief the main function to do the actual scattering.
 

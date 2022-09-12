@@ -1753,7 +1753,7 @@ double *IceRayTracing::IceRayTracing(double x0, double z0, double x1, double z1)
   double *output=new double[29];
 
   /* Store the ray paths in text files */
-  bool PlotRayPaths=true;
+  bool PlotRayPaths=false;
   /* calculate the attenuation (not included yet!) */
   bool attcal=false;
   

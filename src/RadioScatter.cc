@@ -998,8 +998,8 @@ double *RadioScatter::rayTrace(TLorentzVector Tx, TLorentzVector Rx, TVector3 Sh
   return output;
 }
 
-void RadioScatter::MakeRayTracingTable(TLorentzVector Tx,TVector3 Shwr,std::vector<double> (&GridPositionXb),std::vector<double> (&GridPositionZb),std::vector<std::vector<double>> (&GridZValueb)){ 
-  GridZValueb.resize(10);
+void RadioScatter::MakeRayTracingTable_Tx(TLorentzVector Tx,TVector3 Shwr,int iant){ 
+  GridZValue_Tx[iant].resize(10);
   
   double Tx_x=Tx.X()/m;
   double Tx_y=Tx.Y()/m;
@@ -1041,8 +1041,8 @@ void RadioScatter::MakeRayTracingTable(TLorentzVector Tx,TVector3 Shwr,std::vect
   //////For recording how much time the process took
   auto t1b = std::chrono::high_resolution_clock::now();  
 
-  GridPositionXb.resize(TotalStepsX_O);
-  GridPositionZb.resize(TotalStepsZ_O);
+  GridPositionX_Tx[iant].resize(TotalStepsX_O);
+  GridPositionZ_Tx[iant].resize(TotalStepsZ_O);
   
   for(int ix=0;ix<TotalStepsX_O;ix++){
     for(int iz=0;iz<TotalStepsZ_O;iz++){
@@ -1051,7 +1051,7 @@ void RadioScatter::MakeRayTracingTable(TLorentzVector Tx,TVector3 Shwr,std::vect
       double zR=GridStartZ+GridStepSizeZ_O*iz;
 
       double A0=1;
-      double frequency=0.1;//Tx frequency in GHz  
+      double frequency=getFreq();//Tx frequency in GHz
   
       double TimeRay_Tx[2]={0,0};
       double PathRay_Tx[2]={0,0};
@@ -1060,37 +1060,41 @@ void RadioScatter::MakeRayTracingTable(TLorentzVector Tx,TVector3 Shwr,std::vect
       int IgnoreCh_Tx[2]={0,0};
       double IncidenceAngleInIce_Tx[2]={0,0};
       double AttRay_Tx[2]={0,0};
-      IceRayTracing::GetRayTracingSolutions(zR, xR, Tx.Z(), TimeRay_Tx, PathRay_Tx, LaunchAngle_Tx, RecieveAngle_Tx, IgnoreCh_Tx, IncidenceAngleInIce_Tx, A0, frequency, AttRay_Tx);      
+      IceRayTracing::GetRayTracingSolutions(zR, xR, Tx_z, TimeRay_Tx, PathRay_Tx, LaunchAngle_Tx, RecieveAngle_Tx, IgnoreCh_Tx, IncidenceAngleInIce_Tx, A0, frequency, AttRay_Tx);      
 
-      GridPositionXb[ix]=xR;
-      GridPositionZb[iz]=zR;
+      GridPositionX_Tx[iant][ix]=xR;
+      GridPositionZ_Tx[iant][iz]=zR;
       
       if(IgnoreCh_Tx[0]!=0){
-	GridZValueb[0].push_back(TimeRay_Tx[0]*s);
-	GridZValueb[1].push_back(PathRay_Tx[0]*m);
-	GridZValueb[2].push_back(LaunchAngle_Tx[0]);
-	GridZValueb[3].push_back(RecieveAngle_Tx[0]);
-	GridZValueb[4].push_back(AttRay_Tx[0]);
+	//AttRay_Tx[0]=1;
+	GridZValue_Tx[iant][0].push_back(TimeRay_Tx[0]*s);
+	GridZValue_Tx[iant][1].push_back(PathRay_Tx[0]*m);
+	GridZValue_Tx[iant][2].push_back(LaunchAngle_Tx[0]);
+	GridZValue_Tx[iant][3].push_back(RecieveAngle_Tx[0]);
+	GridZValue_Tx[iant][4].push_back(AttRay_Tx[0]);
+	//cout<<xR<<" "<<zR<<" "<<Tx.Z()<<" 0 values are "<<TimeRay_Tx[0]*s<<" "<<PathRay_Tx[0]<<" "<<1*m<<" "<<LaunchAngle_Tx[0]<<" "<<RecieveAngle_Tx[0]<<" "<<AttRay_Tx[0]<<endl;
       }else{
-	GridZValueb[0].push_back(-1000.0);
-	GridZValueb[1].push_back(-1000.0);
-	GridZValueb[2].push_back(-1000.0);
-	GridZValueb[3].push_back(-1000.0);
-	GridZValueb[4].push_back(-1000.0);
+	GridZValue_Tx[iant][0].push_back(-1000.0);
+	GridZValue_Tx[iant][1].push_back(-1000.0);
+	GridZValue_Tx[iant][2].push_back(-1000.0);
+	GridZValue_Tx[iant][3].push_back(-1000.0);
+	GridZValue_Tx[iant][4].push_back(-1000.0);
       }
 
       if(IgnoreCh_Tx[1]!=0){
-	GridZValueb[5].push_back(TimeRay_Tx[1]*s);
-	GridZValueb[6].push_back(PathRay_Tx[1]*m);
-	GridZValueb[7].push_back(LaunchAngle_Tx[1]);
-	GridZValueb[8].push_back(RecieveAngle_Tx[1]);
-	GridZValueb[9].push_back(AttRay_Tx[1]);
+	//AttRay_Tx[1]=1;
+	GridZValue_Tx[iant][5].push_back(TimeRay_Tx[1]*s);
+	GridZValue_Tx[iant][6].push_back(PathRay_Tx[1]*m);
+	GridZValue_Tx[iant][7].push_back(LaunchAngle_Tx[1]);
+	GridZValue_Tx[iant][8].push_back(RecieveAngle_Tx[1]);
+	GridZValue_Tx[iant][9].push_back(AttRay_Tx[1]);
+	//cout<<"1 values are "<<TimeRay_Tx[1]*s<<" "<<PathRay_Tx[1]*m<<" "<<LaunchAngle_Tx[1]<<" "<<RecieveAngle_Tx[1]<<" "<<AttRay_Tx[1]<<endl;
       }else{
-	GridZValueb[5].push_back(-1000.0);
-	GridZValueb[6].push_back(-1000.0);
-	GridZValueb[7].push_back(-1000.0);
-	GridZValueb[8].push_back(-1000.0);
-	GridZValueb[9].push_back(-1000.0);
+	GridZValue_Tx[iant][5].push_back(-1000.0);
+	GridZValue_Tx[iant][6].push_back(-1000.0);
+	GridZValue_Tx[iant][7].push_back(-1000.0);
+	GridZValue_Tx[iant][8].push_back(-1000.0);
+	GridZValue_Tx[iant][9].push_back(-1000.0);
       }
       
     }
@@ -1103,7 +1107,7 @@ void RadioScatter::MakeRayTracingTable(TLorentzVector Tx,TVector3 Shwr,std::vect
 }
 
 
-double RadioScatter::GetInterpolatedValue(double xR, double zR, int rtParameter,std::vector<double> GridPositionXb,std::vector<double> GridPositionZb,std::vector<std::vector<double>> GridZValueb){
+double RadioScatter::GetInterpolatedValue_Tx(double xR, double zR, int rtParameter, int iant){
  
   int MinDistBin[20];
   double MinDist[20];
@@ -1112,16 +1116,16 @@ double RadioScatter::GetInterpolatedValue(double xR, double zR, int rtParameter,
   double sum2=0;
   double NewZValue=0;
 
-  GridStartX=GridPositionXb[0];
-  GridStartZ=GridPositionZb[0];
+  GridStartX=GridPositionX_Tx[iant][0];
+  GridStartZ=GridPositionZ_Tx[iant][0];
  
-  GridStopX=GridPositionXb[GridPositionXb.size()-1];
-  GridStopZ=GridPositionZb[GridPositionZb.size()-1];
+  // GridStopX=GridPositionX_Tx[iant][GridPositionX_Tx[iant].size()-1];
+  // GridStopZ=GridPositionZ_Tx[iant][GridPositionZ_Tx[iant].size()-1];
  
-  GridWidthX=GridStopX-GridStartX;
+  //GridWidthX=GridStopX-GridStartX;
   
-  TotalStepsX_O=sqrt(GridPositionXb.size());
-  TotalStepsZ_O=sqrt(GridPositionZb.size());
+  TotalStepsX_O=(GridPositionX_Tx[iant].size());
+  TotalStepsZ_O=(GridPositionZ_Tx[iant].size());
 
   GridPoints=TotalStepsX_O*TotalStepsZ_O;
 
@@ -1130,8 +1134,8 @@ double RadioScatter::GetInterpolatedValue(double xR, double zR, int rtParameter,
   double minXbin=round((xR-GridStartX)/GridStepSizeX_O);
   double minZbin=round(fabs(zR-GridStartZ)/GridStepSizeZ_O);
      
-  int newXbin=(minXbin/(TotalStepsX_O))*GridPoints;
-  int newZbin=newXbin+minZbin;
+  int newXbin=minXbin;
+  int newZbin=minZbin;
       
   int count=0;
   if(minXbin<1){
@@ -1156,11 +1160,11 @@ double RadioScatter::GetInterpolatedValue(double xR, double zR, int rtParameter,
   newXbin=(minXbin-1);
   newZbin=(minZbin-1);
 
-  double minDist1=fabs(((xR-GridPositionXb[newXbin])*(xR-GridPositionXb[newXbin])+(zR-GridPositionZb[newZbin])*(zR-GridPositionZb[newZbin])));
+  double minDist1=(((xR-GridPositionX_Tx[iant][newXbin])*(xR-GridPositionX_Tx[iant][newXbin])+(zR-GridPositionZ_Tx[iant][newZbin])*(zR-GridPositionZ_Tx[iant][newZbin])));
 
   newXbin=(minXbin+1);
   newZbin=(minZbin+1);
-  double minDist2=fabs(((xR-GridPositionXb[newXbin])*(xR-GridPositionXb[newXbin])+(zR-GridPositionZb[newZbin])*(zR-GridPositionZb[newZbin])));
+  double minDist2=(((xR-GridPositionX_Tx[iant][newXbin])*(xR-GridPositionX_Tx[iant][newXbin])+(zR-GridPositionZ_Tx[iant][newZbin])*(zR-GridPositionZ_Tx[iant][newZbin])));
   
   startbinX=minXbin-1;
   endbinX=minXbin+1;
@@ -1169,7 +1173,7 @@ double RadioScatter::GetInterpolatedValue(double xR, double zR, int rtParameter,
    
   sum1=0;
   sum2=0;
-  NewZValue=0;
+  NewZValue=-1000;
     
   for(int ixn=startbinX;ixn<endbinX;ixn++){
     for(int izn=startbinZ;izn<endbinZ;izn++){
@@ -1178,12 +1182,12 @@ double RadioScatter::GetInterpolatedValue(double xR, double zR, int rtParameter,
       int newich=(ixn)*TotalStepsZ_O+(izn);	  
   
       if(newich>=0 && newich<GridPoints && ixn<TotalStepsX_O && izn<TotalStepsZ_O && ixn>=0 && izn>=0){
-	MinDist[count]=fabs(((xR-GridPositionXb[newich])*(xR-GridPositionXb[newich])+(zR-GridPositionZb[newich])*(zR-GridPositionZb[newich])));
+	MinDist[count]=(((xR-GridPositionX_Tx[iant][newXbin])*(xR-GridPositionX_Tx[iant][newXbin])+(zR-GridPositionZ_Tx[iant][newZbin])*(zR-GridPositionZ_Tx[iant][newZbin])));
 	MinDistBin[count]=newich;
 
-	if(GridZValueb[rtParameter][MinDistBin[count]]!=-1000){
+	if(GridZValue_Tx[iant][rtParameter][MinDistBin[count]]!=-1000){
 	  //cout<<"in here "<<endl;
-	  sum1+=(1.0/MinDist[count])*GridZValueb[rtParameter][MinDistBin[count]];
+	  sum1+=(1.0/MinDist[count])*GridZValue_Tx[iant][rtParameter][MinDistBin[count]];
 	  sum2+=(1.0/MinDist[count]);
 	  NewZValue=sum1/sum2;
 	}else{
@@ -1194,9 +1198,230 @@ double RadioScatter::GetInterpolatedValue(double xR, double zR, int rtParameter,
 	}
 	
 	if(MinDist[count]==0){
-	  if(GridZValueb[rtParameter][MinDistBin[count]]!=-1000){
+	  if(GridZValue_Tx[iant][rtParameter][MinDistBin[count]]!=-1000){
 	    //cout<<"in here too 2"<<endl;
-	    NewZValue=GridZValueb[rtParameter][MinDistBin[count]];
+	    NewZValue=GridZValue_Tx[iant][rtParameter][MinDistBin[count]];
+	    izn=minZbin+3;
+	    ixn=minXbin+3;
+	  }else{
+	    //cout<<"in here too 3"<<endl;
+	    NewZValue=-1000;
+	    izn=minZbin+3;
+	    ixn=minXbin+3;
+	  }
+	}
+	count++;
+      }
+    }
+  }
+
+  return NewZValue;
+  
+}
+
+void RadioScatter::MakeRayTracingTable_Rx(TLorentzVector Tx,TVector3 Shwr,int iant){ 
+  GridZValue_Rx[iant].resize(10);
+  
+  double Tx_x=Tx.X()/m;
+  double Tx_y=Tx.Y()/m;
+  double Tx_z=Tx.Z()/m;
+  if(Tx_z==0){
+    Tx_z=-1e-4;
+  }
+  double Shwr_x=Shwr.X()/m;
+  double Shwr_y=Shwr.Y()/m;
+  double Shwr_z=Shwr.Z()/m;
+  if(Shwr_z==0){
+    Shwr_z=-1e-4;
+  }
+  double startpoint=0;////always zero
+  double ShowerHitDistance=sqrt(pow(Tx_x-Shwr_x,2)+ pow(Tx_y-Shwr_y,2));
+  
+  TotalStepsX_O=(GridWidthX/GridStepSizeX_O)+1;
+  TotalStepsZ_O=(GridWidthZ/GridStepSizeZ_O)+1;
+
+  GridPoints=TotalStepsX_O*TotalStepsZ_O;
+  
+  GridStartX=ShowerHitDistance-(GridWidthX/2);
+  GridStopX=ShowerHitDistance+(GridWidthX/2);
+
+  if(ShowerHitDistance<GridWidthX){
+    GridStartX=0;
+  }
+  
+  GridStartZ=Shwr_z-(GridWidthZ/2);
+  GridStopZ=Shwr_z+(GridWidthZ/2);
+
+  if(GridStopZ>0){
+    GridStartZ=-20;
+    GridStopZ=0;
+  }
+  
+  //cout<<"Grid Variables are "<<GridStartX<<" "<<GridStartZ<<" "<<GridStopX<<" "<<GridStopZ<<" "<<GridWidthX<<" "<<TotalStepsX_O<<" "<<TotalStepsZ_O<<" "<<GridPoints<<endl;
+  
+  //////For recording how much time the process took
+  auto t1b = std::chrono::high_resolution_clock::now();  
+
+  GridPositionX_Rx[iant].resize(TotalStepsX_O);
+  GridPositionZ_Rx[iant].resize(TotalStepsZ_O);
+  
+  for(int ix=0;ix<TotalStepsX_O;ix++){
+    for(int iz=0;iz<TotalStepsZ_O;iz++){
+
+      double xR=GridStartX+GridStepSizeX_O*ix;
+      double zR=GridStartZ+GridStepSizeZ_O*iz;
+
+      double A0=1;
+      double frequency=getFreq();//Tx frequency in GHz
+  
+      double TimeRay_Rx[2]={0,0};
+      double PathRay_Rx[2]={0,0};
+      double LaunchAngle_Rx[2]={0,0};
+      double RecieveAngle_Rx[2]={0,0};
+      int IgnoreCh_Rx[2]={0,0};
+      double IncidenceAngleInIce_Rx[2]={0,0};
+      double AttRay_Rx[2]={0,0};
+      IceRayTracing::GetRayTracingSolutions(zR, xR, Tx_z, TimeRay_Rx, PathRay_Rx, LaunchAngle_Rx, RecieveAngle_Rx, IgnoreCh_Rx, IncidenceAngleInIce_Rx, A0, frequency, AttRay_Rx);      
+
+      GridPositionX_Rx[iant][ix]=xR;
+      GridPositionZ_Rx[iant][iz]=zR;
+      
+      if(IgnoreCh_Rx[0]!=0){
+	//AttRay_Rx[0]=1;
+	GridZValue_Rx[iant][0].push_back(TimeRay_Rx[0]*s);
+	GridZValue_Rx[iant][1].push_back(PathRay_Rx[0]*m);
+	GridZValue_Rx[iant][2].push_back(LaunchAngle_Rx[0]);
+	GridZValue_Rx[iant][3].push_back(RecieveAngle_Rx[0]);
+	GridZValue_Rx[iant][4].push_back(AttRay_Rx[0]);
+	//cout<<xR<<" "<<zR<<" "<<Tx.Z()<<" 0 values are "<<TimeRay_Rx[0]*s<<" "<<PathRay_Rx[0]<<" "<<1*m<<" "<<LaunchAngle_Rx[0]<<" "<<RecieveAngle_Rx[0]<<" "<<AttRay_Rx[0]<<endl;
+      }else{
+	GridZValue_Rx[iant][0].push_back(-1000.0);
+	GridZValue_Rx[iant][1].push_back(-1000.0);
+	GridZValue_Rx[iant][2].push_back(-1000.0);
+	GridZValue_Rx[iant][3].push_back(-1000.0);
+	GridZValue_Rx[iant][4].push_back(-1000.0);
+      }
+
+      if(IgnoreCh_Rx[1]!=0){
+	//AttRay_Rx[1]=1;
+	GridZValue_Rx[iant][5].push_back(TimeRay_Rx[1]*s);
+	GridZValue_Rx[iant][6].push_back(PathRay_Rx[1]*m);
+	GridZValue_Rx[iant][7].push_back(LaunchAngle_Rx[1]);
+	GridZValue_Rx[iant][8].push_back(RecieveAngle_Rx[1]);
+	GridZValue_Rx[iant][9].push_back(AttRay_Rx[1]);
+	//cout<<"1 values are "<<TimeRay_Rx[1]*s<<" "<<PathRay_Rx[1]*m<<" "<<LaunchAngle_Rx[1]<<" "<<RecieveAngle_Rx[1]<<" "<<AttRay_Rx[1]<<endl;
+      }else{
+	GridZValue_Rx[iant][5].push_back(-1000.0);
+	GridZValue_Rx[iant][6].push_back(-1000.0);
+	GridZValue_Rx[iant][7].push_back(-1000.0);
+	GridZValue_Rx[iant][8].push_back(-1000.0);
+	GridZValue_Rx[iant][9].push_back(-1000.0);
+      }
+      
+    }
+  }
+
+  auto t2b = std::chrono::high_resolution_clock::now();
+  double duration = std::chrono::duration_cast<std::chrono::milliseconds>( t2b - t1b ).count();
+  cout<<"The table took "<<duration<<" ms to make"<<endl;
+  
+}
+
+
+double RadioScatter::GetInterpolatedValue_Rx(double xR, double zR, int rtParameter, int iant){
+ 
+  int MinDistBin[20];
+  double MinDist[20];
+
+  double sum1=0;
+  double sum2=0;
+  double NewZValue=0;
+
+  GridStartX=GridPositionX_Rx[iant][0];
+  GridStartZ=GridPositionZ_Rx[iant][0];
+ 
+  // GridStopX=GridPositionX_Rx[iant][GridPositionX_Rx[iant].size()-1];
+  // GridStopZ=GridPositionZ_Rx[iant][GridPositionZ_Rx[iant].size()-1];
+ 
+  //GridWidthX=GridStopX-GridStartX;
+  
+  TotalStepsX_O=(GridPositionX_Rx[iant].size());
+  TotalStepsZ_O=(GridPositionZ_Rx[iant].size());
+
+  GridPoints=TotalStepsX_O*TotalStepsZ_O;
+
+  //cout<<"Grid Variables are "<<GridStartX<<" "<<GridStartZ<<" "<<GridStopX<<" "<<GridStopZ<<" "<<GridWidthX<<" "<<TotalStepsX_O<<" "<<TotalStepsZ_O<<" "<<GridPoints<<endl;
+  
+  double minXbin=round((xR-GridStartX)/GridStepSizeX_O);
+  double minZbin=round(fabs(zR-GridStartZ)/GridStepSizeZ_O);
+     
+  int newXbin=minXbin;
+  int newZbin=minZbin;
+      
+  int count=0;
+  if(minXbin<1){
+    minXbin=1;
+  }
+  if(minZbin<1){
+    minZbin=1;
+  }
+
+  if(minXbin+2>GridPoints){
+    minXbin=GridPoints-2;
+  }
+  if(minZbin+2>GridPoints){
+    minZbin=GridPoints-2;
+  }  
+
+  int startbinX=minXbin-1;
+  int endbinX=minXbin+1;
+  int startbinZ=minZbin-1;
+  int endbinZ=minZbin+1;
+     
+  newXbin=(minXbin-1);
+  newZbin=(minZbin-1);
+
+  double minDist1=(((xR-GridPositionX_Rx[iant][newXbin])*(xR-GridPositionX_Rx[iant][newXbin])+(zR-GridPositionZ_Rx[iant][newZbin])*(zR-GridPositionZ_Rx[iant][newZbin])));
+
+  newXbin=(minXbin+1);
+  newZbin=(minZbin+1);
+  double minDist2=(((xR-GridPositionX_Rx[iant][newXbin])*(xR-GridPositionX_Rx[iant][newXbin])+(zR-GridPositionZ_Rx[iant][newZbin])*(zR-GridPositionZ_Rx[iant][newZbin])));
+  
+  startbinX=minXbin-1;
+  endbinX=minXbin+1;
+  startbinZ=minZbin-1;
+  endbinZ=minZbin+1;
+   
+  sum1=0;
+  sum2=0;
+  NewZValue=-1000;
+    
+  for(int ixn=startbinX;ixn<endbinX;ixn++){
+    for(int izn=startbinZ;izn<endbinZ;izn++){
+      newXbin=ixn;
+      newZbin=izn;
+      int newich=(ixn)*TotalStepsZ_O+(izn);	  
+  
+      if(newich>=0 && newich<GridPoints && ixn<TotalStepsX_O && izn<TotalStepsZ_O && ixn>=0 && izn>=0){
+	MinDist[count]=(((xR-GridPositionX_Rx[iant][newXbin])*(xR-GridPositionX_Rx[iant][newXbin])+(zR-GridPositionZ_Rx[iant][newZbin])*(zR-GridPositionZ_Rx[iant][newZbin])));
+	MinDistBin[count]=newich;
+
+	if(GridZValue_Rx[iant][rtParameter][MinDistBin[count]]!=-1000){
+	  //cout<<"in here "<<endl;
+	  sum1+=(1.0/MinDist[count])*GridZValue_Rx[iant][rtParameter][MinDistBin[count]];
+	  sum2+=(1.0/MinDist[count]);
+	  NewZValue=sum1/sum2;
+	}else{
+	  //cout<<"in here too"<<endl;
+	  sum1+=0;
+	  sum2+=0;
+	  NewZValue=-1000;
+	}
+	
+	if(MinDist[count]==0){
+	  if(GridZValue_Rx[iant][rtParameter][MinDistBin[count]]!=-1000){
+	    //cout<<"in here too 2"<<endl;
+	    NewZValue=GridZValue_Rx[iant][rtParameter][MinDistBin[count]];
 	    izn=minZbin+3;
 	    ixn=minXbin+3;
 	  }else{
@@ -1249,10 +1474,10 @@ double RadioScatter::makeRays(TLorentzVector point, double e, double l, double e
       GridZValue_Rx.resize(nrx);
      
       for(int i=0;i<ntx;i++){
-	RadioScatter::MakeRayTracingTable(tx[i],showerStart,GridPositionX_Tx[i],GridPositionZ_Tx[i],GridZValue_Tx[i]);
+	RadioScatter::MakeRayTracingTable_Tx(tx[i],showerStart,i);
       }
       for(int j=0;j<nrx;j++){
-	RadioScatter::MakeRayTracingTable(rx[j],showerStart,GridPositionX_Rx[j],GridPositionZ_Rx[j],GridZValue_Rx[j]);
+	RadioScatter::MakeRayTracingTable_Rx(rx[j],showerStart,j);
       }      
           
     }///if raytracing is true
@@ -1388,22 +1613,27 @@ double RadioScatter::makeRays(TLorentzVector point, double e, double l, double e
 	  }///while loop
 	}else{///add raytracing times since its on
 
-	  double xR=sqrt(pow(tx[i].X()-vec.X(),2) + pow(tx[i].Y()-vec.Y(),2))/m;
-	  double zR=vec.Z()/m;
-	  double tof_TxRay[2]={GetInterpolatedValue(xR, zR, 0,GridPositionX_Tx[i],GridPositionZ_Tx[i],GridZValue_Tx[i]), GetInterpolatedValue(xR, zR, 5,GridPositionX_Tx[i],GridPositionZ_Tx[i],GridZValue_Tx[i])};
-	  double lA_TxRay[2]={GetInterpolatedValue(xR, zR, 2,GridPositionX_Tx[i],GridPositionZ_Tx[i],GridZValue_Tx[i]), GetInterpolatedValue(xR, zR, 7,GridPositionX_Tx[i],GridPositionZ_Tx[i],GridZValue_Tx[i])};
-	  double rA_TxRay[2]={GetInterpolatedValue(xR, zR, 3,GridPositionX_Tx[i],GridPositionZ_Tx[i],GridZValue_Tx[i]), GetInterpolatedValue(xR, zR, 8,GridPositionX_Tx[i],GridPositionZ_Tx[i],GridZValue_Tx[i])};
-	  double att_TxRay[2]={GetInterpolatedValue(xR, zR, 4,GridPositionX_Tx[i],GridPositionZ_Tx[i],GridZValue_Tx[i]), GetInterpolatedValue(xR, zR, 9,GridPositionX_Tx[i],GridPositionZ_Tx[i],GridZValue_Tx[i])};
+	  double xR=sqrt(pow(tx[i].X()-event.position.X(),2) + pow(tx[i].Y()-event.position.Y(),2))/m;
+	  double zR=event.position.Z()/m;
+	  double tof_TxRay[2]={GetInterpolatedValue_Tx(xR,zR,0,i), GetInterpolatedValue_Tx(xR,zR,5,i)};
+	  double lA_TxRay[2]={GetInterpolatedValue_Tx(xR,zR,2,i), GetInterpolatedValue_Tx(xR,zR,7,i)};
+	  double rA_TxRay[2]={GetInterpolatedValue_Tx(xR,zR,3,i), GetInterpolatedValue_Tx(xR,zR,8,i)};
+	  double att_TxRay[2]={GetInterpolatedValue_Tx(xR,zR,4,i), GetInterpolatedValue_Tx(xR,zR,9,i)};
 	  
-	  xR=sqrt(pow(rx[j].X()-vec.X(),2) + pow(rx[j].Y()-vec.Y(),2))/m;
-	  double tof_RxRay[2]={GetInterpolatedValue(xR, zR, 0,GridPositionX_Rx[j],GridPositionZ_Rx[j],GridZValue_Rx[j]), GetInterpolatedValue(xR, zR, 5,GridPositionX_Rx[j],GridPositionZ_Rx[j],GridZValue_Rx[j])};
-	  double lA_RxRay[2]={GetInterpolatedValue(xR, zR, 2,GridPositionX_Rx[j],GridPositionZ_Rx[j],GridZValue_Rx[j]), GetInterpolatedValue(xR, zR, 7,GridPositionX_Rx[j],GridPositionZ_Rx[j],GridZValue_Rx[j])};
-	  double rA_RxRay[2]={GetInterpolatedValue(xR, zR, 3,GridPositionX_Rx[j],GridPositionZ_Rx[j],GridZValue_Rx[j]), GetInterpolatedValue(xR, zR, 8,GridPositionX_Rx[j],GridPositionZ_Rx[j],GridZValue_Rx[j])};
-	  double att_RxRay[2]={GetInterpolatedValue(xR, zR, 4,GridPositionX_Rx[j],GridPositionZ_Rx[j],GridZValue_Rx[j]), GetInterpolatedValue(xR, zR, 9,GridPositionX_Rx[j],GridPositionZ_Rx[j],GridZValue_Rx[j])};
+	  xR=sqrt(pow(rx[j].X()-event.position.X(),2) + pow(rx[j].Y()-event.position.Y(),2))/m;
+	  double tof_RxRay[2]={GetInterpolatedValue_Rx(xR,zR,0,j), GetInterpolatedValue_Rx(xR,zR,5,j)};
+	  double lA_RxRay[2]={GetInterpolatedValue_Rx(xR,zR,2,j), GetInterpolatedValue_Rx(xR,zR,7,j)};
+	  double rA_RxRay[2]={GetInterpolatedValue_Rx(xR,zR,3,j), GetInterpolatedValue_Rx(xR,zR,8,j)};
+	  double att_RxRay[2]={GetInterpolatedValue_Rx(xR,zR,4,j), GetInterpolatedValue_Rx(xR,zR,9,j)};
+	  // cout<<"TxRay 1 "<<tof_TxRay[0]<<" "<<lA_TxRay[0]<<" "<<rA_TxRay[0]<<" "<<att_TxRay[0]<<endl;
+	  // cout<<"TxRay 2 "<<tof_TxRay[1]<<" "<<lA_TxRay[1]<<" "<<rA_TxRay[1]<<" "<<att_TxRay[1]<<endl;
+
+	  // cout<<"RxRay 1 "<<tof_RxRay[0]<<" "<<lA_RxRay[0]<<" "<<rA_RxRay[0]<<" "<<att_RxRay[0]<<endl;
+	  // cout<<"RxRay 2 "<<tof_RxRay[1]<<" "<<lA_RxRay[1]<<" "<<rA_RxRay[1]<<" "<<att_RxRay[1]<<endl;
 	  
 	  for (int itx = 0; itx < 2; itx++){
 	    for (int irx = 0; irx < 2; irx++){
-	      if(att_TxRay[itx]!=-1000 && att_RxRay[irx]!=-1000){
+	      if(rA_TxRay[itx]!=-1000 && rA_RxRay[irx]!=-1000){
 		double distanceFactor=(tof_TxRay[itx]*tof_RxRay[irx])*pow(c_light/m,2);
 	      
 		point_time=point_temp.T();
@@ -1457,22 +1687,28 @@ double RadioScatter::makeRays(TLorentzVector point, double e, double l, double e
 	
 	}else{///add raytracing times since raytracing is on
 
-	  double xR=sqrt(pow(tx[i].X()-vec.X(),2) + pow(tx[i].Y()-vec.Y(),2))/m;
-	  double zR=vec.Z()/m;
-	  double tof_TxRay[2]={GetInterpolatedValue(xR, zR, 0,GridPositionX_Tx[i],GridPositionZ_Tx[i],GridZValue_Tx[i]), GetInterpolatedValue(xR, zR, 5,GridPositionX_Tx[i],GridPositionZ_Tx[i],GridZValue_Tx[i])};
-	  double lA_TxRay[2]={GetInterpolatedValue(xR, zR, 2,GridPositionX_Tx[i],GridPositionZ_Tx[i],GridZValue_Tx[i]), GetInterpolatedValue(xR, zR, 7,GridPositionX_Tx[i],GridPositionZ_Tx[i],GridZValue_Tx[i])};
-	  double rA_TxRay[2]={GetInterpolatedValue(xR, zR, 3,GridPositionX_Tx[i],GridPositionZ_Tx[i],GridZValue_Tx[i]), GetInterpolatedValue(xR, zR, 8,GridPositionX_Tx[i],GridPositionZ_Tx[i],GridZValue_Tx[i])};
-	  double att_TxRay[2]={GetInterpolatedValue(xR, zR, 4,GridPositionX_Tx[i],GridPositionZ_Tx[i],GridZValue_Tx[i]), GetInterpolatedValue(xR, zR, 9,GridPositionX_Tx[i],GridPositionZ_Tx[i],GridZValue_Tx[i])};
+	  double xR=sqrt(pow(tx[i].X()-event.position.X(),2) + pow(tx[i].Y()-event.position.Y(),2))/m;
+	  double zR=event.position.Z()/m;
+	  double tof_TxRay[2]={GetInterpolatedValue_Tx(xR,zR,0,i), GetInterpolatedValue_Tx(xR,zR,5,i)};
+	  double lA_TxRay[2]={GetInterpolatedValue_Tx(xR,zR,2,i), GetInterpolatedValue_Tx(xR,zR,7,i)};
+	  double rA_TxRay[2]={GetInterpolatedValue_Tx(xR,zR,3,i), GetInterpolatedValue_Tx(xR,zR,8,i)};
+	  double att_TxRay[2]={GetInterpolatedValue_Tx(xR,zR,4,i), GetInterpolatedValue_Tx(xR,zR,9,i)};
 	  
-	  xR=sqrt(pow(rx[j].X()-vec.X(),2) + pow(rx[j].Y()-vec.Y(),2))/m;
-	  double tof_RxRay[2]={GetInterpolatedValue(xR, zR, 0,GridPositionX_Rx[j],GridPositionZ_Rx[j],GridZValue_Rx[j]), GetInterpolatedValue(xR, zR, 5,GridPositionX_Rx[j],GridPositionZ_Rx[j],GridZValue_Rx[j])};
-	  double lA_RxRay[2]={GetInterpolatedValue(xR, zR, 2,GridPositionX_Rx[j],GridPositionZ_Rx[j],GridZValue_Rx[j]), GetInterpolatedValue(xR, zR, 7,GridPositionX_Rx[j],GridPositionZ_Rx[j],GridZValue_Rx[j])};
-	  double rA_RxRay[2]={GetInterpolatedValue(xR, zR, 3,GridPositionX_Rx[j],GridPositionZ_Rx[j],GridZValue_Rx[j]), GetInterpolatedValue(xR, zR, 8,GridPositionX_Rx[j],GridPositionZ_Rx[j],GridZValue_Rx[j])};
-	  double att_RxRay[2]={GetInterpolatedValue(xR, zR, 4,GridPositionX_Rx[j],GridPositionZ_Rx[j],GridZValue_Rx[j]), GetInterpolatedValue(xR, zR, 9,GridPositionX_Rx[j],GridPositionZ_Rx[j],GridZValue_Rx[j])};
+	  xR=sqrt(pow(rx[j].X()-event.position.X(),2) + pow(rx[j].Y()-event.position.Y(),2))/m;
+	  double tof_RxRay[2]={GetInterpolatedValue_Rx(xR,zR,0,j), GetInterpolatedValue_Rx(xR,zR,5,j)};
+	  double lA_RxRay[2]={GetInterpolatedValue_Rx(xR,zR,2,j), GetInterpolatedValue_Rx(xR,zR,7,j)};
+	  double rA_RxRay[2]={GetInterpolatedValue_Rx(xR,zR,3,j), GetInterpolatedValue_Rx(xR,zR,8,j)};
+	  double att_RxRay[2]={GetInterpolatedValue_Rx(xR,zR,4,j), GetInterpolatedValue_Rx(xR,zR,9,j)};
+	  
+	  // cout<<xR<<" "<<zR<<" TxRay 1 "<<tof_TxRay[0]<<" "<<lA_TxRay[0]<<" "<<rA_TxRay[0]<<" "<<att_TxRay[0]<<endl;
+	  // cout<<"TxRay 2 "<<tof_TxRay[1]<<" "<<lA_TxRay[1]<<" "<<rA_TxRay[1]<<" "<<att_TxRay[1]<<endl;
+
+	  // cout<<"RxRay 1 "<<tof_RxRay[0]<<" "<<lA_RxRay[0]<<" "<<rA_RxRay[0]<<" "<<att_RxRay[0]<<endl;
+	  // cout<<"RxRay 2 "<<tof_RxRay[1]<<" "<<lA_RxRay[1]<<" "<<rA_RxRay[1]<<" "<<att_RxRay[1]<<endl;
 	  
 	  for (int itx = 0; itx < 2; itx++){
 	    for (int irx = 0; irx < 2; irx++){
-	      if(att_TxRay[itx]!=-1000 && att_RxRay[irx]!=-1000){
+	      if(rA_TxRay[itx]!=-1000 && rA_RxRay[irx]!=-1000){
 		double distanceFactor=(tof_TxRay[itx]*tof_RxRay[irx])*pow(c_light/m,2);
 	     
 		point_time=point_temp.T();
