@@ -2744,12 +2744,12 @@ void IceRayTracing::MakeTable(double ShowerHitDistance, double zT, int AntNum){
 
 double IceRayTracing::GetInterpolatedValue(double xR, double zR, int rtParameter,int AntNum){
 
-  int MinDistBin[20];
-  double MinDist[20];
+  // int MinDistBin[20];
+  // double MinDist[20];
 
   double sum1=0;
   double sum2=0;
-  double NewZValue=0;
+  double NewZValue=-1000;
 
   IceRayTracing::GridStartX=GridPositionXb[AntNum][0];
   IceRayTracing::GridStartZ=GridPositionZb[AntNum][0];
@@ -2761,94 +2761,120 @@ double IceRayTracing::GetInterpolatedValue(double xR, double zR, int rtParameter
   IceRayTracing::TotalStepsX_O=(GridPositionXb[AntNum].size());
   IceRayTracing::TotalStepsZ_O=(GridPositionZb[AntNum].size());
 
-  IceRayTracing::GridPoints=IceRayTracing::TotalStepsX_O*IceRayTracing::TotalStepsZ_O;
+  //IceRayTracing::GridPoints=IceRayTracing::TotalStepsX_O*IceRayTracing::TotalStepsZ_O;
 
   //cout<<"Grid Variables are "<<GridStartX<<" "<<GridStartZ<<" "<<GridStopX<<" "<<GridStopZ<<" "<<GridWidthX<<" "<<TotalStepsX_O<<" "<<TotalStepsZ_O<<" "<<GridPoints<<endl;
-  
-  double minXbin=round((xR-IceRayTracing::GridStartX)/IceRayTracing::GridStepSizeX_O);
-  double minZbin=round(fabs(zR-IceRayTracing::GridStartZ)/IceRayTracing::GridStepSizeZ_O);
-     
-  int newXbin=minXbin;
-  int newZbin=minZbin;
-      
-  int count=0;
-  if(minXbin<1){
-    minXbin=1;
-  }
-  if(minZbin<1){
-    minZbin=1;
-  }
 
-  if(minXbin+1>IceRayTracing::TotalStepsX_O){
-    minXbin=IceRayTracing::TotalStepsX_O-2;
-  }
-  if(minZbin+1>IceRayTracing::TotalStepsZ_O){
-    minZbin=IceRayTracing::TotalStepsZ_O-2;
-  }  
+   if(xR>=IceRayTracing::GridStartX && xR<=IceRayTracing::GridStopX && zR>=IceRayTracing::GridStartZ && zR<=IceRayTracing::GridStopZ ){
+    double x=xR;
+    double y=zR;
+    int minXbin=floor((xR-IceRayTracing::GridStartX)/GridStepSizeX_O);
+    int minZbin=floor(fabs(zR-IceRayTracing::GridStartZ)/GridStepSizeZ_O);
 
-  int startbinX=minXbin-1;
-  int endbinX=minXbin+1;
-  int startbinZ=minZbin-1;
-  int endbinZ=minZbin+1;
-     
-  newXbin=(minXbin-1);
-  newZbin=(minZbin-1);
-  //int newich=newXbin*IceRayTracing::TotalStepsZ_O+newZbin;
-  double minDist1=fabs(((xR-GridPositionXb[AntNum][newXbin])*(xR-GridPositionXb[AntNum][newXbin])+(zR-GridPositionZb[AntNum][newZbin])*(zR-GridPositionZb[AntNum][newZbin])));
-
-  newXbin=minXbin+1;
-  newZbin=minZbin+1;
-  //newich=newXbin*IceRayTracing::TotalStepsZ_O+newZbin;
-  double minDist2=fabs(((xR-GridPositionXb[AntNum][newXbin])*(xR-GridPositionXb[AntNum][newXbin])+(zR-GridPositionZb[AntNum][newZbin])*(zR-GridPositionZb[AntNum][newZbin])));
- 
-  startbinX=minXbin-1;
-  endbinX=minXbin+1;
-  startbinZ=minZbin-1;
-  endbinZ=minZbin+1;
-   
-  sum1=0;
-  sum2=0;
-  NewZValue=0;
+    double x1,y1,y2,x2;
+    if(minXbin+1<=IceRayTracing::TotalStepsX_O-1 && minZbin+1<=IceRayTracing::TotalStepsZ_O-1){
+      x1=GridPositionXb[AntNum][minXbin];
+      y1=GridPositionZb[AntNum][minZbin];
+      x2=GridPositionXb[AntNum][minXbin+1];
+      y2=GridPositionZb[AntNum][minZbin+1];
     
-  for(int ixn=startbinX;ixn<endbinX;ixn++){
-    for(int izn=startbinZ;izn<endbinZ;izn++){
-      newXbin=ixn;
-      newZbin=izn;	  
-      int newich=(ixn)*IceRayTracing::TotalStepsZ_O+(izn);
-
-      if(newich>=0 && newich<GridPoints && ixn<IceRayTracing::TotalStepsX_O && izn<IceRayTracing::TotalStepsZ_O && ixn>=0 && izn>=0){
-	MinDist[count]=fabs(((xR-GridPositionXb[AntNum][ixn])*(xR-GridPositionXb[AntNum][ixn])+(zR-GridPositionZb[AntNum][izn])*(zR-GridPositionZb[AntNum][izn])));
-	MinDistBin[count]=newich;
-
-	if(GridZValueb[AntNum][rtParameter][MinDistBin[count]]!=-1000){
-	  //cout<<"in here "<<endl;
-	  sum1+=(1.0/MinDist[count])*GridZValueb[AntNum][rtParameter][MinDistBin[count]];
-	  sum2+=(1.0/MinDist[count]);
-	  NewZValue=sum1/sum2;
-	}else{
-	  //cout<<"in here too"<<endl;
-	  sum1+=0;
-	  sum2+=0;
-	  NewZValue=-1000;
-	}
-	
-	if(MinDist[count]==0){
-	  if(GridZValueb[AntNum][rtParameter][MinDistBin[count]]!=-1000){
-	    //cout<<"in here too 2"<<endl;
-	    NewZValue=GridZValueb[AntNum][rtParameter][MinDistBin[count]];
-	    izn=minZbin+3;
-	    ixn=minXbin+3;
-	  }else{
-	    //cout<<"in here too 3"<<endl;
-	    NewZValue=-1000;
-	    izn=minZbin+3;
-	    ixn=minXbin+3;
-	  }
-	}
-	count++;
-      }
+      double f11=GridZValueb[AntNum][rtParameter][(minXbin)*IceRayTracing::TotalStepsZ_O+(minZbin)];
+      double f12=GridZValueb[AntNum][rtParameter][(minXbin)*IceRayTracing::TotalStepsZ_O+(minZbin+1)];
+      double f21=GridZValueb[AntNum][rtParameter][(minXbin+1)*IceRayTracing::TotalStepsZ_O+(minZbin)];
+      double f22=GridZValueb[AntNum][rtParameter][(minXbin+1)*IceRayTracing::TotalStepsZ_O+(minZbin+1)];
+      
+      double w11=( (x2-x)*(y2-y) )/ ( (x2-x1)*(y2-y1) );
+      double w12=( (x2-x)*(y-y1) )/ ( (x2-x1)*(y2-y1) );
+      double w21=( (x-x1)*(y2-y) )/ ( (x2-x1)*(y2-y1) );
+      double w22=( (x-x1)*(y-y1) )/ ( (x2-x1)*(y2-y1) );
+      NewZValue=w11*f11+w12*f12+w21*f21+w22*f22;
     }
   }
+  
+  // double minXbin=round((xR-IceRayTracing::GridStartX)/IceRayTracing::GridStepSizeX_O);
+  // double minZbin=round(fabs(zR-IceRayTracing::GridStartZ)/IceRayTracing::GridStepSizeZ_O);
+     
+  // int newXbin=minXbin;
+  // int newZbin=minZbin;
+      
+  // int count=0;
+  // if(minXbin<1){
+  //   minXbin=1;
+  // }
+  // if(minZbin<1){
+  //   minZbin=1;
+  // }
+
+  // if(minXbin+1>IceRayTracing::TotalStepsX_O){
+  //   minXbin=IceRayTracing::TotalStepsX_O-2;
+  // }
+  // if(minZbin+1>IceRayTracing::TotalStepsZ_O){
+  //   minZbin=IceRayTracing::TotalStepsZ_O-2;
+  // }  
+
+  // int startbinX=minXbin-1;
+  // int endbinX=minXbin+1;
+  // int startbinZ=minZbin-1;
+  // int endbinZ=minZbin+1;
+     
+  // newXbin=(minXbin-1);
+  // newZbin=(minZbin-1);
+  // //int newich=newXbin*IceRayTracing::TotalStepsZ_O+newZbin;
+  // double minDist1=fabs(((xR-GridPositionXb[AntNum][newXbin])*(xR-GridPositionXb[AntNum][newXbin])+(zR-GridPositionZb[AntNum][newZbin])*(zR-GridPositionZb[AntNum][newZbin])));
+
+  // newXbin=minXbin+1;
+  // newZbin=minZbin+1;
+  // //newich=newXbin*IceRayTracing::TotalStepsZ_O+newZbin;
+  // double minDist2=fabs(((xR-GridPositionXb[AntNum][newXbin])*(xR-GridPositionXb[AntNum][newXbin])+(zR-GridPositionZb[AntNum][newZbin])*(zR-GridPositionZb[AntNum][newZbin])));
+ 
+  // startbinX=minXbin-1;
+  // endbinX=minXbin+1;
+  // startbinZ=minZbin-1;
+  // endbinZ=minZbin+1;
+   
+  // sum1=0;
+  // sum2=0;
+  // NewZValue=0;
+    
+  // for(int ixn=startbinX;ixn<endbinX;ixn++){
+  //   for(int izn=startbinZ;izn<endbinZ;izn++){
+  //     newXbin=ixn;
+  //     newZbin=izn;	  
+  //     int newich=(ixn)*IceRayTracing::TotalStepsZ_O+(izn);
+
+  //     if(newich>=0 && newich<GridPoints && ixn<IceRayTracing::TotalStepsX_O && izn<IceRayTracing::TotalStepsZ_O && ixn>=0 && izn>=0){
+  // 	MinDist[count]=fabs(((xR-GridPositionXb[AntNum][ixn])*(xR-GridPositionXb[AntNum][ixn])+(zR-GridPositionZb[AntNum][izn])*(zR-GridPositionZb[AntNum][izn])));
+  // 	MinDistBin[count]=newich;
+
+  // 	if(GridZValueb[AntNum][rtParameter][MinDistBin[count]]!=-1000){
+  // 	  //cout<<"in here "<<endl;
+  // 	  sum1+=(1.0/MinDist[count])*GridZValueb[AntNum][rtParameter][MinDistBin[count]];
+  // 	  sum2+=(1.0/MinDist[count]);
+  // 	  NewZValue=sum1/sum2;
+  // 	}else{
+  // 	  //cout<<"in here too"<<endl;
+  // 	  sum1+=0;
+  // 	  sum2+=0;
+  // 	  NewZValue=-1000;
+  // 	}
+	
+  // 	if(MinDist[count]==0){
+  // 	  if(GridZValueb[AntNum][rtParameter][MinDistBin[count]]!=-1000){
+  // 	    //cout<<"in here too 2"<<endl;
+  // 	    NewZValue=GridZValueb[AntNum][rtParameter][MinDistBin[count]];
+  // 	    izn=minZbin+3;
+  // 	    ixn=minXbin+3;
+  // 	  }else{
+  // 	    //cout<<"in here too 3"<<endl;
+  // 	    NewZValue=-1000;
+  // 	    izn=minZbin+3;
+  // 	    ixn=minXbin+3;
+  // 	  }
+  // 	}
+  // 	count++;
+  //     }
+  //   }
+  // }
 
   return NewZValue;
   
