@@ -2773,7 +2773,7 @@ double IceRayTracing::GetInterpolatedValue(double xR, double zR, int rtParameter
 
     double x1,y1,y2,x2;
     if(minXbin+1<=IceRayTracing::TotalStepsX_O-1 && minZbin+1<=IceRayTracing::TotalStepsZ_O-1){
-      x1=GridPositionXb[AntNum][minXbin];
+    x1=GridPositionXb[AntNum][minXbin];
       y1=GridPositionZb[AntNum][minZbin];
       x2=GridPositionXb[AntNum][minXbin+1];
       y2=GridPositionZb[AntNum][minZbin+1];
@@ -2781,13 +2781,51 @@ double IceRayTracing::GetInterpolatedValue(double xR, double zR, int rtParameter
       double f11=GridZValueb[AntNum][rtParameter][(minXbin)*IceRayTracing::TotalStepsZ_O+(minZbin)];
       double f12=GridZValueb[AntNum][rtParameter][(minXbin)*IceRayTracing::TotalStepsZ_O+(minZbin+1)];
       double f21=GridZValueb[AntNum][rtParameter][(minXbin+1)*IceRayTracing::TotalStepsZ_O+(minZbin)];
-      double f22=GridZValueb[AntNum][rtParameter][(minXbin+1)*IceRayTracing::TotalStepsZ_O+(minZbin+1)];
+      double f22=GridZValueb[AntNum][rtParameter][(minXbin+1)*IceRayTracing::TotalStepsZ_O+(minZbin+1)];      
+      //cout<<"output values are "<<w11<<" "<<f11<<" "<<w12<<" "<<f12<<" "<<w21<<" "<<f21<<" "<<w22<<" "<<f22<<endl;
+
+      if(f11==-1000 || f12==-1000 || f21==-1000 || f22==-1000){
       
-      double w11=( (x2-x)*(y2-y) )/ ( (x2-x1)*(y2-y1) );
-      double w12=( (x2-x)*(y-y1) )/ ( (x2-x1)*(y2-y1) );
-      double w21=( (x-x1)*(y2-y) )/ ( (x2-x1)*(y2-y1) );
-      double w22=( (x-x1)*(y-y1) )/ ( (x2-x1)*(y2-y1) );
-      NewZValue=w11*f11+w12*f12+w21*f21+w22*f22;
+	if(f11==-1000){
+	  f11=0;
+	}else{
+	  sum1+=(1.0/( (x1-x)*(x1-x) + (y1-y)*(y1-y) ))*f11;
+	  sum2+=(1.0/( (x1-x)*(x1-x) + (y1-y)*(y1-y) ));
+	}
+	if(f12==-1000){
+	  f12=0;
+	}else{
+	  sum1+=(1.0/( (x1-x)*(x1-x) + (y2-y)*(y2-y) ))*f12;
+	  sum2+=(1.0/( (x1-x)*(x1-x) + (y2-y)*(y2-y) ));
+	}
+	if(f21==-1000){
+	  f21=0;
+	}else{
+	  sum1+=(1.0/( (x2-x)*(x2-x) + (y1-y)*(y1-y) ))*f21;
+	  sum2+=(1.0/( (x2-x)*(x2-x) + (y1-y)*(y1-y) ));
+	}
+	if(f22==-1000){
+	  f22=0;
+	}else{
+	  sum1+=(1.0/( (x2-x)*(x2-x) + (y2-y)*(y2-y) ))*f22;
+	  sum2+=(1.0/( (x2-x)*(x2-x) + (y2-y)*(y2-y) ));
+	}
+    
+	NewZValue=sum1/sum2;
+
+	if(f11==-1000 && f12==-1000 && f21==-1000 && f22==-1000){
+	  NewZValue=-1000;
+	}
+	
+      }else{
+
+	double w11=( (x2-x)*(y2-y) )/ ( (x2-x1)*(y2-y1) );
+	double w12=( (x2-x)*(y-y1) )/ ( (x2-x1)*(y2-y1) );
+	double w21=( (x-x1)*(y2-y) )/ ( (x2-x1)*(y2-y1) );
+	double w22=( (x-x1)*(y-y1) )/ ( (x2-x1)*(y2-y1) );
+	NewZValue=w11*f11+w12*f12+w21*f21+w22*f22;
+	
+      }
     }
   }
   

@@ -90,7 +90,16 @@ RadioScatter::RadioScatter(){
 	 if(vertex_z==0){
 	   vertex_z=-1e-4;
 	 }
-
+	 // double A=n_rel;
+	 // double B=-0.000001;
+	 // double C=0.000001;
+	 // /* Get the value of the B parameter for the refractive index model */
+	 // IceRayTracing::SetA(A);
+	 // /* Get the value of the B parameter for the refractive index model */
+	 // //IceRayTracing::SetB(B);
+	 // /* Get the value of the C parameter for the refractive index model */
+	 // IceRayTracing::SetC(C);
+      
 	 double* getTOF=IceRayTracing::DirectRayTracer(rx_x, rx_y, rx_z, vertex_x , vertex_y, vertex_z);
 	 double tof=getTOF[4]*s;
 	 time =tof-half_window;
@@ -1144,16 +1153,54 @@ double RadioScatter::GetInterpolatedValue_Tx(double xR, double zR, int rtParamet
       x2=GridPositionX_Tx[iant][minXbin+1];
       y2=GridPositionZ_Tx[iant][minZbin+1];
     
-      double f11=GridZValue_Tx[iant][rtParameter][(minXbin)*TotalStepsZ_O+(minZbin)];
-      double f12=GridZValue_Tx[iant][rtParameter][(minXbin)*TotalStepsZ_O+(minZbin+1)];
-      double f21=GridZValue_Tx[iant][rtParameter][(minXbin+1)*TotalStepsZ_O+(minZbin)];
-      double f22=GridZValue_Tx[iant][rtParameter][(minXbin+1)*TotalStepsZ_O+(minZbin+1)];
+      double f11=GridZValue_Tx[iant][rtParameter][(minXbin)*IceRayTracing::TotalStepsZ_O+(minZbin)];
+      double f12=GridZValue_Tx[iant][rtParameter][(minXbin)*IceRayTracing::TotalStepsZ_O+(minZbin+1)];
+      double f21=GridZValue_Tx[iant][rtParameter][(minXbin+1)*IceRayTracing::TotalStepsZ_O+(minZbin)];
+      double f22=GridZValue_Tx[iant][rtParameter][(minXbin+1)*IceRayTracing::TotalStepsZ_O+(minZbin+1)];      
+      //cout<<"output values are "<<w11<<" "<<f11<<" "<<w12<<" "<<f12<<" "<<w21<<" "<<f21<<" "<<w22<<" "<<f22<<endl;
+
+      if(f11==-1000 || f12==-1000 || f21==-1000 || f22==-1000){
       
-      double w11=( (x2-x)*(y2-y) )/ ( (x2-x1)*(y2-y1) );
-      double w12=( (x2-x)*(y-y1) )/ ( (x2-x1)*(y2-y1) );
-      double w21=( (x-x1)*(y2-y) )/ ( (x2-x1)*(y2-y1) );
-      double w22=( (x-x1)*(y-y1) )/ ( (x2-x1)*(y2-y1) );
-      NewZValue=w11*f11+w12*f12+w21*f21+w22*f22;
+	if(f11==-1000){
+	  f11=0;
+	}else{
+	  sum1+=(1.0/( (x1-x)*(x1-x) + (y1-y)*(y1-y) ))*f11;
+	  sum2+=(1.0/( (x1-x)*(x1-x) + (y1-y)*(y1-y) ));
+	}
+	if(f12==-1000){
+	  f12=0;
+	}else{
+	  sum1+=(1.0/( (x1-x)*(x1-x) + (y2-y)*(y2-y) ))*f12;
+	  sum2+=(1.0/( (x1-x)*(x1-x) + (y2-y)*(y2-y) ));
+	}
+	if(f21==-1000){
+	  f21=0;
+	}else{
+	  sum1+=(1.0/( (x2-x)*(x2-x) + (y1-y)*(y1-y) ))*f21;
+	  sum2+=(1.0/( (x2-x)*(x2-x) + (y1-y)*(y1-y) ));
+	}
+	if(f22==-1000){
+	  f22=0;
+	}else{
+	  sum1+=(1.0/( (x2-x)*(x2-x) + (y2-y)*(y2-y) ))*f22;
+	  sum2+=(1.0/( (x2-x)*(x2-x) + (y2-y)*(y2-y) ));
+	}
+    
+	NewZValue=sum1/sum2;
+
+	if(f11==-1000 && f12==-1000 && f21==-1000 && f22==-1000){
+	  NewZValue=-1000;
+	}
+	
+      }else{
+
+	double w11=( (x2-x)*(y2-y) )/ ( (x2-x1)*(y2-y1) );
+	double w12=( (x2-x)*(y-y1) )/ ( (x2-x1)*(y2-y1) );
+	double w21=( (x-x1)*(y2-y) )/ ( (x2-x1)*(y2-y1) );
+	double w22=( (x-x1)*(y-y1) )/ ( (x2-x1)*(y2-y1) );
+	NewZValue=w11*f11+w12*f12+w21*f21+w22*f22;
+	
+      }
     }
   }
   
@@ -1386,21 +1433,59 @@ double RadioScatter::GetInterpolatedValue_Rx(double xR, double zR, int rtParamet
 
     double x1,y1,y2,x2;
     if(minXbin+1<=TotalStepsX_O-1 && minZbin+1<=TotalStepsZ_O-1){
-      x1=GridPositionX_Tx[iant][minXbin];
-      y1=GridPositionZ_Tx[iant][minZbin];
-      x2=GridPositionX_Tx[iant][minXbin+1];
-      y2=GridPositionZ_Tx[iant][minZbin+1];
+      x1=GridPositionX_Rx[iant][minXbin];
+      y1=GridPositionZ_Rx[iant][minZbin];
+      x2=GridPositionX_Rx[iant][minXbin+1];
+      y2=GridPositionZ_Rx[iant][minZbin+1];
     
-      double f11=GridZValue_Tx[iant][rtParameter][(minXbin)*TotalStepsZ_O+(minZbin)];
-      double f12=GridZValue_Tx[iant][rtParameter][(minXbin)*TotalStepsZ_O+(minZbin+1)];
-      double f21=GridZValue_Tx[iant][rtParameter][(minXbin+1)*TotalStepsZ_O+(minZbin)];
-      double f22=GridZValue_Tx[iant][rtParameter][(minXbin+1)*TotalStepsZ_O+(minZbin+1)];
+      double f11=GridZValue_Rx[iant][rtParameter][(minXbin)*IceRayTracing::TotalStepsZ_O+(minZbin)];
+      double f12=GridZValue_Rx[iant][rtParameter][(minXbin)*IceRayTracing::TotalStepsZ_O+(minZbin+1)];
+      double f21=GridZValue_Rx[iant][rtParameter][(minXbin+1)*IceRayTracing::TotalStepsZ_O+(minZbin)];
+      double f22=GridZValue_Rx[iant][rtParameter][(minXbin+1)*IceRayTracing::TotalStepsZ_O+(minZbin+1)];      
+      //cout<<"output values are "<<w11<<" "<<f11<<" "<<w12<<" "<<f12<<" "<<w21<<" "<<f21<<" "<<w22<<" "<<f22<<endl;
+
+      if(f11==-1000 || f12==-1000 || f21==-1000 || f22==-1000){
       
-      double w11=( (x2-x)*(y2-y) )/ ( (x2-x1)*(y2-y1) );
-      double w12=( (x2-x)*(y-y1) )/ ( (x2-x1)*(y2-y1) );
-      double w21=( (x-x1)*(y2-y) )/ ( (x2-x1)*(y2-y1) );
-      double w22=( (x-x1)*(y-y1) )/ ( (x2-x1)*(y2-y1) );
-      NewZValue=w11*f11+w12*f12+w21*f21+w22*f22;
+	if(f11==-1000){
+	  f11=0;
+	}else{
+	  sum1+=(1.0/( (x1-x)*(x1-x) + (y1-y)*(y1-y) ))*f11;
+	  sum2+=(1.0/( (x1-x)*(x1-x) + (y1-y)*(y1-y) ));
+	}
+	if(f12==-1000){
+	  f12=0;
+	}else{
+	  sum1+=(1.0/( (x1-x)*(x1-x) + (y2-y)*(y2-y) ))*f12;
+	  sum2+=(1.0/( (x1-x)*(x1-x) + (y2-y)*(y2-y) ));
+	}
+	if(f21==-1000){
+	  f21=0;
+	}else{
+	  sum1+=(1.0/( (x2-x)*(x2-x) + (y1-y)*(y1-y) ))*f21;
+	  sum2+=(1.0/( (x2-x)*(x2-x) + (y1-y)*(y1-y) ));
+	}
+	if(f22==-1000){
+	  f22=0;
+	}else{
+	  sum1+=(1.0/( (x2-x)*(x2-x) + (y2-y)*(y2-y) ))*f22;
+	  sum2+=(1.0/( (x2-x)*(x2-x) + (y2-y)*(y2-y) ));
+	}
+    
+	NewZValue=sum1/sum2;
+
+	if(f11==-1000 && f12==-1000 && f21==-1000 && f22==-1000){
+	  NewZValue=-1000;
+	}
+	
+      }else{
+
+	double w11=( (x2-x)*(y2-y) )/ ( (x2-x1)*(y2-y1) );
+	double w12=( (x2-x)*(y-y1) )/ ( (x2-x1)*(y2-y1) );
+	double w21=( (x-x1)*(y2-y) )/ ( (x2-x1)*(y2-y1) );
+	double w22=( (x-x1)*(y-y1) )/ ( (x2-x1)*(y2-y1) );
+	NewZValue=w11*f11+w12*f12+w21*f21+w22*f22;
+	
+      }
     }
   }
   
@@ -1524,7 +1609,17 @@ double RadioScatter::makeRays(TLorentzVector point, double e, double l, double e
       GridPositionX_Rx.resize(nrx);
       GridPositionZ_Rx.resize(nrx);
       GridZValue_Rx.resize(nrx);
-     
+
+      // double A=1.78;
+      // double B=-0.000001;
+      // double C=0.000001;
+      // /* Get the value of the B parameter for the refractive index model */
+      // IceRayTracing::SetA(A);
+      // /* Get the value of the B parameter for the refractive index model */
+      // //IceRayTracing::SetB(B);
+      // /* Get the value of the C parameter for the refractive index model */
+      // IceRayTracing::SetC(C);
+      
       for(int i=0;i<ntx;i++){
 	RadioScatter::MakeRayTracingTable_Tx(tx[i],showerStart,i);
       }
