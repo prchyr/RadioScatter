@@ -1153,10 +1153,10 @@ double RadioScatter::GetInterpolatedValue_Tx(double xR, double zR, int rtParamet
       x2=GridPositionX_Tx[iant][minXbin+1];
       y2=GridPositionZ_Tx[iant][minZbin+1];
     
-      double f11=GridZValue_Tx[iant][rtParameter][(minXbin)*IceRayTracing::TotalStepsZ_O+(minZbin)];
-      double f12=GridZValue_Tx[iant][rtParameter][(minXbin)*IceRayTracing::TotalStepsZ_O+(minZbin+1)];
-      double f21=GridZValue_Tx[iant][rtParameter][(minXbin+1)*IceRayTracing::TotalStepsZ_O+(minZbin)];
-      double f22=GridZValue_Tx[iant][rtParameter][(minXbin+1)*IceRayTracing::TotalStepsZ_O+(minZbin+1)];      
+      double f11=GridZValue_Tx[iant][rtParameter][(minXbin)*TotalStepsZ_O+(minZbin)];
+      double f12=GridZValue_Tx[iant][rtParameter][(minXbin)*TotalStepsZ_O+(minZbin+1)];
+      double f21=GridZValue_Tx[iant][rtParameter][(minXbin+1)*TotalStepsZ_O+(minZbin)];
+      double f22=GridZValue_Tx[iant][rtParameter][(minXbin+1)*TotalStepsZ_O+(minZbin+1)];      
       //cout<<"output values are "<<w11<<" "<<f11<<" "<<w12<<" "<<f12<<" "<<w21<<" "<<f21<<" "<<w22<<" "<<f22<<endl;
 
       if(f11==-1000 || f12==-1000 || f21==-1000 || f22==-1000){
@@ -1438,10 +1438,10 @@ double RadioScatter::GetInterpolatedValue_Rx(double xR, double zR, int rtParamet
       x2=GridPositionX_Rx[iant][minXbin+1];
       y2=GridPositionZ_Rx[iant][minZbin+1];
     
-      double f11=GridZValue_Rx[iant][rtParameter][(minXbin)*IceRayTracing::TotalStepsZ_O+(minZbin)];
-      double f12=GridZValue_Rx[iant][rtParameter][(minXbin)*IceRayTracing::TotalStepsZ_O+(minZbin+1)];
-      double f21=GridZValue_Rx[iant][rtParameter][(minXbin+1)*IceRayTracing::TotalStepsZ_O+(minZbin)];
-      double f22=GridZValue_Rx[iant][rtParameter][(minXbin+1)*IceRayTracing::TotalStepsZ_O+(minZbin+1)];      
+      double f11=GridZValue_Rx[iant][rtParameter][(minXbin)*TotalStepsZ_O+(minZbin)];
+      double f12=GridZValue_Rx[iant][rtParameter][(minXbin)*TotalStepsZ_O+(minZbin+1)];
+      double f21=GridZValue_Rx[iant][rtParameter][(minXbin+1)*TotalStepsZ_O+(minZbin)];
+      double f22=GridZValue_Rx[iant][rtParameter][(minXbin+1)*TotalStepsZ_O+(minZbin+1)];      
       //cout<<"output values are "<<w11<<" "<<f11<<" "<<w12<<" "<<f12<<" "<<w21<<" "<<f21<<" "<<w22<<" "<<f22<<endl;
 
       if(f11==-1000 || f12==-1000 || f21==-1000 || f22==-1000){
