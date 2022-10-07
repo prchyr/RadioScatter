@@ -1319,17 +1319,18 @@ void RadioScatter::MakeRayTracingTable_Rx(TLorentzVector Tx,TVector3 Shwr,int ia
   GridStartX=ShowerHitDistance-(GridWidthX/2);
   GridStopX=ShowerHitDistance+(GridWidthX/2);
 
-  if(ShowerHitDistance<GridWidthX){
+  if(ShowerHitDistance<=GridWidthX/2){
     GridStartX=0;
-  }
-  
+    GridStopX=20;
+  }           
+
   GridStartZ=Shwr_z-(GridWidthZ/2);
   GridStopZ=Shwr_z+(GridWidthZ/2);
-
-  if(GridStopZ>0){
+  
+  if(fabs(Shwr_z)<=10 || GridStopZ>0 ){
     GridStartZ=-20;
     GridStopZ=0;
-  }
+  } 
   
   //cout<<"Grid Variables are "<<GridStartX<<" "<<GridStartZ<<" "<<GridStopX<<" "<<GridStopZ<<" "<<GridWidthX<<" "<<TotalStepsX_O<<" "<<TotalStepsZ_O<<" "<<GridPoints<<endl;
   
