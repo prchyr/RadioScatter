@@ -232,6 +232,8 @@ void RadioScatter::setRxPos(TVector3 in, int index){
 
   attnLength = 1450000;//barwick et all south pole measurement
   std::cout<<"tx frequency: "<<f<<std::endl;
+    std::cout<<"tx factor: "<<txFactor<<std::endl;
+    std::cout<<"tx effective height: "<<txEffectiveHeight<<std::endl;
   std::cout<<"omega: "<<omega<<std::endl;
   std::cout<<"lambda: "<<lambda<<std::endl;
 
@@ -265,7 +267,7 @@ void RadioScatter::setReceiverGain(double gain){
     //from rice paper
     rxEffectiveHeight=sqrt(lambda*lambda*rx_gain/(480.*pi*pi));
     //from wikipedia antenna factor
-    rxEffectiveHeight=lambda*sqrt(rx_gain)/9.73;
+    //    rxEffectiveHeight=lambda*sqrt(rx_gain)/9.73;
     //first principles losses due to spherical spreading (Friis)         
     rxFactor=sqrt(rx_gain*lambda/(4.*pi));
     
@@ -940,15 +942,17 @@ double RadioScatter::makeRays(TLorentzVector point, double e, double l, double e
       //the full scattering amplitude pre-factor  
       // this is the common term of \alpha from the article when split into real and imaginary parts, with the remaining parts calculated later in E_real and E_imag
       double prefactor = -rxFactor*n*n_primaries*e_radius*omega/(pow(omega, 2)+pow(nu_col, 2));
-
+      if(event.totNScatterers==n){
+	  cout<<"prefactor: "<<prefactor<<endl;
+	}
       //x position of charge w/r/t shower axis
       TVector3 vec=(point.Vect()-event.position);
       double x = vec.Mag()*abs(sin(vec.Unit().Angle(event.direction)));
       
-      //only consider charges within 1 m (10 moliere radii, to accelerate sim). uses mm. so does c_light in alpha below, which is unitless
+      //only consider charges within 1 m (10 moliere radii, to accelerate sim). uses mm. 
       double x_0=(abs(x)>1000?0:(1000-abs(x)));
       //plasma frequency
-      double omega_p=sqrt(plasma_const*n_e)*1e-9;//in ns^-1
+      double omega_p=sqrt(plasma_const*n_e);//*1e-9;//in ns^-1
 
       //this is the imaginary part of the wave vector and represents damping within the plasma.
       double beta=((omega_p*omega_p)/(2.*c_light_r))*(nu_col/(omega*omega + nu_col*nu_col))*x_0;

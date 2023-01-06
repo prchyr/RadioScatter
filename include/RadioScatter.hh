@@ -101,15 +101,17 @@ public:
   double c_light_mns=c_light/m;///<c light in m/ns
 
 
-  ///<4*pi e^2/m_e
-  double plasma_const = 4.*pi*e_charge_cgs*e_charge_cgs/e_mass_cgs;
-  ///<e^2/(4pi epislon0 m c^2), in units of m
+  ///<4*pi e^2/m_e (mm^3/ns^2)
+  double plasma_const = (4.*pi*e_charge_cgs*e_charge_cgs/e_mass_cgs)*pow(cm, 3)/(s*s);
+  //  double plasma_const = 
+  ///<e^2/(4pi epislon0 m c^2), in units of mm
   double e_radius=classic_electr_radius;
 
 
   double N_ice=3.2e19;
   ///     number density of ice per mm^3;  
-    double nu_col = sqrt(kB*(300)*kelvin/m_e*(c_light*c_light))*collisionalCrossSection*(N_ice);
+  double nu_col = sqrt(kB*(300)*kelvin/m_e*(c_light*c_light))*collisionalCrossSection*(N_ice);
+  
   
   
   /**\brief collisional cross section. 
