@@ -149,8 +149,13 @@ gROOT->ProcessLine(".L /usr/local/lib/libRadioScatter.so");
 
 gROOT->ProcessLine("#include <RadioScatter.hh>");
 
-which should be enough to load in events and plot them, etc. 
-
+which should be enough to load in events and plot them, etc. If you don't have a rootlogon.C, create this file in your home directory (~/) and add the lines above enclosed in brackets like:
+```
+{
+gROOT->ProcessLine(".L /usr/local/lib/libRadioScatter.so");
+gROOT->ProcessLine("#include <RadioScatter.hh>");
+}
+```
 ## Documentation
 
 a user manual in pdf form can be found at doc/userManual.pdf, and it will attempt to be current.  you can generate one yourself via doxygen (if you have it installed) by running 
