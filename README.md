@@ -163,6 +163,18 @@ gROOT->ProcessLine(".L /usr/local/lib/libRadioScatter.so");
 gROOT->ProcessLine("#include <RadioScatter.hh>");
 }
 ```
+
+once you're at the root prompt with a file loaded ("root rootfile.root") then you'll need to actually load in the event. try:
+
+```
+event=new RadioScatterEvent();
+tree->SetBranchAddress("event", &event);
+tree->GetEntry(0);
+event->getGraph(0,0)->Draw("al PLC");
+```
+
+There are various plotting utilities in the TUtilRadioScatter namespace and also in the RadioScatterEvent class, included in the install.
+
 ## Documentation
 
 a user manual in pdf form can be found at doc/userManual.pdf, and it will attempt to be current.  you can generate one yourself via doxygen (if you have it installed) by running 
