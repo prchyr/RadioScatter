@@ -146,6 +146,7 @@ run1.mac:
 To analyze the root files, you need to be sure to add the newly created libRadioScatter to your rootlogon.C. Add the following:
 
 gROOT->ProcessLine(".L /usr/local/lib/libRadioScatter.so");
+
 gROOT->ProcessLine("#include <RadioScatter.hh>");
 
 which should be enough to load in events and plot them, etc. 
