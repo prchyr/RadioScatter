@@ -140,14 +140,26 @@ to set the root file name, (-f) which is optional. each run is stored in an entr
 run1.mac:
 	-this will set the tx position and the energies and such, and then will simulate the received signal in 3 antennas
 
+
+### Analyzing the root files:
+
+To analyze the root files, you need to be sure to add the newly created libRadioScatter to your rootlogon.C. Add the following:
+
+gROOT->ProcessLine(".L /usr/local/lib/libRadioScatter.so");
+gROOT->ProcessLine("#include <RadioScatter.hh>");
+
+which should be enough to load in events and plot them, etc. 
+
 ## Documentation
 
 a user manual in pdf form can be found at doc/userManual.pdf, and it will attempt to be current.  you can generate one yourself via doxygen (if you have it installed) by running 
 
 ```
+
+
 doxygen doc/Doxyfile
 ```
 
 from the RadioScatter directory. 
 
-enjoy. questions can be sent to prohira dot 1 at osu dot edu
+enjoy. 
