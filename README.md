@@ -149,7 +149,14 @@ gROOT->ProcessLine(".L /usr/local/lib/libRadioScatter.so");
 
 gROOT->ProcessLine("#include <RadioScatter.hh>");
 
-which should be enough to load in events and plot them, etc., being sure to use the correct paths for your installation of the library. If you don't have a rootlogon.C, create a rootlogon.C file in your home directory (~/) and add the lines above enclosed in brackets like:
+which should be enough to load in events and plot them, etc., being sure to use the correct paths for your installation of the library. If you don't have a rootlogon.C, create a file called .rootrc in your home directory, and add the following line:
+
+```
+Rint.Logon: ~/rootlogon.C
+```
+
+where here we are saying that rootlogon.C lives in the home directory. IN princple you can point to any file you like. If you use the above form of .rootrc, you must create a rootlogon.C file in your home directory (~/) and add the lines above enclosed in brackets like:
+
 ```
 {
 gROOT->ProcessLine(".L /usr/local/lib/libRadioScatter.so");
