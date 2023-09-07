@@ -64,7 +64,8 @@ void doIt(double lifetimens, double frequency, double power){
   radio->setRxGain(9);//receiver gain in dB
   radio->setRecordWindowLength(100);//length of the received window
   radio->setCalculateUsingAttnLength(1);//use ice attenuation length in the calculation?
-  radio->setPolarization("vertical");//antenna polarization. currently vertical = (0,0,1) and horizontal = (0,1,0); 
+  auto pol=TVector3(0,0,1);
+  radio->setPolarization(pol);//antenna polarization. this is oriented in the z direction.
   radio->setPrimaryEnergy(1e4);//10GeV in MeV. need to set this for the scaling to be correct, if you simulate a higher energy shower than the input file (which was 10GeV)
   radio->setScaleByEnergy(0);//scales the shower longitudinally by a factor to simulate a higher energy shower. not exact, but fast.
   radio->setMakeSummary(1);//make a nice summary file for simple plotting of things like peak power, voltage, etc.
