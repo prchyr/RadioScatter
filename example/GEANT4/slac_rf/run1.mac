@@ -19,12 +19,12 @@
 /RS/setNRx 3
 
 
-/RS/setTxFreq 2100.
+/RS/setTxFreq 2.1
 
 /RS/setRxSampleRate 20
-/RS/setTxPower 10 #10W
+/RS/setTxPower 100 #10W
 
-/RS/setPolarization horizontal
+/RS/setPolarization 0 0 1
 /RS/setIndexOfRefraction 1.51
 /RS/setReceiverGain 9
 /RS/setTransmitterGain 9
