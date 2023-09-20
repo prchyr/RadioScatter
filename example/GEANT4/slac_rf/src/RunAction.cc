@@ -137,7 +137,7 @@ RunAction::RunAction(RadioScatter *radio, DetectorConstruction * dc)
 
 RunAction::~RunAction()
 {
-  delete G4AnalysisManager::Instance();  
+  //delete G4AnalysisManager::Instance();  
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -255,11 +255,11 @@ if(fRadio->FILL_BY_EVENT==0){
   
 
   //redundant filling of histogram through geant
-// if(fRadio->FILL_PARTICLE_INFO==1){
+  if(fRadio->FILL_PARTICLE_INFO==1){
     auto analysisManager = G4AnalysisManager::Instance();
     analysisManager->Write();
     analysisManager->CloseFile();
-    //  }
+  }
    
 }
 
