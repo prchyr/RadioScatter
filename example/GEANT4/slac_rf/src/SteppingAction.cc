@@ -201,7 +201,7 @@ void SteppingAction::fillParticleInfoTuples(const G4Step *step){
     //accumulate total energy
     fEventAction->doTotE(edep);
 
-    analysisManager->FillH1(0, track->GetPosition().z(), edep);
+    //analysisManager->FillH1(0, track->GetPosition().z(), edep);
     //set parameters for full track. to be filled at the last step of the track.
     // trackid = track->GetTrackID();
     // ptype = track->GetParticleDefinition()->GetParticleType();
