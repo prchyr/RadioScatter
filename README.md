@@ -16,12 +16,13 @@ GEANT4 (https://geant4.web.cern.ch/geant4/support/download.shtml)
 The GEANT4 software is fully independent of RadioScatter, and its license is available here: (https://geant4.web.cern.ch/license/LICENSE.html). Per that license: "This product includes software developed by Members of the Geant4 Collaboration ( http://cern.ch/geant4)."
 
 NOTE: When installing GEANT4, be sure to install with the install data option (-DGEANT4_INSTALL_DATA=ON) to be sure that things work.
+ANOTHER NOTE: older versions of GEANT4 than 4.11x (so 4.10x etc) will NOT WORK with the latest version of RadioScatter due to backwards compatibility in how they handle histograms. If you want to use an older build of GEANT4, anything before 4.11, you'll need to use the v1.1.0 release. It is suggested that you use the most up-to-date version of RadioScatter and GEANT4. 
 
 you can use any monte-carlo program you want with RadioScatter, but this package includes some GEANT4 programs, built on their examples, that harness the full power of GEANT to make realistic rf scattering signals. if you want to use those, i'm gonna assume that you know how to use GEANT4 and ROOT.
 
 #### system-specific notes:
 
-on Ubunutu 20.04 LTS, GSL is not installed by default, so ROOT will not build MathMore, which it needs. So, before installing ROOT, install the libgsl-dev library and be sure that ROOT is built with MathMore support (should be the default behavior). 
+on Ubunutu 20.04 and 22.04 LTS, GSL is not installed by default, so ROOT will not build MathMore, which it needs. So, before installing ROOT, install the libgsl-dev library and be sure that ROOT is built with MathMore support (should be the default behavior, but if not, cmake -Dmathmore:bool=true). 
 
 
 ************
@@ -46,7 +47,7 @@ this will install the header files and shared libraries (for root analysis) to t
 ### slightly fancier installation (or if you can't write to /usr/local) 
 *********************************
 
-say you want your libraries and headers installed in some other place than /usr/local, you can set the RS_INSTAL_DIR variable in your bashrc. then libraries will install to RS_INSTALL_DIR/lib and headers to RS_INSTALL_DIR/include
+say you want your libraries and headers installed in some other place than /usr/local, you can set the RS_INSTALL_DIR variable in your bashrc. then libraries will install to RS_INSTALL_DIR/lib and headers to RS_INSTALL_DIR/include
 
 ```
 cd /your/favorite/source/dir
@@ -64,7 +65,7 @@ Red Hat Enterprise server 6.9/gcc 4.8.5
 
 Ubuntu 18.04/gcc 7.4
 
-
+Ubuntu 22.04/gcc 11.4
 
 *****************************************************************************************
 ## using
