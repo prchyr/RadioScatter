@@ -145,7 +145,7 @@ int main(int argc,char** argv)
   RadioScatter *radio = new RadioScatter();
 
   if(! filename.size() ){
-    radio->makeOutputFile("$HOME/Documents/physics/geant/root/G4_RadioScatter_output.root");
+    radio->makeOutputFile("G4_RadioScatter_output.root");
   }
   else{
     radio->makeOutputFile(filename);
