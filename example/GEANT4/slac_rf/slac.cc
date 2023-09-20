@@ -193,7 +193,7 @@ int main(int argc,char** argv)
 
      tx.SetMagThetaPhi(4000, 125*degree, pi);
      radio->setTxPos(tx+offset, 0);
-     runManager->BeamOn(1);
+     // runManager->BeamOn(1);
    }
 
    if (macro=="t576.mac"){
@@ -270,13 +270,21 @@ int main(int argc,char** argv)
    if(macro.contains("surfacesensor")){
 
      TVector3 rx(1, 1, 1);
-     for(int i=0;i<100;i++){
-       auto x=(-5.+((double)i*.1))*m;
+     int nx=20;
+     int nz=20;
+
+     int maxx=10000;
+     int maxz=10000;
+     int stepx=2*maxx/nx;
+     int stepz=2*maxz/nz;
+     cout<<stepx<<" "<<stepz<<endl;
+     for(int i=-maxx;i<=maxx;i+=stepx){
+       auto x=(double)i;
        auto y=0;
        rx.SetX(x);
        rx.SetY(y);
-       for(int j=0;j<100;j++){
-         auto z=(-5.+((double)j*.1))*m;
+       for(int j=-maxz;j<=maxz;j+=stepz){
+         auto z=(double)j;
          rx.SetZ(z);
          radio->setRxPos(rx);
        }
@@ -298,7 +306,7 @@ int main(int argc,char** argv)
 
      tx.SetMagThetaPhi(4000, 125*degree, pi);
      radio->setTxPos(tx+offset, 0);
-     runManager->BeamOn(10);
+     runManager->BeamOn(1);
    }
 
    if(macro=="surfsensor.mac"){
