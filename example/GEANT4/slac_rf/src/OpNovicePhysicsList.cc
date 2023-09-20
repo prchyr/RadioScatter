@@ -221,9 +221,9 @@ void OpNovicePhysicsList::ConstructOp()
   fCerenkovProcess->SetMaxNumPhotonsPerStep(fMaxNumPhotonStep);
   fCerenkovProcess->SetMaxBetaChangePerStep(10.0);
   fCerenkovProcess->SetTrackSecondariesFirst(true);
-  fScintillationProcess = new G4Scintillation("Scintillation");
-  fScintillationProcess->SetScintillationYieldFactor(1.);
-  fScintillationProcess->SetTrackSecondariesFirst(true);
+  // fScintillationProcess = new G4Scintillation("Scintillation");
+  // fScintillationProcess->SetScintillationYieldFactor(1.);
+  // fScintillationProcess->SetTrackSecondariesFirst(true);
   fAbsorptionProcess = new G4OpAbsorption();
   fRayleighScatteringProcess = new G4OpRayleigh();
   fMieHGScatteringProcess = new G4OpMieHG();
