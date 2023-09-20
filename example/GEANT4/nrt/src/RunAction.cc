@@ -139,7 +139,7 @@ RunAction::RunAction(RadioScatter *radio, DetectorConstruction * dc)
 
 RunAction::~RunAction()
 {
-  delete G4AnalysisManager::Instance();  
+  //delete G4AnalysisManager::Instance();  
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
