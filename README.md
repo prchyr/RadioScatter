@@ -7,16 +7,17 @@ This is the RadioScatter code. It is used to simulate radar reflections from ion
 these are the general prerequisites, please see below for system-specific notes
 
 
-ROOT 6.08 or higher (https://root.cern.ch/downloading-root)
+#### ROOT 6.08 or higher (https://root.cern.ch/downloading-root)
 
 
 the module slac_rf is g4 source code that will produce histograms of voltages received in a scattering experiment. to run inside of GEANT4, you'll need to have that installed
 
-GEANT4 (https://geant4.web.cern.ch/geant4/support/download.shtml)
+#### GEANT4 (https://geant4.web.cern.ch/geant4/support/download.shtml)
 The GEANT4 software is fully independent of RadioScatter, and its license is available here: (https://geant4.web.cern.ch/license/LICENSE.html). Per that license: "This product includes software developed by Members of the Geant4 Collaboration ( http://cern.ch/geant4)."
 
-NOTE: When installing GEANT4, be sure to install with the install data option (-DGEANT4_INSTALL_DATA=ON) to be sure that things work.
-ANOTHER NOTE: older versions of GEANT4 than 4.11x (so 4.10x etc) will NOT WORK with the latest version of RadioScatter due to backwards compatibility in how they handle histograms. If you want to use an older build of GEANT4, anything before 4.11, you'll need to use the v1.1.0 release. It is suggested that you use the most up-to-date version of RadioScatter and GEANT4. 
+NOTE: When installing GEANT4, be sure to install with the install data option (-DGEANT4_INSTALL_DATA=ON) to download the relevant geant physics lists.
+
+ANOTHER VERY IMPORTANT NOTE: older versions of GEANT4 than 4.11x (so 4.10x etc) will NOT WORK with the latest version of RadioScatter due to backwards compatibility in how they handle histograms. If you want to use an older build of GEANT4, anything before 4.11, you'll need to use the v1.1.0 release of RadioScatter. It is suggested that you use the most up-to-date version of RadioScatter and GEANT4. 
 
 you can use any monte-carlo program you want with RadioScatter, but this package includes some GEANT4 programs, built on their examples, that harness the full power of GEANT to make realistic rf scattering signals. if you want to use those, i'm gonna assume that you know how to use GEANT4 and ROOT.
 
